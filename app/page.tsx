@@ -1,37 +1,19 @@
-import LegacyApp from "@/components/LegacyApp";
+import fs from "node:fs/promises";
+import path from "node:path";
+import App from "@/components/App";
+import { styleData } from "@/lib/text";
+import type { Digest } from "@/types/digest";
 
-// Phase 1: the markup shell is React; the behaviour still lives in public/legacy/app.js
-// (the original single-file script, unchanged) and is mounted by <LegacyApp/>.
-export default function Page() {
-  return (
-    <>
-      <div className="shell">
-        <header className="topbar">
-          <div className="brand" id="brand" />
-          <div className="controls">
-            <div className="seg" role="group" id="viewSeg">
-              <button type="button" id="tabDigest" data-view="digest" />
-              <button type="button" id="tabDash" data-view="dashboard" />
-            </div>
-            <div className="seg lang" role="group" aria-label="Мова / Language">
-              <button type="button" id="langUk" data-lang="uk">UA</button>
-              <button type="button" id="langEn" data-lang="en">EN</button>
-            </div>
-          </div>
-        </header>
-        <nav className="datebar" id="datebar" hidden />
-        <div id="archiveNote" />
-        <div id="mast" />
-        <main id="main">
-          <div className="col state">
-            <div className="sk" style={{ width: "60%" }} />
-            <div className="sk" style={{ width: "90%" }} />
-            <div className="sk" style={{ width: "75%" }} />
-          </div>
-        </main>
-      </div>
-      <div id="tip" hidden />
-      <LegacyApp />
-    </>
-  );
+const read = async (p: string) => JSON.parse(await fs.readFile(path.join(process.cwd(), "public", p), "utf8"));
+
+// The latest issue and the archive index are read at build time; older issues are fetched on demand in the browser.
+export default async function Page() {
+  const latest = styleData(await read("digest.json"), "") as Digest;
+  let ds: string[] = [];
+  try {
+    const j = await read("issues/index.json");
+    ds = (Array.isArray(j?.dates) ? j.dates : []).filter((d: string) => /^\d{4}-\d{2}-\d{2}$/.test(d));
+  } catch {}
+  const dates = [...new Set([...ds, latest.date])].filter((d) => d <= latest.date).sort();
+  return <App latest={latest} dates={dates} />;
 }

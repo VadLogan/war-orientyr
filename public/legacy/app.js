@@ -585,9 +585,8 @@ function strikesShell(){const t=T().stk;return `<section class="tlwrap" id="stri
   <ol class="stk-list" id="stkList"></ol><details class="method"><summary>${t.about}</summary><p class="map-src" id="stkNote"></p></details></section>`}
 async function loadStrikes(){if((STK&&STKB)||stkLoading)return;stkLoading=true;
   try{const [a,b]=await Promise.all([fetch('strikes.json',{cache:'no-store'}),fetch('maps/strikes-base.json',{cache:'no-store'})]);if(!a.ok||!b.ok)throw new Error('load');STK=await a.json();STKB=await b.json()}catch(e){stkErr=e}
-  stkLoading=false;if(view==='dashboard')drawStrikes();else if(STK&&D)render()}
-async function goItem(date,id){view='digest';if(date&&D&&date!==D.date){await selectDate(date)}else{writeHash();render()}
-  const el=document.getElementById('it-'+id);if(el){el.scrollIntoView({block:'center'});el.classList.add('flash');setTimeout(()=>el.classList.remove('flash'),1800)}}
+  stkLoading=false;if(view==='dashboard')drawStrikes()}
+function goItem(date,id){if(HOOKS)HOOKS.goItem(date,id)}
 document.addEventListener('click',e=>{const g=e.target.closest('[data-goitem]');if(g){e.preventDefault();goItem(g.dataset.issue,g.dataset.goitem);return}
   const pb=e.target.closest('[data-stkper]');if(pb){stkPer=pb.dataset.stkper;stkMore=40;stkOpen=false;stkZ=null;drawStrikes();return}
   const gb=e.target.closest('[data-stkgrp]');if(gb){const k=gb.dataset.stkgrp;stkGrp[k]=!stkGrp[k];if(!Object.values(stkGrp).some(Boolean))stkGrp[k]=true;stkMore=40;drawStrikes();return}
@@ -796,53 +795,12 @@ async function wireDownloads(){const bar=document.getElementById('tools');if(!ba
   document.getElementById('dlmd').onclick=()=>go('digest-'+D.date+'.md',toMD());
   document.getElementById('dlhtml').onclick=()=>go('digest-'+D.date+'.html',toPrintHTML());}
 
-/* ---------- shell ---------- */
-function renderChrome(){const t=T();document.getElementById('brand').innerHTML=t.brand;document.documentElement.lang=lang==='en'?'en':'uk';
-  const td=document.getElementById('tabDigest'),tb=document.getElementById('tabDash');td.textContent=t.digest;tb.textContent=t.dash;
-  td.setAttribute('aria-pressed',view==='digest');tb.setAttribute('aria-pressed',view==='dashboard');
-  document.getElementById('langUk').setAttribute('aria-pressed',lang==='uk');document.getElementById('langEn').setAttribute('aria-pressed',lang==='en');}
-const longDate=iso=>new Date(iso+'T12:00:00Z').toLocaleDateString(lang==='en'?'en-GB':'uk-UA',{weekday:'short',day:'numeric',month:'long',year:'numeric',timeZone:'UTC'}).replace(/\s?р\.$/,'');
-const midDate=iso=>new Date(iso+'T12:00:00Z').toLocaleDateString(lang==='en'?'en-GB':'uk-UA',{day:'numeric',month:'long',year:'numeric',timeZone:'UTC'}).replace(/\s?р\.$/,'');
-function renderDatebar(){const bar=document.getElementById('datebar'),note=document.getElementById('archiveNote');if(!D||!DATES.length){bar.hidden=true;note.innerHTML='';return}
-  const t=T(),i=DATES.indexOf(D.date),isLatest=LATEST&&D.date===LATEST.date;bar.hidden=false;
-  bar.innerHTML=`<label for="issueSel">${t.pickDate}</label><div class="dnav"><button type="button" id="dPrev" aria-label="${t.prevA}" ${i<=0?'disabled':''}>‹<span class="t"> ${t.prev}</span></button><select id="issueSel">${DATES.slice().reverse().map(d=>`<option value="${d}" ${d===D.date?'selected':''}>${esc(longDate(d))}</option>`).join('')}</select><button type="button" id="dNext" aria-label="${t.nextA}" ${i<0||i>=DATES.length-1?'disabled':''}><span class="t">${t.next} </span>›</button></div><span class="count">${t.count(DATES.length)}</span>${isLatest?'':`<button type="button" class="btn ghost latest" id="dLatest">${t.latest}</button>`}`;
-  note.innerHTML=isLatest?'':`<div class="archive-note"><b>${t.archived}</b><span>${esc(t.viewingOld(midDate(D.date)))}</span><button type="button" class="linkbtn" id="dLatest2">${t.toLatest}</button></div>`;
-  document.getElementById('issueSel').onchange=e=>selectDate(e.target.value);
-  document.getElementById('dPrev').onclick=()=>{if(i>0)selectDate(DATES[i-1])};
-  document.getElementById('dNext').onclick=()=>{if(i<DATES.length-1)selectDate(DATES[i+1])};
-  const goL=()=>selectDate(LATEST.date);const a=document.getElementById('dLatest'),b=document.getElementById('dLatest2');if(a)a.onclick=goL;if(b)b.onclick=goL;}
-function writeHash(){const old=LATEST&&D&&D.date!==LATEST.date?D.date:'';const tok=view==='dashboard'?('dashboard'+(old?'-'+old:'')):old;
-  try{history.replaceState(null,'',tok?'#'+tok:location.pathname+location.search)}catch(_){}}
+/* ---------- bridge: React (components/dash/Dashboard.tsx) owns state, routing and the page shell ---------- */
 async function fetchIssue(date){if(LATEST&&date===LATEST.date)return LATEST;if(CACHE[date])return CACHE[date];
   const r=await fetch('issues/'+date+'.json',{cache:'no-store'});if(!r.ok)throw new Error(r.status);const j=styleData(await r.json(),'');if(!j||j.date!==date)throw new Error('mismatch');CACHE[date]=j;return j}
-async function selectDate(date){if(!date||(D&&date===D.date))return;const v=document.querySelector('#main .view');if(v)v.classList.add('loading');
-  try{D=await fetchIssue(date);TLS.focus=LSS.focus=null;writeHash();render();window.scrollTo({top:0})}
-  catch(e){if(v)v.classList.remove('loading');const n=document.getElementById('archiveNote');n.innerHTML=`<div class="archive-note"><b>!</b><span>${esc(T().issueErr)}</span></div>`;const s=document.getElementById('issueSel');if(s&&D)s.value=D.date}}
-function render(){renderChrome();if(!D)return;renderDatebar();renderMast();const m=document.getElementById('main');
-  if(view==='digest'&&!STK&&!stkErr&&!stkLoading)loadStrikes();
-  m.innerHTML=`<div class="view">${view==='dashboard'?renderDash():renderDigest()}</div>`;wireDownloads();if(view==='dashboard'){drawAttack();drawRec();drawTimeline();drawLosses();drawLand();drawDirs();drawMap();drawStrikes();drawFire();drawSrcMx()}}
-document.getElementById('viewSeg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;view=b.dataset.view;writeHash();render();});
-document.querySelectorAll('[data-lang]').forEach(b=>b.addEventListener('click',()=>{lang=b.dataset.lang;try{localStorage.setItem('wd-lang',lang)}catch(e){}render();}));
-window.addEventListener('hashchange',()=>{readHash();if(wantDate&&D&&wantDate!==D.date&&DATES.includes(wantDate))selectDate(wantDate);else render()});
-document.addEventListener('click',e=>{const g=e.target.closest('[data-go]');if(!g)return;view='digest';writeHash();render();const el=document.getElementById(g.dataset.go);if(el)el.scrollIntoView({block:'start'});});
-document.addEventListener('click',e=>{const b=e.target.closest('#chkBtn');if(!b)return;const s=b.closest('.chk');const o=s.classList.toggle('open');b.setAttribute('aria-expanded',o);b.textContent=(o?T().chkLess+' ▴':T().chkMore+' ▾')});
-/* tooltip */
-const tip=document.getElementById('tip');
-function showTip(el,x,y){tip.textContent=el.dataset.tip;tip.hidden=false;const r=tip.getBoundingClientRect();tip.style.left=Math.max(8,Math.min(innerWidth-r.width-8,x+12))+'px';tip.style.top=Math.max(8,y-r.height-10)+'px'}
-document.addEventListener('mousemove',e=>{const el=e.target.closest('[data-tip]');if(el)showTip(el,e.clientX,e.clientY);else tip.hidden=true});
-document.addEventListener('focusin',e=>{const el=e.target.closest('[data-tip]');if(el){const r=el.getBoundingClientRect();showTip(el,r.left+r.width/2,r.top)}});
-document.addEventListener('focusout',()=>{tip.hidden=true});
-document.addEventListener('scroll',()=>{tip.hidden=true},{passive:true});
-
-renderChrome();
-(async()=>{
-  let latest;try{const r=await fetch('digest.json',{cache:'no-store'});if(!r.ok)throw new Error(r.status);latest=styleData(await r.json(),'')}
-  catch(e){document.getElementById('main').innerHTML=`<div class="col state">${esc(T().loadErr)}</div>`;return}
-  LATEST=latest;D=latest;let ds=[];
-  try{const r=await fetch('issues/index.json',{cache:'no-store'});if(r.ok){const j=await r.json();ds=(j&&Array.isArray(j.dates)?j.dates:[]).filter(d=>/^\d{4}-\d{2}-\d{2}$/.test(d))}}catch(e){}
-  DATES=[...new Set([...ds,latest.date])].filter(d=>d<=latest.date).sort();
-  if(wantDate&&wantDate!==latest.date&&DATES.includes(wantDate)){try{D=await fetchIssue(wantDate)}catch(e){D=latest}}
-  render();
-})();
-(async()=>{try{dl=window.claude&&await window.claude.use('downloads')}catch(e){dl=null}if(D)wireDownloads();})();
+let HOOKS=null;
+function selectDate(d){if(HOOKS)HOOKS.selectDate(d)}
+window.WDLegacy={mount(el,s){const nd=!D||D.date!==s.D.date;D=s.D;LATEST=s.LATEST;DATES=s.DATES;lang=s.lang;HOOKS=s;view='dashboard';if(nd){TLS.focus=LSS.focus=null}
+  el.innerHTML=renderDash();drawAttack();drawRec();drawTimeline();drawLosses();drawLand();drawDirs();drawMap();drawStrikes();drawFire();drawSrcMx()},
+  unmount(){view='digest'}};
 })();
