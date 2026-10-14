@@ -106,8 +106,8 @@ export default function App({ latest, dates }: { latest: Digest; dates: string[]
 
   const pickLang = (l: Lang) => { setLang(l); try { localStorage.setItem("wd-lang", l); } catch {} };
 
-  const ctx: Ctx = useMemo(() => ({ lang, t, D, LATEST: latest, DATES: dates, strikes, needStrikes, selectDate, goItem }),
-    [lang, t, D, latest, dates, strikes, needStrikes, selectDate, goItem]);
+  const ctx: Ctx = useMemo(() => ({ lang, t, D, LATEST: latest, DATES: dates, strikes, needStrikes, fetchIssue, selectDate, goItem }),
+    [lang, t, D, latest, dates, strikes, needStrikes, fetchIssue, selectDate, goItem]);
 
   const i = dates.indexOf(D.date), isLatest = D.date === latest.date;
   return (

@@ -775,7 +775,7 @@ document.addEventListener('click',e=>{const m=e.target.closest('[data-tlm]'),r=e
   if(m)tlMetric=m.dataset.tlm;else if(r)tlRange=r.dataset.tlr;else if(tt)tlTable=!tlTable;else return;TLS.focus=null;drawTimeline()});
 document.addEventListener('click',e=>{const c=e.target.closest('[data-lsc]'),r=e.target.closest('[data-lsr]'),tt=e.target.closest('[data-lst]');
   if(c)lsCat=c.dataset.lsc;else if(r)lsRange=r.dataset.lsr;else if(tt)lsTable=!lsTable;else return;LSS.focus=null;drawLosses()});
-let rsz;window.addEventListener('resize',()=>{clearTimeout(rsz);rsz=setTimeout(()=>{if(view==='dashboard'&&D){{const cv=document.getElementById('civ');if(cv){const op=cv.querySelector('details')?.open;cv.outerHTML=civHTML();if(op){const d=document.querySelector('#civ details');if(d)d.open=true}}}{const ad=document.querySelector('#atk details');const op2=ad&&ad.open;drawAttack();drawRec();if(op2){const d=document.querySelector('#atk details');if(d)d.open=true}}drawTimeline();drawLosses();drawDirs();drawMap();drawStrikes()}},150)});
+let rsz;window.addEventListener('resize',()=>{clearTimeout(rsz);rsz=setTimeout(()=>{if(view==='dashboard'&&D){drawMap();drawStrikes()}},150)});
 
 /* ---------- exports ---------- */
 function toMD(){const L=[];L.push('# Щоденний дайджест війни',`**${D.weekday}, ${D.dateLabel}**`,'',...(D.headline&&D.headline.title?[`**${D.headline.kicker||'Головне'}: ${D.headline.title}**`,'',D.headline.text||'','','**Також за добу:**']:[]),...(Array.isArray(D.ledeParts)&&D.ledeParts.length?D.ledeParts.map(x=>`- ${x.label?'**'+x.label+':** ':''}${x.text}`):[D.lede]),'');
@@ -800,7 +800,6 @@ async function fetchIssue(date){if(LATEST&&date===LATEST.date)return LATEST;if(C
   const r=await fetch('issues/'+date+'.json',{cache:'no-store'});if(!r.ok)throw new Error(r.status);const j=styleData(await r.json(),'');if(!j||j.date!==date)throw new Error('mismatch');CACHE[date]=j;return j}
 let HOOKS=null;
 function selectDate(d){if(HOOKS)HOOKS.selectDate(d)}
-window.WDLegacy={mount(el,s){const nd=!D||D.date!==s.D.date;D=s.D;LATEST=s.LATEST;DATES=s.DATES;lang=s.lang;HOOKS=s;view='dashboard';if(nd){TLS.focus=LSS.focus=null}
-  el.innerHTML=renderDash();drawAttack();drawRec();drawTimeline();drawLosses();drawLand();drawDirs();drawMap();drawStrikes();drawFire();drawSrcMx()},
+window.WDLegacy={panel(k,el,s){D=s.D;LATEST=s.LATEST;DATES=s.DATES;lang=s.lang;HOOKS=s;view='dashboard';const P={maps:[mapsShell,drawMap],stk:[strikesShell,drawStrikes]}[k];el.innerHTML=P[0]();P[1]()},
   unmount(){view='digest'}};
 })();

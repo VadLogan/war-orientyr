@@ -12,6 +12,7 @@ export type Ctx = {
   DATES: string[];
   strikes: Strikes | null;
   needStrikes: () => void;
+  fetchIssue: (date: string) => Promise<Digest>;
   selectDate: (date: string) => Promise<void>;
   goItem: (date: string | undefined, id: string) => void;
 };
