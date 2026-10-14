@@ -11,6 +11,7 @@ export type Ctx = {
   LATEST: Digest; // the newest issue (owns timeline/losses series)
   DATES: string[];
   strikes: Strikes | null;
+  strikesErr: boolean;
   needStrikes: () => void;
   fetchIssue: (date: string) => Promise<Digest>;
   selectDate: (date: string) => Promise<void>;

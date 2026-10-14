@@ -26,6 +26,7 @@ export default function App({ latest, dates }: { latest: Digest; dates: string[]
   const [issueErr, setIssueErr] = useState(false);
   const [ready, setReady] = useState(false);
   const [strikes, setStrikes] = useState<Strikes | null>(null);
+  const [strikesErr, setStrikesErr] = useState(false);
   const [scrollId, setScrollId] = useState<string | null>(null);
   const cache = useRef<Record<string, Digest>>({});
   const stkReq = useRef(false);
@@ -85,7 +86,7 @@ export default function App({ latest, dates }: { latest: Digest; dates: string[]
   const needStrikes = useCallback(() => {
     if (stkReq.current) return;
     stkReq.current = true;
-    loadStrikes().then(setStrikes, () => {});
+    loadStrikes().then(setStrikes, () => setStrikesErr(true));
   }, []);
   useEffect(() => { if (view === "digest") needStrikes(); }, [view, needStrikes]);
 
@@ -106,8 +107,8 @@ export default function App({ latest, dates }: { latest: Digest; dates: string[]
 
   const pickLang = (l: Lang) => { setLang(l); try { localStorage.setItem("wd-lang", l); } catch {} };
 
-  const ctx: Ctx = useMemo(() => ({ lang, t, D, LATEST: latest, DATES: dates, strikes, needStrikes, fetchIssue, selectDate, goItem }),
-    [lang, t, D, latest, dates, strikes, needStrikes, fetchIssue, selectDate, goItem]);
+  const ctx: Ctx = useMemo(() => ({ lang, t, D, LATEST: latest, DATES: dates, strikes, strikesErr, needStrikes, fetchIssue, selectDate, goItem }),
+    [lang, t, D, latest, dates, strikes, strikesErr, needStrikes, fetchIssue, selectDate, goItem]);
 
   const i = dates.indexOf(D.date), isLatest = D.date === latest.date;
   return (
