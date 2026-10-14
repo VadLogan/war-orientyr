@@ -1,0 +1,23 @@
+{
+ "schema": 1,
+ "currency": "USD",
+ "note": "Орієнтовні ціни одиниці озброєння, яким росія атакує Україну. Офіційних цін немає; де оцінки розходяться, береться діапазон від найнижчої до найвищої знайденої оцінки з указаних джерел.",
+ "types": {
+  "shahed": {"label": "Шахед / Герань-2", "low": 35000, "high": 200000, "src": "нижня — CSIS, 19.02.2025 ($35 тис.); верхня — оцінка ГУР через Forbes.ua, 9.08.2025 (~16 млн руб., $200 тис.)", "url": "https://forbes.ua/news/shakhed-za-200-000-i-doroga-kh-101-skilki-koshtue-dalekobiyna-zbroya-rf-otsinka-gur-09082025-31872"},
+  "shahed-jet": {"label": "реактивний Шахед / Герань-3", "low": 35000, "high": 200000, "src": "окремої оцінки ціни не знайдено; береться діапазон Шахеда (реальна ціна, імовірно, ближча до верхньої межі)", "url": ""},
+  "decoy": {"label": "Гербера, Пародія (дрони-імітатори)", "low": 20000, "high": 40000, "src": "Главком, 5.08.2026 — оцінка редакції без названого джерела", "url": "https://glavcom.ua/kyiv/news/skilki-koshtuvav-rosiji-kombinovanij-udar-po-kijevu-ta-oblasti-pidrakhunok-hlavkoma-1135128.html"},
+  "drone-mixed": {"label": "інші ударні дрони та імітатори (без розбивки)", "low": 20000, "high": 200000, "src": "Повітряні сили не дають розбивки між Шахедами й імітаторами: від ціни імітатора (Главком) до ціни Шахеда (ГУР)", "url": ""},
+  "kh101": {"label": "Х-101", "low": 13800000, "high": 13800000, "src": "ГУР через Forbes.ua, 9.08.2025", "url": "https://forbes.ua/news/shakhed-za-200-000-i-doroga-kh-101-skilki-koshtue-dalekobiyna-zbroya-rf-otsinka-gur-09082025-31872"},
+  "kalibr": {"label": "Калібр", "low": 750000, "high": 750000, "src": "ГУР через Forbes.ua, 9.08.2025", "url": "https://forbes.ua/news/shakhed-za-200-000-i-doroga-kh-101-skilki-koshtue-dalekobiyna-zbroya-rf-otsinka-gur-09082025-31872"},
+  "iskander-m": {"label": "Іскандер-М", "low": 3200000, "high": 3200000, "src": "ГУР через Forbes.ua, 9.08.2025", "url": "https://forbes.ua/news/shakhed-za-200-000-i-doroga-kh-101-skilki-koshtue-dalekobiyna-zbroya-rf-otsinka-gur-09082025-31872"},
+  "kn23": {"label": "KN-23", "low": 5200000, "high": 5200000, "src": "ГУР через Forbes.ua, 9.08.2025", "url": "https://forbes.ua/news/shakhed-za-200-000-i-doroga-kh-101-skilki-koshtue-dalekobiyna-zbroya-rf-otsinka-gur-09082025-31872"},
+  "kh22": {"label": "Х-22 / Х-32", "low": 1060000, "high": 1060000, "src": "ГУР через Forbes.ua, 9.08.2025 (ціна Х-22)", "url": "https://forbes.ua/news/shakhed-za-200-000-i-doroga-kh-101-skilki-koshtue-dalekobiyna-zbroya-rf-otsinka-gur-09082025-31872"},
+  "kh59": {"label": "Х-59 / Х-69", "low": 700000, "high": 700000, "src": "ГУР через Forbes.ua, 9.08.2025", "url": "https://forbes.ua/news/shakhed-za-200-000-i-doroga-kh-101-skilki-koshtue-dalekobiyna-zbroya-rf-otsinka-gur-09082025-31872"},
+  "kh31": {"label": "Х-31", "low": 640000, "high": 640000, "src": "ГУР через Forbes.ua, 9.08.2025", "url": "https://forbes.ua/news/shakhed-za-200-000-i-doroga-kh-101-skilki-koshtue-dalekobiyna-zbroya-rf-otsinka-gur-09082025-31872"},
+  "kh35": {"label": "Х-35", "low": 530000, "high": 530000, "src": "ГУР через Forbes.ua, 9.08.2025", "url": "https://forbes.ua/news/shakhed-za-200-000-i-doroga-kh-101-skilki-koshtue-dalekobiyna-zbroya-rf-otsinka-gur-09082025-31872"},
+  "onyx": {"label": "Онікс", "low": 1400000, "high": 1400000, "src": "ГУР через Forbes.ua, 9.08.2025", "url": "https://forbes.ua/news/shakhed-za-200-000-i-doroga-kh-101-skilki-koshtue-dalekobiyna-zbroya-rf-otsinka-gur-09082025-31872"},
+  "s300": {"label": "ракета С-300 / С-400 по наземних цілях", "low": 215000, "high": 215000, "src": "ГУР через Forbes.ua, 9.08.2025 (ракета С-300)", "url": "https://forbes.ua/news/shakhed-za-200-000-i-doroga-kh-101-skilki-koshtue-dalekobiyna-zbroya-rf-otsinka-gur-09082025-31872"},
+  "kinzhal": {"label": "Кинджал", "low": 10000000, "high": 10000000, "src": "Forbes Україна (через Цензор.НЕТ, 26.08.2024)", "url": "https://twitter.com/censor_net/status/1828120979849253309"},
+  "zircon": {"label": "Циркон", "low": 10000000, "high": 10000000, "src": "Главком, 5.08.2026 — оцінка редакції без названого джерела", "url": "https://glavcom.ua/kyiv/news/skilki-koshtuvav-rosiji-kombinovanij-udar-po-kijevu-ta-oblasti-pidrakhunok-hlavkoma-1135128.html"}
+ }
+}

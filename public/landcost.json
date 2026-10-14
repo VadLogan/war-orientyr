@@ -1,0 +1,22 @@
+{
+ "schema": 2,
+ "baseline": {
+  "km2": 44000,
+  "label": "окуповано до 24.02.2022 (Крим і ОРДЛО)",
+  "labelEn": "occupied before 24.02.2022 (Crimea and ORDLO)",
+  "source": "Forbes.ua, 14.11.2022: «Крим і ОРДЛО — 44 000 кв. км»",
+  "url": "https://forbes.ua/war-in-ukraine/ukraina-zvilnila-40-okupovanikh-pislya-24-lyutogo-teritoriy-kontrnastup-zsu-v-tsifrakh-14112022-9743"
+ },
+ "anchor": {
+  "date": "2026-10-07",
+  "totals": {
+   "tanks": 12396,
+   "armoured": 25498,
+   "artillery": 50836,
+   "mlrs": 2192,
+   "auto": 159128
+  },
+  "source": "Генштаб ЗСУ, накопичувальні втрати росії на 7.10.2026 (через lb.ua, weukraine.tv)",
+  "url": "https://lb.ua/society/2026/10/07/771668_sili_oboroni_likviduvali_sche.html"
+ }
+}
