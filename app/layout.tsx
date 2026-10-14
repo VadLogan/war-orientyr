@@ -3,7 +3,15 @@ import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import "./globals.css";
 
-export const metadata: Metadata = { title: "Щоденний дайджест війни" };
+export const metadata: Metadata = {
+  title: "Щоденний дайджест війни", icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/icon.svg', type: 'image/svg+xml' },
+    ],
+    apple: '/apple-icon.png',
+  },
+};
 export const viewport: Viewport = { width: "device-width", initialScale: 1, viewportFit: "cover" };
 
 const FONTS = [
