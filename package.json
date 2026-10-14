@@ -10,6 +10,8 @@
     "postinstall": "node -e \"require('fs').copyFileSync('node_modules/d3/dist/d3.min.js','public/legacy/d3.min.js')\""
   },
   "dependencies": {
+    "@vercel/analytics": "^2.0.1",
+    "@vercel/speed-insights": "^2.0.0",
     "d3": "7.9.0",
     "next": "16.4.0",
     "react": "19.3.0",
