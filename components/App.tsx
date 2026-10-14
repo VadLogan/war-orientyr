@@ -28,18 +28,19 @@ export default function App({ latest, dates }: { latest: Digest; dates: string[]
   const [strikes, setStrikes] = useState<Strikes | null>(null);
   const [strikesErr, setStrikesErr] = useState(false);
   const [scrollId, setScrollId] = useState<string | null>(null);
-  const cache = useRef<Record<string, Digest>>({});
+  const cache = useRef<Record<string, Promise<Digest>>>({});
   const stkReq = useRef(false);
   const t = strings(lang);
 
-  const fetchIssue = useCallback(async (date: string) => {
-    if (date === latest.date) return latest;
-    if (cache.current[date]) return cache.current[date];
-    const r = await fetch("issues/" + date + ".json", { cache: "no-store" });
-    if (!r.ok) throw new Error(String(r.status));
-    const j = styleData(await r.json(), "") as Digest;
-    if (!j || j.date !== date) throw new Error("mismatch");
-    return (cache.current[date] = j);
+  const fetchIssue = useCallback((date: string) => {
+    if (date === latest.date) return Promise.resolve(latest);
+    return (cache.current[date] ??= (async () => {
+      const r = await fetch("issues/" + date + ".json", { cache: "no-store" });
+      if (!r.ok) throw new Error(String(r.status));
+      const j = styleData(await r.json(), "") as Digest;
+      if (!j || j.date !== date) throw new Error("mismatch");
+      return j;
+    })().catch((e) => { delete cache.current[date]; throw e; }));
   }, [latest]);
 
   const cur = useRef(D);
