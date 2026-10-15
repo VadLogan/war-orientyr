@@ -14,6 +14,11 @@ export function preferredLang(header: string | null): "uk" | "en" | null {
 // First visit to a Ukrainian page: send visitors whose browser prefers another language to the English page.
 // An explicit choice (the `lang` cookie set by the UA/EN switch) always wins; /en/... is never redirected.
 export function proxy(req: NextRequest) {
+  // Only real page loads. Next's background fetches (link prefetch, RSC payloads) must not be redirected — a redirected
+  // prefetch of the UA link sent the click straight back to /en. Next strips its own rsc markers before proxy runs,
+  // so use the browser's Sec-Fetch-Dest (`document` for navigations, `empty` for fetch); no header (curl, old clients) = page.
+  const dest = req.headers.get("sec-fetch-dest");
+  if (dest && dest !== "document") return;
   const chosen = req.cookies.get("lang")?.value;
   if (chosen === "uk" || chosen === "en" ? chosen === "uk" : preferredLang(req.headers.get("accept-language")) !== "en") return;
   const url = req.nextUrl.clone();
