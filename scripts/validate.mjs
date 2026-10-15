@@ -8,4 +8,5 @@ if (miss.length) { console.error("digest.json missing keys:", miss); process.exi
 const idx = rd("issues/index.json").dates;
 if (!idx.includes(d.date)) { console.error("issues/index.json lacks", d.date); process.exit(1); }
 for (const f of ["strikes.json","prices.json","recruit.json","landcost.json","maps/maps.json","maps/strikes-base.json","maps/targets.json"]) rd(f);
+JSON.parse(fs.readFileSync(new URL("../i18n/en.json", import.meta.url), "utf8")); // translation memory must stay valid JSON
 console.log("ok:", d.date, idx.length, "issues");

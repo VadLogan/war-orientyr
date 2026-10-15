@@ -71,7 +71,7 @@ export default function Item({ i, lang, t, strikes }: RC & { i: ItemT; strikes: 
         </ul>
       )}
       <Local l={i.local} t={t} />
-      {i.quote && <blockquote className="quote"><span className="en">{i.quote.en}</span><span className="uk">{i.quote.uk}</span></blockquote>}
+      {i.quote && <blockquote className="quote"><span className="en">{i.quote.en}</span>{lang !== "en" && <span className="uk">{i.quote.uk}</span>}</blockquote>}
       <span className="cred">{i.source}</span>
       {Array.isArray(i.links) && i.links.length > 0 && (
         <span className="reslinks">{lang === "en" ? "Sources:" : "Джерела:"}{" "}

@@ -1,7 +1,7 @@
 "use client";
 import { Fragment, useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { geoConicConformal, geoPath, select, zoom, zoomIdentity, type GeoPermissibleObjects, type ZoomBehavior, type ZoomTransform } from "d3";
-import { dayN, fmt, houseStyle } from "@/lib/text";
+import { dayN, fmt, houseStyle as hsBase } from "@/lib/text";
 import { distLabel, kmBetween, type Strike, type StrikesBase, type StrikesData } from "@/lib/strikes";
 import { useApp } from "../ctx";
 import { LOCK } from "../digest/Item";
@@ -83,6 +83,7 @@ const Sw = ({ c, l, cls = "" }: { c: string; l: string; cls?: string }) => <span
 
 export function MapsCompare() {
   const { t, lang } = useApp();
+  const hs = (x: string) => hsBase(x, lang);
   const [mode, setMode] = useSticky("mapMode", "cmp");
   const [pair, setPair] = useSticky("mapPair", "isw_ds");
   const [ev, setEv] = useSticky("mapEv", true);
@@ -123,7 +124,7 @@ export function MapsCompare() {
     M.events.forEach((e) => { const k = e[ref] as string; cnt[k] = (cnt[k] || 0) + 1; });
     evc = ev ? t.evCount(M.events.length, t.src[ref], cnt) + " " + t.evRef(t.src[ref]) + "." : "";
     srcLine = <>{t.mSnap}{" "}{(["ds", "isw", "dg"] as const).map((k, i) => { const s = S[sk[k]]; return <Fragment key={k}>{i > 0 && "; "}<a href={s.url} target="_blank" rel="noopener">{t.src[k]}</a> — {s.asOfLabel} ({t.srcKind[k]})</Fragment>; })}. {t.kmCrimea(F(A.crimea))}</>;
-    method = houseStyle(M.method || "") + " " + (["deepstate", "isw", "divgen"] as const).map((k) => houseStyle(S[k].note)).join(" ");
+    method = hs(M.method || "") + " " + (["deepstate", "isw", "divgen"] as const).map((k) => hs(S[k].note)).join(" ");
     if (mode === "ds") legend.push(<Sw key="a" c="--m-occ" l={t.lg.ds} />, <Sw key="b" c="--m-grey" l={t.lg.dsGrey} />);
     else if (mode === "isw") legend.push(<Sw key="a" c="--m-isw" l={t.lg.isw} />, <Sw key="b" c="--m-iswadv" l={t.lg.iswAdv} />);
     else if (mode === "dg") legend.push(<Sw key="a" c="--m-dg" l={t.lg.dg} />);
@@ -198,7 +199,7 @@ export function MapsCompare() {
                 const [x, y] = geo.proj([e.lng, e.lat])!;
                 return <circle key={e.id + "" + e.d} cx={x} cy={y} r={4.5 / Math.sqrt(k)} fill={EVF[e[ref] as string] || "var(--m-dg)"} stroke="var(--surface)" strokeWidth={1.5} style={{ cursor: "pointer" }}
                   {...tipHandlers(setTip, () => <>
-                    <div className="d">{e.d.split("-").reverse().join(".")}</div><div>{houseStyle(e.t)}</div>
+                    <div className="d">{e.d.split("-").reverse().join(".")}</div><div>{hs(e.t)}</div>
                     <div className="s">{"DeepState: " + t.evSt.ds[e.ds as "occ"] + " (" + t.evAsOf(M.sources.deepstate.asOfLabel) + ")"}</div>
                     <div className="s">{"ISW: " + t.evSt.isw[e.isw as "occ"] + " (" + t.evAsOf(M.sources.isw.asOfLabel) + ")"}</div>
                     <div className="s">{"DIVGEN #" + e.id}</div>
@@ -229,6 +230,7 @@ const dmy = (d: string) => d.split("-").reverse().join(".");
 
 export function StrikesMap() {
   const { t: TT, lang, D, goItem } = useApp();
+  const hs = (x: string) => hsBase(x, lang);
   const sd = useJson<StrikesData>("/strikes.json"), sb = useJson<StrikesBase>("/maps/strikes-base.json");
   const strikes = useMemo(() => (sd.data && sb.data ? { stk: sd.data, base: sb.data } : null), [sd.data, sb.data]);
   const stkErr = sd.err || sb.err;
@@ -261,7 +263,7 @@ export function StrikesMap() {
   const items = pool.filter((x) => grp[grpOf(x)]).sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
   const conf = items.filter((x) => x.confirmed).length, places = new Set(items.map((x) => x.object)).size;
   const numbered = items.length <= 30;
-  const far = [...new Set(items.filter((x) => x.lng > 61).map((x) => houseStyle(x.place).split(",")[0]))];
+  const far = [...new Set(items.filter((x) => x.lng > 61).map((x) => hs(x.place).split(",")[0]))];
   const dl = (x: { lat: number; lng: number }) => (S ? distLabel(S.base, x, lang) : "");
 
   const geo = useMemo(() => {
@@ -332,7 +334,7 @@ export function StrikesMap() {
                 const hits = all.filter((s) => TG_MATCH[x.cat].includes(grpOf(s)) && s.lat != null && kmBetween(s, x) <= 10).sort((a, b) => (a.date < b.date ? 1 : -1));
                 return (
                   <g key={i} className="stk tgm" transform={`translate(${pp[0]},${pp[1]}) scale(${1 / k})`} {...tipHandlers(setTip, () => <>
-                    <div className="d">{`◆ ${t.tg[x.cat as "fuel"]} · ${houseStyle(x.name)}`}</div><div>{x.sub + (x.approx ? " · ≈" : "")}</div>
+                    <div className="d">{`◆ ${t.tg[x.cat as "fuel"]} · ${hs(x.name)}`}</div><div>{x.sub + (x.approx ? " · ≈" : "")}</div>
                     {dl(x) && <div style={{ fontWeight: 600 }}>{"📏 " + dl(x)}</div>}
                     <div className="s">{hits.length ? t.tgHit(hits.length, dmy(hits[0].date)) : t.tgNo}</div><div className="s">{(t.tgSrc as Record<string, string>)[x.src] || x.src}</div>
                   </>)}>
@@ -346,10 +348,10 @@ export function StrikesMap() {
                   <g key={n} className="stk" transform={`translate(${px},${py}) scale(${1 / k})`} style={{ cursor: x.item || x.url ? "pointer" : "default" }}
                     onClick={() => { if (x.item) goItem(x.issue, x.item); else if (x.url) window.open(x.url, "_blank", "noopener"); }}
                     {...tipHandlers(setTip, () => <>
-                      <div className="d">{`${numbered ? n + 1 + ". " : ""}${dmy(x.date)} · ${houseStyle(x.object)}`}</div>
-                      <div>{houseStyle(x.place) + (x.approx ? " ≈" : "")}</div>
+                      <div className="d">{`${numbered ? n + 1 + ". " : ""}${dmy(x.date)} · ${hs(x.object)}`}</div>
+                      <div>{hs(x.place) + (x.approx ? " ≈" : "")}</div>
                       {dl(x) && <div style={{ fontWeight: 600 }}>{"📏 " + dl(x)}</div>}
-                      <div>{houseStyle(x.result)}</div>
+                      <div>{hs(x.result)}</div>
                       <div className="s">{c ? t.confBy(x.confirmed!.by, x.confirmed!.when) : t.unconf}</div>
                       {x.local && <div className="s">{(TT.loc as Record<string, string>)[x.local] || x.local}</div>}
                     </>)}>
@@ -373,8 +375,8 @@ export function StrikesMap() {
             <li key={n}>
               <span className={"stk-n" + (c ? "" : " u")} style={c ? { background: `var(${col})` } : { color: `var(${col})`, borderColor: `var(${col})` }}>{numbered ? n + 1 : ""}</span>
               <div>
-                <span><b>{dmy(x.date).slice(0, 5)}</b>{x.date.slice(0, 4) !== D.date.slice(0, 4) && <b>.{x.date.slice(0, 4)}</b>}{x.night && <> <span style={{ color: "var(--muted)" }}>({t.night} {x.night})</span></>} · <b>{houseStyle(x.object)}</b>, {houseStyle(x.place)}{x.approx ? " ≈" : ""}</span>
-                <span>{houseStyle(x.result)}</span>
+                <span><b>{dmy(x.date).slice(0, 5)}</b>{x.date.slice(0, 4) !== D.date.slice(0, 4) && <b>.{x.date.slice(0, 4)}</b>}{x.night && <> <span style={{ color: "var(--muted)" }}>({t.night} {x.night})</span></>} · <b>{hs(x.object)}</b>, {hs(x.place)}{x.approx ? " ≈" : ""}</span>
+                <span>{hs(x.result)}</span>
                 <span className="stk-meta">
                   {d && <span title={t.distNote(S.base.ctrlAsOf || "")}>📏 {d}</span>}
                   <span className={"chip " + (c ? "ok" : "unv")}>{c ? t.conf : t.unconf}</span>

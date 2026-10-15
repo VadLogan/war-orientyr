@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState, type RefObject } from "react";
+import { useApp } from "../ctx";
 
 /** useState whose value survives the dashboard unmounting (switching to the digest tab and back), like the legacy module globals. */
 const STICKY = new Map<string, unknown>();
@@ -15,14 +16,17 @@ export function fetchJson<T>(url: string): Promise<T> {
     JSON_CACHE.set(url, fetch(url, { cache: "no-store" }).then((r) => { if (!r.ok) throw new Error(String(r.status)); return r.json(); }));
   return JSON_CACHE.get(url)!;
 }
+/** Data file in the page language: English pages read the /en/ mirror (scripts/i18n.mjs) and fall back to the Ukrainian file. */
 export function useJson<T>(url: string | null): { data: T | null; err: boolean } {
+  const { lang } = useApp();
   const [s, setS] = useState<{ data: T | null; err: boolean }>({ data: null, err: false });
   useEffect(() => {
     if (!url) return;
     let live = true;
-    fetchJson<T>(url).then((data) => live && setS({ data, err: false }), () => live && setS({ data: null, err: true }));
+    const get = lang === "en" ? fetchJson<T>("/en" + url).catch(() => fetchJson<T>(url)) : fetchJson<T>(url);
+    get.then((data) => live && setS({ data, err: false }), () => live && setS({ data: null, err: true }));
     return () => { live = false; };
-  }, [url]);
+  }, [url, lang]);
   return s;
 }
 

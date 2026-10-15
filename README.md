@@ -23,5 +23,7 @@ npm run build && npm start
 файли `digest.json`, `issues/<дата>.json`, `issues/index.json`, `strikes.json` (і за потреби `prices.json`, `recruit.json`, `maps/maps.json`),
 потім `npm run validate` і коміт — Vercel перебудує сайт. `landcost.json` і `maps/strikes-base.json` не змінюються.
 
+Англійська версія: `npm run i18n:missing` створює `i18n/missing.json` з новими рядками без перекладу; заповніть англійські значення, виконайте `npm run i18n:merge` і закомітьте `i18n/en.json`. Поки переклад не додано, сторінки `/en` показують українські тексти з приміткою.
+
 ## Наступний крок
 Перемкнути щоденну задачу на запис у репозиторій; вимкнути Artifact-версію.

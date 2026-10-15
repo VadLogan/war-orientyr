@@ -15,17 +15,17 @@ export async function dateParams() {
   return [{ date: [] as string[] }, ...(await getDates()).filter((d) => d !== latest).map((d) => ({ date: [d] }))];
 }
 
-export async function resolve(params: DateParams): Promise<{ latest: Digest; dates: string[]; D: Digest }> {
+export async function resolve(params: DateParams, lang: Lang): Promise<{ latest: Digest; dates: string[]; D: Digest }> {
   const seg = (await params).date || [];
-  const [latest, dates] = await Promise.all([getLatest(), getDates()]);
+  const [latest, dates] = await Promise.all([getLatest(lang), getDates()]);
   const date = seg[0] ?? latest.date;
   if (seg.length > 1 || !dates.includes(date) || seg[0] === latest.date) notFound();
-  return { latest, dates, D: await getIssue(date) };
+  return { latest, dates, D: await getIssue(date, lang) };
 }
 
 const SITE = { uk: "Щоденний дайджест війни", en: "Daily war digest" };
 export async function pageMeta(lang: Lang, view: View, params: DateParams): Promise<Metadata> {
-  const { latest, D } = await resolve(params);
+  const { latest, D } = await resolve(params, lang);
   const url = (l: Lang) => href(l, view, D.date, latest.date);
   return {
     metadataBase: new URL(process.env.VERCEL_PROJECT_PRODUCTION_URL ? "https://" + process.env.VERCEL_PROJECT_PRODUCTION_URL : "http://localhost:3000"),

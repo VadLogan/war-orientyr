@@ -8,7 +8,7 @@ import Digest from "./digest/Digest";
 import HashRedirect from "./HashRedirect";
 
 export default async function DigestPage({ lang, params }: { lang: Lang; params: DateParams }) {
-  const { latest, dates, D } = await resolve(params);
+  const { latest, dates, D } = await resolve(params, lang);
   const t = UI[lang] as UIStrings;
   return (
     <>

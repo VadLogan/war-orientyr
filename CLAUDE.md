@@ -18,6 +18,8 @@ Daily war digest (UA/EN), ported from a single-file Artifact to Next.js. See REA
 ## Data (`public/`)
 - Updated daily: `digest.json`, `issues/<YYYY-MM-DD>.json`, `issues/index.json`, `strikes.json`; sometimes `prices.json`, `recruit.json`, `maps/maps.json`.
 - Static: `landcost.json`, `maps/strikes-base.json`, `maps/targets.json`.
+- English: `i18n/en.json` is a translation memory (Ukrainian string → English). `npm run predev`/`prebuild` run `scripts/i18n.mjs build`, which writes `public/en/**` (gitignored) — a mirror of every data file, only when all its strings are translated. `/en` pages read the mirror and fall back to Ukrainian (with the "written in Ukrainian" note) when it is missing. House style for English (lowercase russia, country flags) is applied at render time (`houseStyle(str, "en")` in `lib/text.ts`).
+- New data → `npm run i18n:missing` (writes `i18n/missing.json` with empty values) → fill in English → `npm run i18n:merge` → commit `i18n/en.json`. Translate raw strings; keep lowercase “russia/russian/kremlin”, British spelling, glossary as in existing entries (Ukraine’s General Staff, Air Force, russia’s MoD, USF, direction names Pokrovsk, Kostiantynivka…).
 - Artifact is still the primary publisher; repo copy is synced manually, then validate + commit → Vercel rebuilds (pages are generated at build time, so data changes need a deploy).
 
 ## Tools

@@ -67,7 +67,7 @@ export default function Digest({ D, lang, t, strikes }: RC & { D: DigestT; strik
   const secs = (D.sections || []).filter((s) => s.items && s.items.length);
   return (
     <div className="col digest">
-      {t.langNote && <p className="lang-note">{t.langNote}</p>}
+      {lang === "en" && D.contentLang !== "en" && <p className="lang-note">{t.langNote}</p>}
       {secs.map((s) => (
         <section className="sec" id={"sec-" + s.id} key={s.id}>
           <div className="sech"><h2><SecIco id={s.id} s={s} /><span>{noFlag(secTitle(s, lang))}</span></h2><span>{t.items(s.items.length)}</span></div>

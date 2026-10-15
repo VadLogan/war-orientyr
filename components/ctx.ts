@@ -5,7 +5,7 @@ import type { SourceMatrix } from "@/lib/data";
 import { UI, type Lang, type UIStrings } from "@/lib/ui";
 
 /** The parts of an issue the dashboard reads (kept small: it is serialized into every dashboard page). */
-export type DashIssue = Pick<Digest, "date" | "airDefense" | "front" | "civilianStats" | "timeline" | "airDefenseHistory" | "losses">;
+export type DashIssue = Pick<Digest, "contentLang" | "date" | "airDefense" | "front" | "civilianStats" | "timeline" | "airDefenseHistory" | "losses">;
 
 export type Ctx = {
   lang: Lang;

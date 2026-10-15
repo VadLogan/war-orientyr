@@ -10,12 +10,12 @@ import DashProvider from "./DashProvider";
 
 /** The dashboard only needs these fields; full issues stay on the server. */
 const slim = (d: Digest): DashIssue => ({
-  date: d.date, airDefense: d.airDefense, front: d.front, civilianStats: d.civilianStats,
+  contentLang: d.contentLang, date: d.date, airDefense: d.airDefense, front: d.front, civilianStats: d.civilianStats,
   timeline: d.timeline, airDefenseHistory: d.airDefenseHistory, losses: d.losses,
 });
 
 export default async function DashPage({ lang, params }: { lang: Lang; params: DateParams }) {
-  const { latest, dates, D } = await resolve(params);
+  const { latest, dates, D } = await resolve(params, lang);
   const t = UI[lang] as UIStrings;
   return (
     <div className="shell">
