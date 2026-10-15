@@ -47,6 +47,8 @@ export type LossRow = {
 };
 
 export type Digest = {
+  /** set by lib/data.ts: the language the text actually is in (English falls back to Ukrainian) */
+  contentLang?: "uk" | "en";
   schema: number;
   date: string;
   weekday: string;

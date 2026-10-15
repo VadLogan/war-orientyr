@@ -14,17 +14,30 @@ const NOFLAG='(?<![\\u{1F1E6}-\\u{1F1FF}\\u{1F3F4}][\\uFE0F\\u200D]*\\s?)';
 const CRX: [string, RegExp][] = COUNTRIES.map(([f,forms])=>[f,new RegExp(NOFLAG+L_+'('+forms.join('|')+')'+R_,'gu')]);
 const RU: [RegExp, (m: string, o: number, str: string) => string][] = [[new RegExp(L_+'(Росі(?:я|ї|ю|єю))'+R_,'gu'),m=>m.toLowerCase()],[new RegExp(L_+'(Російськ\\p{L}*)','gu'),m=>m.toLowerCase()],
   [new RegExp(L_+'РФ'+R_,'gu'),()=>'рф'],[new RegExp(L_+'(Федераці\\p{L}*)','gu'),(m,o,str)=>/росій\p{L}*\s$/u.test(str.slice(Math.max(0,o-12),o))?m.toLowerCase():m]];
-export function houseStyle<T>(str: T): T {
+/* English: the same rules for the translated content */
+// "Ukraine’s …" (Air Force, General Staff) translates ЗСУ, which carries no flag on the Ukrainian site
+const EN_COUNTRIES: [string, string[]][] = [["🇺🇦", ["Ukraine(?![’']s)"]], ["🇩🇪", ["Germany"]], ["🇲🇩", ["Moldova"]], ["🇺🇸", ["United States", "USA"]], ["🇬🇧", ["United Kingdom", "Britain", "UK"]],
+  ["🇨🇳", ["China"]], ["🇦🇪", ["United Arab Emirates", "UAE"]], ["🇫🇷", ["France"]], ["🇵🇱", ["Poland"]], ["🇧🇾", ["Belarus"]], ["🇹🇷", ["Turkey", "Türkiye"]],
+  ["🇮🇳", ["India"]], ["🇮🇷", ["Iran"]], ["🇰🇵", ["North Korea"]], ["🇯🇵", ["Japan"]], ["🇮🇹", ["Italy"]], ["🇨🇦", ["Canada"]], ["🇳🇴", ["Norway"]],
+  ["🇸🇪", ["Sweden"]], ["🇫🇮", ["Finland"]], ["🇳🇱", ["Netherlands"]], ["🇩🇰", ["Denmark"]], ["🇱🇹", ["Lithuania"]], ["🇱🇻", ["Latvia"]], ["🇪🇪", ["Estonia"]],
+  ["🇷🇴", ["Romania"]], ["🇭🇺", ["Hungary"]], ["🇸🇰", ["Slovakia"]], ["🇨🇿", ["Czech Republic", "Czechia"]], ["🇬🇪", ["Georgia"]], ["🇮🇱", ["Israel"]],
+  ["🇸🇦", ["Saudi Arabia"]], ["🇶🇦", ["Qatar"]], ["🇨🇭", ["Switzerland"]], ["🇦🇹", ["Austria"]], ["🇪🇸", ["Spain"]], ["🇧🇪", ["Belgium"]], ["🇪🇺", ["European Union", "EU"]]];
+const EN_CRX: [string, RegExp][] = EN_COUNTRIES.map(([f, forms]) => [f, new RegExp(NOFLAG + L_ + "(" + forms.join("|") + ")" + R_, "gu")]);
+const EN_RU: [RegExp, (m: string) => string][] = [[new RegExp(L_ + "(Russia(?:n|ns|'s|’s)?)" + R_, "gu"), (m) => m.toLowerCase()]];
+
+/** House style: «росія»/"russia" lowercase without a flag; other countries get a flag at their first mention in a string. */
+export function houseStyle<T>(str: T, lang: Lang = "uk"): T {
   if (typeof str !== "string") return str;
   let s: string = str;
-  RU.forEach(([re, fn]) => { s = s.replace(re, (m: string, ...a: any[]) => { const o = a[a.length - 2], whole = a[a.length - 1]; return fn(m, typeof o === "number" ? o : 0, whole); }); });
-  CRX.forEach(([f, re]) => { let done = s.includes(f); s = s.replace(re, (m) => { if (done) return m; done = true; return f + " " + m; }); });
+  if (lang === "en") EN_RU.forEach(([re, fn]) => { s = s.replace(re, fn); });
+  else RU.forEach(([re, fn]) => { s = s.replace(re, (m: string, ...a: any[]) => { const o = a[a.length - 2], whole = a[a.length - 1]; return fn(m, typeof o === "number" ? o : 0, whole); }); });
+  (lang === "en" ? EN_CRX : CRX).forEach(([f, re]) => { let done = s.includes(f); s = s.replace(re, (m) => { if (done) return m; done = true; return f + " " + m; }); });
   return s as T;
 }
-export function styleData(o: any, key: string): any {
-  if (typeof o === "string") return key === "url" || key === "en" ? o : houseStyle(o);
-  if (Array.isArray(o)) return o.map((v) => styleData(v, key));
-  if (o && typeof o === "object") { const r: any = {}; for (const k in o) r[k] = styleData(o[k], k); return r; }
+export function styleData(o: any, key: string, lang: Lang = "uk"): any {
+  if (typeof o === "string") return key === "url" || key === "en" ? o : houseStyle(o, lang);
+  if (Array.isArray(o)) return o.map((v) => styleData(v, key, lang));
+  if (o && typeof o === "object") { const r: any = {}; for (const k in o) r[k] = styleData(o[k], k, lang); return r; }
   return o;
 }
 
@@ -109,7 +122,7 @@ export function niceMax(v: number) {
   return Math.max(1, (f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10) * e) * 4;
 }
 /** Timeline of the latest issue (falls back to the older airDefenseHistory format). */
-export function TL(B: Digest): TimelineEntry[] {
+export function TL(B: Pick<Digest, "timeline" | "airDefenseHistory">): TimelineEntry[] {
   const a: TimelineEntry[] = B.timeline || (B.airDefenseHistory || []).map((h) => ({
     date: h.date, night: (h.label || "").replace(/^ніч\s*/, ""), launched: h.launched, intercepted: h.intercepted, src: { air: h.source || "" },
   }));

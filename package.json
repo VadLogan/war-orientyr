@@ -3,10 +3,15 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "predev": "node scripts/i18n.mjs build",
     "dev": "next dev",
+    "prebuild": "node scripts/i18n.mjs build",
     "build": "next build",
     "start": "next start",
-    "validate": "node scripts/validate.mjs"
+    "validate": "node scripts/validate.mjs",
+    "publish": "node scripts/publish.mjs",
+    "i18n:missing": "node scripts/i18n.mjs missing",
+    "i18n:merge": "node scripts/i18n.mjs merge"
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1",

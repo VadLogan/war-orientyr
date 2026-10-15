@@ -1,51 +1,26 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useRef } from "react";
 import { shortD } from "@/lib/text";
 import { useApp } from "../ctx";
 import { useSticky } from "./hooks";
 
-type Cnt = { ok: number; partial: number; unavailable: number };
-type Row = { k: string; by: Record<string, Cnt> };
-type St = "ok" | "part" | "unv";
-const domOf = (u: string) => { try { return new URL(u).hostname.replace(/^www\./, ""); } catch { return String(u || "?"); } };
-const st = (c: Cnt): St => { const n = c.ok + c.partial + c.unavailable; return c.unavailable === n ? "unv" : c.ok === n ? "ok" : "part"; };
+import type { Cnt } from "@/lib/data";
 
-let SMX: { key: string; days: string[]; rows: Row[] } | null = null;
+type St = "ok" | "part" | "unv";
+const st = (c: Cnt): St => { const n = c.ok + c.partial + c.unavailable; return c.unavailable === n ? "unv" : c.ok === n ? "ok" : "part"; };
 
 /** Every source domain × every issue: read / partial / unavailable / not used. */
 export default function SourceMatrix() {
-  const { lang, DATES, fetchIssue } = useApp();
+  const { lang, smx: data } = useApp();
   const en = lang === "en";
-  const key = DATES.join();
-  const [data, setData] = useState(SMX && SMX.key === key ? SMX : null);
   const [fs, setFs] = useSticky<Set<St>>("smxFs", new Set());
   const [sel, setSel] = useSticky<Set<string>>("smxSel", new Set());
   const [q, setQ] = useSticky("smxQ", "");
   const [showAll, setShowAll] = useSticky("smxAll", false);
   const [only, setOnly] = useSticky("smxOnly", false);
   const selAll = useRef<HTMLInputElement>(null);
+  if (!data) return null;
 
-  useEffect(() => {
-    if (data) return;
-    let live = true;
-    const ds = DATES.slice().sort();
-    Promise.allSettled(ds.map((d) => fetchIssue(d))).then((res) => {
-      const days: string[] = [], rows: Record<string, Row> = {};
-      res.forEach((r) => {
-        if (r.status !== "fulfilled") return;
-        const iss = r.value;
-        days.push(iss.date);
-        (iss.sources || []).forEach((s) => {
-          const o = (rows[domOf(s.url)] ||= { k: domOf(s.url), by: {} });
-          const c = (o.by[iss.date] ||= { ok: 0, partial: 0, unavailable: 0 });
-          c[s.status in c ? s.status : "ok"]++;
-        });
-      });
-      SMX = { key, days, rows: Object.values(rows) };
-      if (live) setData(SMX);
-    });
-    return () => { live = false; };
-  }, [data, DATES, fetchIssue, key]);
 
   const nm = { ok: en ? "read" : "прочитано", partial: en ? "partial" : "частково", unavailable: en ? "unavailable" : "недоступне" };
   const k2: Record<St, keyof typeof nm> = { ok: "ok", part: "partial", unv: "unavailable" };

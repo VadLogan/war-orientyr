@@ -1,14 +1,12 @@
-"use client";
-import { useApp } from "./ctx";
+// Server component: day counters and the headline/lede.
+import type { Digest } from "@/types/digest";
 import { dateTitle, dayLabel, sinceList } from "@/lib/text";
+import type { Lang } from "@/lib/ui";
 
-export default function Mast({ dashboard }: { dashboard: boolean }) {
-  const { D, lang, goItem } = useApp();
+export default function Mast({ D, lang, dashboard }: { D: Digest; lang: Lang; dashboard: boolean }) {
   const dt = dateTitle(D, lang);
   const H = D.headline && D.headline.title ? D.headline : null;
-  const more = (item: string) => (
-    <a className="lede-more" href="#" onClick={(e) => { e.preventDefault(); goItem(D.date, item); }}>Детальніше ↓</a>
-  );
+  const more = (item: string) => <a className="lede-more" href={"#it-" + item}>{lang === "en" ? "Read more ↓" : "Детальніше ↓"}</a>;
   const P = Array.isArray(D.ledeParts) && D.ledeParts.length ? D.ledeParts : null;
   const parts = P?.map((x, k) => <p key={k}>{x.label && <b>{x.label}</b>}{x.text}</p>);
 

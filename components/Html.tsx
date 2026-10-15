@@ -1,17 +1,12 @@
 import type { Metadata, Viewport } from "next";
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
-import "./globals.css";
+import type { Lang } from "@/lib/ui";
+import "@/app/globals.css";
 
-export const metadata: Metadata = {
-  title: "Щоденний дайджест війни", icons: {
-    icon: [
-      { url: '/favicon.ico', sizes: 'any' },
-      { url: '/icon.svg', type: 'image/svg+xml' },
-    ],
-    apple: '/apple-icon.png',
-  },
-};
+const SITE: Record<Lang, string> = { uk: "Щоденний дайджест війни", en: "Daily war digest" };
+/** Root metadata per language: the site name, and the template pages' titles are wrapped in. */
+export const siteMeta = (lang: Lang): Metadata => ({ title: { default: SITE[lang], template: `%s · ${SITE[lang]}` } });
 export const viewport: Viewport = { width: "device-width", initialScale: 1, viewportFit: "cover" };
 
 const FONTS = [
@@ -20,9 +15,10 @@ const FONTS = [
 ];
 
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+/** Shared <html> shell of the two root layouts: app/(uk) and app/(en) (one per language, so <html lang> is static). */
+export default function Html({ lang, children }: { lang: Lang; children: React.ReactNode }) {
   return (
-    <html lang="uk">
+    <html lang={lang}>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         {FONTS.map((href) => (

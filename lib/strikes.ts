@@ -1,4 +1,4 @@
-// Strikes data (strikes.json + maps/strikes-base.json) and distance-to-front helpers, shared by the digest and the strikes map.
+// Strikes data types (strikes.json + maps/strikes-base.json, loaded in lib/data.ts) and distance-to-front helpers, shared by the digest and the strikes map.
 import { fmt } from "./text";
 import { UI, type Lang } from "./ui";
 
@@ -10,12 +10,6 @@ export type Strike = {
 export type StrikesData = { items: Strike[]; coverage?: { uk: string; en: string } };
 export type StrikesBase = { base: { ua?: boolean; c: number[][][][] }[]; ctrl?: [number, number][]; ctrlAsOf?: string };
 export type Strikes = { stk: StrikesData; base: StrikesBase };
-
-export async function loadStrikes(): Promise<Strikes> {
-  const [a, b] = await Promise.all([fetch("strikes.json", { cache: "no-store" }), fetch("maps/strikes-base.json", { cache: "no-store" })]);
-  if (!a.ok || !b.ok) throw new Error("load");
-  return { stk: await a.json(), base: await b.json() };
-}
 
 export function kmBetween(a: { lat: number; lng: number }, b: { lat: number; lng: number }) {
   const R = Math.PI / 180, p1 = a.lat * R, p2 = b.lat * R, dp = p2 - p1, dl = (b.lng - a.lng) * R;
