@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "predev": "node scripts/i18n.mjs build",
-    "dev": "next dev",
+    "dev": "next dev --port 5001",
     "prebuild": "node scripts/i18n.mjs build",
     "build": "next build",
     "start": "next start",
