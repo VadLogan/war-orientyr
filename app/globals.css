@@ -53,7 +53,21 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-off
 .seg :is(button,a){font-family:var(--ui);font-size:14px;font-weight:500;letter-spacing:.02em;background:transparent;color:var(--ink);border:0;padding:6px 12px;cursor:pointer;min-height:34px}
 .seg :is(button,a)+:is(button,a){border-left:1px solid var(--rule-strong)}
 .seg :is(button[aria-pressed="true"],a[aria-current]){background:var(--ink);color:var(--bg)}
-.seg.lang :is(button,a){padding:6px 10px;font-family:var(--mono);font-size:12.5px}
+/* language picker (components/LangPicker.tsx) */
+.lp-flag{font-family:'Noto Color Emoji','Apple Color Emoji','Segoe UI Emoji',sans-serif;font-size:17px;line-height:1;width:22px;text-align:center;flex:none}
+.lp-code{font-family:var(--mono);font-size:9.5px;text-transform:uppercase;width:22px;height:16px;border:1px solid var(--rule);border-radius:2px;display:flex;align-items:center;justify-content:center;flex:none;color:var(--muted)}
+.lp-btn{display:inline-flex;align-items:center;gap:6px;min-height:34px;padding:0 10px;font-family:var(--mono);font-size:12.5px;color:var(--ink);background:transparent;border:1px solid var(--rule);border-radius:2px;cursor:pointer}
+.lp-btn:hover,.lp-btn:has(+.lp:popover-open){border-color:var(--rule-strong)}
+.lp-btn .lp-flag{width:auto;font-size:15px}
+.lp{position:fixed;inset:var(--lp-top,60px) var(--lp-right,16px) auto auto;margin:0;width:min(280px,calc(100vw - 32px));max-height:min(520px,calc(100vh - var(--lp-top,60px) - 16px));padding:0;background:var(--surface);color:var(--ink);border:1px solid var(--rule-strong);border-radius:2px;box-shadow:0 10px 28px rgb(0 0 0/.16)}
+.lp:popover-open{display:flex;flex-direction:column}
+.lp-list{display:flex;flex-direction:column;padding:6px;overflow-y:auto}
+.lp-list a{display:flex;align-items:center;gap:10px;min-height:44px;padding:0 10px;border-radius:2px;color:var(--ink);text-decoration:none;font-family:var(--ui)}
+.lp-list a:hover{background:var(--accent-soft)}
+.lp-list a[aria-current]{background:var(--ink);color:var(--bg)}
+.lp-n{font-size:15px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lp-e{margin-left:auto;font-size:12.5px;color:var(--muted);white-space:nowrap}
+.lp-list a[aria-current] .lp-e{color:inherit}
 
 /* masthead */
 .mast{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:20px 32px;align-items:end;padding-block:28px 22px;border-bottom:3px double var(--rule-strong)}

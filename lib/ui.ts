@@ -111,3 +111,9 @@ export const UI = {
 
 export type Lang = keyof typeof UI;
 export type UIStrings = (typeof UI)["uk"];
+
+/** Language picker entries. name = endonym, en/uk = English/Ukrainian names, flag only where one country stands for the language. */
+export const LANGS: { code: Lang; name: string; en: string; uk: string; short: string; flag?: string }[] = [
+  { code: "uk", name: "Українська", en: "Ukrainian", uk: "українська", short: "УКР", flag: "🇺🇦" },
+  { code: "en", name: "English", en: "English", uk: "англійська", short: "ENG", flag: "🇬🇧" },
+];

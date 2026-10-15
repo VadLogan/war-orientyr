@@ -2,9 +2,9 @@
 import Link from "next/link";
 import { longDate, midDate } from "@/lib/text";
 import { href, type View } from "@/lib/routes";
-import type { Lang, UIStrings } from "@/lib/ui";
+import { LANGS, type Lang, type UIStrings } from "@/lib/ui";
 import IssueSelect from "./IssueSelect";
-import LangLink from "./LangLink";
+import LangPicker from "./LangPicker";
 
 type P = { lang: Lang; t: UIStrings; view: View; date: string; latest: string; dates: string[] };
 
@@ -22,10 +22,7 @@ export default function Shell({ lang, t, view, date, latest, dates }: P) {
             <Tab on={view === "digest"} to={to({ view: "digest" })}>{t.digest}</Tab>
             <Tab on={view === "dashboard"} to={to({ view: "dashboard" })}>{t.dash}</Tab>
           </div>
-          <div className="seg lang" role="group" aria-label="Мова / Language">
-            <LangLink lang="uk" href={to({ lang: "uk" })} current={lang === "uk"}>UA</LangLink>
-            <LangLink lang="en" href={to({ lang: "en" })} current={lang === "en"}>EN</LangLink>
-          </div>
+          <LangPicker lang={lang} hrefs={Object.fromEntries(LANGS.map((l) => [l.code, to({ lang: l.code })])) as Record<Lang, string>} />
         </div>
       </header>
       {dates.length > 0 && (
