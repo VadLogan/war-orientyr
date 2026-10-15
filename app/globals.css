@@ -349,3 +349,12 @@ button.dchip{font:inherit;background:transparent;color:var(--ink);border:1px sol
 .state{padding-block:48px;text-align:left;color:var(--muted);font-family:var(--ui)}
 .sk{height:14px;background:var(--track);border-radius:2px;margin-block:10px}
 @media (prefers-reduced-motion:no-preference){.fill,.stack>div{transition:width .5s ease}}
+/* 404 (components/NotFound.tsx) */
+.mast.nf{padding-block:56px 28px}
+.nf-code{font-family:var(--mono);font-weight:500;font-size:clamp(64px,12vw,120px);line-height:.85;letter-spacing:-.04em;color:var(--rule)}
+.nf-actions{display:flex;flex-wrap:wrap;gap:12px;padding-top:24px}
+.nf-actions .btn{display:inline-flex;align-items:center;min-height:44px;padding-inline:18px;font-size:15px;text-decoration:none}
+.nf-hint{font-family:var(--ui);font-size:14px;color:var(--muted);margin:28px 0 0}
+.nf-hint code{font-family:var(--mono);font-size:13px;color:var(--ink);background:var(--surface);border:1px solid var(--rule);border-radius:2px;padding:1px 6px}
+.nf-lang a{text-decoration:none;display:inline-flex;align-items:center}
+.nf-en,[data-nf="en"] .nf-uk{display:none}[data-nf="en"] .nf-en{display:block}

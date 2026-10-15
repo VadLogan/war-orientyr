@@ -3,6 +3,7 @@ import { plural } from "./text";
 
 export const UI = {
   uk:{brand:'<svg width="34" height="34" viewBox="0 0 100 100" aria-hidden="true"><path d="M80.8 35.6 A34 34 0 1 1 64.4 19.2" style="fill:none;stroke:var(--accent);stroke-width:13"/><polyline points="27,52 34,64 42,44 51,60 74,26" style="fill:none;stroke:var(--bt);stroke-width:7;stroke-linecap:round;stroke-linejoin:round"/><polygon points="86.1,38 62,13.9 90.3,9.7" style="fill:var(--bt);stroke:var(--bt);stroke-width:3;stroke-linejoin:round"/></svg><span class="bl"><span class="bw">WAR</span><span class="bd">·</span><span class="bn">Орієнтир</span></span>',digest:'Дайджест',dash:'Дашборд',
+    nf:{title:'Сторінку не знайдено',line:'Помилка 404 · Сторінку не знайдено',h:'Сторінки не існує',lede:'Посилання застаріло або містить помилку, чи випуску за цю дату не було. Відкрийте останній випуск або виберіть дату в архіві.',toLatest:'До останнього випуску',hint:'Адреса випуску має вигляд',dashHint:', дашборд —',fmt:'РРРР-ММ-ДД'},
     statusOf:'Стан війни на',day:'-й день',
     sec:{victims:'Жертви війни',front:'Фронт',strikes:'Удари та ППО',deepstrikes:'Удари України по рф за добу',trump:'Що каже Трамп',diplo:'Дипломатія, санкції та допомога',react:'Реакція світу',kremlin:'Що кажуть на болотах'},
     items:(n: any) =>n+' '+plural(n,'пункт','пункти','пунктів'),
@@ -56,6 +57,7 @@ export const UI = {
       method:'Як рахується',methodText:(d: any) =>`Особовий склад — накопичувальний підсумок Генштабу ЗСУ з поточного випуску. Техніка — підсумок Генштабу на ${d} плюс щоденний приріст з таймлайну втрат, тож цифра оновлюється з кожним випуском. Площа — шар «окуповано» DeepState з блоку карт (разом з Кримом і ОРДЛО), мінус площа, окупована до 24.02.2022. Оновлюється, коли оновлюється знімок карти.`,
       srcs:'Джерела',loading:'Завантаження…',err:'Не вдалося завантажити дані (landcost.json або maps/maps.json).'}},
   en:{brand:'<svg width="34" height="34" viewBox="0 0 100 100" aria-hidden="true"><path d="M80.8 35.6 A34 34 0 1 1 64.4 19.2" style="fill:none;stroke:var(--accent);stroke-width:13"/><polyline points="27,52 34,64 42,44 51,60 74,26" style="fill:none;stroke:var(--bt);stroke-width:7;stroke-linecap:round;stroke-linejoin:round"/><polygon points="86.1,38 62,13.9 90.3,9.7" style="fill:var(--bt);stroke:var(--bt);stroke-width:3;stroke-linejoin:round"/></svg><span class="bl"><span class="bw">WAR</span><span class="bd">·</span><span class="bn">Orientyr</span></span>',digest:'Digest',dash:'Dashboard',
+    nf:{title:'Page not found',line:'Error 404 · Page not found',h:'Page doesn’t exist',lede:'The link is outdated or mistyped, or there was no issue on that date. Open the latest issue or pick a date from the archive.',toLatest:'Go to the latest issue',hint:'An issue address looks like',dashHint:', the dashboard',fmt:'YYYY-MM-DD'},
     statusOf:'State of the war,',day:'',
     sec:{victims:'War victims',front:'Front line',strikes:'Strikes & air defence',deepstrikes:'Ukraine’s strikes on russia, last 24h',trump:'What Trump says',diplo:'Diplomacy, sanctions & aid',react:'World reaction',kremlin:'Word from the swamps'},
     items:(n: any) =>n+(n===1?' item':' items'),
