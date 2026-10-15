@@ -90,6 +90,23 @@ h1.hl{font-size:clamp(26px,4.2vw,40px);line-height:1.14}
 /* digest view */
 .view{padding-block:28px 0}
 .digest{display:flex;flex-direction:column;gap:36px}
+/* digest column + sticky section rail; one left edge with the masthead */
+.dgrid{display:grid;grid-template-columns:minmax(0,700px) 280px;column-gap:60px;align-items:start}
+.dgrid>.col{margin-inline:0}
+.toc{position:sticky;top:16px;border-top:3px double var(--rule-strong);padding-top:12px;font-family:var(--ui);font-size:13px}
+.toc p{margin:0 0 6px;font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.toc ul{list-style:none;margin:0;padding:0}
+.toc li+li{border-top:1px solid var(--rule)}
+.toc a{display:flex;align-items:center;gap:10px;padding:6px 0;font-size:15px;line-height:1.3;color:var(--ink);text-decoration:none}
+.toc a:hover,.toc a[aria-current]{color:var(--accent)}
+.toc a[aria-current]{font-weight:600}
+.toc .sec-ico{width:24px;height:24px;transition:box-shadow .15s}
+.toc .sec-ico svg{width:15px;height:15px}
+.toc .sec-ico.img svg,.toc .sec-ico.img img{width:24px;height:24px}
+.toc .sec-ico.col svg{width:18px;height:18px}
+.toc a[aria-current] .sec-ico{box-shadow:0 0 0 2px var(--accent)}
+[id^="sec-"]{scroll-margin-top:16px}
+@media(max-width:1000px){.dgrid{display:block}.dgrid>.col{margin-inline:auto}.toc{display:none}}
 .sec{display:flex;flex-direction:column;gap:0;min-width:0}
 .sech{display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid var(--rule-strong);padding-bottom:6px;margin-bottom:4px}
 h2{font-family:var(--ui);font-size:15px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;margin:0}

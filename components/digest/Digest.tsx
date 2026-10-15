@@ -4,6 +4,7 @@ import { noFlag, secTitle } from "@/lib/text";
 import { secIcon } from "@/lib/icons";
 import type { Strikes } from "@/lib/strikes";
 import ChkToggle from "./ChkToggle";
+import TocSpy from "./TocSpy";
 import Item, { SrcChip, type RC } from "./Item";
 
 export function SecIco({ id, s }: { id: string; s?: Section }) {
@@ -65,7 +66,9 @@ function Sources({ D, t }: Omit<RC, "lang"> & { D: DigestT }) {
 
 export default function Digest({ D, lang, t, strikes }: RC & { D: DigestT; strikes: Strikes | null }) {
   const secs = (D.sections || []).filter((s) => s.items && s.items.length);
+  const toc: [string, string, Section?][] = [...secs.map((s): [string, string, Section] => [s.id, noFlag(secTitle(s, lang)), s]), ["diverge", t.diverge], ["sources", t.sources]];
   return (
+    <div className="dgrid">
     <div className="col digest">
       {lang === "en" && D.contentLang !== "en" && <p className="lang-note">{t.langNote}</p>}
       {secs.map((s) => (
@@ -92,6 +95,12 @@ export default function Digest({ D, lang, t, strikes }: RC & { D: DigestT; strik
       </section>
       <Sources D={D} t={t} />
       <footer className="foot">{D.footer}</footer>
+    </div>
+    <nav className="toc" aria-label={t.toc}>
+      <p>{t.toc}</p>
+      <ul>{toc.map(([id, label, s]) => <li key={id}><a href={"#sec-" + id}><SecIco id={id} s={s} /><span>{label}</span></a></li>)}</ul>
+      <TocSpy />
+    </nav>
     </div>
   );
 }
