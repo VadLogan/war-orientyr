@@ -19,6 +19,8 @@ npm run build && npm start
 Деплой: імпортуйте репозиторій у Vercel/Netlify (без додаткових налаштувань).
 
 ## Щоденне оновлення даних
+Новий випуск: `npm run publish -- шлях/до/нового-digest.json` — поточний `digest.json` переноситься в архів (`issues/<дата>.json`), новий стає `digest.json`, дата додається в `issues/index.json` (той самий день — заміна без архівування). Далі `npm run validate` і переклад (`npm run i18n:missing` → `npm run i18n:merge`).
+
 Поки Artifact лишається основним, щоденна задача публікує дані в Artifact. Щоб Next.js-копія не відставала, скопіюйте у `public/`
 файли `digest.json`, `issues/<дата>.json`, `issues/index.json`, `strikes.json` (і за потреби `prices.json`, `recruit.json`, `maps/maps.json`),
 потім `npm run validate` і коміт — Vercel перебудує сайт. `landcost.json` і `maps/strikes-base.json` не змінюються.

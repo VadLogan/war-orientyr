@@ -9,6 +9,7 @@
     "build": "next build",
     "start": "next start",
     "validate": "node scripts/validate.mjs",
+    "publish": "node scripts/publish.mjs",
     "i18n:missing": "node scripts/i18n.mjs missing",
     "i18n:merge": "node scripts/i18n.mjs merge"
   },

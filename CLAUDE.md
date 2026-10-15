@@ -4,6 +4,7 @@ Daily war digest (UA/EN), ported from a single-file Artifact to Next.js. See REA
 
 ## Commands
 - `npm run dev` — localhost:3000
+- `npm run publish -- <new-digest.json> [--force]` — new issue: copies the current `public/digest.json` to `issues/<date>.json`, installs the new file as `digest.json`, adds its date to `issues/index.json`. Same date = correction (no archiving); older date refused.
 - `npm run validate` — parses all `public/` JSON, checks digest.json schema keys and that `issues/index.json` contains digest's date. Run after any data change.
 - `npm run build` — no test suite; validate + build is the check.
 

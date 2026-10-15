@@ -1,6 +1,6 @@
 // Checks that the data files the page needs parse and the digest schema keys are intact.
 import fs from "node:fs";
-const must = ["schema","date","weekday","dateLabel","lede","headline","since","front","airDefense","timeline","losses","civilianStats","sbs","sbsHistory","sections","divergences","sources","unavailable","assumption","footer"];
+import { MUST as must } from "./schema.mjs";
 const rd = (p) => JSON.parse(fs.readFileSync(new URL("../public/" + p, import.meta.url), "utf8"));
 const d = rd("digest.json");
 const miss = must.filter((k) => !(k in d));
