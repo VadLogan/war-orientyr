@@ -50,10 +50,10 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-off
 @media(max-width:420px){.brand svg{width:28px;height:28px}.brand .bw{font-size:18px}.brand .bn{font-size:20px}}
 .controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .seg{display:inline-flex;border:1px solid var(--rule-strong);border-radius:2px;overflow:hidden}
-.seg button{font-family:var(--ui);font-size:14px;font-weight:500;letter-spacing:.02em;background:transparent;color:var(--ink);border:0;padding:6px 12px;cursor:pointer;min-height:34px}
-.seg button+button{border-left:1px solid var(--rule-strong)}
-.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
-.seg.lang button{padding:6px 10px;font-family:var(--mono);font-size:12.5px}
+.seg :is(button,a){font-family:var(--ui);font-size:14px;font-weight:500;letter-spacing:.02em;background:transparent;color:var(--ink);border:0;padding:6px 12px;cursor:pointer;min-height:34px}
+.seg :is(button,a)+:is(button,a){border-left:1px solid var(--rule-strong)}
+.seg :is(button[aria-pressed="true"],a[aria-current]){background:var(--ink);color:var(--bg)}
+.seg.lang :is(button,a){padding:6px 10px;font-family:var(--mono);font-size:12.5px}
 
 /* masthead */
 .mast{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:20px 32px;align-items:end;padding-block:28px 22px;border-bottom:3px double var(--rule-strong)}
@@ -222,13 +222,13 @@ button.dchip{font:inherit;background:transparent;color:var(--ink);border:1px sol
 .datebar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding-block:12px;border-bottom:1px solid var(--rule)}
 .datebar label{font-family:var(--ui);font-size:12.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
 .dnav{display:inline-flex;align-items:stretch;border:1px solid var(--rule-strong);border-radius:2px;min-width:0;max-width:100%}
-.dnav button{font-family:var(--ui);font-size:14px;background:transparent;color:var(--ink);border:0;padding:4px 12px;min-height:36px;cursor:pointer;white-space:nowrap}
+.dnav :is(button,a){font-family:var(--ui);font-size:14px;background:transparent;color:var(--ink);border:0;padding:4px 12px;min-height:36px;cursor:pointer;white-space:nowrap}
 .dnav button:disabled{color:var(--muted);opacity:.45;cursor:default}
 .dnav select{font-family:var(--ui);font-size:14.5px;font-weight:500;background:var(--surface);color:var(--ink);border:0;border-left:1px solid var(--rule-strong);border-right:1px solid var(--rule-strong);padding:4px 10px;min-height:36px;min-width:0;cursor:pointer}
 .dnav select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .datebar .count{font-family:var(--mono);font-size:12px;color:var(--muted)}
 .datebar .latest{margin-left:auto}
-@media(max-width:520px){.dnav button{padding:4px 9px}.dnav .t{display:none}}
+@media(max-width:520px){.dnav :is(button,a){padding:4px 9px}.dnav .t{display:none}}
 .archive-note{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;font-family:var(--ui);font-size:14px;background:var(--part-soft);color:var(--ink);padding:9px 12px;border-radius:2px;margin-top:16px}
 .archive-note b{color:var(--part);font-weight:600;letter-spacing:.06em;text-transform:uppercase;font-size:12.5px}
 .tl-plot .sel{stroke:var(--accent);stroke-width:2;opacity:.55}
@@ -262,6 +262,8 @@ button.dchip{font:inherit;background:transparent;color:var(--ink);border:1px sol
 .map-svg .stk text{font:600 11px var(--mono);fill:#fff;pointer-events:none}
 .map-svg .stk text.u{fill:var(--c2)}
 .item{transition:background .8s}.item.flash{background:var(--accent-soft)}
+.item:target{background:var(--accent-soft);scroll-margin-top:30vh}
+.seg a,.dnav a{display:inline-flex;align-items:center;text-decoration:none}
 /* losses & sbs */
 .sbs-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
 .sbs-row>div{border-top:1px solid var(--rule);padding-top:8px;display:flex;flex-direction:column;gap:2px;min-width:0}

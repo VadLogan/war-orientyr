@@ -8,18 +8,17 @@ Daily war digest (UA/EN), ported from a single-file Artifact to Next.js. See REA
 - `npm run build` — no test suite; validate + build is the check.
 
 ## Architecture
-- `app/page.tsx` — server component: reads `public/digest.json` + `issues/index.json` at build time, applies `styleData`, renders `<App>`.
-- `components/App.tsx` — client root: owns lang (`localStorage` `wd-lang`), view, current issue, hash routing (`#dashboard`, `#YYYY-MM-DD`, `#dashboard-YYYY-MM-DD`); archive issues fetched on demand. Shared state via `components/ctx.ts` (`useApp()`).
-- `components/digest/` — Digest tab (`Digest.tsx`, `Item.tsx`). `components/Mast.tsx`, `components/Tooltip.tsx` (global `[data-tip]`).
-- `components/dash/` — Dashboard: `Panels.tsx` (civilians, tiles, attack cost, recruitment, land cost, fire), `Timeline.tsx` (timeline + directions, shared selection), `Losses.tsx`, `LineChart.tsx` (shared chart), `SourceMatrix.tsx`, `Maps.tsx` (maps comparison + strikes map, d3-geo/d3-zoom, lazy-loaded). `hooks.ts`: `useSticky` (state kept across tab switches), `useJson`, width hooks.
-- `lib/` — `ui.ts` (UI strings), `text.ts` (house style, plural, dates, formatting), `icons.ts`, `strikes.ts`. `types/digest.ts` — data shape.
-- Charts are JSX `<svg>`; d3 (npm) only for geo projection and zoom.
-- `app/globals.css` — styles copied unchanged from original index.html; components keep the original class names.
+- Routes (all statically generated, `dynamicParams = false`): `/[date]`, `/dashboard/[date]`, `/en/[date]`, `/en/dashboard/[date]`; no date = latest issue. Files: `app/(uk)/…` and `app/(en)/en/…` — two route groups, each with its own root layout so `<html lang>` is static. Page files are thin wrappers around `components/DigestPage.tsx` / `components/dash/DashPage.tsx`.
+- `lib/data.ts` — server-only data access (reads `public/` at build time, `styleData` applied; source matrix precomputed). `lib/page.ts` — `resolve()`, `dateParams()`, `pageMeta()` (title, hreflang, canonical). `lib/routes.ts` — `href(lang, view, date, latest)`.
+- Digest is Server Components only (`components/digest/`, `Mast.tsx`, `Shell.tsx`); client islands: `digest/ChkToggle.tsx`, `IssueSelect.tsx`, `HashRedirect.tsx` (old `#date`/`#dashboard` links → paths). Keep dashboard imports out of digest modules, or the dashboard JS ships on digest pages.
+- Dashboard is a client tree: `dash/DashProvider.tsx` (context from `ctx.ts`, router-based navigation, gets trimmed `DashIssue` data from the server), `Panels.tsx`, `Timeline.tsx`, `Losses.tsx`, `LineChart.tsx`, `SourceMatrix.tsx`, `Maps.tsx` (d3-geo/d3-zoom, lazy). Client JSON fetches must use absolute paths (`/prices.json`). `hooks.ts`: `useSticky`, `useJson`, width hooks.
+- `lib/ui.ts` (UI strings), `lib/text.ts` (house style, plural, dates), `lib/icons.ts`, `lib/strikes.ts`; `types/digest.ts`.
+- `app/globals.css` — original styles; components keep the original class names. Active links use `aria-current`.
 
 ## Data (`public/`)
 - Updated daily: `digest.json`, `issues/<YYYY-MM-DD>.json`, `issues/index.json`, `strikes.json`; sometimes `prices.json`, `recruit.json`, `maps/maps.json`.
 - Static: `landcost.json`, `maps/strikes-base.json`, `maps/targets.json`.
-- Artifact is still the primary publisher; repo copy is synced manually, then validate + commit → Vercel deploys.
+- Artifact is still the primary publisher; repo copy is synced manually, then validate + commit → Vercel rebuilds (pages are generated at build time, so data changes need a deploy).
 
 ## Tools
 - `tools/maps/extract.js` — browser-console snippet to pull map polygons from DeepState / ISW (ArcGIS) / DIVGEN; delta+DP-encoded rings, FNV hash.

@@ -126,7 +126,7 @@ const atkMix = (e: { mix?: Mix; launched?: number }) => {
 export function Attack() {
   const { D, LATEST, DATES, lang, selectDate } = useApp();
   const W = useChartW();
-  const { data: P, err } = useJson<Prices>("prices.json");
+  const { data: P, err } = useJson<Prices>("/prices.json");
   const [sel, setSel] = useState<number | null>(null);
   const wrapRef = useRef<HTMLDivElement>(null), tipRef = useRef<HTMLDivElement>(null), gRefs = useRef<(SVGGElement | null)[]>([]);
   useLayoutEffect(() => {
@@ -231,7 +231,7 @@ function mSpan(a: string, b: string) {
 export function Recruit() {
   const { lang } = useApp();
   const W = useChartW();
-  const { data: C, err } = useJson<Recruit>("recruit.json");
+  const { data: C, err } = useJson<Recruit>("/recruit.json");
   const head = <h2>Набір у російську армію проти втрат — оцінка</h2>;
   if (err) return <section className="panel rec" id="rec">{head}<div><p className="map-src">Не вдалося завантажити дані (recruit.json).</p></div></section>;
   if (!C) return <section className="panel rec" id="rec">{head}<div><p className="map-src">Завантаження…</p></div></section>;
@@ -309,7 +309,7 @@ export type MapsData = {
 export function LandCost() {
   const { LATEST, lang, t: T } = useApp();
   const t = T.lcost;
-  const lc = useJson<LandCfg>("landcost.json"), mp = useJson<MapsData>("maps/maps.json");
+  const lc = useJson<LandCfg>("/landcost.json"), mp = useJson<MapsData>("/maps/maps.json");
   const wrap = (x: React.ReactNode) => <section className="tlwrap" id="landcost"><div className="tl-head"><h2>{t.title}</h2><p>{t.sub}</p></div><div>{x}</div></section>;
   if (lc.err || mp.err) return wrap(<p className="map-src">{t.err}</p>);
   if (!lc.data || !mp.data) return wrap(<p className="map-src">{t.loading}</p>);

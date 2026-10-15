@@ -1,10 +1,10 @@
-"use client";
-import { useState } from "react";
-import type { Section, Source } from "@/types/digest";
+// Server component: the Digest tab.
+import type { Digest as DigestT, Section, Source } from "@/types/digest";
 import { noFlag, secTitle } from "@/lib/text";
 import { secIcon } from "@/lib/icons";
-import { useApp } from "../ctx";
-import Item, { SrcChip } from "./Item";
+import type { Strikes } from "@/lib/strikes";
+import ChkToggle from "./ChkToggle";
+import Item, { SrcChip, type RC } from "./Item";
 
 export function SecIco({ id, s }: { id: string; s?: Section }) {
   const ic = secIcon(id, s);
@@ -27,9 +27,7 @@ export function countSources(S: Source[]) {
   return c;
 }
 
-function Sources() {
-  const { D, t } = useApp();
-  const [open, setOpen] = useState(false);
+function Sources({ D, t }: Omit<RC, "lang"> & { D: DigestT }) {
   const S = D.sources || [];
   const c = countSources(S), tot = Math.max(1, S.length), line = t.covLine(c.ok, c.partial, c.unavailable);
   const sorted = S.map((s, n) => [s, n] as const).sort((a, b) => (SRC_ORD[a[0].status] ?? 0) - (SRC_ORD[b[0].status] ?? 0) || a[1] - b[1]).map((x) => x[0]);
@@ -49,27 +47,23 @@ function Sources() {
           <span><i style={{ background: "var(--unv)" }} />{t.st.unavailable} {c.unavailable}</span>
         </div>
       </div>
-      <div className={"chk" + (open ? " open" : "")} id="sec-check">
+      <ChkToggle more={t.chkMore} less={t.chkLess}>
         <div className="chk-body srcw" id="chkBody">
           <ul className="srcs">
             {sorted.map((s, k) => (
-              <li key={k}><a href={s.url} target="_blank" rel="noopener">{s.title}</a><SrcChip s={s} />
+              <li key={k}><a href={s.url} target="_blank" rel="noopener">{s.title}</a><SrcChip s={s} t={t} />
                 {(s.kind === "ru" || s.note) && <em>{s.kind === "ru" ? t.kindRu : s.note}</em>}</li>
             ))}
           </ul>
         </div>
-        <button type="button" className="linkbtn chk-btn" aria-expanded={open} aria-controls="chkBody" onClick={() => setOpen(!open)}>
-          {open ? t.chkLess + " ▴" : t.chkMore + " ▾"}
-        </button>
-      </div>
+      </ChkToggle>
       <p className="note">{D.assumption}</p>
       <p className="note">{(D.since[0] || {}).note || ""}. {t.countNote}</p>
     </section>
   );
 }
 
-export default function Digest() {
-  const { D, t, lang } = useApp();
+export default function Digest({ D, lang, t, strikes }: RC & { D: DigestT; strikes: Strikes | null }) {
   const secs = (D.sections || []).filter((s) => s.items && s.items.length);
   return (
     <div className="col digest">
@@ -78,7 +72,7 @@ export default function Digest() {
         <section className="sec" id={"sec-" + s.id} key={s.id}>
           <div className="sech"><h2><SecIco id={s.id} s={s} /><span>{noFlag(secTitle(s, lang))}</span></h2><span>{t.items(s.items.length)}</span></div>
           {s.id === "react" && <FlagSub s={s} />}
-          {s.items.map((i, k) => <Item i={i} key={i.id || k} />)}
+          {s.items.map((i, k) => <Item i={i} key={i.id || k} lang={lang} t={t} strikes={strikes} />)}
         </section>
       ))}
       <section className="diverge" id="sec-diverge">
@@ -96,7 +90,7 @@ export default function Digest() {
           </div>
         ))}
       </section>
-      <Sources />
+      <Sources D={D} t={t} />
       <footer className="foot">{D.footer}</footer>
     </div>
   );

@@ -3,7 +3,7 @@
 Сторінка повністю на React (Next.js App Router); дизайн і поведінка ті самі, що в оригінальному Artifact.
 
 - `app/layout.tsx` — шрифти, метадані; `app/globals.css` — стилі з оригінального `index.html` без змін.
-- `app/page.tsx` — читає `digest.json` та `issues/index.json` під час збірки; `components/App.tsx` — стан, мова, маршрути `#…`.
+- Сторінки генеруються під час збірки: `/`, `/2026-10-07`, `/en/…`, `/dashboard/…` (маршрути в `app/(uk)` і `app/(en)`); «Дайджест» — серверні компоненти без клієнтського JS, старі посилання `#дата` перенаправляються.
 - `components/digest/` — вкладка «Дайджест»; `components/dash/` — «Дашборд» (графіки — JSX SVG, карти — d3-geo/d3-zoom).
 - `lib/` — рядки інтерфейсу (`ui.ts`), домашній стиль і форматування (`text.ts`), іконки, дані ударів; `types/digest.ts` — типи даних.
 - `public/*.json`, `public/issues/`, `public/maps/` — ті самі файли даних і ті самі відносні шляхи (`digest.json`, `issues/YYYY-MM-DD.json`, …).

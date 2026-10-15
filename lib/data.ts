@@ -1,0 +1,56 @@
+// Server-side data access: everything is read from public/ at build time (all pages are statically generated).
+import fs from "node:fs/promises";
+import path from "node:path";
+import { cache } from "react";
+import type { Digest } from "@/types/digest";
+import type { StrikesBase, StrikesData, Strikes } from "./strikes";
+import { styleData } from "./text";
+
+const read = async <T,>(p: string): Promise<T> => JSON.parse(await fs.readFile(path.join(process.cwd(), "public", p), "utf8"));
+
+export const getLatest = cache(async () => styleData(await read("digest.json"), "") as Digest);
+
+/** Archive dates (ascending), always including the latest issue. */
+export const getDates = cache(async () => {
+  const latest = await getLatest();
+  let ds: string[] = [];
+  try {
+    const j = await read<{ dates?: string[] }>("issues/index.json");
+    ds = (Array.isArray(j?.dates) ? j.dates : []).filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d));
+  } catch {}
+  return [...new Set([...ds, latest.date])].filter((d) => d <= latest.date).sort();
+});
+
+export const getIssue = cache(async (date: string) => {
+  const latest = await getLatest();
+  if (date === latest.date) return latest;
+  const j = styleData(await read(`issues/${date}.json`), "") as Digest;
+  if (!j || j.date !== date) throw new Error("issue date mismatch: " + date);
+  return j;
+});
+
+export const getStrikes = cache(async (): Promise<Strikes> => ({
+  stk: await read<StrikesData>("strikes.json"),
+  base: await read<StrikesBase>("maps/strikes-base.json"),
+}));
+
+/* ---------- source status per domain per issue (dashboard "Sources by day") ---------- */
+export type Cnt = { ok: number; partial: number; unavailable: number };
+export type SourceMatrix = { days: string[]; rows: { k: string; by: Record<string, Cnt> }[] };
+const domOf = (u: string) => { try { return new URL(u).hostname.replace(/^www\./, ""); } catch { return String(u || "?"); } };
+
+export const getSourceMatrix = cache(async (): Promise<SourceMatrix> => {
+  const res = await Promise.allSettled((await getDates()).map(getIssue));
+  const days: string[] = [], rows: Record<string, SourceMatrix["rows"][number]> = {};
+  res.forEach((r) => {
+    if (r.status !== "fulfilled") return;
+    const iss = r.value;
+    days.push(iss.date);
+    (iss.sources || []).forEach((s) => {
+      const k = domOf(s.url), o = (rows[k] ||= { k, by: {} });
+      const c = (o.by[iss.date] ||= { ok: 0, partial: 0, unavailable: 0 });
+      c[s.status in c ? s.status : "ok"]++;
+    });
+  });
+  return { days, rows: Object.values(rows) };
+});

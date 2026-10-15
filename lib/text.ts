@@ -109,7 +109,7 @@ export function niceMax(v: number) {
   return Math.max(1, (f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10) * e) * 4;
 }
 /** Timeline of the latest issue (falls back to the older airDefenseHistory format). */
-export function TL(B: Digest): TimelineEntry[] {
+export function TL(B: Pick<Digest, "timeline" | "airDefenseHistory">): TimelineEntry[] {
   const a: TimelineEntry[] = B.timeline || (B.airDefenseHistory || []).map((h) => ({
     date: h.date, night: (h.label || "").replace(/^ніч\s*/, ""), launched: h.launched, intercepted: h.intercepted, src: { air: h.source || "" },
   }));

@@ -2,7 +2,7 @@
 import { Fragment, useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { geoConicConformal, geoPath, select, zoom, zoomIdentity, type GeoPermissibleObjects, type ZoomBehavior, type ZoomTransform } from "d3";
 import { dayN, fmt, houseStyle } from "@/lib/text";
-import { distLabel, kmBetween, type Strike } from "@/lib/strikes";
+import { distLabel, kmBetween, type Strike, type StrikesBase, type StrikesData } from "@/lib/strikes";
 import { useApp } from "../ctx";
 import { LOCK } from "../digest/Item";
 import { useElWidth, useJson, useSticky } from "./hooks";
@@ -87,7 +87,7 @@ export function MapsCompare() {
   const [pair, setPair] = useSticky("mapPair", "isw_ds");
   const [ev, setEv] = useSticky("mapEv", true);
   const [tip, setTip] = useState<Tip>(null);
-  const { data: M, err } = useJson<MapsData>("maps/maps.json");
+  const { data: M, err } = useJson<MapsData>("/maps/maps.json");
   const wrapRef = useRef<HTMLDivElement>(null);
   const w = useElWidth(wrapRef);
   const W = Math.max(300, w || 800), H = Math.round(Math.min(600, Math.max(340, W * 0.62)));
@@ -228,7 +228,10 @@ const grpOf = (x: Strike) => STK_GRP[x.kind] || "log";
 const dmy = (d: string) => d.split("-").reverse().join(".");
 
 export function StrikesMap() {
-  const { t: TT, lang, D, strikes, strikesErr: stkErr, needStrikes, goItem } = useApp();
+  const { t: TT, lang, D, goItem } = useApp();
+  const sd = useJson<StrikesData>("/strikes.json"), sb = useJson<StrikesBase>("/maps/strikes-base.json");
+  const strikes = useMemo(() => (sd.data && sb.data ? { stk: sd.data, base: sb.data } : null), [sd.data, sb.data]);
+  const stkErr = sd.err || sb.err;
   const t = TT.stk, en = lang === "en";
   const [per, setPer] = useSticky("stkPer", "30");
   const [grp, setGrp] = useSticky<Record<string, boolean>>("stkGrp", { oil: true, mil: true, log: true, en: true });
@@ -237,14 +240,13 @@ export function StrikesMap() {
   const [tgOn, setTgOn] = useSticky("tgOn", false);
   const [tgCat, setTgCat] = useSticky<Record<string, boolean>>("tgCat", { fuel: true, en: true, air: true, mil: true, dc: true });
   const [tip, setTip] = useState<Tip>(null);
-  const maps = useJson<MapsData>("maps/maps.json");
-  const tg = useJson<{ items: Target[]; note?: string }>(tgOn ? "maps/targets.json" : null);
+  const maps = useJson<MapsData>("/maps/maps.json");
+  const tg = useJson<{ items: Target[]; note?: string }>(tgOn ? "/maps/targets.json" : null);
   const wrapRef = useRef<HTMLDivElement>(null);
   const secRef = useRef<HTMLElement>(null);
   const w = useElWidth(wrapRef);
   const W = Math.max(300, w || 800), H = Math.round(Math.min(560, Math.max(320, W * 0.56)));
   const z = useZoom("stkZ", !!strikes, [0.4, 12], [[-W * 1.5, -H * 0.8], [W * 2.5, H * 1.6]]);
-  useEffect(() => { needStrikes(); }, [needStrikes]);
 
   const S = strikes;
   const end = dayN(D.date);
