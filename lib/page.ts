@@ -31,5 +31,8 @@ export async function pageMeta(lang: Lang, view: View, params: DateParams): Prom
     title: dateTitle(D, lang).h + (view === "dashboard" ? " · " + UI[lang].dash : ""), // site name added by the layout template
     description: (D.headline?.title || D.lede || "").slice(0, 200),
     alternates: { canonical: url(lang), languages: { uk: url("uk"), en: url("en") } },
+    ...(view === "dashboard" && {
+      icons: { icon: [{ url: "/dash/icon.svg", type: "image/svg+xml" }, { url: "/dash/icon-32.png", sizes: "32x32" }], apple: "/dash/apple-icon.png" },
+    }),
   };
 }

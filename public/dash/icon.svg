@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <style>
+    .r{fill:none;stroke:#b8741a;stroke-width:14}
+    .b{fill:none;stroke:#1d4b80;stroke-width:10;stroke-linecap:round}
+    .a{fill:#1d4b80;stroke:#1d4b80;stroke-width:4;stroke-linejoin:round}
+    @media (prefers-color-scheme: dark){.r{stroke:#e2b465}.b{stroke:#8fb6e4}.a{fill:#8fb6e4;stroke:#8fb6e4}}
+  </style>
+  <path class="r" d="M80.8 35.6 A34 34 0 1 1 64.4 19.2"/>
+  <path class="b" d="M36 65V54M50 65V37M64 65V47"/>
+  <polygon class="a" points="86.1,38 62,13.9 90.3,9.7"/>
+</svg>

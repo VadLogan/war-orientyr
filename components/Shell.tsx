@@ -19,8 +19,10 @@ export default function Shell({ lang, t, view, date, latest, dates }: P) {
         <div className="brand" dangerouslySetInnerHTML={{ __html: t.brand }} />
         <div className="controls">
           <div className="seg" role="group">
-            <Tab on={view === "digest"} to={to({ view: "digest" })}>{t.digest}</Tab>
-            <Tab on={view === "dashboard"} to={to({ view: "dashboard" })}>{t.dash}</Tab>
+            <Tab on={view === "digest"} to={to({ view: "digest" })}>
+              <svg className="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="2.5" /><path d="M7.5 8.5h9M7.5 12h9M7.5 15.5h5.5" /></svg>{t.digest}</Tab>
+            <Tab on={view === "dashboard"} to={to({ view: "dashboard" })}>
+              <svg className="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16M7 16.5v-4M12 16.5V6M17 16.5v-7" /></svg>{t.dash}</Tab>
           </div>
           <LangPicker lang={lang} hrefs={Object.fromEntries(LANGS.map((l) => [l.code, to({ lang: l.code })])) as Record<Lang, string>} />
         </div>
