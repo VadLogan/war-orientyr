@@ -4,9 +4,9 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 import type { Lang } from "@/lib/ui";
 import "@/app/globals.css";
 
-export const metadata: Metadata = {
-  title: "Щоденний дайджест війни",
-};
+const SITE: Record<Lang, string> = { uk: "Щоденний дайджест війни", en: "Daily war digest" };
+/** Root metadata per language: the site name, and the template pages' titles are wrapped in. */
+export const siteMeta = (lang: Lang): Metadata => ({ title: { default: SITE[lang], template: `%s · ${SITE[lang]}` } });
 export const viewport: Viewport = { width: "device-width", initialScale: 1, viewportFit: "cover" };
 
 const FONTS = [

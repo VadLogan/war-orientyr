@@ -23,13 +23,12 @@ export async function resolve(params: DateParams, lang: Lang): Promise<{ latest:
   return { latest, dates, D: await getIssue(date, lang) };
 }
 
-const SITE = { uk: "Щоденний дайджест війни", en: "Daily war digest" };
 export async function pageMeta(lang: Lang, view: View, params: DateParams): Promise<Metadata> {
   const { latest, D } = await resolve(params, lang);
   const url = (l: Lang) => href(l, view, D.date, latest.date);
   return {
     metadataBase: new URL(process.env.VERCEL_PROJECT_PRODUCTION_URL ? "https://" + process.env.VERCEL_PROJECT_PRODUCTION_URL : "http://localhost:3000"),
-    title: `${dateTitle(D, lang).h} · ${view === "dashboard" ? UI[lang].dash + " · " : ""}${SITE[lang]}`,
+    title: dateTitle(D, lang).h + (view === "dashboard" ? " · " + UI[lang].dash : ""), // site name added by the layout template
     description: (D.headline?.title || D.lede || "").slice(0, 200),
     alternates: { canonical: url(lang), languages: { uk: url("uk"), en: url("en") } },
   };
