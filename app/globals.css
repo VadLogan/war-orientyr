@@ -295,6 +295,9 @@ button.dchip{font:inherit;background:transparent;color:var(--ink);border:1px sol
 .item{transition:background .8s}.item.flash{background:var(--accent-soft)}
 .item:target{background:var(--accent-soft);scroll-margin-top:30vh}
 .seg a,.dnav a{display:inline-flex;align-items:center;text-decoration:none}
+.topbar .seg{border-radius:8px}
+.topbar .seg a[aria-current]{background:var(--accent);color:var(--bg)}
+.seg a .ico{width:18px;height:18px;margin-right:7px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 /* losses & sbs */
 .sbs-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
 .sbs-row>div{border-top:1px solid var(--rule);padding-top:8px;display:flex;flex-direction:column;gap:2px;min-width:0}
