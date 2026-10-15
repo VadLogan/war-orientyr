@@ -13,7 +13,7 @@ export type Ctx = {
   D: DashIssue; // the issue on screen
   LATEST: DashIssue; // the newest issue (owns timeline/losses series)
   DATES: string[];
-  smx: SourceMatrix;
+  smx: SourceMatrix | null; // null while the "Sources by day" panel is hidden (lib/data.ts SHOW_SOURCE_MATRIX)
   selectDate: (date: string) => void;
   goItem: (date: string | undefined, id: string) => void;
 };

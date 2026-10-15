@@ -19,6 +19,7 @@ export default function SourceMatrix() {
   const [showAll, setShowAll] = useSticky("smxAll", false);
   const [only, setOnly] = useSticky("smxOnly", false);
   const selAll = useRef<HTMLInputElement>(null);
+  if (!data) return null;
 
 
   const nm = { ok: en ? "read" : "прочитано", partial: en ? "partial" : "частково", unavailable: en ? "unavailable" : "недоступне" };

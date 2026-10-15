@@ -12,7 +12,7 @@ const MapsCompare = dynamic(() => import("./Maps").then((m) => m.MapsCompare), {
 const StrikesMap = dynamic(() => import("./Maps").then((m) => m.StrikesMap), { ssr: false });
 
 export default function Dashboard() {
-  const { t, lang, D } = useApp();
+  const { t, lang, D, smx } = useApp();
   const [dirSel, setDirSel] = useSticky<DirSel>("dirSel", null);
   return (
     <div className="dash">
@@ -28,7 +28,7 @@ export default function Dashboard() {
       <StrikesMap />
       <Directions sel={dirSel} setSel={setDirSel} />
       <Fire />
-      <SourceMatrix />
+      {smx && <SourceMatrix />}
     </div>
   );
 }

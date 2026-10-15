@@ -44,6 +44,8 @@ export const getStrikes = cache(async (): Promise<Strikes> => ({
 }));
 
 /* ---------- source status per domain per issue (dashboard "Sources by day") ---------- */
+/** The panel is hidden for now; flip to true to bring it back (data and component are kept). */
+export const SHOW_SOURCE_MATRIX = false;
 export type Cnt = { ok: number; partial: number; unavailable: number };
 export type SourceMatrix = { days: string[]; rows: { k: string; by: Record<string, Cnt> }[] };
 const domOf = (u: string) => { try { return new URL(u).hostname.replace(/^www\./, ""); } catch { return String(u || "?"); } };

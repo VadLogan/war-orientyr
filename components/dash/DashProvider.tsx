@@ -9,7 +9,7 @@ import Tooltip from "../Tooltip";
 import Dashboard from "./Dashboard";
 
 /** Client root of the dashboard page; data comes from the server, navigation goes through the router. */
-export default function DashProvider({ lang, D, LATEST, DATES, smx }: { lang: Lang; D: DashIssue; LATEST: DashIssue; DATES: string[]; smx: SourceMatrix }) {
+export default function DashProvider({ lang, D, LATEST, DATES, smx }: { lang: Lang; D: DashIssue; LATEST: DashIssue; DATES: string[]; smx: SourceMatrix | null }) {
   const router = useRouter();
   const ctx: Ctx = useMemo(() => ({
     lang, t: strings(lang), D, LATEST, DATES, smx,
