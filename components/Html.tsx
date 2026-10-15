@@ -5,13 +5,7 @@ import type { Lang } from "@/lib/ui";
 import "@/app/globals.css";
 
 export const metadata: Metadata = {
-  title: "Щоденний дайджест війни", icons: {
-    icon: [
-      { url: '/favicon.ico', sizes: 'any' },
-      { url: '/icon.svg', type: 'image/svg+xml' },
-    ],
-    apple: '/apple-icon.png',
-  },
+  title: "Щоденний дайджест війни",
 };
 export const viewport: Viewport = { width: "device-width", initialScale: 1, viewportFit: "cover" };
 
