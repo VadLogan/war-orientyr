@@ -15,7 +15,8 @@ const CRX: [string, RegExp][] = COUNTRIES.map(([f,forms])=>[f,new RegExp(NOFLAG+
 const RU: [RegExp, (m: string, o: number, str: string) => string][] = [[new RegExp(L_+'(Росі(?:я|ї|ю|єю))'+R_,'gu'),m=>m.toLowerCase()],[new RegExp(L_+'(Російськ\\p{L}*)','gu'),m=>m.toLowerCase()],
   [new RegExp(L_+'РФ'+R_,'gu'),()=>'рф'],[new RegExp(L_+'(Федераці\\p{L}*)','gu'),(m,o,str)=>/росій\p{L}*\s$/u.test(str.slice(Math.max(0,o-12),o))?m.toLowerCase():m]];
 /* English: the same rules for the translated content */
-const EN_COUNTRIES: [string, string[]][] = [["🇺🇦", ["Ukraine"]], ["🇩🇪", ["Germany"]], ["🇲🇩", ["Moldova"]], ["🇺🇸", ["United States", "USA"]], ["🇬🇧", ["United Kingdom", "Britain", "UK"]],
+// "Ukraine’s …" (Air Force, General Staff) translates ЗСУ, which carries no flag on the Ukrainian site
+const EN_COUNTRIES: [string, string[]][] = [["🇺🇦", ["Ukraine(?![’']s)"]], ["🇩🇪", ["Germany"]], ["🇲🇩", ["Moldova"]], ["🇺🇸", ["United States", "USA"]], ["🇬🇧", ["United Kingdom", "Britain", "UK"]],
   ["🇨🇳", ["China"]], ["🇦🇪", ["United Arab Emirates", "UAE"]], ["🇫🇷", ["France"]], ["🇵🇱", ["Poland"]], ["🇧🇾", ["Belarus"]], ["🇹🇷", ["Turkey", "Türkiye"]],
   ["🇮🇳", ["India"]], ["🇮🇷", ["Iran"]], ["🇰🇵", ["North Korea"]], ["🇯🇵", ["Japan"]], ["🇮🇹", ["Italy"]], ["🇨🇦", ["Canada"]], ["🇳🇴", ["Norway"]],
   ["🇸🇪", ["Sweden"]], ["🇫🇮", ["Finland"]], ["🇳🇱", ["Netherlands"]], ["🇩🇰", ["Denmark"]], ["🇱🇹", ["Lithuania"]], ["🇱🇻", ["Latvia"]], ["🇪🇪", ["Estonia"]],

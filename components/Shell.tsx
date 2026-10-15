@@ -4,6 +4,7 @@ import { longDate, midDate } from "@/lib/text";
 import { href, type View } from "@/lib/routes";
 import type { Lang, UIStrings } from "@/lib/ui";
 import IssueSelect from "./IssueSelect";
+import LangLink from "./LangLink";
 
 type P = { lang: Lang; t: UIStrings; view: View; date: string; latest: string; dates: string[] };
 
@@ -22,8 +23,8 @@ export default function Shell({ lang, t, view, date, latest, dates }: P) {
             <Tab on={view === "dashboard"} to={to({ view: "dashboard" })}>{t.dash}</Tab>
           </div>
           <div className="seg lang" role="group" aria-label="Мова / Language">
-            <Link href={to({ lang: "uk" })} hrefLang="uk" aria-current={lang === "uk" ? "page" : undefined}>UA</Link>
-            <Link href={to({ lang: "en" })} hrefLang="en" aria-current={lang === "en" ? "page" : undefined}>EN</Link>
+            <LangLink lang="uk" href={to({ lang: "uk" })} current={lang === "uk"}>UA</LangLink>
+            <LangLink lang="en" href={to({ lang: "en" })} current={lang === "en"}>EN</LangLink>
           </div>
         </div>
       </header>
