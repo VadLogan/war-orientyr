@@ -1186,7 +1186,7 @@
       "en": "“Zaporizhzhia City is at the crossroads of multiple critical Ukrainian ground lines of communication (GLOCs) and serves as a critical transportation node for Ukrainian military logistics.”",
       "uk": "Запоріжжя розташоване на перетині кількох ключових українських наземних ліній комунікації та є критичним транспортним вузлом для української військової логістики."
      },
-     "source": "ISW, Russian Offensive Campaign Assessment, October 6, 2026 (прочитано через WebFetch)"
+     "source": "ISW, Russian Offensive Campaign Assessment, October 6, 2026"
     },
     {
      "text": "Попередня оцінка ISW (за 5 жовтня, опублікована 5.10 о 17:30 ET, тобто 23:30 за Варшавою) описувала ураження російським дроном пункту пропуску на кордоні з 🇲🇩 Молдовою та модифіковані дрони «Герань-4» для ударів по мостах.",
@@ -1368,7 +1368,7 @@
    "url": "https://www.reuters.com/world/europe/",
    "status": "unavailable",
    "kind": "intl",
-   "note": "Reuters: WebSearch з обмеженням reuters.com відхилено проксі (HTTP 400) у всіх спробах, WebFetch заблоковано (SITE_BLOCKED); жодного матеріалу Reuters не прочитано, заголовків і анонсів теж не отримано"
+   "note": "жодного матеріалу Reuters не прочитано, заголовків і анонсів теж не отримано"
   },
   {
    "title": "Угруповання СБС: онлайн-табло «Підрахуйка» (дані на 29.09)",

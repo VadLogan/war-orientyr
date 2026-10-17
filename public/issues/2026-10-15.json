@@ -2157,7 +2157,7 @@
    "url": "https://www.reuters.com",
    "status": "unavailable",
    "kind": "intl",
-   "note": "пошук з обмеженням домену відхилено проксі (HTTP 400); пошук без обмеження Reuters не видав"
+   "note": "матеріалів Reuters не знайдено"
   },
   {
    "title": "DeepState: api/history/last",

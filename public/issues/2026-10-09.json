@@ -1549,21 +1549,21 @@
    "url": "https://www.reuters.com",
    "status": "unavailable",
    "kind": "media",
-   "note": "Reuters: пошук з allowed_domains відхилено проксі (HTTP 400), матеріалів Reuters у випуску немає"
+   "note": "матеріалів Reuters у випуску немає"
   },
   {
    "title": "ISW / CTP: Russian Offensive Campaign Assessment, October 8, 2026",
    "url": "https://www.criticalthreats.org/analysis/russian-offensive-campaign-assessment-october-8-2026",
    "status": "unavailable",
    "kind": "monitor",
-   "note": "сторінка не відкрилась (помилка WebFetch); оцінку за 8.10 не прочитано"
+   "note": "оцінку за 8.10 не прочитано"
   },
   {
    "title": "DeepState: api/history/last",
    "url": "https://deepstatemap.live/api/history/last",
    "status": "partial",
    "kind": "ua",
-   "note": "прочитано лише id знімка"
+   "note": "геометрію карти отримати не вдалося"
   },
   {
    "title": "ArcGIS: ISW Assessed Control of Terrain in Ukraine (item)",

@@ -2365,7 +2365,7 @@
    "url": "https://www.reuters.com",
    "status": "unavailable",
    "kind": "intl",
-   "note": "пошук з обмеженням домену відхилено проксі (HTTP 400); у випуску — лише згадка через Axios"
+   "note": "у випуску — лише згадка через Axios"
   },
   {
    "title": "DeepState: api/history/last",

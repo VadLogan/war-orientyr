@@ -8,3 +8,6 @@ export function href(lang: Lang, view: View, date: string | null, latest: string
   return p || "/";
 }
 export const articleHref = (lang: Lang, date: string, name: string) => (lang === "en" ? "/en" : "") + `/articles/${date}/${name}`;
+/** Absolute site origin (production domain on Vercel, else localhost). */
+export const SITE = process.env.VERCEL_PROJECT_PRODUCTION_URL ? "https://" + process.env.VERCEL_PROJECT_PRODUCTION_URL : "http://localhost:3000";
+export const SITE_NAME: Record<Lang, string> = { uk: "Щоденний дайджест війни", en: "Daily war digest" };

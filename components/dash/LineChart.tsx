@@ -3,6 +3,7 @@ import { useLayoutEffect, useRef, useState, type KeyboardEvent, type PointerEven
 import { dayN, fmt, nDay, niceMax, shortD } from "@/lib/text";
 import { useApp } from "../ctx";
 import { useElWidth } from "./hooks";
+import { flags } from "@/components/Flag";
 
 export type Ser<R> = { name: string; color: string; get: (e: R) => number | null; src: string; pct?: boolean };
 type Props<R extends { date: string }> = {
@@ -15,7 +16,7 @@ type Props<R extends { date: string }> = {
 };
 
 export function Legend<R>({ ser, bars }: { ser: Ser<R>[]; bars?: boolean }) {
-  return <div className={"tl-legend" + (bars ? " bars" : "")}>{ser.map((s) => <span key={s.name}><i style={{ background: s.color }} />{s.name}</span>)}</div>;
+  return <div className={"tl-legend" + (bars ? " bars" : "")}>{ser.map((s) => <span key={s.name}><i style={{ background: s.color }} />{flags(s.name)}</span>)}</div>;
 }
 
 /** Timeline-style chart: one bar group or point per day, hover/keyboard readout, click opens that day's issue. */
@@ -55,10 +56,10 @@ export default function LineChart<R extends { date: string }>(c: Props<R>) {
     return (
       <div className="tl-plot" ref={plotRef}>
         <div className="tl-table"><table>
-          <thead><tr><th>{t.colDate}</th>{ser.map((s) => <th className="n" key={s.name}>{s.name}</th>)}<th>{t.srcL}</th></tr></thead>
+          <thead><tr><th>{t.colDate}</th>{ser.map((s) => <th className="n" key={s.name}>{flags(s.name)}</th>)}<th>{t.srcL}</th></tr></thead>
           <tbody>{rows.slice().reverse().map((e) => (
             <tr key={e.date}><td>{c.label(e)}</td>{ser.map((s) => <td className="n" key={s.name}>{c.fmtV(s, s.get(e))}</td>)}
-              <td className="src">{[...new Set(ser.map((s) => c.srcOf(e, s)).filter(Boolean))].join("; ")}</td></tr>
+              <td className="src">{flags([...new Set(ser.map((s) => c.srcOf(e, s)).filter(Boolean))].join("; "))}</td></tr>
           ))}</tbody>
         </table></div>
       </div>
@@ -150,9 +151,9 @@ export default function LineChart<R extends { date: string }>(c: Props<R>) {
       {cur && (
         <div className={"ctip" + (bars ? " bars" : "")} ref={tipRef}>
           <div className="d">{c.label(cur)}</div>
-          {ser.map((s) => <div className="r" key={s.name}><i style={{ background: s.color }} /><b>{c.fmtV(s, s.get(cur))}</b><span>{s.name}</span></div>)}
+          {ser.map((s) => <div className="r" key={s.name}><i style={{ background: s.color }} /><b>{c.fmtV(s, s.get(cur))}</b><span>{flags(s.name)}</span></div>)}
           {xv && <div className="r x"><b>{xv[0]}</b><span>{xv[1]}</span></div>}
-          {src && <div className="s">{src}</div>}
+          {src && <div className="s">{flags(src)}</div>}
           {canOpen(cur) && <div className="s" style={{ color: "var(--accent)" }}>{t.openIssue}</div>}
         </div>
       )}

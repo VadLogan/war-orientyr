@@ -4,6 +4,7 @@ import { dayN, fmt, num, shortD, TL } from "@/lib/text";
 import { useApp } from "../ctx";
 import { useSticky } from "./hooks";
 import LineChart, { Legend, type Ser } from "./LineChart";
+import { flags } from "@/components/Flag";
 
 /* ---------- direction toggles (shared by the directions panel and the timeline) ---------- */
 export type DirSel = Set<string> | null;
@@ -72,7 +73,7 @@ export function Timeline({ sel, setSel }: { sel: DirSel; setSel: (s: DirSel) => 
       <div className="panel tl-panel">
         {metric === "dirs" ? (
           <div className="tl-legend">
-            {order.map((n) => <button type="button" className="dchip" key={n} aria-pressed={dirOn(sel, n, def)} onClick={() => setSel(toggle(sel, order, n))}><i style={{ background: dirCol(order, n) }} />{n}</button>)}
+            {order.map((n) => <button type="button" className="dchip" key={n} aria-pressed={dirOn(sel, n, def)} onClick={() => setSel(toggle(sel, order, n))}><i style={{ background: dirCol(order, n) }} />{flags(n)}</button>)}
             <DirCtl names={order} sel={sel} setSel={setSel} />
           </div>
         ) : <Legend ser={ser} bars={metric === "drones"} />}
@@ -109,7 +110,7 @@ export function Directions({ sel, setSel }: { sel: DirSel; setSel: (s: DirSel) =
     <div>
       <section className="panel">
         <h2>{t.pClashes}</h2>
-        <p className="sub">{F.source || ""}{F.period ? " · " + F.period : ""}</p>
+        <p className="sub">{flags(F.source || "")}{flags(F.period ? " · " + F.period : "")}</p>
         {F.clashesTotal != null && <p className="sub" style={{ margin: 0, color: "var(--ink)" }}>{t.dTot(fmt(F.clashesTotal, lang), pvD, totX)}</p>}
         <div className="dleg">
           {!dirs.length ? <span>{t.none}</span> : <>
@@ -118,7 +119,7 @@ export function Directions({ sel, setSel }: { sel: DirSel; setSel: (s: DirSel) =
               return (
                 <button type="button" className="dchip" key={d.name} aria-pressed={dirOn(sel, d.name, def)} onClick={() => setSel(toggle(sel, names, d.name))}
                   title={pv != null ? t.dTip(d.name, d.attacks, pvD, pv, x) : d.name + ": " + d.attacks + (PV ? " · " + t.dMiss : "")}>
-                  <i style={{ background: dirCol(order, d.name) }} />{d.name} <b>{fmt(d.attacks, lang)}</b>{" "}
+                  <i style={{ background: dirCol(order, d.name) }} />{flags(d.name)} <b>{fmt(d.attacks, lang)}</b>{" "}
                   <span className={"dl " + (x! > 0 ? "up" : x! < 0 ? "down" : "")}>{x == null ? (PV ? t.dNew : "") : (x > 0 ? "+" : x < 0 ? "−" : "±") + fmt(Math.abs(x), lang)}</span>
                 </button>
               );

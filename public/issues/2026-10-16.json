@@ -2295,7 +2295,7 @@
    "url": "https://www.axios.com/2026/10/15/ukraine-starlink-restored-strikes-russia-trump-musk",
    "status": "ok",
    "kind": "intl",
-   "note": "прочитано повністю через WebFetch; джерело — неназваний український посадовець"
+   "note": "джерело — неназваний український посадовець"
   },
   {
    "title": "Axios: заголовки /world (13–15.10)",
@@ -2321,7 +2321,7 @@
    "url": "https://www.reuters.com",
    "status": "unavailable",
    "kind": "intl",
-   "note": "пошук з обмеженням домену відхилено проксі (HTTP 400); пошук без обмеження матеріалів Reuters за 15–16.10 не видав"
+   "note": "матеріалів Reuters за 15–16.10 не знайдено"
   },
   {
    "title": "DeepState: api/history/last",

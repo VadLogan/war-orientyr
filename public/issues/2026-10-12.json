@@ -1833,14 +1833,14 @@
    "url": "https://www.reuters.com",
    "status": "unavailable",
    "kind": "media",
-   "note": "WebSearch з allowed_domains reuters.com відхилено проксі (HTTP 400), WebFetch reuters.com заблоковано; прямих матеріалів Reuters немає"
+   "note": "прямих матеріалів Reuters немає"
   },
   {
    "title": "DeepState: api/history/last",
    "url": "https://deepstatemap.live/api/history/last",
    "status": "partial",
    "kind": "ua",
-   "note": "прочитано лише id знімка"
+   "note": "геометрію карти отримати не вдалося"
   },
   {
    "title": "ArcGIS: ISW Assessed Control of Terrain in Ukraine (item)",

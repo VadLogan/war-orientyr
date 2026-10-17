@@ -7,10 +7,10 @@
   --s1:#1f63a8; --s2:#b8741a; --track:#dde2e0;
   --c1:#2a78d6; --c2:#eb6834; --c3:#1baf7a; --c4:#eda100; --c5:#e87ba4;
   --m-sea:#dfe6ea; --m-land:#f3f4f2; --m-ua:#fbfcfb; --m-border:#9aa5a8; --m-occ:#b5443c; --m-grey:#8a8f93; --m-dg:#6b4fbb; --m-onlydg:#e07b00; --m-onlydgg:#f0b45c; --m-onlyds:#1f63a8; --m-city:#2b3338; --m-isw:#0f7d6b; --m-iswadv:#7fb9ad;
-  --display:'Literata',Georgia,'Times New Roman',serif,'Noto Color Emoji';
-  --body:'Literata',Georgia,'Times New Roman',serif,'Noto Color Emoji';
-  --ui:'IBM Plex Sans Condensed','Arial Narrow',Arial,sans-serif,'Noto Color Emoji';
-  --mono:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace,'Noto Color Emoji';
+  --display:'Literata',Georgia,'Times New Roman',serif;
+  --body:'Literata',Georgia,'Times New Roman',serif;
+  --ui:'IBM Plex Sans Condensed','Arial Narrow',Arial,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#111619; --surface:#181e22; --ink:#e3e8e6; --muted:#99a5ac; --rule:#2c363b; --rule-strong:#e3e8e6;
@@ -54,7 +54,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-off
 .seg :is(button,a)+:is(button,a){border-left:1px solid var(--rule-strong)}
 .seg :is(button[aria-pressed="true"],a[aria-current]){background:var(--ink);color:var(--bg)}
 /* language picker (components/LangPicker.tsx) */
-.lp-flag{font-family:'Noto Color Emoji','Apple Color Emoji','Segoe UI Emoji',sans-serif;font-size:17px;line-height:1;width:22px;text-align:center;flex:none}
+.lp-flag{font-size:17px;line-height:1;width:22px;text-align:center;flex:none}
 .lp-code{font-family:var(--mono);font-size:9.5px;text-transform:uppercase;width:22px;height:16px;border:1px solid var(--rule);border-radius:2px;display:flex;align-items:center;justify-content:center;flex:none;color:var(--muted)}
 .lp-btn{display:inline-flex;align-items:center;gap:6px;min-height:34px;padding:0 10px;font-family:var(--mono);font-size:12.5px;color:var(--ink);background:transparent;border:1px solid var(--rule);border-radius:2px;cursor:pointer}
 .lp-btn:hover,.lp-btn:has(+.lp:popover-open){border-color:var(--rule-strong)}
@@ -145,7 +145,8 @@ h2{font-family:var(--ui);font-size:15px;font-weight:600;letter-spacing:.12em;tex
 @media (prefers-reduced-motion: reduce){.fi-red,.fi-line,.fi-sweep,.fi-t1,.fi-t2{animation:none}}
 .sec-ico.img img{width:30px;height:30px;display:block}
 .pico{display:inline-block;width:24px;height:24px;vertical-align:-6px;margin-right:6px}
-.emo{font-family:'Noto Color Emoji','Apple Color Emoji','Segoe UI Emoji',sans-serif;margin-right:4px}
+.emo{font-family:'Apple Color Emoji','Segoe UI Emoji',sans-serif;margin-right:4px}
+.flag{display:inline-block;width:1.2em;height:.8em;vertical-align:-.06em;border-radius:1.5px;box-shadow:0 0 0 .5px rgba(0,0,0,.2)}
 .item{display:flex;flex-direction:column;gap:7px;padding-block:14px;border-bottom:1px solid var(--rule);min-width:0}
 .item:last-child{border-bottom:0}
 .item p{margin:0}

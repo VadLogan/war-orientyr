@@ -1726,7 +1726,7 @@
    "url": "https://edition.cnn.com/2026/10/09/politics/trump-putin-russian-diesel",
    "status": "partial",
    "kind": "media",
-   "note": "WebFetch заблоковано robots.txt; використано лише заголовок і виписки пошуку"
+   "note": "використано лише заголовок і виписки пошуку"
   },
   {
    "title": "TASS: Trump publicly thanks Putin for diesel fuel supply deal",
@@ -1868,14 +1868,14 @@
    "url": "https://www.reuters.com",
    "status": "unavailable",
    "kind": "media",
-   "note": "Reuters: WebSearch з allowed_domains відхилено проксі (HTTP 400), WebFetch заблоковано (SITE_BLOCKED); Reuters присутній лише в переказах (відео через Главком, CNBC/CNN), прямих матеріалів не прочитано"
+   "note": "Reuters присутній лише в переказах (відео через Главком, CNBC/CNN); прямих матеріалів не прочитано"
   },
   {
    "title": "DeepState: api/history/last",
    "url": "https://deepstatemap.live/api/history/last",
    "status": "partial",
    "kind": "ua",
-   "note": "прочитано лише id знімка"
+   "note": "геометрію карти отримати не вдалося"
   },
   {
    "title": "ArcGIS: ISW Assessed Control of Terrain in Ukraine (item)",

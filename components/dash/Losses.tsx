@@ -5,6 +5,7 @@ import { useApp } from "../ctx";
 import { useSticky } from "./hooks";
 import LineChart, { Legend, type Ser } from "./LineChart";
 import { RangeSeg, rangeStart } from "./Timeline";
+import { flags } from "@/components/Flag";
 
 const LCATS = ["personnel", "tanks", "armoured", "artillery", "mlrs", "auto", "uav", "aa"] as const;
 
@@ -37,11 +38,11 @@ export default function Losses() {
   return (
     <section className="tlwrap" id="losses">
       <div className="tl-head"><h2>{t.ls}</h2><p>{t.lsSub}</p></div>
-      <p className="ls-caveat">{B.losses.caveat || ""}</p>
+      <p className="ls-caveat">{flags(B.losses.caveat || "")}</p>
       <div className="tiles ls-tiles">
         <div className="tile"><small>{t.lsRuDay}</small><b>{tv(row?.ru?.personnel)}</b><span>{t.lsRuSrc} · {row ? shortD(row.date) : "—"}</span></div>
-        <div className="tile"><small>{t.lsUaDay}</small><b>{tv(row?.ua?.personnel, true)}</b><span>{(row && row.ua && row.src && row.src.ua) || t.lsUaSrc}</span></div>
-        <div className="tile"><small>{t.lsRuTotal}</small><b>{tot && tot.personnel != null ? fmt(tot.personnel, lang) : "—"}</b><span>{(tot && tot.source) || ""}{tot && tot.date ? " · " + shortD(tot.date) : ""}</span></div>
+        <div className="tile"><small>{flags(t.lsUaDay)}</small><b>{tv(row?.ua?.personnel, true)}</b><span>{flags((row && row.ua && row.src && row.src.ua) || t.lsUaSrc)}</span></div>
+        <div className="tile"><small>{t.lsRuTotal}</small><b>{tot && tot.personnel != null ? fmt(tot.personnel, lang) : "—"}</b><span>{flags((tot && tot.source) || "")}{tot && tot.date ? " · " + shortD(tot.date) : ""}</span></div>
       </div>
       <div className="tl-controls">
         <div className="seg" role="group" aria-label={t.lsCatL}>{LCATS.map((k) => <button type="button" key={k} aria-pressed={cat === k} onClick={() => setCat(k)}>{t.lc[k]}</button>)}</div>
@@ -54,9 +55,9 @@ export default function Losses() {
         <LineChart key={cat + range + D.date} rows={rows} ser={ser} start={start} end={end} table={table} aria={t.ls} bars label={(e) => shortD(e.date)}
           srcOf={(e, s) => (e.src && e.src[s.src]) || ""}
           fmtV={(s, v) => (v == null ? "—" : (s.src === "ua" && cat === "personnel" ? "≈ " : "") + fmt(v, lang))} />
-        <p className="sub" style={{ margin: 0 }}>{note}</p>
+        <p className="sub" style={{ margin: 0 }}>{flags(note)}</p>
       </div>
-      <details className="method"><summary>{t.lsMethod}</summary><p>{(B.losses.method && B.losses.method.ru) || ""}</p><p>{(B.losses.method && B.losses.method.ua) || ""}</p></details>
+      <details className="method"><summary>{t.lsMethod}</summary><p>{flags((B.losses.method && B.losses.method.ru) || "")}</p><p>{flags((B.losses.method && B.losses.method.ua) || "")}</p></details>
     </section>
   );
 }

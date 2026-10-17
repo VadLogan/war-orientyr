@@ -1183,7 +1183,7 @@
       "when": "6–7.10",
       "said": "визнала атаку безекіпажних катерів на танкер під ліберійським прапором біля чорноморського узбережжя; порт Сочі і пожежу на танкері там не названо."
      },
-     "source": "ISW, Russian Offensive Campaign Assessment, October 7, 2026 (прочитано через WebFetch)"
+     "source": "ISW, Russian Offensive Campaign Assessment, October 7, 2026"
     },
     {
      "id": "sasovo-0810",
@@ -1397,7 +1397,7 @@
    "url": "https://www.reuters.com/world/europe/",
    "status": "unavailable",
    "kind": "intl",
-   "note": "Reuters: WebSearch з обмеженням reuters.com відхилено проксі (HTTP 400) у всіх спробах, WebFetch заблоковано (SITE_BLOCKED); жодного матеріалу Reuters не прочитано, заголовків і анонсів теж не отримано"
+   "note": "жодного матеріалу Reuters не прочитано, заголовків і анонсів теж не отримано"
   },
   {
    "title": "Euronews: Trump to talk plague with Putin (7.10, 13:28)",
@@ -1485,7 +1485,7 @@
    "url": "https://deepstatemap.live/api/history/last",
    "status": "partial",
    "kind": "ua",
-   "note": "прочитано лише id знімка"
+   "note": "геометрію карти отримати не вдалося"
   },
   {
    "title": "ArcGIS: ISW Assessed Control of Terrain in Ukraine (item)",

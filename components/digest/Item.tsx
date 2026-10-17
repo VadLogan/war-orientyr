@@ -5,6 +5,7 @@ import { fmt, plural } from "@/lib/text";
 import { fireIco, liIco, personIcons } from "@/lib/icons";
 import { distLabel, type Strikes } from "@/lib/strikes";
 import type { Lang, UIStrings } from "@/lib/ui";
+import { flags } from "@/components/Flag";
 
 /** Render context passed down from the page instead of a client context. */
 export type RC = { lang: Lang; t: UIStrings };
@@ -38,7 +39,7 @@ function Local({ l, t }: { l: ItemT["local"]; t: UIStrings }) {
   return (
     <p style={{ margin: 0, fontFamily: "var(--ui)", fontSize: 13.5, lineHeight: 1.45, color: "var(--muted)" }}>
       <span className={"chip " + (LOCK[l.verdict] || "ru")}>{t.loc[l.verdict] || l.verdict}</span>
-      {t.loc.label}{l.who ? " (" + l.who + (l.when ? ", " + l.when : "") + ")" : ""}: {l.said || ""}
+      {t.loc.label}{flags(l.who ? " (" + l.who + (l.when ? ", " + l.when : "") + ")" : "")}: {flags(l.said || "")}
     </p>
   );
 }
@@ -57,25 +58,25 @@ export default function Item({ i, lang, t, strikes }: RC & { i: ItemT; strikes: 
     <div className="item" id={i.id ? "it-" + i.id : undefined}>
       <p>
         {personIcons(i).map((src) => <img key={src} className="pico" src={src} alt="" width={24} height={24} />)}
-        {i.emoji && <span className="emo" aria-hidden="true">{i.emoji}</span>}
+        {i.emoji && <span className="emo" aria-hidden="true">{flags(i.emoji)}</span>}
         {i.fun && <span className="chip part">{t.fun}</span>}
         {i.unverified && <span className="chip unv">{t.unv}</span>}
         <Dist id={i.id} strikes={strikes} lang={lang} t={t} />
-        {i.text}
+        {flags(i.text)}
       </p>
       {i.fire && <FireList f={i.fire} lang={lang} />}
-      {i.listIntro && <p className="li-intro">{i.listIntro}</p>}
+      {i.listIntro && <p className="li-intro">{flags(i.listIntro)}</p>}
       {Array.isArray(i.list) && i.list.length > 0 && (
         <ul className={"ilist" + (ico ? " ico" : "")}>
-          {i.list.map((x, k) => { const ic = liIco(x); return <li key={k} className={ic ? "hasico" : undefined}>{ic && <Svg html={ic} />}{x}</li>; })}
+          {i.list.map((x, k) => { const ic = liIco(x); return <li key={k} className={ic ? "hasico" : undefined}>{ic && <Svg html={ic} />}{flags(x)}</li>; })}
         </ul>
       )}
       <Local l={i.local} t={t} />
-      {i.quote && <blockquote className="quote"><span className="en">{i.quote.en}</span>{lang !== "en" && <span className="uk">{i.quote.uk}</span>}</blockquote>}
-      <span className="cred">{i.source}</span>
+      {i.quote && <blockquote className="quote"><span className="en">{flags(i.quote.en)}</span>{lang !== "en" && <span className="uk">{flags(i.quote.uk)}</span>}</blockquote>}
+      <span className="cred">{flags(i.source)}</span>
       {Array.isArray(i.links) && i.links.length > 0 && (
         <span className="reslinks">{lang === "en" ? "Sources:" : "Джерела:"}{" "}
-          {i.links.map((x, k) => <Fragment key={k}>{k > 0 && " · "}<a href={x.url} target="_blank" rel="noopener">{x.title}</a></Fragment>)}
+          {i.links.map((x, k) => <Fragment key={k}>{k > 0 && " · "}<a href={x.url} target="_blank" rel="noopener">{flags(x.title)}</a></Fragment>)}
         </span>
       )}
     </div>

@@ -6,6 +6,8 @@ import type { Strikes } from "@/lib/strikes";
 import ChkToggle from "./ChkToggle";
 import TocSpy from "./TocSpy";
 import Item, { SrcChip, type RC } from "./Item";
+import { Flag, flags } from "@/components/Flag";
+import { Fragment } from "react";
 
 export function SecIco({ id, s }: { id: string; s?: Section }) {
   const ic = secIcon(id, s);
@@ -18,7 +20,7 @@ export function SecIco({ id, s }: { id: string; s?: Section }) {
 function FlagSub({ s }: { s: Section }) {
   const seen: string[] = [];
   s.items.forEach((i) => (String(i.text || "").match(/[\u{1F1E6}-\u{1F1FF}]{2}/gu) || []).forEach((x) => { if (x !== "🇺🇦" && !seen.includes(x)) seen.push(x); }));
-  return seen.length ? <p className="sec-sub"><span className="emo" aria-hidden="true">{seen.join(" ")}</span></p> : null;
+  return seen.length ? <p className="sec-sub"><span className="emo" aria-hidden="true">{seen.map((x, k) => <Fragment key={x}>{k > 0 && " "}<Flag e={x} /></Fragment>)}</span></p> : null;
 }
 
 const SRC_ORD: Record<string, number> = { ok: 0, partial: 1, unavailable: 2 };
@@ -52,14 +54,13 @@ function Sources({ D, t }: Omit<RC, "lang"> & { D: DigestT }) {
         <div className="chk-body srcw" id="chkBody">
           <ul className="srcs">
             {sorted.map((s, k) => (
-              <li key={k}><a href={s.url} target="_blank" rel="noopener">{s.title}</a><SrcChip s={s} t={t} />
-                {(s.kind === "ru" || s.note) && <em>{s.kind === "ru" ? t.kindRu : s.note}</em>}</li>
+              <li key={k}><a href={s.url} target="_blank" rel="noopener">{flags(s.title)}</a><SrcChip s={s} t={t} />
+                {(s.kind === "ru" || s.note) && <em>{flags(s.kind === "ru" ? t.kindRu : s.note)}</em>}</li>
             ))}
           </ul>
         </div>
       </ChkToggle>
-      <p className="note">{D.assumption}</p>
-      <p className="note">{(D.since[0] || {}).note || ""}. {t.countNote}</p>
+      <p className="note">{flags((D.since[0] || {}).note || "")}. {t.countNote}</p>
     </section>
   );
 }
@@ -80,21 +81,21 @@ export default function Digest({ D, lang, t, strikes }: RC & { D: DigestT; strik
       ))}
       <section className="diverge" id="sec-diverge">
         <div className="sech"><h2><SecIco id="diverge" /><span>{t.diverge}</span></h2><span>{t.items(D.divergences.items.length)}</span></div>
-        <p className="intro">{D.divergences.intro}</p>
+        <p className="intro">{flags(D.divergences.intro)}</p>
         {D.divergences.items.map((x, k) => (
           <div className="dv" key={k}>
-            <h3>{x.title}</h3>
+            <h3>{flags(x.title)}</h3>
             <div className="vs">
-              <div><small>{x.a.source}</small><strong>{x.a.claim}</strong></div>
+              <div><small>{flags(x.a.source)}</small><strong>{flags(x.a.claim)}</strong></div>
               <i>{t.vs}</i>
-              <div><small>{x.b.source}</small><strong>{x.b.claim}</strong></div>
+              <div><small>{flags(x.b.source)}</small><strong>{flags(x.b.claim)}</strong></div>
             </div>
-            <p>{x.why}</p>
+            <p>{flags(x.why)}</p>
           </div>
         ))}
       </section>
       <Sources D={D} t={t} />
-      <footer className="foot">{D.footer}</footer>
+      <footer className="foot">{flags(D.footer)}</footer>
     </div>
     <nav className="toc" aria-label={t.toc}>
       <p>{t.toc}</p>

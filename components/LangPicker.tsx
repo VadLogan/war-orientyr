@@ -2,6 +2,7 @@
 import { useRef } from "react";
 import { LANGS, type Lang } from "@/lib/ui";
 import LangLink from "./LangLink";
+import { Flag } from "./Flag";
 
 /** Flag button + language list in a panel under it (placed on open).
  *  Native popover: open/close, Esc and click-outside come from the browser. */
@@ -9,7 +10,7 @@ export default function LangPicker({ lang, hrefs }: { lang: Lang; hrefs: Record<
   const btn = useRef<HTMLButtonElement>(null);
   const cur = LANGS.find((l) => l.code === lang)!;
   const Mark = ({ l }: { l: (typeof LANGS)[number] }) =>
-    l.flag ? <span className="lp-flag" aria-hidden="true">{l.flag}</span> : <span className="lp-code" aria-hidden="true">{l.code}</span>;
+    l.flag ? <span className="lp-flag" aria-hidden="true"><Flag e={l.flag} /></span> : <span className="lp-code" aria-hidden="true">{l.code}</span>;
 
   const onToggle = (e: React.ToggleEvent<HTMLDivElement>) => {
     if (e.newState !== "open") return;

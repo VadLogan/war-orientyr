@@ -1,0 +1,238 @@
+{
+  "summary": {
+    "health_score": 54,
+    "business_type": "Publisher (news digest)",
+    "top_findings": [
+      "Latest issue has no dated URL",
+      "No sitemap/robots.txt",
+      "No structured data",
+      "Anonymous publisher on YMYL topic",
+      "Mobile LCP 8.7 s from fonts"
+    ],
+    "quick_wins": [
+      "x-default hreflang",
+      "Entity-rich titles",
+      "Word-boundary meta descriptions",
+      "OG/Twitter tags",
+      "Drop below-fold preloads"
+    ]
+  },
+  "categories": [
+    {
+      "name": "Technical SEO",
+      "score": 62,
+      "what_works": [
+        "HTTPS, single-hop redirects",
+        "Self-referencing canonicals",
+        "SSR full text",
+        "Real 404s"
+      ],
+      "findings": [
+        {
+          "title": "No sitemap.xml",
+          "severity": "High",
+          "description": "/sitemap.xml 404",
+          "recommendation": "Add app/sitemap.ts with hreflang alternates"
+        },
+        {
+          "title": "No robots.txt",
+          "severity": "High",
+          "description": "/robots.txt 404",
+          "recommendation": "Add app/robots.ts pointing to sitemap"
+        },
+        {
+          "title": "Language redirect without Vary",
+          "severity": "Medium",
+          "description": "Accept-Language en -> 307 /en",
+          "recommendation": "Add Vary: Accept-Language, Cookie or skip for bots"
+        },
+        {
+          "title": "Missing security headers",
+          "severity": "Medium",
+          "description": "Only HSTS",
+          "recommendation": "headers() in next.config.mjs"
+        }
+      ]
+    },
+    {
+      "name": "Content Quality",
+      "score": 58,
+      "what_works": [
+        "Every figure attributed and timestamped",
+        "27 sources per issue",
+        "No duplicate content"
+      ],
+      "findings": [
+        {
+          "title": "Anonymous publisher on YMYL topic",
+          "severity": "Critical",
+          "description": "No About/methodology/byline/footer",
+          "recommendation": "Add About, Methodology, Corrections pages and byline"
+        },
+        {
+          "title": "Pipeline residue in copy",
+          "severity": "High",
+          "description": "'rejected by the proxy (HTTP 400)' in 11/13 issues",
+          "recommendation": "Rewrite; add validate rule"
+        }
+      ]
+    },
+    {
+      "name": "On-Page SEO",
+      "score": 48,
+      "what_works": [
+        "One H1 per page",
+        "Reciprocal uk/en hreflang"
+      ],
+      "findings": [
+        {
+          "title": "Latest issue has no dated URL",
+          "severity": "High",
+          "description": "/en/2026-10-17 404; canonical drifts daily",
+          "recommendation": "Generate latest dated route, make it canonical"
+        },
+        {
+          "title": "Template-only titles",
+          "severity": "High",
+          "description": "'State of the war, <date>'",
+          "recommendation": "Entity-rich titles from headline"
+        },
+        {
+          "title": "Descriptions cut mid-word, duplicated on dashboards",
+          "severity": "Medium",
+          "description": "slice(0,200); 26 duplicate pairs",
+          "recommendation": "Word-boundary trim, distinct dashboard copy"
+        },
+        {
+          "title": "No x-default hreflang",
+          "severity": "Low",
+          "description": "pageMeta languages",
+          "recommendation": "Add x-default"
+        }
+      ]
+    },
+    {
+      "name": "Schema / Structured Data",
+      "score": 8,
+      "what_works": [],
+      "findings": [
+        {
+          "title": "No structured data",
+          "severity": "High",
+          "description": "0 JSON-LD on 42 pages",
+          "recommendation": "NewsMediaOrganization, WebSite, NewsArticle, BreadcrumbList"
+        }
+      ]
+    },
+    {
+      "name": "Performance (CWV)",
+      "score": 70,
+      "what_works": [
+        "CLS 0.004",
+        "TBT 0 ms",
+        "TTFB 30 ms"
+      ],
+      "findings": [
+        {
+          "title": "LCP 8.7 s on /en (lab mobile)",
+          "severity": "High",
+          "description": "Render-blocking Google Fonts; 758 KB Noto Color Emoji",
+          "recommendation": "Inline SVG flags; next/font self-hosting"
+        }
+      ]
+    },
+    {
+      "name": "AI Search Readiness",
+      "score": 60,
+      "what_works": [
+        "Clean accessibility tree",
+        "AI crawlers allowed",
+        "Highly citable attributed stats"
+      ],
+      "findings": [
+        {
+          "title": "No entity/brand footprint",
+          "severity": "High",
+          "description": "No Wikipedia/Wikidata, no sameAs",
+          "recommendation": "About page, Wikidata, linked socials"
+        },
+        {
+          "title": "No llms.txt",
+          "severity": "Low",
+          "description": "404",
+          "recommendation": "Publish /llms.txt"
+        }
+      ]
+    },
+    {
+      "name": "Images",
+      "score": 66,
+      "what_works": [
+        "100% alt coverage"
+      ],
+      "findings": [
+        {
+          "title": "No OG/Twitter on digest pages",
+          "severity": "Medium",
+          "description": "/en has no og:image",
+          "recommendation": "Add to pageMeta with default 1200x630"
+        },
+        {
+          "title": "Unoptimized hero",
+          "severity": "Medium",
+          "description": "217 KB JPEG, no srcset/width/height",
+          "recommendation": "next/image or AVIF+srcset"
+        }
+      ]
+    }
+  ],
+  "action_plan": {
+    "phases": [
+      {
+        "name": "Phase 1: Critical Fixes",
+        "timeframe": "Week 1",
+        "items": [
+          "Dated URL for latest issue",
+          "app/sitemap.ts + app/robots.ts",
+          "Register GSC + Bing WMT"
+        ]
+      },
+      {
+        "name": "Phase 2: High-Impact Improvements",
+        "timeframe": "Weeks 2-3",
+        "items": [
+          "JSON-LD",
+          "Fonts: SVG flags + next/font",
+          "About/Methodology/byline",
+          "Titles, descriptions, OG",
+          "Clean pipeline residue"
+        ]
+      },
+      {
+        "name": "Phase 3: Content & Authority",
+        "timeframe": "Month 2",
+        "items": [
+          "Crawlable archive links, tables, <time>",
+          "Wikidata + sameAs",
+          "Expand Geran-4 article",
+          "Image optimization",
+          "Security headers"
+        ]
+      },
+      {
+        "name": "Phase 4: Monitoring & Iteration",
+        "timeframe": "Ongoing",
+        "items": [
+          "llms.txt, IndexNow",
+          "Add API keys and rerun",
+          "Drift baseline",
+          "Tap targets, contrast"
+        ]
+      }
+    ]
+  },
+  "artifacts": {
+    "findings_dir": "findings/",
+    "screenshots_dir": "screenshots/"
+  }
+}

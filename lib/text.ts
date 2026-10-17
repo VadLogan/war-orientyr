@@ -44,6 +44,13 @@ export function styleData(o: any, key: string, lang: Lang = "uk"): any {
 export const loc = (lang: Lang) => (lang === "en" ? "en-GB" : "uk-UA");
 export const fmt = (n: number, lang: Lang) => Number(n).toLocaleString(loc(lang)).replace(/\s/g, ' ');
 export const noFlag = (x: string) => String(x).replace(/[\u{1F1E6}-\u{1F1FF}]{2}[️  ]?/gu, "").trim();
+/** Plain text cut to `n` chars at a word boundary, with "…" when cut (titles, meta descriptions). */
+export function clip(x: string, n: number) {
+  const s = noFlag(x).replace(/\s+/g, " ");
+  if (s.length <= n) return s;
+  const i = s.lastIndexOf(" ", n - 1);
+  return s.slice(0, i > 0 ? i : n - 1).replace(/[\s,;:.—–-]+$/, "") + "…";
+}
 
 const DIP_RX: Record<string, RegExp> = {dip:/переговор|negotiat|зустріч|meeting|візит|visit|саміт|summit|перемир|ceasefire|мирн|peace|розмов|talks?\b|вступ|accession|кластер|посл[аио]|дипломат|угод|deal|гаранті|guarantee/i,
   sanc:/санкц|sanction|ембарго|embargo|тіньов\S* флот|shadow fleet|заборон\S*.{0,40}віз|visa ban|стел\S* цін|price cap|заморожен|frozen assets|блокуван\S*.{0,40}(нафт|закуп)|OFAC|ліценз/i,
