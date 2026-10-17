@@ -7,3 +7,4 @@ export function href(lang: Lang, view: View, date: string | null, latest: string
   const p = (lang === "en" ? "/en" : "") + (view === "dashboard" ? "/dashboard" : "") + (date && date !== latest ? "/" + date : "");
   return p || "/";
 }
+export const articleHref = (lang: Lang, date: string, name: string) => (lang === "en" ? "/en" : "") + `/articles/${date}/${name}`;

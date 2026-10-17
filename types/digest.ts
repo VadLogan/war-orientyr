@@ -46,6 +46,22 @@ export type LossRow = {
   src?: Record<string, string>;
 };
 
+/** public/articles/<YYYY-MM-DD>/<name>/preview.<lang>.json — a card on that date's issue. */
+export type ArticlePreview = { title: string; lead?: string; button?: string; url?: string; image?: string; imageAlt?: string };
+/** Content blocks of an article, in reading order; unknown types are skipped. */
+export type ArticleBlock =
+  | { type: "p" | "h2"; text: string }
+  | { type: "table"; columns: string[]; rows: string[][] }
+  | { type: "chart"; kind: "bar"; title?: string; subtitle?: string; unit?: string; note?: string; source?: string;
+      rows: { country: string; flag?: string | null; n: number; share?: number; makers?: string; highlight?: boolean }[] };
+/** public/articles/<YYYY-MM-DD>/<name>/article.<lang>.json — the full article at /articles/<date>/<name>. */
+export type ArticleBody = {
+  title?: string; lead?: string; image?: string | { src: string; alt?: string; caption?: string };
+  blocks: ArticleBlock[]; sources?: { title: string; url: string; note?: string }[];
+};
+/** As read by lib/data.ts: `href` = the preview's `url` or the article page; `img` = public path of the image. */
+export type Article = { date: string; name: string; href: string; img?: string; preview: ArticlePreview; article: ArticleBody | null; contentLang: "uk" | "en" };
+
 export type Digest = {
   /** set by lib/data.ts: the language the text actually is in (English falls back to Ukrainian) */
   contentLang?: "uk" | "en";

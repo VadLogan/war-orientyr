@@ -6,13 +6,15 @@ import { LANGS, type Lang, type UIStrings } from "@/lib/ui";
 import IssueSelect from "./IssueSelect";
 import LangPicker from "./LangPicker";
 
-type P = { lang: Lang; t: UIStrings; view: View; date: string; latest: string; dates: string[] };
+/** `langHrefs`: a page outside the issue views (an article) — tabs link to the latest issue, no date bar. */
+type P = { lang: Lang; t: UIStrings; view: View; date: string; latest: string; dates: string[]; langHrefs?: Record<Lang, string> };
 
-export default function Shell({ lang, t, view, date, latest, dates }: P) {
+export default function Shell({ lang, t, view, date, latest, dates, langHrefs }: P) {
+  const bare = !!langHrefs;
   const i = dates.indexOf(date), isLatest = date === latest;
   const to = (o: Partial<{ lang: Lang; view: View; date: string }>) => href(o.lang ?? lang, o.view ?? view, o.date ?? date, latest);
   const Tab = ({ on, to: h, children }: { on: boolean; to: string; children: React.ReactNode }) =>
-    <Link href={h} aria-current={on ? "page" : undefined}>{children}</Link>;
+    <Link href={h} aria-current={on && !bare ? "page" : undefined}>{children}</Link>;
   return (
     <>
       <header className="topbar">
@@ -24,10 +26,10 @@ export default function Shell({ lang, t, view, date, latest, dates }: P) {
             <Tab on={view === "dashboard"} to={to({ view: "dashboard" })}>
               <svg className="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16M7 16.5v-4M12 16.5V6M17 16.5v-7" /></svg>{t.dash}</Tab>
           </div>
-          <LangPicker lang={lang} hrefs={Object.fromEntries(LANGS.map((l) => [l.code, to({ lang: l.code })])) as Record<Lang, string>} />
+          <LangPicker lang={lang} hrefs={langHrefs ?? Object.fromEntries(LANGS.map((l) => [l.code, to({ lang: l.code })])) as Record<Lang, string>} />
         </div>
       </header>
-      {dates.length > 0 && (
+      {!bare && dates.length > 0 && (
         <nav className="datebar">
           <label htmlFor="issueSel">{t.pickDate}</label>
           <div className="dnav">
@@ -42,7 +44,7 @@ export default function Shell({ lang, t, view, date, latest, dates }: P) {
         </nav>
       )}
       <div>
-        {!isLatest && (
+        {!bare && !isLatest && (
           <div className="archive-note"><b>{t.archived}</b><span>{t.viewingOld(midDate(date, lang))}</span>
             <Link className="linkbtn" href={to({ date: latest })}>{t.toLatest}</Link></div>
         )}

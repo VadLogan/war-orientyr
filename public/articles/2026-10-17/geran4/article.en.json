@@ -1,0 +1,168 @@
+{
+  "schema": 1,
+  "id": "geran4-us-electronics",
+  "date": "2026-10-16",
+  "title": "‘Home-grown’ Geran-4: American electronics in the flight computer",
+  "cardTitle": "‘Home-grown’ Geran-4: three quarters of its electronics come from US companies",
+  "lead": "The flight controller holds 105 components and not one of them russian: 80 were made by companies from the 🇺🇸 US, 61 by Texas Instruments together with National Semiconductor.",
+  "image": {
+    "src": "geran4.jpg",
+    "alt": "Illustration: the Geran-4 with markings showing where its electronics come from",
+    "caption": "Illustration: the Geran-4, marked with where its electronics come from."
+  },
+  "blocks": [
+    {
+      "type": "p",
+      "text": "Ukrainian specialists who examined the flight controller of the Geran-4 jet drone found not a single russian microchip in it. Of its 105 components, 80 (76.2%) were made by companies from the 🇺🇸 US, and 61 (58.1%) come from a single group: Texas Instruments together with National Semiconductor, which TI bought in 2011."
+    },
+    {
+      "type": "p",
+      "text": "This was reported on 16 October 2026 by the outlet Militarnyi and the OSINT community InformNapalm. russia presents these drones as its own production: the Geran-4 is a jet-powered version of the Shahed, first used in early May 2026, which now regularly attacks Ukraine."
+    },
+    {
+      "type": "h2",
+      "text": "Where the components come from"
+    },
+    {
+      "type": "chart",
+      "kind": "bar",
+      "title": "Three quarters of the controller’s components come from US companies",
+      "subtitle": "80 of 105 identified components (76.2%); russian: none",
+      "unit": "components",
+      "total": 105,
+      "rows": [
+        {
+          "country": "US",
+          "flag": "🇺🇸",
+          "n": 80,
+          "share": 76.2,
+          "makers": "Texas Instruments / National Semiconductor, CTS, Onsemi, Monolithic Power Systems, Qorvo, Analog Devices, Diodes Incorporated / Zetex, Microchip, Abracon",
+          "highlight": true
+        },
+        {
+          "country": "China",
+          "flag": "🇨🇳",
+          "n": 11,
+          "share": 10.48,
+          "makers": "Yueli Electronic, Yantel, Shanghai Leiditech, Shenzhen Huazhimei Semiconductor, WCH"
+        },
+        {
+          "country": "Unidentified",
+          "flag": null,
+          "n": 9,
+          "share": 8.57,
+          "makers": "manufacturer not determined"
+        },
+        {
+          "country": "Germany",
+          "flag": "🇩🇪",
+          "n": 2,
+          "share": 1.9,
+          "makers": "Infineon Technologies"
+        },
+        {
+          "country": "Japan",
+          "flag": "🇯🇵",
+          "n": 1,
+          "share": 0.95,
+          "makers": "Renesas / Intersil"
+        },
+        {
+          "country": "Taiwan",
+          "flag": "🇹🇼",
+          "n": 1,
+          "share": 0.95,
+          "makers": "MediaTek / Richtek"
+        },
+        {
+          "country": "Netherlands",
+          "flag": "🇳🇱",
+          "n": 1,
+          "share": 0.95,
+          "makers": "STMicroelectronics"
+        }
+      ],
+      "note": "Country is by the manufacturer’s brand.",
+      "source": "Table from an InformNapalm post (16.10.2026) · 105 components of the flight controller"
+    },
+    {
+      "type": "p",
+      "text": "After the 🇺🇸 US, the most parts come from 🇨🇳 China: 11 (10.5%); another 9 could not be traced to a manufacturer. European and Asian brands (🇩🇪 Infineon, 🇯🇵 Renesas, 🇹🇼 MediaTek, 🇳🇱 STMicroelectronics) account for just 5 components between them."
+    },
+    {
+      "type": "h2",
+      "text": "Texas Instruments: the drone’s brain and power supply"
+    },
+    {
+      "type": "p",
+      "text": "TI and National Semiconductor together supply 61 of the 105 components, and it is their chips that perform the controller’s key functions. According to the researchers’ description, the boards carry:"
+    },
+    {
+      "type": "table",
+      "columns": [
+        "Chip",
+        "What it is",
+        "Role in the drone"
+      ],
+      "rows": [
+        [
+          "TMS320F28335PGFA",
+          "processor (microcontroller)",
+          "data processing and control of on-board systems"
+        ],
+        [
+          "VP230",
+          "CAN transceiver",
+          "data exchange between modules"
+        ],
+        [
+          "MB3238I",
+          "multi-channel transmitter",
+          "signal transmission over communication lines"
+        ],
+        [
+          "PS767D301",
+          "voltage regulator",
+          "powering the boards"
+        ],
+        [
+          "REF3020",
+          "voltage reference",
+          "stable voltage for sensor measurement circuits"
+        ]
+      ]
+    },
+    {
+      "type": "p",
+      "text": "These are not exotic parts: they are mass-market, general-purpose chips for industrial and automotive electronics, which makes them easy to buy through distributors and hard to trace. The description of their functions follows the researchers’ text published alongside the table."
+    },
+    {
+      "type": "h2",
+      "text": "Why it matters: gaps in export controls"
+    },
+    {
+      "type": "p",
+      "text": "Supplying such electronics to russia is banned by 🇺🇸 US and 🇪🇺 EU sanctions, yet it keeps reaching russian drones through intermediaries in third countries. United24 Media describes a typical scheme: a legal sale to a civilian company in the 🇦🇪 UAE, after which the goods are resold to russia, and the manufacturer may not know the end buyer. These publications contain no evidence that Texas Instruments knew of such deliveries."
+    },
+    {
+      "type": "p",
+      "text": "Earlier teardowns show the same picture. In May 2026, Ukraine’s Defence Intelligence (HUR) found a Chinese Telefly LX-WP-160 turbojet engine, a Chinese Unicore GNSS receiver and a number of TI chips in the Geran-4. In October, a teardown by RFE/RL and HUR counted 45 foreign parts from the 🇺🇸 US, 🇨🇳 China, 🇹🇼 Taiwan, the 🇬🇧 UK and the 🇪🇺 EU. The new study differs in that it looks only at the flight controller, and there the US share turned out to be much larger."
+    }
+  ],
+  "sources": [
+    {
+      "title": "InformNapalm on X, 16.10.2026",
+      "url": "https://x.com/InformNapalm",
+      "note": "breakdown table and list of TI chips (screenshot)"
+    },
+    {
+      "title": "Militarnyi: HUR on Western components in the Geran-4, 25.05.2026",
+      "url": "https://militarnyi.com/en/news/defence-intelligence-of-ukraine-finds-extensive-western-components-in-russian-geran-4-drone/"
+    },
+    {
+      "title": "United24 Media: Geran-4 teardown, 5.10.2026",
+      "url": "https://united24media.com/investigations/unboxing-russias-geran-4-drone-nearly-all-its-electronics-are-made-abroad-23070"
+    }
+  ],
+  "button": "Read the article →"
+}
