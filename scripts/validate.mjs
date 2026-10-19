@@ -28,6 +28,7 @@ for (const date of dirs(ART)) {
   }
 }
 for (const f of ["strikes.json","prices.json","recruit.json","landcost.json","maps/maps.json","maps/strikes-base.json","maps/targets.json"]) rd(f);
+for (const d of rd("maps/archive/index.json").dates) if (rd(`maps/archive/${d}.json`).generated !== d) { console.error(`maps/archive/${d}.json: generated != ${d}`); process.exit(1); }
 // Research-tool residue must not reach readers ("відхилено проксі (HTTP 400)", "WebFetch", snapshot ids…).
 // `assumption` / `unavailable` are working notes the page does not render, so they are skipped.
 const RESIDUE = /HTTP [45]\d\d|прокс[іи]\b|\bproxy\b|WebSearch|WebFetch|SITE_BLOCKED|allowed_domains|id знімка|snapshot id/i;

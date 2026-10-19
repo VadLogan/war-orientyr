@@ -6,3 +6,5 @@ next-env.d.ts
 public/i18n/
 i18n/missing.json
 .DS_Store
+# maps pipeline staging (../war-orientyr-scrappers, npm run maps)
+tools/maps/in/

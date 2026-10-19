@@ -83,13 +83,13 @@ const EVF: Record<string, string> = { occ: "var(--m-occ)", grey: "var(--m-grey)"
 const Sw = ({ c, l, cls = "" }: { c: string; l: string; cls?: string }) => <span><i className={cls} style={cls === "line" ? { borderColor: `var(${c})` } : { background: `var(${c})` }} />{flags(l)}</span>;
 
 export function MapsCompare() {
-  const { t, lang } = useApp();
+  const { t, lang, MAPS } = useApp();
   const hs = (x: string) => hsBase(x, lang);
   const [mode, setMode] = useSticky("mapMode", "cmp");
   const [pair, setPair] = useSticky("mapPair", "isw_ds");
   const [ev, setEv] = useSticky("mapEv", true);
   const [tip, setTip] = useState<Tip>(null);
-  const { data: M, err } = useJson<MapsData>("/maps/maps.json");
+  const { data: M, err } = useJson<MapsData>(MAPS);
   const wrapRef = useRef<HTMLDivElement>(null);
   const w = useElWidth(wrapRef);
   const W = Math.max(300, w || 800), H = Math.round(Math.min(600, Math.max(340, W * 0.62)));

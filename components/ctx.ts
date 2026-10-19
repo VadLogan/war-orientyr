@@ -13,6 +13,7 @@ export type Ctx = {
   D: DashIssue; // the issue on screen
   LATEST: DashIssue; // the newest issue (owns timeline/losses series)
   DATES: string[];
+  MAPS: string; // map snapshot URL for D.date (public/maps/archive/<date>.json)
   smx: SourceMatrix | null; // null while the "Sources by day" panel is hidden (lib/data.ts SHOW_SOURCE_MATRIX)
   selectDate: (date: string) => void;
   goItem: (date: string | undefined, id: string) => void;

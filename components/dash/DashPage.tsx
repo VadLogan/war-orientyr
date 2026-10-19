@@ -1,6 +1,6 @@
 // Server component: a whole Dashboard page; the charts are a client tree fed with trimmed server data.
 import type { Digest } from "@/types/digest";
-import { getSourceMatrix, SHOW_SOURCE_MATRIX } from "@/lib/data";
+import { getMapsUrl, getSourceMatrix, SHOW_SOURCE_MATRIX } from "@/lib/data";
 import { resolve, type DateParams } from "@/lib/page";
 import { UI, type Lang, type UIStrings } from "@/lib/ui";
 import type { DashIssue } from "../ctx";
@@ -22,7 +22,7 @@ export default async function DashPage({ lang, params }: { lang: Lang; params: D
       <Shell lang={lang} t={t} view="dashboard" date={D.date} latest={latest.date} dates={dates} />
       <Mast D={D} lang={lang} dashboard />
       <main id="main"><div className="view">
-        <DashProvider lang={lang} D={slim(D)} LATEST={slim(latest)} DATES={dates} smx={SHOW_SOURCE_MATRIX ? await getSourceMatrix() : null} />
+        <DashProvider lang={lang} D={slim(D)} LATEST={slim(latest)} DATES={dates} MAPS={await getMapsUrl(D.date)} smx={SHOW_SOURCE_MATRIX ? await getSourceMatrix() : null} />
       </div></main>
     </div>
   );

@@ -7,7 +7,7 @@
 - `components/digest/` — вкладка «Дайджест»; `components/dash/` — «Дашборд» (графіки — JSX SVG, карти — d3-geo/d3-zoom).
 - `lib/` — рядки інтерфейсу (`ui.ts`), домашній стиль і форматування (`text.ts`), іконки, дані ударів; `types/digest.ts` — типи даних.
 - `public/*.json`, `public/issues/`, `public/maps/` — ті самі файли даних і ті самі відносні шляхи (`digest.json`, `issues/YYYY-MM-DD.json`, …).
-- `tools/maps/` — інструменти оновлення знімків карт (`extract.js`, `build.py`).
+- `tools/maps/build.py` — збирає `public/maps/maps.json`; запускається пайплайном `npm run maps` у `../war-orientyr-scrappers` (скрейпери, перевірка джерел, логи в `logs/`).
 
 ## Запуск
 ```

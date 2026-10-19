@@ -34,6 +34,14 @@ export const getDates = cache(async () => {
   return [...new Set([...ds, latest.date])].filter((d) => d <= latest.date).sort();
 });
 
+/** Map snapshot for a dashboard date: the newest public/maps/archive/<date>.json on or before it (else the oldest), or maps.json. */
+export const getMapsUrl = cache(async (date: string) => {
+  let ds: string[] = [];
+  try { ds = (await read<{ dates: string[] }>("maps/archive/index.json")).dates.slice().sort(); } catch {}
+  const d = ds.filter((x) => x <= date).at(-1) ?? ds[0];
+  return d ? `/maps/archive/${d}.json` : "/maps/maps.json";
+});
+
 export const getIssue = cache(async (date: string, lang: Lang = "uk") => {
   const latest = await getLatest(lang);
   if (date === latest.date) return latest;
