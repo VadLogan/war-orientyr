@@ -22,9 +22,9 @@ export default function Shell({ lang, t, view, date, latest, dates, langHrefs }:
         <div className="controls">
           <div className="seg" role="group">
             <Tab on={view === "digest"} to={to({ view: "digest" })}>
-              <svg className="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="2.5" /><path d="M7.5 8.5h9M7.5 12h9M7.5 15.5h5.5" /></svg>{t.digest}</Tab>
+              <svg className="ico" viewBox="0 0 24 24" aria-hidden="true"><path className="fl" d="M4.75 5.5a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1V18a1.75 1.75 0 0 0 1.75 1.75H6.5A1.75 1.75 0 0 1 4.75 18z" /><path d="M16.75 8.5h2.5v9.5a1.75 1.75 0 0 1-1.75 1.75M8 8.5h5.5M8 12h5.5M8 15.5h3.5" /></svg>{t.digest}</Tab>
             <Tab on={view === "dashboard"} to={to({ view: "dashboard" })}>
-              <svg className="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16M7 16.5v-4M12 16.5V6M17 16.5v-7" /></svg>{t.dash}</Tab>
+              <svg className="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19.75h16" /><rect className="fl" x="5.75" y="12" width="3" height="5" rx=".75" /><rect className="fl" x="10.5" y="5.5" width="3" height="11.5" rx=".75" /><rect className="fl" x="15.25" y="9" width="3" height="8" rx=".75" /></svg>{t.dash}</Tab>
           </div>
           <LangPicker lang={lang} hrefs={langHrefs ?? Object.fromEntries(LANGS.map((l) => [l.code, to({ lang: l.code })])) as Record<Lang, string>} />
         </div>
@@ -33,11 +33,11 @@ export default function Shell({ lang, t, view, date, latest, dates, langHrefs }:
         <nav className="datebar">
           <label htmlFor="issueSel">{t.pickDate}</label>
           <div className="dnav">
-            {i > 0 ? <Link href={to({ date: dates[i - 1] })} aria-label={t.prevA}>‹<span className="t"> {t.prev}</span></Link>
-              : <button type="button" aria-label={t.prevA} disabled>‹<span className="t"> {t.prev}</span></button>}
+            {i > 0 ? <Link href={to({ date: dates[i - 1] })} aria-label={t.prevA}><svg className="ch" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6l-6 6 6 6" /></svg><span className="t"> {t.prev}</span></Link>
+              : <button type="button" aria-label={t.prevA} disabled><svg className="ch" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6l-6 6 6 6" /></svg><span className="t"> {t.prev}</span></button>}
             <IssueSelect lang={lang} view={view} date={date} latest={latest} options={dates.slice().reverse().map((d) => [d, longDate(d, lang)])} />
-            {i >= 0 && i < dates.length - 1 ? <Link href={to({ date: dates[i + 1] })} aria-label={t.nextA}><span className="t">{t.next} </span>›</Link>
-              : <button type="button" aria-label={t.nextA} disabled><span className="t">{t.next} </span>›</button>}
+            {i >= 0 && i < dates.length - 1 ? <Link href={to({ date: dates[i + 1] })} aria-label={t.nextA}><span className="t">{t.next} </span><svg className="ch" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 6l6 6-6 6" /></svg></Link>
+              : <button type="button" aria-label={t.nextA} disabled><span className="t">{t.next} </span><svg className="ch" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 6l6 6-6 6" /></svg></button>}
           </div>
           <span className="count">{t.count(dates.length)}</span>
           {!isLatest && <Link className="btn ghost latest" href={to({ date: latest })}>{t.latest}</Link>}

@@ -256,8 +256,10 @@ button.dchip{font:inherit;background:transparent;color:var(--ink);border:1px sol
 .dnav{display:inline-flex;align-items:stretch;border:1px solid var(--rule-strong);border-radius:2px;min-width:0;max-width:100%}
 .dnav :is(button,a){font-family:var(--ui);font-size:14px;background:transparent;color:var(--ink);border:0;padding:4px 12px;min-height:36px;cursor:pointer;white-space:nowrap}
 .dnav button:disabled{color:var(--muted);opacity:.45;cursor:default}
-.dnav select{font-family:var(--ui);font-size:14.5px;font-weight:500;background:var(--surface);color:var(--ink);border:0;border-left:1px solid var(--rule-strong);border-right:1px solid var(--rule-strong);padding:4px 10px;min-height:36px;min-width:0;cursor:pointer}
-.dnav select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.isel{position:relative;display:flex;align-items:center;justify-content:center;gap:6px;font-family:var(--ui);font-size:14.5px;font-weight:500;background:var(--surface);color:var(--ink);border-left:1px solid var(--rule-strong);border-right:1px solid var(--rule-strong);padding:4px 10px;min-height:36px;min-width:0;white-space:nowrap}
+.isel svg{width:12px;height:12px;flex:none;fill:none;stroke:currentColor;stroke-width:1.6}
+.isel select{position:absolute;inset:0;width:100%;opacity:0;font-size:16px;cursor:pointer}
+.isel:has(select:focus-visible){outline:2px solid var(--accent);outline-offset:2px}
 .datebar .count{font-family:var(--mono);font-size:12px;color:var(--muted)}
 .datebar .latest{margin-left:auto}
 @media(max-width:520px){.dnav :is(button,a){padding:4px 9px}.dnav .t{display:none}}
@@ -416,3 +418,29 @@ button.dchip{font:inherit;background:transparent;color:var(--ink);border:1px sol
 .art-table td{border-bottom:1px solid var(--rule);padding:8px 10px 8px 0;vertical-align:top}
 .art-table td:first-child{font-family:var(--mono);font-size:13px;white-space:nowrap}
 .art-src ul{margin:12px 0 0;padding-left:18px;font-family:var(--ui);font-size:14.5px}.art-src li+li{margin-top:6px}.art-src em{color:var(--muted)}
+
+.dnav button{display:inline-flex;align-items:center}
+.dnav .ch{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.isel-cal{display:none}
+.seg a .ico .fl{fill:none}
+
+/* phone: Digest / Dashboard bar pinned to the bottom; the issue picker spans the width under the header */
+@media(max-width:600px){
+  body{padding-bottom:calc(58px + 24px + env(safe-area-inset-bottom))}
+  .topbar{flex-wrap:nowrap}
+  .topbar .lp-btn{min-height:44px}
+  .topbar .seg{position:fixed;z-index:20;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));padding:0 8px env(safe-area-inset-bottom);border:0;border-top:1px solid var(--rule);border-radius:0;background:var(--surface)}
+  .topbar .seg a{flex-direction:column;justify-content:center;gap:3px;min-height:58px;padding:0;border:0;border-radius:0;background:transparent;font-family:var(--ui);font-size:12.5px;font-weight:600;letter-spacing:.02em;color:var(--muted)}
+  .topbar .seg a[aria-current]{background:transparent;color:var(--accent)}
+  .seg a .ico{width:24px;height:24px;margin:0;stroke-width:1.75}
+  .topbar .seg a[aria-current] .ico .fl{fill:var(--accent-soft)}
+  .datebar{display:grid;grid-template-columns:1fr auto;gap:8px}
+  .datebar .count{grid-area:1/2;text-align:right}
+  .dnav{grid-column:1/-1;display:grid;grid-template-columns:48px minmax(0,1fr) 48px;width:100%}
+  .dnav :is(button,a){justify-content:center;min-height:48px;padding:0}
+  .dnav .t{display:none}
+  .dnav .ch{width:20px;height:20px}
+  .isel{min-height:48px;font-size:16px;font-weight:600}
+  .datebar .latest{display:none}
+  .isel-cal{display:block;width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+}
