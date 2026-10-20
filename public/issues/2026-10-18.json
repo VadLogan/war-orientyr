@@ -2128,7 +2128,7 @@
       "uk": "чисті втрати 122 квадратних кілометрів"
      },
      "text": "ISW (оцінка за 17.10, дані станом на 12:00 за східним часом США): група оцінює, що від 1 вересня росія мала «net loss of 122 square kilometers» території, тобто не просунулася, всупереч заявам начальника Генштабу рф Валерія Герасимова; Генштаб ЗСУ назвав ці заяви неправдивими. ISW фіксує нещодавнє просування ЗСУ на схід від Краматорська й росіян на північ від Костянтинівки. Контраст: на нараді 16.10 російська сторона заявляла про прискорення наступу (див. «Що кажуть на болотах», випуск 17.10).",
-     "source": "ISW / Critical Threats, оцінка за 17.10 (прочитано через WebFetch-виклад)",
+     "source": "ISW / Critical Threats, оцінка за 17.10 (за стислим викладом)",
      "links": [
       {
        "title": "Critical Threats: ISW 17.10",
@@ -2540,7 +2540,7 @@
    "url": "https://www.criticalthreats.org/analysis/russian-offensive-campaign-assessment-october-17-2026",
    "status": "partial",
    "kind": "monitor",
-   "note": "прочитано через WebFetch-виклад; цитати подано за викладом"
+   "note": "прочитано у стислому викладі; цитати подано за ним"
   },
   {
    "title": "Axios: Зеленський про Starlink (17.10)",
@@ -2566,7 +2566,7 @@
    "url": "https://kyivindependent.com/order-limiting-starlink-access-for-ukraines-military-came-from-within-white-house-reuters-reports/",
    "status": "partial",
    "kind": "intl",
-   "note": "пошук з обмеженням reuters.com відхилено проксі (HTTP 400); матеріал Reuters від 15.10 про Starlink прочитано лише у переказі Kyiv Independent"
+   "note": "сайт Reuters був недоступний; матеріал Reuters від 15.10 про Starlink прочитано лише в переказі Kyiv Independent"
   },
   {
    "title": "CNBC: Трамп призупинив санкції (17.10)",
