@@ -7,6 +7,17 @@ const miss = must.filter((k) => !(k in d));
 if (miss.length) { console.error("digest.json missing keys:", miss); process.exit(1); }
 const idx = rd("issues/index.json").dates;
 if (!idx.includes(d.date)) { console.error("issues/index.json lacks", d.date); process.exit(1); }
+// Every strike in today's "deepstrikes" section must be on the strikes map (strikes.json, matched by id or item),
+// or the map silently goes stale. Notes (no emoji, or ℹ️) and items marked `geo: null` (no usable coordinates) are exempt.
+const stk = new Set(rd("strikes.json").items.flatMap((x) => [x.id, x.item]));
+const isStrike = (i) => i.emoji && i.emoji !== "ℹ️" && i.geo !== null;
+const deep = d.sections.filter((s) => s.id === "deepstrikes").flatMap((s) => s.items || []).filter(isStrike);
+const noId = deep.filter((i) => !i.id), noMap = deep.filter((i) => i.id && !stk.has(i.id)).map((i) => i.id);
+if (noId.length || noMap.length) {
+  console.error("strikes map is behind digest.json — add these deepstrikes items to strikes.json (or set geo: null if they can't be placed):\n  "
+    + [...noMap, ...noId.map((i) => "(no id) " + i.text.slice(0, 80))].join("\n  "));
+  process.exit(1);
+}
 // articles/<YYYY-MM-DD>/<name>/: preview.uk.json required (title); a full article (article.uk.json, body[]) or a preview url
 const ART = new URL("../public/articles/", import.meta.url);
 const dirs = (u) => (fs.existsSync(u) ? fs.readdirSync(u, { withFileTypes: true }).filter((e) => e.isDirectory()).map((e) => e.name) : []);
@@ -28,10 +39,6 @@ for (const date of dirs(ART)) {
   }
 }
 for (const f of ["strikes.json","prices.json","recruit.json","landcost.json","maps/maps.json","maps/strikes-base.json","maps/targets.json"]) rd(f);
-// Strikes with coordinates in today's digest must also be in strikes.json, or the strikes map goes stale.
-const stk = new Set(rd("strikes.json").items.flatMap((x) => [x.id, x.item]));
-const noMap = d.sections.flatMap((s) => s.items || []).filter((i) => i.geo && !stk.has(i.id)).map((i) => i.id);
-if (noMap.length) { console.error("strikes.json lacks digest items with geo (add them to the strikes map):", noMap.join(", ")); process.exit(1); }
 for (const d of rd("maps/archive/index.json").dates) if (rd(`maps/archive/${d}.json`).generated !== d) { console.error(`maps/archive/${d}.json: generated != ${d}`); process.exit(1); }
 // Research-tool residue must not reach readers ("відхилено проксі (HTTP 400)", "WebFetch", snapshot ids…).
 // `assumption` / `unavailable` are working notes the page does not render, so they are skipped.
