@@ -28,6 +28,10 @@ for (const date of dirs(ART)) {
   }
 }
 for (const f of ["strikes.json","prices.json","recruit.json","landcost.json","maps/maps.json","maps/strikes-base.json","maps/targets.json"]) rd(f);
+// Strikes with coordinates in today's digest must also be in strikes.json, or the strikes map goes stale.
+const stk = new Set(rd("strikes.json").items.flatMap((x) => [x.id, x.item]));
+const noMap = d.sections.flatMap((s) => s.items || []).filter((i) => i.geo && !stk.has(i.id)).map((i) => i.id);
+if (noMap.length) { console.error("strikes.json lacks digest items with geo (add them to the strikes map):", noMap.join(", ")); process.exit(1); }
 for (const d of rd("maps/archive/index.json").dates) if (rd(`maps/archive/${d}.json`).generated !== d) { console.error(`maps/archive/${d}.json: generated != ${d}`); process.exit(1); }
 // Research-tool residue must not reach readers ("відхилено проксі (HTTP 400)", "WebFetch", snapshot ids…).
 // `assumption` / `unavailable` are working notes the page does not render, so they are skipped.
