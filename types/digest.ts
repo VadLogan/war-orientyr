@@ -50,8 +50,12 @@ export type LossRow = {
 export type ArticlePreview = { title: string; lead?: string; button?: string; url?: string; image?: string; imageAlt?: string };
 /** Content blocks of an article, in reading order; unknown types are skipped. */
 export type ArticleBlock =
-  | { type: "p" | "h2"; text: string }
+  | { type: "p" | "h2" | "h3"; text: string; kind?: "meta" }
+  /** `image` is a file in the article folder (e.g. a unit emblem) */
+  | { type: "list"; title?: string; ordered?: boolean; items: { title?: string; text: string; image?: string; imageAlt?: string }[] }
   | { type: "table"; columns: string[]; rows: string[][] }
+  /** blocks side by side (stack on a phone) */
+  | { type: "cols"; cols: ArticleBlock[][] }
   | { type: "chart"; kind: "bar"; title?: string; subtitle?: string; unit?: string; note?: string; source?: string;
       rows: { country: string; flag?: string | null; n: number; share?: number; makers?: string; highlight?: boolean }[] };
 /** public/articles/<YYYY-MM-DD>/<name>/article.<lang>.json — the full article at /articles/<date>/<name>. */
@@ -59,8 +63,33 @@ export type ArticleBody = {
   title?: string; lead?: string; image?: string | { src: string; alt?: string; caption?: string };
   blocks: ArticleBlock[]; sources?: { title: string; url: string; note?: string }[];
 };
+/** public/articles/<YYYY-MM-DD>/<name>/presentation.<lang>.json — an interactive page (`embed.src`, an HTML file in the folder)
+ *  shown in a frame, with all its text as server-rendered blocks below it. Takes the place of article.<lang>.json. */
+export type PresentationBody = Omit<ArticleBody, "image"> & {
+  title: string; kicker?: string; asOf?: string;
+  embed: { src: string; title: string; note?: string };
+  /** headline figures under the title */
+  stats?: { value: string; unit?: string; label: string; tone?: "accent" | "muted" | "ok" }[];
+  takeaways?: { title: string; text: string }[];
+  /** With phases the frame is a full-viewport map driven by the page (postMessage {phase: i} both ways),
+   *  and the page renders the phase buttons, the legend and the phase card. `occupied`: DeepState km² within the map. */
+  phases?: PresPhase[];
+  phasesTitle?: string; phasesHint?: string; phaseNote?: string;
+  legend?: { kind: "ua" | "ua-dash" | "ru" | "ghost" | "lib" | "ctl" | "occ" | "prev" | "gain" | "unknown"; text: string }[];
+  /** claimed (phase `area`) vs measured (drop of `occupied` from the first phase) */
+  compare?: { title: string; text?: string; a: string; b: string; note?: string };
+  placesTitle?: string;
+};
+export type PresPhase = {
+  key: string; date: string; meta?: string; title: string; text: string; moves?: string[];
+  ua: string[]; ru: string[]; area: number; sets: number; loss?: number; pow?: number; occupied?: number;
+  places?: { name: string; status: "lib" | "ctl" }[];
+};
 /** As read by lib/data.ts: `href` = the preview's `url` or the article page; `img` = public path of the image. */
-export type Article = { date: string; name: string; href: string; img?: string; preview: ArticlePreview; article: ArticleBody | null; contentLang: "uk" | "en" };
+export type Article = {
+  date: string; name: string; href: string; img?: string; preview: ArticlePreview;
+  article: ArticleBody | null; presentation: PresentationBody | null; contentLang: "uk" | "en";
+};
 
 export type Digest = {
   /** set by lib/data.ts: the language the text actually is in (English falls back to Ukrainian) */

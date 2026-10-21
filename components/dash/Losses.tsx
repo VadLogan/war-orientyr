@@ -20,6 +20,8 @@ export default function Losses() {
   const en = lang === "en";
   const all = ((B.losses.series || []) as LossRow[]).filter((e) => e && /^\d{4}-\d{2}-\d{2}$/.test(e.date)).sort((a, b) => (a.date < b.date ? -1 : 1));
   const row = all.find((e) => e.date === D.date) || null;
+  // russia's MoD publishes around midday, after the morning issue — show its latest claim up to this date
+  const uaRow = all.filter((e) => e.date <= D.date && e.ua && e.ua.personnel != null).pop() || null;
   const tot = B.losses.gsTotal;
   const tv = (v: number | undefined | null, approx?: boolean) => (v == null ? "—" : (approx ? "≈ " : "") + fmt(v, lang));
 
@@ -41,7 +43,7 @@ export default function Losses() {
       <p className="ls-caveat">{flags(B.losses.caveat || "")}</p>
       <div className="tiles ls-tiles">
         <div className="tile"><small>{t.lsRuDay}</small><b>{tv(row?.ru?.personnel)}</b><span>{t.lsRuSrc} · {row ? shortD(row.date) : "—"}</span></div>
-        <div className="tile"><small>{flags(t.lsUaDay)}</small><b>{tv(row?.ua?.personnel, true)}</b><span>{flags((row && row.ua && row.src && row.src.ua) || t.lsUaSrc)}</span></div>
+        <div className="tile"><small>{flags(t.lsUaDay)}</small><b>{tv(uaRow?.ua?.personnel, true)}</b><span>{t.lsUaSrc} · {uaRow ? shortD(uaRow.date) : "—"}</span></div>
         <div className="tile"><small>{t.lsRuTotal}</small><b>{tot && tot.personnel != null ? fmt(tot.personnel, lang) : "—"}</b><span>{flags((tot && tot.source) || "")}{tot && tot.date ? " · " + shortD(tot.date) : ""}</span></div>
       </div>
       <div className="tl-controls">

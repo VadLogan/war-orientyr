@@ -5,6 +5,8 @@ description: Translate new Ukrainian digest strings to English. Use after publis
 
 # Translate missing strings (UA → EN)
 
+For the current issue's narrative text (headline, lede, section items, articles), use the `main-editor` skill: it writes English for foreign readers instead of translating. This skill is for everything else — recurring strings, data files (strikes, maps, prices), and older issues.
+
 1. Run `npm run i18n:missing`. It writes `i18n/missing.json`: every untranslated Ukrainian string mapped to `""`. If it reports 0, stop.
 2. Read `i18n/missing.json` in full.
 3. Before translating, look up how `i18n/en.json` already renders recurring terms (sources, place names, direction names, loss categories, section names), e.g.:

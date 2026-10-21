@@ -32,8 +32,14 @@ for (const date of dirs(ART)) {
     for (const l of ["uk", "en"]) {
       if (has(`preview.${l}.json`)) { const p = rd(at + `preview.${l}.json`); if (!p.title) fail(`preview.${l}.json needs title`); if (p.url && !/^https?:\/\//.test(p.url)) fail(`preview.${l}.json url must be http(s)`); if (p.image && !has(p.image)) fail("image not found: " + p.image); }
       if (has(`article.${l}.json`) && !Array.isArray(rd(at + `article.${l}.json`).blocks)) fail(`article.${l}.json needs blocks[]`);
+      if (has(`presentation.${l}.json`)) {
+        const s = rd(at + `presentation.${l}.json`);
+        if (!s.title || !Array.isArray(s.blocks)) fail(`presentation.${l}.json needs title and blocks[]`);
+        if (!s.embed?.src || !has(s.embed.src)) fail(`presentation.${l}.json: embed.src not found: ${s.embed?.src}`);
+        for (const b of s.blocks) for (const x of b.items || []) if (x.image && !has(x.image)) fail("image not found: " + x.image);
+      }
     }
-    if (!has("article.uk.json") && !rd(at + "preview.uk.json").url) fail("needs article.uk.json or a url in preview.uk.json");
+    if (!has("article.uk.json") && !has("presentation.uk.json") && !rd(at + "preview.uk.json").url) fail("needs article.uk.json, presentation.uk.json or a url in preview.uk.json");
     if (!idx.includes(date) && date !== d.date) console.warn(`warning: ${at}: no issue for ${date}, the card is not shown`);
     nArt++;
   }

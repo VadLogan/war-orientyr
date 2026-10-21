@@ -69,16 +69,17 @@ export const getArticle = cache(async (date: string, name: string, lang: Lang = 
   const dir = (await getArticleDirs()).find((x) => x.date === date && x.name === name);
   if (!dir) return null;
   const pick = (base: string) => (lang === "en" && dir.files.includes(`${base}.en.json`) ? `${base}.en.json` : dir.files.includes(`${base}.uk.json`) ? `${base}.uk.json` : null);
-  const pf = pick("preview"), af = pick("article");
+  const pf = pick("preview"), af = pick("article"), sf = pick("presentation");
   if (!pf) return null;
   const lng = (f: string): Lang => (f.endsWith(".en.json") ? "en" : "uk");
   const rd = async <T,>(f: string): Promise<T> => styleData(await read(`articles/${date}/${name}/${f}`), "", lng(f));
   const preview = await rd<Article["preview"]>(pf), article = af ? await rd<NonNullable<Article["article"]>>(af) : null;
+  const presentation = sf ? await rd<NonNullable<Article["presentation"]>>(sf) : null;
   const named = preview.image || (typeof article?.image === "string" ? article.image : article?.image?.src);
   const file = named && dir.files.includes(named) ? named : dir.files.find((f) => IMG_RX.test(f));
-  const contentLang = lng(af ?? pf);
+  const contentLang = lng(af ?? sf ?? pf);
   return {
-    date, name, preview, article, contentLang,
+    date, name, preview, article, presentation, contentLang,
     href: preview.url || articleHref(lang, date, name),
     img: file && `/articles/${date}/${name}/${encodeURIComponent(file)}`,
   };

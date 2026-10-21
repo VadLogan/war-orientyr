@@ -1,0 +1,624 @@
+{
+ "title": "Operation Vivaldi",
+ "kicker": "Lyman front · Donetsk region · Ukraine’s 3rd Army Corps",
+ "lead": "Between May and October 2026, Ukraine’s 3rd Army Corps cut off a russian salient north of Lyman in four stages, breaking the northern arm of a russian pincer aimed at encircling Ukrainian-held Donbas. The corps reports 277 km² regained; the independent DeepState map, which counts only changes in occupied territory, shows about 155 km².",
+ "asOf": "2026-10-17",
+ "embed": {
+  "src": "index.html",
+  "title": "Interactive 3D map of Operation Vivaldi",
+  "note": "Drag to rotate; scroll or pinch to zoom."
+ },
+ "stats": [
+  {
+   "value": "277",
+   "unit": "km²",
+   "label": "regained — per the 3rd Army Corps",
+   "tone": "accent"
+  },
+  {
+   "value": "≈155",
+   "unit": "km²",
+   "label": "per DeepState — change in occupied area only",
+   "tone": "muted"
+  },
+  {
+   "value": "16",
+   "label": "settlements, 9 of them liberated",
+   "tone": "ok"
+  },
+  {
+   "value": "145",
+   "unit": "days",
+   "label": "22.05 → 14.10.2026, four stages"
+  }
+ ],
+ "takeaways": [
+  {
+   "title": "A pincer broken",
+   "text": "russia’s northern push (Lyman → Sviatohirsk → Barvinkove) was stopped and the Kharkiv–Sloviansk highway held. Moscow pulled part of its 1st Guards Tank Army from Kupiansk to plug the gap."
+  },
+  {
+   "title": "The blow fell elsewhere",
+   "text": "russia massed reserves near Shandryholove; the main strike went in at Nove."
+  },
+  {
+   "title": "Almost four months of silence",
+   "text": "The first assault came on 22.05; the first public report only on 15.09, as stage 1 was ending."
+  },
+  {
+   "title": "Machines ahead of infantry",
+   "text": "Ground robots (UGVs), BTR-60 carriers turned into remote kamikaze vehicles, and electronic warfare that, by the corps’ count, foiled some 20,000 russian drone missions."
+  }
+ ],
+ "phasesTitle": "Phase by phase",
+ "phasesHint": "Pick a phase — the map and the description change together",
+ "phaseNote": "Enemy losses are the 3rd Army Corps’ figures and have not been independently verified. Ukrainian losses have not been made public.",
+ "legend": [
+  {
+   "kind": "ua",
+   "text": "Ukrainian strike"
+  },
+  {
+   "kind": "ua-dash",
+   "text": "Approximate / ISW line"
+  },
+  {
+   "kind": "ru",
+   "text": "russian moves"
+  },
+  {
+   "kind": "ghost",
+   "text": "Where russia expected the blow"
+  },
+  {
+   "kind": "lib",
+   "text": "Liberated"
+  },
+  {
+   "kind": "ctl",
+   "text": "Cleared, control restored"
+  },
+  {
+   "kind": "occ",
+   "text": "Front line and occupied area (DeepState)"
+  },
+  {
+   "kind": "prev",
+   "text": "Front line in the previous phase"
+  },
+  {
+   "kind": "gain",
+   "text": "Regained in this phase"
+  },
+  {
+   "kind": "unknown",
+   "text": "Status unknown"
+  }
+ ],
+ "phases": [
+  {
+   "key": "russian salient",
+   "date": "2025 – summer 2026",
+   "meta": "background",
+   "title": "The Lyman salient: where russia was attacking from",
+   "text": "Lyman, a rail town in northern Donetsk region, sits on the approach to Sloviansk and Kramatorsk. russia’s 20th Guards Combined Arms Army crossed the Chornyi Zherebets river near Makiivka in early 2025; the 25th crossed the Zherebets near Torske in summer 2025. Between the Nitrius and Zherebets rivers a salient of about 100 km² formed. The 20th Army’s main axis ran south from Nove towards Lyman, with secondary thrusts west towards Sviatohirsk and the Oskil river, and east. A small group crossed the Siverskyi Donets near Pryshyb. An assault on Lyman in early summer 2026 failed.",
+   "moves": [
+    "early 2025: 20th Army crosses the Chornyi Zherebets near Makiivka",
+    "summer 2025: 25th Army crosses the Zherebets near Torske and enters Lyman",
+    "spring – summer 2026: 20th Army main axis: south from Nove towards Lyman",
+    "early summer 2026: Secondary axis west: towards Sviatohirsk and the Oskil",
+    "early summer 2026: A small group crosses the Donets near Pryshyb",
+    "2026, date not given: Secondary axis east, almost to the Zherebets"
+   ],
+   "ua": [],
+   "ru": [
+    "20th Guards CAA",
+    "144th MRD (488th, 254th MRR)",
+    "25th CAA",
+    "“Rubikon”"
+   ],
+   "area": 0,
+   "sets": 0,
+   "occupied": 487,
+   "places": []
+  },
+  {
+   "key": "First strike",
+   "date": "22.05.2026",
+   "meta": "start of the operation",
+   "title": "First strike at Nove",
+   "text": "A mechanised battalion of the 3rd Separate Assault Brigade, backed by the 60th and 66th Mechanised Brigades, attacked russian positions near Nove — the salient’s right flank, about 15 km north of Lyman. Electronic warfare heavily suppressed russian drones that day; about five Ukrainian vehicles were hit. Then came almost four months of information silence.",
+   "moves": [
+    "22.05.2026: Mechanised battalion of the 3rd Assault Brigade, backed by the 60th and 66th Brigades, attacks Nove"
+   ],
+   "ua": [
+    "3rd Assault Bde",
+    "60th Mech Bde",
+    "66th Mech Bde"
+   ],
+   "ru": [
+    "20th Guards CAA",
+    "144th MRD"
+   ],
+   "area": 0,
+   "sets": 0,
+   "occupied": 487,
+   "places": []
+  },
+  {
+   "key": "Stage 1",
+   "date": "15.09.2026",
+   "meta": "announced",
+   "title": "Stage 1: clearing infiltrators, taking Serednie",
+   "text": "Ukrainian forces advanced from Karpivka and Ridkodub on Serednie, eliminated a tactical bridgehead of the 20th Army on the Nitrius river and cleared russian infiltrators from Novoselivka, Oleksandrivka, Yarova and the outskirts of Korovii Yar. Deep strikes and drone superiority carried the ground advance. Stage total: 85 km² — 75 cleared of infiltrators, 10 de-occupied.",
+   "moves": [
+    "June – 15.09: Advance from Karpivka on Serednie",
+    "June – 15.09: Advance from Ridkodub on Serednie; 20th Army bridgehead on the Nitrius eliminated"
+   ],
+   "ua": [
+    "3rd Army Corps",
+    "drone units"
+   ],
+   "ru": [
+    "20th Guards CAA",
+    "144th MRD",
+    "3rd MRD: 99th SP Arty Rgt, 217th/237th Tank Rgt",
+    "25th CAA"
+   ],
+   "area": 85,
+   "sets": 5,
+   "loss": 1500,
+   "occupied": 478,
+   "places": [
+    {
+     "name": "Serednie",
+     "status": "lib"
+    },
+    {
+     "name": "Novoselivka",
+     "status": "ctl"
+    },
+    {
+     "name": "Oleksandrivka",
+     "status": "ctl"
+    },
+    {
+     "name": "Yarova",
+     "status": "ctl"
+    },
+    {
+     "name": "Korovii Yar",
+     "status": "ctl"
+    }
+   ]
+  },
+  {
+   "key": "Stage 2",
+   "date": "20.09.2026",
+   "meta": "announced",
+   "title": "Stage 2: Shandryholove and Derylove",
+   "text": "Assault groups moved north to south through ravines and gullies to approach unseen: some stormed strongpoints, others guarded the flanks against counter-attacks. Drones and ground robots went ahead of the infantry; heavy bomber drones dropped kamikaze robots 10+ km behind the line. Shandryholove and Derylove were liberated and Drobysheve brought under full control — about 40 km² in the stage. On 18.09 russia withdrew its elite “Rubikon” drone unit from the Lyman–Borova front.",
+   "moves": [
+    "18.09: russia withdraws the “Rubikon” drone unit",
+    "by 20.09: Assault groups move north to south through ravines: Shandryholove, Derylove",
+    "September (ISW): Southern line of advance: Yarova – Drobysheve – Stavky"
+   ],
+   "ua": [
+    "3rd Corps assault groups",
+    "drones, UGVs"
+   ],
+   "ru": [
+    "20th Guards CAA",
+    "3rd MRD",
+    "“Rubikon” — withdrawn"
+   ],
+   "area": 125,
+   "sets": 8,
+   "loss": 800,
+   "occupied": 452,
+   "places": [
+    {
+     "name": "Shandryholove",
+     "status": "lib"
+    },
+    {
+     "name": "Derylove",
+     "status": "lib"
+    },
+    {
+     "name": "Drobysheve",
+     "status": "ctl"
+    }
+   ]
+  },
+  {
+   "key": "Deception",
+   "date": "by 28.09.2026",
+   "meta": "preparing stage 3",
+   "title": "The feint: where russia expected the blow",
+   "text": "According to Andrii Biletskyi, the corps commander, the enemy was sure the main strike would come through Shandryholove towards Zelena Dolyna. russia moved reserves there from other sectors and “senselessly burned” them in counter-attacks near Shandryholove. Meanwhile the forces for the real strike were massing near Nove. The corps has not disclosed what its deception measures were.",
+   "moves": [
+    "by 28.09: Where russia expected the main strike: Shandryholove → Zelena Dolyna",
+    "by 28.09: russian reserves counter-attack near Shandryholove and burn out"
+   ],
+   "ua": [
+    "3rd Corps — deception"
+   ],
+   "ru": [
+    "russian reserves → Shandryholove",
+    "3rd MRD"
+   ],
+   "area": 125,
+   "sets": 8,
+   "occupied": 452,
+   "places": []
+  },
+  {
+   "key": "Stage 3",
+   "date": "28.09.2026",
+   "meta": "announced",
+   "title": "Stage 3: the main strike at Nove",
+   "text": "Nove, Ridkodub and Katerynivka were liberated; control over Karpivka and Novomykhailivka was restored — 51 km² in the stage. Mobile groups of the 3rd Assault Brigade broke through so fast that russia could not bring up artillery or coordinate its units. Strongpoints were rammed by BTR-60 carriers converted into remote-controlled kamikaze vehicles. The 3rd Border Guard Detachment, named after Yevhenii Pikus, restored control over Ridkodub, and special forces of the 10th Mobile Border Guard Detachment “Dozor” also took part.",
+   "moves": [
+    "by 28.09: Main strike: 3rd Assault Brigade mobile groups take Nove",
+    "by 28.09 (ISW): Northern line: Nove – Katerynivka – Novomykhailivka"
+   ],
+   "ua": [
+    "3rd Assault Bde",
+    "3rd Border Guard Det.",
+    "10th Border Guard Det. “Dozor”"
+   ],
+   "ru": [
+    "20th Guards CAA",
+    "144th MRD"
+   ],
+   "area": 176,
+   "sets": 13,
+   "loss": 2000,
+   "pow": 250,
+   "occupied": 411,
+   "places": [
+    {
+     "name": "Nove",
+     "status": "lib"
+    },
+    {
+     "name": "Ridkodub",
+     "status": "lib"
+    },
+    {
+     "name": "Katerynivka",
+     "status": "lib"
+    },
+    {
+     "name": "Karpivka",
+     "status": "ctl"
+    },
+    {
+     "name": "Novomykhailivka",
+     "status": "ctl"
+    }
+   ]
+  },
+  {
+   "key": "Stage 4",
+   "date": "14.10.2026",
+   "meta": "announced",
+   "title": "Stage 4: Zelena Dolyna, Lypove, Kolodiazi",
+   "text": "Zelena Dolyna, Lypove and Kolodiazi were liberated — another 101 km². Near Kolodiazi the advance reached the rear of the 20th Army towards Zarichne. To close the breach, russia’s “West” group of forces moved part of the 1st Guards Tank Army to Lyman from the Kupiansk front. On 15 October the “Tin” (“Shadow”) group of the 125th Heavy Mechanised Brigade destroyed a russian group infiltrating along a tree line near Zelena Dolyna. In total: 277 km² and 16 settlements.",
+   "moves": [
+    "September (Meduza): Behind the 20th Army’s lines: from Kolodiazi to the outskirts of Zarichne",
+    "by 14.10: Approximate: Lypove → Zelena Dolyna",
+    "by 14.10: Approximate: Zelena Dolyna → Kolodiazi",
+    "by 14.10 (ISW): russia moves part of the 1st Guards Tank Army from the Kupiansk front"
+   ],
+   "ua": [
+    "125th Heavy Mech Bde",
+    "3rd Army Corps"
+   ],
+   "ru": [
+    "1st Guards Tank Army (elements)",
+    "144th MRD",
+    "25th CAA"
+   ],
+   "area": 277,
+   "sets": 16,
+   "loss": 3000,
+   "occupied": 332,
+   "places": [
+    {
+     "name": "Zelena Dolyna",
+     "status": "lib"
+    },
+    {
+     "name": "Lypove",
+     "status": "lib"
+    },
+    {
+     "name": "Kolodiazi",
+     "status": "lib"
+    }
+   ]
+  }
+ ],
+ "compare": {
+  "title": "Claimed vs measured",
+  "text": "The corps also counts ground cleared of russian infiltrators; DeepState counts only the change in occupied territory within the map of the operation (≈44 × 34 km). The gap reflects different methods, not a contradiction.",
+  "a": "3rd Army Corps, cumulative",
+  "b": "DeepState, cumulative",
+  "note": "DeepState: occupied within the map 487 km² (21.05.2026) → 332 km² (14.10.2026). Snapshots taken at the end of each phase’s date."
+ },
+ "placesTitle": "16 settlements",
+ "blocks": [
+  {
+   "type": "h2",
+   "text": "Why it matters"
+  },
+  {
+   "type": "p",
+   "text": "Vivaldi broke the northern arm of a russian pincer aimed at encircling the part of Donbas Ukraine still holds (Lyman → Sviatohirsk → Barvinkove) and kept the Kharkiv–Sloviansk highway open. To plug the breach, russia moved part of its 1st Guards Tank Army from the Kupiansk front, after which pressure on Kupiansk-Vuzlovyi eased. Within the map of the operation, DeepState’s occupied area shrank from 487 to 332 km² — by about a third."
+  },
+  {
+   "type": "p",
+   "text": "The operation was run by the 3rd Army Corps under Brig. Gen. Andrii Biletskyi, with the 3rd Separate Assault Brigade leading the main assaults. It was kept quiet for almost four months: the first strike came on 22 May, the first public report only on 15 September."
+  },
+  {
+   "type": "h2",
+   "text": "How the operation was built"
+  },
+  {
+   "type": "list",
+   "ordered": true,
+   "items": [
+    {
+     "title": "Deep strikes to 50 km, then 120 km",
+     "text": "Corps drones hit fuel, depots, command posts and drone operators. A fuel pipeline into occupied Luhansk region was stopped; rear units of russia’s 144th Motor Rifle Division pulled back to Voronezh region."
+    },
+    {
+     "title": "Air superiority for its own drones",
+     "text": "An electronic-warfare system (“Protective Dome”, as NV calls it) foiled about 20,000 russian drone missions, by the corps’ count. Short of fuel, russian units lacked generators to run their own jammers."
+    },
+    {
+     "title": "Information silence from May to 15 September",
+     "text": "The operation went unannounced for almost four months. Biletskyi gave the first public report when stage 1 was already ending."
+    },
+    {
+     "title": "From clearing to offensive",
+     "text": "It began by eliminating russian infiltration and the 20th Army’s bridgehead on the Nitrius, then grew into an offensive."
+    },
+    {
+     "title": "Machines ahead of the infantry",
+     "text": "Ground robots carried supplies and cleared mines; BTR-60s converted into kamikaze vehicles broke strongpoints. Assault groups approached through ravines and gullies while separate groups covered the flanks."
+    },
+    {
+     "title": "Deception: the blow fell elsewhere",
+     "text": "russia took Shandryholove – Zelena Dolyna for the main axis and burned its reserves there in counter-attacks. The real strike was prepared at Nove, where the surrounding heights give the initiative on the bridgehead."
+    }
+   ]
+  },
+  {
+   "type": "h2",
+   "text": "Forces on both sides"
+  },
+  {
+   "type": "cols",
+   "cols": [
+    [
+     {
+      "type": "h3",
+      "text": "Ukraine’s Defence Forces"
+     },
+     {
+      "type": "list",
+      "items": [
+       {
+        "title": "3rd Army Corps",
+        "text": "Commanded the operation. Commander: Brig. Gen. Andrii Biletskyi; deputy: Maj. Maksym Zhorin.",
+        "image": "emblems/3-ak.png",
+        "imageAlt": "Emblem: 3rd Army Corps"
+       },
+       {
+        "title": "3rd Separate Assault Brigade",
+        "text": "The main assaults: Nove on 22.05 and in stage 3; mobile groups.",
+        "image": "emblems/3-oshbr.png",
+        "imageAlt": "Emblem: 3rd Separate Assault Brigade"
+       },
+       {
+        "title": "60th Separate Mechanised Brigade",
+        "text": "Supported the 22.05 strike at Nove; part of the operation’s force.",
+        "image": "emblems/60-ombr.png",
+        "imageAlt": "Emblem: 60th Separate Mechanised Brigade"
+       },
+       {
+        "title": "66th Separate Mechanised Brigade",
+        "text": "Supported the strike at Nove; its tank battalion’s UGVs and Darts strike drones.",
+        "image": "emblems/66-ombr.png",
+        "imageAlt": "Emblem: 66th Separate Mechanised Brigade"
+       },
+       {
+        "title": "125th Separate Heavy Mechanised Brigade",
+        "text": "The “Tin” (“Shadow”) group: tree line near Zelena Dolyna, 15.10.",
+        "image": "emblems/125-ovmbr.png",
+        "imageAlt": "Emblem: 125th Separate Heavy Mechanised Brigade"
+       },
+       {
+        "title": "3rd Border Guard Detachment, named after Yevhenii Pikus",
+        "text": "Restored full control over Ridkodub in stage 3.",
+        "image": "emblems/3-pz.png",
+        "imageAlt": "Emblem: 3rd Border Guard Detachment, named after Yevhenii Pikus"
+       },
+       {
+        "title": "10th Mobile Border Guard Detachment “Dozor”",
+        "text": "Special forces, stage 3.",
+        "image": "emblems/10-mpz-dozor.png",
+        "imageAlt": "Emblem: 10th Mobile Border Guard Detachment “Dozor”"
+       },
+       {
+        "title": "Drone units and others",
+        "text": "21st Separate Unmanned Systems Battalion “KRAKEN 1654”, K-2 Unmanned Systems Battalion, Special Operations Centre “A”, 3rd Separate Reconnaissance Battalion, 25th Separate Assault Battalion, tactical groups of the 8th Special Operations Regiment, National Guard’s “Lasar’s Group”, 96th Separate Support Battalion (UGVs). Their sectors were not disclosed."
+       }
+      ]
+     }
+    ],
+    [
+     {
+      "type": "h3",
+      "text": "russian forces"
+     },
+     {
+      "type": "list",
+      "items": [
+       {
+        "title": "20th Guards Combined Arms Army",
+        "text": "Held the salient north of Lyman. According to unconfirmed reports (ISW, 16.09), its commander, Lt Gen Roman Yurchenko, was removed."
+       },
+       {
+        "title": "144th Motor Rifle Division (20th Army)",
+        "text": "488th and 254th Motor Rifle Regiments. Lyman and Borova fronts; rear units withdrawn to Voronezh region; the regiments are due to be rotated out before winter.",
+        "image": "emblems/144-msd.png",
+        "imageAlt": "Emblem: 144th Motor Rifle Division (20th Army)"
+       },
+       {
+        "title": "3rd Motor Rifle Division (20th Army)",
+        "text": "99th Self-Propelled Artillery Regiment and 217th (possibly 237th) Tank Regiment on the Lyman front — per Mashovets, ISW 16.09.",
+        "image": "emblems/3-msd.png",
+        "imageAlt": "Emblem: 3rd Motor Rifle Division (20th Army)"
+       },
+       {
+        "title": "25th Combined Arms Army",
+        "text": "Crossed the Zherebets near Torske and pushed into Lyman; operates east and south-east of the town.",
+        "image": "emblems/25-zva.png",
+        "imageAlt": "Emblem: 25th Combined Arms Army"
+       },
+       {
+        "title": "1st Guards Tank Army (elements)",
+        "text": "Moved from the Kupiansk front to Lyman in October, after which pressure on Kupiansk-Vuzlovyi eased."
+       },
+       {
+        "title": "“Rubikon” drone unit",
+        "text": "russia’s elite drone unit; operated on the Lyman–Borova front, withdrawn on 18.09 after losses (per NV)."
+       },
+       {
+        "title": "“West” group of forces",
+        "text": "Overall command in this sector."
+       }
+      ]
+     }
+    ]
+   ]
+  },
+  {
+   "type": "h2",
+   "text": "About the map"
+  },
+  {
+   "type": "p",
+   "kind": "meta",
+   "text": "Base map of Ukraine under the 3D map: borders and the Dnipro from Natural Earth (1:50m), with Crimea shown as part of Ukraine; the nationwide front line is not shown. The map is schematic. Terrain is not shown, as elevation data were not available. The Siverskyi Donets and Oskil rivers are from Natural Earth (1:10m); the Nitrius and Zherebets are marked by labels only. Circles around villages are notional zones of about 1.5 km radius. The front line, occupied territory and grey zone (“status unknown”) are from DeepState, snapshot at the end of each phase’s date, simplified to ≈50 m. By DeepState’s count, about 155 km² was regained within the map over the four stages; the corps reports 277 km² because it also counts ground cleared of infiltrators. Solid arrows are directions described in the sources; dashed ones are approximate, inferred from the order of liberation or from ISW’s “lines of advance”. A dashed unit frame means the sources give only a sector, and the point on the map is notional. Numbers of assault groups, companies and battalions within brigades have not been published. Stage dates are the dates of the 3rd Army Corps’ official announcements; OSINT analysts recorded some advances earlier. Map labels are in Ukrainian. Data as of 17 October 2026."
+  }
+ ],
+ "sources": [
+  {
+   "title": "Euromaidan Press: the Lyman salient, the 22.05 strike at Nove",
+   "url": "https://euromaidanpress.com/2026/09/12/lyman-salient-2/"
+  },
+  {
+   "title": "Meduza: russian armies and axes of advance",
+   "url": "https://meduza.io/en/feature/2026/09/18/ukraine-s-operation-vivaldi-pushed-russian-forces-back-around-lyman-in-the-donbas-now-both-armies-are-massing-troops-for-the-next-battles-farther-south"
+  },
+  {
+   "title": "ISW, 15.09: stage 1, 144th MRD",
+   "url": "https://www.criticalthreats.org/analysis/russian-offensive-campaign-assessment-september-15-2026"
+  },
+  {
+   "title": "ISW, 16.09: Nitrius bridgehead, 3rd MRD",
+   "url": "https://www.criticalthreats.org/analysis/russian-offensive-campaign-assessment-september-16-2026"
+  },
+  {
+   "title": "ISW, 8.10: 488th and 254th MRR",
+   "url": "https://www.criticalthreats.org/analysis/russian-offensive-campaign-assessment-october-8-2026"
+  },
+  {
+   "title": "ISW, 14.10: 1st Guards Tank Army, summary",
+   "url": "https://www.criticalthreats.org/analysis/russian-offensive-campaign-assessment-october-14-2026-6ad03457c0c93"
+  },
+  {
+   "title": "NV: strikes on logistics and electronic warfare",
+   "url": "https://english.nv.ua/russian-war/operation-vivaldi-surprised-russia-by-disrupting-drones-and-logistics-50642481.html"
+  },
+  {
+   "title": "LB.ua: stage 2, assault-group tactics",
+   "url": "https://lb.ua/society/2026/09/20/767476_operatsiya_vivaldi_tretiy.html"
+  },
+  {
+   "title": "TSN: UGVs and three russian armies",
+   "url": "https://tsn.ua/ato/kliuchovyy-napriamok-dlia-putina-pid-udarom-ukrayiny-zsu-pishly-vpered-i-zvilnyly-novi-sela-detali-ta-mapa-3171992.html"
+  },
+  {
+   "title": "Telegraf: where the russians expected the blow",
+   "url": "https://news.telegraf.com.ua/ukr/ukraina/5951060-rossiyane-zhdali-udara-v-drugom-meste-beletskiy-raskryl-kak-vernuli-territorii-na-limanskom-napravlenii"
+  },
+  {
+   "title": "Militarnyi: stage 3",
+   "url": "https://militarnyi.com/uk/news/vivaldi-3-ak-nove-ridkodub-i-katerynivku/"
+  },
+  {
+   "title": "5 Kanal: Nove, 250+ prisoners, “Dozor”",
+   "url": "https://www.5.ua/suspilstvo/operatsiia-vivaldi-zvilneno-nove-ridkodub-i-katerynivku-vziato-ponad-250-polonenykh-383908.html"
+  },
+  {
+   "title": "Censor.NET: stage 4, forces involved",
+   "url": "https://censor.net/ua/news/4028316/biletskyyi-zayavyv-pro-zvilnennya-zelenoyi-dolyny-lypovogo-yi-kolodyaziv"
+  },
+  {
+   "title": "Suspilne: 125th Brigade near Zelena Dolyna",
+   "url": "https://suspilne.media/donbas/1428419-perehopili-v-hasah-rozvidniki-125-ovmbr-znisili-grupu-okupantiv-poblizu-zelenoi-dolini-na-limanskomu-napramku/"
+  },
+  {
+   "title": "Texty: 277 km², 8,000 losses",
+   "url": "https://texty.org.ua/fragments/118484/operaciya-vivaldi-syly-oborony-zvilnyly-zelenu-dolynu-lypove-j-kolodyazi-na-donechchyni/"
+  },
+  {
+   "title": "Euronews: ISW lines of advance",
+   "url": "https://www.euronews.com/2026/10/09/ukraines-operation-vivaldi-foils-russias-plan-to-encircle-the-donbas-isw-analysis-shows"
+  },
+  {
+   "title": "Kyiv Independent: 66th Brigade, UGVs",
+   "url": "https://kyivindependent.com/inside-operation-vivaldi-how-ukraine-uses-drones-robots-to-liberate-territory-in-donetsk-oblast/"
+  },
+  {
+   "title": "DeepState: front line at the date of each phase",
+   "url": "https://deepstatemap.live"
+  },
+  {
+   "title": "Wikimedia Commons: 3rd Separate Assault Brigade Insignia - Second Variant.png",
+   "url": "https://commons.wikimedia.org/wiki/File:3rd_Separate_Assault_Brigade_Insignia_-_Second_Variant.png",
+   "note": "emblem, CC BY-SA 4.0, Davomme"
+  },
+  {
+   "title": "Wikimedia Commons: 60th Mechanized Brigade (2026).svg",
+   "url": "https://commons.wikimedia.org/wiki/File:60th_Mechanized_Brigade_(2026).svg",
+   "note": "emblem, Public domain"
+  },
+  {
+   "title": "Wikimedia Commons: Sleeve patch of the 144th Guards Motor Rifle Division.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:Sleeve_patch_of_the_144th_Guards_Motor_Rifle_Division.svg",
+   "note": "emblem, Public domain"
+  },
+  {
+   "title": "Wikimedia Commons: Sleeve patch of the 3rd Motorized Rifle Division.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:Sleeve_patch_of_the_3rd_Motorized_Rifle_Division.svg",
+   "note": "emblem, Public domain"
+  },
+  {
+   "title": "Wikimedia Commons: Great emblem of the 25th Combined Arms Army.svg",
+   "url": "https://commons.wikimedia.org/wiki/File:Great_emblem_of_the_25th_Combined_Arms_Army.svg",
+   "note": "emblem, Public domain"
+  },
+  {
+   "title": "Natural Earth: rivers",
+   "url": "https://github.com/nvkelso/natural-earth-vector",
+   "note": "village coordinates: Wikipedia, Mapcarta (OSM)"
+  }
+ ]
+}

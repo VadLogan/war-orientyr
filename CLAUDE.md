@@ -4,7 +4,7 @@ Daily war digest (UA/EN), ported from a single-file Artifact to Next.js. See REA
 
 ## Commands
 - `npm run dev` — localhost:3000
-- `npm run publish -- <new-digest.json> [--force]` — new issue: copies the current `public/digest.json` to `issues/<date>.json`, installs the new file as `digest.json`, adds its date to `issues/index.json`. Same date = correction (no archiving); older date refused.
+- `npm run publish -- <new-digest.json> [--force]` — new issue: copies the current `public/digest.json` to `issues/<date>.json`, installs the new file as `digest.json`, adds its date to `issues/index.json`. Same date = correction (no archiving); older date refused. Either way, a `losses.series` day the new file has emptier (ru/ua, e.g. hand-backfilled russian MoD claims) keeps the current values.
 - `npm run validate` — parses all `public/` JSON, checks digest.json schema keys, that `issues/index.json` contains digest's date, and that every strike in digest.json's `deepstrikes` section is in `strikes.json` (by `id` or `item`; notes without emoji / ℹ️ and `geo: null` items exempt). Run after any data change; `prebuild` runs it too, so Vercel won't deploy a stale strikes map.
 - `npm run build` — no test suite; validate + build is the check.
 

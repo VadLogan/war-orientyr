@@ -6,6 +6,7 @@
 //                the new file → public/digest.json, its date added to public/issues/index.json
 //                (days of timeline / losses.series that the new file lacks are copied over from the current digest)
 // - same date:   replaces today's digest (a correction); nothing is archived
+// - any date:    a losses.series day the new file has emptier (ru or ua) keeps the current digest's values
 // - older date:  refused
 // An existing, different archive file for the current date is never overwritten without --force.
 import fs from "node:fs";
@@ -29,8 +30,24 @@ const curRaw = fs.readFileSync(at("digest.json"), "utf8");
 const cur = JSON.parse(curRaw);
 if (next.date < cur.date) die(`${next.date} is older than the current digest (${cur.date})`);
 
+// Per-day loss claims are backfilled by hand (russia's MoD publishes after the issue); an export that has a day
+// emptier than the current digest must not wipe it. A side (ru/ua) is kept from the current digest, with its
+// source note, when the new file has it null or with fewer known values.
+const known = (o) => (o ? Object.values(o).filter((v) => v != null).length : 0);
+const kept = [];
+for (const row of next.losses?.series || []) {
+  const old = (cur.losses?.series || []).find((x) => x.date === row.date);
+  for (const side of ["ru", "ua"]) {
+    if (!old || known(old[side]) <= known(row[side])) continue;
+    row[side] = old[side];
+    row.src = { ...row.src, [side]: old.src?.[side] };
+    kept.push(`${row.date} ${side}`);
+  }
+}
+if (kept.length) console.warn(`kept loss claims the new file had emptier (from the ${cur.date} digest): ${kept.join(", ")}`);
+
 if (next.date === cur.date) {
-  fs.writeFileSync(at("digest.json"), raw);
+  fs.writeFileSync(at("digest.json"), kept.length ? JSON.stringify(next, null, 2) : raw);
   console.log(`replaced the ${cur.date} digest (same date, nothing archived)`);
 } else {
   const archive = at(`issues/${cur.date}.json`);
@@ -48,7 +65,7 @@ if (next.date === cur.date) {
     lost.push(`${name}: ${miss.map((x) => x.date).join(", ")}`);
   }
   if (lost.length) console.warn(`restored days missing from ${src} (copied from the ${cur.date} digest) — ${lost.join("; ")}`);
-  fs.writeFileSync(at("digest.json"), lost.length ? JSON.stringify(next, null, 2) : raw);
+  fs.writeFileSync(at("digest.json"), lost.length || kept.length ? JSON.stringify(next, null, 2) : raw);
   const idx = JSON.parse(fs.readFileSync(at("issues/index.json"), "utf8"));
   idx.dates = [...new Set([...(idx.dates || []), cur.date, next.date])].filter((d) => DATE_RX.test(d)).sort();
   fs.writeFileSync(at("issues/index.json"), JSON.stringify(idx));
