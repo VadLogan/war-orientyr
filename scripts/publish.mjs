@@ -4,6 +4,7 @@
 //
 // - newer date:  public/digest.json → public/issues/<its date>.json (copied byte for byte),
 //                the new file → public/digest.json, its date added to public/issues/index.json
+//                (days of timeline / losses.series that the new file lacks are copied over from the current digest)
 // - same date:   replaces today's digest (a correction); nothing is archived
 // - older date:  refused
 // An existing, different archive file for the current date is never overwritten without --force.
@@ -36,7 +37,18 @@ if (next.date === cur.date) {
   if (fs.existsSync(archive) && fs.readFileSync(archive, "utf8") !== curRaw && !force)
     die(`issues/${cur.date}.json already exists and differs from the current digest; re-run with --force to overwrite it`);
   fs.writeFileSync(archive, curRaw);
-  fs.writeFileSync(at("digest.json"), raw);
+  // Day-by-day histories must keep every day of the current digest; the generator has dropped the previous day before.
+  const lost = [];
+  for (const [name, get] of [["timeline", (d) => d.timeline], ["losses.series", (d) => d.losses?.series]]) {
+    const have = new Set((get(next) || []).map((x) => x.date));
+    const miss = (get(cur) || []).filter((x) => !have.has(x.date));
+    if (!miss.length) continue;
+    get(next).push(...miss);
+    get(next).sort((a, b) => (a.date < b.date ? -1 : 1));
+    lost.push(`${name}: ${miss.map((x) => x.date).join(", ")}`);
+  }
+  if (lost.length) console.warn(`restored days missing from ${src} (copied from the ${cur.date} digest) — ${lost.join("; ")}`);
+  fs.writeFileSync(at("digest.json"), lost.length ? JSON.stringify(next, null, 2) : raw);
   const idx = JSON.parse(fs.readFileSync(at("issues/index.json"), "utf8"));
   idx.dates = [...new Set([...(idx.dates || []), cur.date, next.date])].filter((d) => DATE_RX.test(d)).sort();
   fs.writeFileSync(at("issues/index.json"), JSON.stringify(idx));
