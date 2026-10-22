@@ -4556,6 +4556,24 @@
    "issue": "2026-10-20",
    "item": "trubchevsk-rls-1810",
    "url": "https://lb.ua/society/2026/10/19/774520_genshtab_sili_oboroni_urazili.html"
+  },
+  {
+   "id": "serpukhov-arsenal-2210",
+   "date": "2026-10-22",
+   "night": "21–22.10",
+   "object": "75-й арсенал Міноборони рф (зберігання й ремонт озброєння, зокрема ЗРК), військова частина 42708",
+   "place": "Серпухов, Московська область",
+   "kind": "military",
+   "territory": "russia",
+   "lat": 54.9167,
+   "lng": 37.4167,
+   "approx": true,
+   "result": "за NV (Astra) — вибух на території військової частини, місцеві повідомляли про потужні вибухи; результат не оцінено; офіційного підтвердження немає",
+   "confirmed": null,
+   "local": "silent",
+   "issue": "2026-10-22",
+   "item": "serpukhov-arsenal-2210",
+   "url": "https://nv.ua/ukr/world/countries/ataka-droniv-na-pidmoskov-ya-pid-udarom-opinivsya-75-arsenal-minoboroni-rf-v-serpuhovi-50652282.html"
   }
  ],
  "coverage": {
