@@ -32,7 +32,7 @@ export function countSources(S: Source[]) {
 
 function Sources({ D, t }: Omit<RC, "lang"> & { D: DigestT }) {
   const S = D.sources || [];
-  const c = countSources(S), tot = Math.max(1, S.length), line = t.covLine(c.ok, c.partial, c.unavailable);
+  const c = countSources(S), tot = Math.max(1, S.length), line = t.covLine(c.ok, c.partial);
   const sorted = S.map((s, n) => [s, n] as const).sort((a, b) => (SRC_ORD[a[0].status] ?? 0) - (SRC_ORD[b[0].status] ?? 0) || a[1] - b[1]).map((x) => x[0]);
   return (
     <section className="sec" id="sec-sources">
@@ -42,12 +42,10 @@ function Sources({ D, t }: Omit<RC, "lang"> & { D: DigestT }) {
         <div className="cov" role="img" aria-label={line}>
           <div className="c-ok" style={{ width: (c.ok / tot) * 100 + "%" }} />
           <div className="c-part" style={{ width: (c.partial / tot) * 100 + "%" }} />
-          <div className="c-unv" style={{ width: (c.unavailable / tot) * 100 + "%" }} />
         </div>
         <div className="legend" style={{ margin: "8px 0 10px" }}>
           <span><i style={{ background: "var(--ok)" }} />{t.st.ok} {c.ok}</span>
           <span><i style={{ background: "var(--part)" }} />{t.st.partial} {c.partial}</span>
-          <span><i style={{ background: "var(--unv)" }} />{t.st.unavailable} {c.unavailable}</span>
         </div>
       </div>
       <ChkToggle more={t.chkMore} less={t.chkLess}>

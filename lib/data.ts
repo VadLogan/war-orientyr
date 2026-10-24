@@ -14,9 +14,11 @@ const read = async <T,>(p: string): Promise<T> => JSON.parse(await fs.readFile(p
 /** English text (i18n/en.json); the data itself is shared by both languages. */
 const getEnglish = cache(async (): Promise<Record<string, string>> => JSON.parse(await fs.readFile(path.join(process.cwd(), "i18n/en.json"), "utf8")));
 
-/** An issue in the requested language: English text applied when every string is translated, else the Ukrainian text. */
+/** An issue in the requested language: English text applied when every string is translated, else the Ukrainian text.
+ *  Sources that could not be opened (`status: "unavailable"`) are dropped — readers see only what was read. */
 async function readIssue(p: string, lang: Lang): Promise<Digest> {
-  const data = await read(p);
+  const data = await read<Digest>(p);
+  if (data.sources) data.sources = data.sources.filter((s) => s.status !== "unavailable");
   const en = lang === "en" ? translate(data, await getEnglish()) : null;
   return en ? { ...styleData(en, "", "en"), contentLang: "en" } : { ...styleData(data, ""), contentLang: "uk" };
 }

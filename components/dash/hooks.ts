@@ -36,9 +36,11 @@ export function useJson<T>(url: string | null): { data: T | null; err: boolean }
 
 /** Chart width for the fixed-size SVG panels (civilians, attack cost, recruitment): window width minus page padding, 300..680. */
 export function useChartW() {
-  const calc = () => Math.round(Math.min(680, Math.max(300, (typeof innerWidth === "number" ? innerWidth : 700) - 70)));
-  const [w, setW] = useState(calc);
+  const calc = (iw = innerWidth) => Math.round(Math.min(680, Math.max(300, iw - 70)));
+  // Server has no window: start from the 700px guess on both sides so hydration matches, then measure.
+  const [w, setW] = useState(() => calc(700));
   useEffect(() => {
+    setW(calc());
     let tm: ReturnType<typeof setTimeout>;
     const on = () => { clearTimeout(tm); tm = setTimeout(() => setW(calc()), 150); };
     addEventListener("resize", on);

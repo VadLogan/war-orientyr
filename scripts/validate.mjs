@@ -47,12 +47,13 @@ for (const date of dirs(ART)) {
 for (const f of ["strikes.json","prices.json","recruit.json","landcost.json","maps/maps.json","maps/strikes-base.json","maps/targets.json"]) rd(f);
 for (const d of rd("maps/archive/index.json").dates) if (rd(`maps/archive/${d}.json`).generated !== d) { console.error(`maps/archive/${d}.json: generated != ${d}`); process.exit(1); }
 // Research-tool residue must not reach readers ("відхилено проксі (HTTP 400)", "WebFetch", snapshot ids…).
-// `assumption` / `unavailable` are working notes the page does not render, so they are skipped.
+// `assumption` / `unavailable` are working notes the page does not render, and sources with status "unavailable" are
+// dropped on load (lib/data.ts), so they are skipped.
 const RESIDUE = /HTTP [45]\d\d|прокс[іи]\b|\bproxy\b|WebSearch|WebFetch|SITE_BLOCKED|allowed_domains|id знімка|snapshot id/i;
 const residue = [];
 const walk = (v, f, at) => {
   if (typeof v === "string") { if (RESIDUE.test(v)) residue.push(`${f}${at}: ${v.slice(0, 120)}`); }
-  else if (v && typeof v === "object") for (const k in v) if (k !== "assumption" && k !== "unavailable") walk(v[k], f, at + "." + k);
+  else if (v && typeof v === "object" && v.status !== "unavailable") for (const k in v) if (k !== "assumption" && k !== "unavailable") walk(v[k], f, at + "." + k);
 };
 const jsonFiles = (dir) => fs.readdirSync(new URL("../public/" + dir, import.meta.url), { recursive: true }).filter((f) => f.endsWith(".json")).map((f) => dir + f);
 for (const f of ["digest.json", ...jsonFiles("issues/"), ...jsonFiles("articles/"), "strikes.json", "prices.json", "recruit.json", "maps/maps.json"]) walk(rd(f), f, "");
