@@ -4574,6 +4574,87 @@
    "issue": "2026-10-22",
    "item": "serpukhov-arsenal-2210",
    "url": "https://nv.ua/ukr/world/countries/ataka-droniv-na-pidmoskov-ya-pid-udarom-opinivsya-75-arsenal-minoboroni-rf-v-serpuhovi-50652282.html"
+  },
+  {
+   "id": "oryol-proton-2310",
+   "date": "2026-10-24",
+   "night": "23–24.10",
+   "object": "Головний виробничий корпус АТ «Протон-Електротекс» (оптико-електронне обладнання, модулі для ракет С-71 «Ковьор», комутатори для «Іскандер-М»)",
+   "place": "Орел, Орловська область",
+   "kind": "defence-industry",
+   "territory": "russia",
+   "lat": 52.97,
+   "lng": 36.07,
+   "approx": true,
+   "result": "за Генштабом — уражено головний виробничий корпус; незалежних супутникових даних немає",
+   "confirmed": {
+    "by": "Генштаб ЗСУ",
+    "when": "24.10.2026, ≈11:22 (Укрінформ)"
+   },
+   "local": "silent",
+   "issue": "2026-10-25",
+   "item": "oryol-proton-2310",
+   "url": "https://www.ukrinform.ua/rubric-ato/4177754-sili-oboroni-urazili-tolattikaucuk-pidpriemstvo-protonelektroteks-ta-litak-na-aerodromi-ejsk-u-rf.html"
+  },
+  {
+   "id": "tolyatti-kauchuk-2410",
+   "date": "2026-10-24",
+   "night": "23–24.10",
+   "object": "Комплекс «Тольяттікаучук» (синтетичні каучуки, мономери, високооктанові добавки до бензину)",
+   "place": "Тольятті, Самарська область",
+   "kind": "defence-industry",
+   "territory": "russia",
+   "lat": 53.51,
+   "lng": 49.42,
+   "approx": true,
+   "result": "за Генштабом — уражено; повідомляли про вибух і пожежу",
+   "confirmed": {
+    "by": "Генштаб ЗСУ",
+    "when": "24.10.2026, ≈11:22 (Укрінформ)"
+   },
+   "local": "silent",
+   "issue": "2026-10-25",
+   "item": "tolyatti-kauchuk-2410",
+   "url": "https://www.ukrinform.ua/rubric-ato/4177754-sili-oboroni-urazili-tolattikaucuk-pidpriemstvo-protonelektroteks-ta-litak-na-aerodromi-ejsk-u-rf.html"
+  },
+  {
+   "id": "yeysk-airfield-2410",
+   "date": "2026-10-24",
+   "night": "23–24.10",
+   "object": "Літак на аеродромі Єйськ",
+   "place": "Єйськ, Краснодарський край",
+   "kind": "airfield",
+   "territory": "russia",
+   "lat": 46.71,
+   "lng": 38.27,
+   "approx": true,
+   "result": "за Генштабом — уражено літак; масштаб пошкоджень уточнюється",
+   "confirmed": {
+    "by": "Генштаб ЗСУ",
+    "when": "24.10.2026, ≈11:22 (Укрінформ)"
+   },
+   "local": "silent",
+   "issue": "2026-10-25",
+   "item": "yeysk-airfield-2410",
+   "url": "https://www.ukrinform.ua/rubric-ato/4177754-sili-oboroni-urazili-tolattikaucuk-pidpriemstvo-protonelektroteks-ta-litak-na-aerodromi-ejsk-u-rf.html"
+  },
+  {
+   "id": "belgorod-mall-2510",
+   "date": "2026-10-25",
+   "night": "24–25.10",
+   "object": "Торговий центр",
+   "place": "Бєлгородська область",
+   "kind": "logistics",
+   "territory": "russia",
+   "lat": 50.6,
+   "lng": 36.6,
+   "approx": true,
+   "result": "за Kyiv Independent — російська влада заявила про 1 загиблого і 14 поранених; українського підтвердження немає",
+   "confirmed": null,
+   "local": "confirms",
+   "issue": "2026-10-25",
+   "item": "belgorod-mall-2510",
+   "url": "https://kyivindependent.com/"
   }
  ],
  "coverage": {
