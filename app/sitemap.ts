@@ -13,7 +13,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     alternates: { languages: { uk: SITE + url("uk"), en: SITE + url("en"), "x-default": SITE + url("uk") } },
   }));
   return [
-    ...(["digest", "dashboard"] as View[]).flatMap((v) => dates.map((d) => entry((l) => href(l, v, d, latest), d)).flat()),
+    // roots ("/", "/dashboard") + every issue at its dated URL, the latest included
+    ...(["digest", "dashboard"] as View[]).flatMap((v) => [null, ...dates].map((d) => entry((l) => href(l, v, d, ""), d ?? latest)).flat()),
     ...articles.flatMap(({ date, name }) => entry((l) => articleHref(l, date, name), date)),
   ];
 }

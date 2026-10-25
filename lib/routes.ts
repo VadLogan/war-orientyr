@@ -11,3 +11,7 @@ export const articleHref = (lang: Lang, date: string, name: string) => (lang ===
 /** Absolute site origin (production domain on Vercel, else localhost). */
 export const SITE = process.env.VERCEL_PROJECT_PRODUCTION_URL ? "https://" + process.env.VERCEL_PROJECT_PRODUCTION_URL : "http://localhost:3000";
 export const SITE_NAME: Record<Lang, string> = { uk: "Щоденний дайджест війни", en: "Daily war digest" };
+export const SITE_DESC: Record<Lang, string> = {
+  uk: "Щодня: фронт, удари, втрати, заяви кремля і реакція світу — коротко і з джерелами.",
+  en: "Every day: the front, strikes, losses, the kremlin’s claims and the world’s reaction — briefly, with sources.",
+};
