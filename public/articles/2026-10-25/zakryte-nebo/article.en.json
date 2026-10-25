@@ -1,0 +1,924 @@
+{
+  "kicker": "Analysis · russian aviation",
+  "title": "Closed skies are eating russian aviation’s profits",
+  "lead": "Ukrainian drones have turned russia’s airspace-closure drill into a daily routine at its airports. An industry with nearly RUB 2 trillion in revenue makes just RUB 31bn on its core business, and the closures are eating exactly that margin. We follow the bill: airlines, passengers or the budget.",
+  "toc": true,
+  "image": {
+    "src": "cover.en.webp",
+    "alt": "Illustration: an airport apron at sunset, an airliner by the terminal and a CLOSED sign on a barbed-wire fence",
+    "caption": "Illustration: WAR·Orientyr."
+  },
+  "blocks": [
+    {
+      "type": "p",
+      "text": "On 23 October Aeroflot asked passengers on cancelled flights not to come to the airport at all: all four Moscow airports had shut completely for the second time in two days. Closures are no longer incidents. They are the normal state of russian civil aviation, and they have a price."
+    },
+    {
+      "type": "p",
+      "text": "The mechanism is the “Kovyor” (“Carpet”) plan, a russian air-traffic procedure that clears the sky over an area and halts all take-offs and landings when drones are detected. Ukrainian long-range drone raids now trigger it every day, often at the busiest hubs."
+    },
+    {
+      "type": "stats",
+      "items": [
+        {
+          "label": "Closures · all of 2025",
+          "value": "1,923",
+          "note": "5.3 a day · Osprey / The Insider"
+        },
+        {
+          "label": "Summer 2026 alone",
+          "value": "2,182",
+          "tone": "unv",
+          "note": "13.5% more than the whole of 2025, in three months"
+        },
+        {
+          "label": "August 2026",
+          "value": "993",
+          "tone": "unv",
+          "note": "32 a day · the worst month yet"
+        }
+      ]
+    },
+    {
+      "type": "h2",
+      "text": "Key figures"
+    },
+    {
+      "type": "stats",
+      "kind": "tiles",
+      "items": [
+        {
+          "value": "RUB 1.925trn",
+          "note": "2025 revenue of all russian passenger airlines (≈ $24bn)"
+        },
+        {
+          "value": "RUB 31bn",
+          "tone": "unv",
+          "note": "their combined operating profit: a margin of about 1.6%"
+        },
+        {
+          "value": "−4.3%",
+          "tone": "unv",
+          "note": "passenger numbers, January–August 2026: 70.5m vs 73.7m a year earlier"
+        },
+        {
+          "value": "7.6m",
+          "tone": "unv",
+          "note": "passengers in 2026 waited more than 3 hours to depart, 2.5 times as many as in 2025"
+        }
+      ]
+    },
+    {
+      "type": "p",
+      "text": "The whole story sits in the ratio of two numbers. An industry that earns only RUB 31bn a year from flying is taking a hit that, even by the most cautious estimate (the government’s own), wipes out more than half of that profit, and by market estimates exceeds it several times over. Without a single aircraft being struck, every night of “Kovyor” works like a tax on russian aviation."
+    },
+    {
+      "type": "links",
+      "items": [
+        {
+          "title": "The Insider",
+          "url": "https://theins.ru/news/296833"
+        },
+        {
+          "title": "Euronews",
+          "url": "https://www.euronews.com/2026/09/10/the-days-of-safety-are-over-russian-airports-face-record-closures"
+        },
+        {
+          "title": "Kommersant",
+          "url": "https://www.kommersant.ru/doc/8625500"
+        },
+        {
+          "title": "TASS / Rambler",
+          "url": "https://finance.rambler.ru/business/57141430-passazhiropotok-aviakompaniy-rf-snizilsya-za-vosem-mesyatsev-na-4-3/"
+        },
+        {
+          "title": "The Moscow Times",
+          "url": "https://ru.themoscowtimes.com/2026/10/09/vrossii-vdvoe-virosla-chastota-otmeni-aviareisov-iz-za-atak-bespilotnikov-a208219"
+        }
+      ]
+    },
+    {
+      "type": "h2",
+      "text": "From incidents to a regime"
+    },
+    {
+      "type": "p",
+      "text": "In 2025 russian airports halted operations 1,923 times, 5.3 times a day on average. By August 2026 the daily rate was 6.1 times higher. The number of drones in russian airspace grew alongside: Osprey Flight Solutions, an aviation-risk firm, estimates 4,000–5,000 a month at the start of the year and about 16,000 in August."
+    },
+    {
+      "type": "chart",
+      "kind": "col",
+      "title": "russian airport closures",
+      "subtitle": "Temporary restrictions on arrivals and departures",
+      "note": "* 2,860 according to Forbes Russia, as reported by Ukrainian media; we could not open the original.",
+      "rows": [
+        {
+          "country": "2025, full year",
+          "makers": "12 months",
+          "n": 1923
+        },
+        {
+          "country": "Summer 2026",
+          "makers": "June–August",
+          "n": 2182,
+          "tone": "unv"
+        },
+        {
+          "country": "Jan–Aug 2026*",
+          "makers": "8 months",
+          "n": 2860,
+          "tone": "unv"
+        }
+      ]
+    },
+    {
+      "type": "chart",
+      "kind": "col",
+      "title": "Drones in russian airspace per month",
+      "subtitle": "Osprey Flight Solutions estimate; January–April shown as the midpoint of 4,000–5,000",
+      "rows": [
+        {
+          "country": "Jan–Apr",
+          "n": 4500,
+          "value": "4–5k"
+        },
+        {
+          "country": "May",
+          "n": 7544
+        },
+        {
+          "country": "June",
+          "n": 11000,
+          "value": "≈ 11,000"
+        },
+        {
+          "country": "July",
+          "n": 13000,
+          "value": "≈ 13,000"
+        },
+        {
+          "country": "August",
+          "n": 16000,
+          "value": "≈ 16,000",
+          "tone": "unv"
+        }
+      ]
+    },
+    {
+      "type": "p",
+      "text": "For a European yardstick: Germany, rattled by drone sightings over its airports, recorded 116 drone-related closures in 2025, which the German Aerospace Center (DLR) estimates cost its aviation system about €160m. russia had 1,923."
+    },
+    {
+      "type": "chart",
+      "kind": "bar",
+      "title": "russia vs Germany: airport closures due to drones, 2025",
+      "subtitle": "116 closures cost German aviation about €160m (DLR)",
+      "rows": [
+        {
+          "country": "russia",
+          "n": 1923,
+          "tone": "unv"
+        },
+        {
+          "country": "Germany",
+          "makers": "≈ €160m in losses",
+          "n": 116
+        }
+      ]
+    },
+    {
+      "type": "links",
+      "items": [
+        {
+          "title": "The Insider (Osprey)",
+          "url": "https://theins.ru/news/296833"
+        },
+        {
+          "title": "UNITED24 Media",
+          "url": "https://united24media.com/war-in-ukraine/russias-war-is-closing-its-own-skies-as-airport-shutdowns-hit-993-in-one-month-22235"
+        },
+        {
+          "title": "The Insider (DLR)",
+          "url": "https://theins.ru/news/293512"
+        },
+        {
+          "title": "Dialog.UA",
+          "url": "https://www.dialog.ua/russia/nebo-nad-moskvoy-paralizovano-dronami-v-aeroportakh-stolitsy-rf-plan.html"
+        }
+      ]
+    },
+    {
+      "type": "h2",
+      "text": "The market under attack"
+    },
+    {
+      "type": "p",
+      "text": "russian airlines carried 108.9 million passengers in 2025 and earned RUB 1.925 trillion. The market is highly concentrated: the Aeroflot group (Aeroflot itself, Rossiya and the low-cost Pobeda) takes at least 55% of revenue, and analysts warn that any disruption at the largest carrier becomes the whole industry’s problem. That is exactly where the disruption lands: Aeroflot is based at Sheremetyevo, the most frequently closed of Moscow’s hubs."
+    },
+    {
+      "type": "chart",
+      "kind": "bar",
+      "title": "russian airline revenue, 2025, RUB bn",
+      "subtitle": "russian accounting standards; Pobeda is analysts’ minimum estimate. Blue: the Aeroflot group, at least 55%",
+      "rows": [
+        {
+          "country": "Aeroflot",
+          "n": 760,
+          "share": 39,
+          "highlight": true
+        },
+        {
+          "country": "Rossiya",
+          "makers": "Aeroflot group",
+          "n": 201,
+          "share": 10,
+          "highlight": true
+        },
+        {
+          "country": "Pobeda (min.)",
+          "makers": "Aeroflot group",
+          "n": 115,
+          "share": 6,
+          "highlight": true
+        },
+        {
+          "country": "S7",
+          "n": 208,
+          "share": 11
+        },
+        {
+          "country": "Ural Airlines",
+          "n": 140,
+          "share": 7
+        },
+        {
+          "country": "Others",
+          "n": 501,
+          "share": 26
+        }
+      ]
+    },
+    {
+      "type": "chart",
+      "kind": "bar",
+      "title": "Passenger traffic in 2026, cumulative, vs 2025",
+      "subtitle": "The decline deepens with the wave of closures; first half: 49.15m vs 50.8m",
+      "note": "Domestic traffic is falling faster: −5.5% over seven months, about −10% in July. International traffic holds up thanks to routes that avoid Moscow.",
+      "rows": [
+        {
+          "country": "Q1",
+          "n": -0.5,
+          "value": "−0.5%",
+          "tone": "unv"
+        },
+        {
+          "country": "Jan–Apr",
+          "n": -1.2,
+          "value": "−1.2%",
+          "tone": "unv"
+        },
+        {
+          "country": "Jan–May",
+          "n": -2.2,
+          "value": "−2.2%",
+          "tone": "unv"
+        },
+        {
+          "country": "First half",
+          "n": -3.2,
+          "value": "−3.2%",
+          "tone": "unv"
+        },
+        {
+          "country": "Jan–Jul",
+          "n": -3.8,
+          "value": "−3.8%",
+          "tone": "unv"
+        },
+        {
+          "country": "Jan–Aug",
+          "n": -4.3,
+          "value": "−4.3%",
+          "tone": "unv"
+        }
+      ]
+    },
+    {
+      "type": "p",
+      "text": "russia’s Economy Ministry still forecast 108.5 million passengers for 2026 in September, just 0.3% down. To get there after −4.3% in eight months, the autumn would have to be markedly better than last year’s. An October in which all four Moscow airports shut completely twice in two days suggests the opposite."
+    },
+    {
+      "type": "links",
+      "items": [
+        {
+          "title": "Kommersant",
+          "url": "https://www.kommersant.ru/doc/8625500"
+        },
+        {
+          "title": "Interfax",
+          "url": "https://www.interfax.ru/business/1118289"
+        },
+        {
+          "title": "Vedomosti",
+          "url": "https://www.vedomosti.ru/business/news/2026/09/24/1231624-snizheniya-aviaperevozok"
+        },
+        {
+          "title": "MarketPower",
+          "url": "https://marketpower.pro/publications/vnutrennie-aviaperevozki-v-rossii-sokratilis-na-55-za-sem-mesiatsev"
+        },
+        {
+          "title": "InvestFuture",
+          "url": "https://investfuture.ru/articles/rossiyskie-aviakompanii-perevezli-49-15-mln-passazhirov-za-polgoda-37561242"
+        },
+        {
+          "title": "AeroTime",
+          "url": "https://www.aerotime.aero/articles/moscow-airports-shut-down-drone-attacks-october-23"
+        }
+      ]
+    },
+    {
+      "type": "h2",
+      "text": "What a closed sky costs"
+    },
+    {
+      "type": "p",
+      "text": "The bill is made of small but daily items: grounded aircraft whose leases and crews still have to be paid, refunds, hotels and meals for stranded passengers, extra fuel and handling at diversion airports. Under russian law a cancellation caused by “Kovyor” does not release the airline from refunding and looking after passengers."
+    },
+    {
+      "type": "table",
+      "num": 1,
+      "columns": [
+        "Unit",
+        "Estimate",
+        "Who says so"
+      ],
+      "rows": [
+        [
+          "Cancelling one Boeing 737-800 flight (158 seats)",
+          "RUB 15–23m",
+          "founder of the RunAvia service, 2025"
+        ],
+        [
+          "One daytime hour of a full Moscow airport shutdown",
+          "$2.5–4m",
+          "experts cited by 24 Kanal"
+        ],
+        [
+          "One night of Moscow airports standing idle",
+          "$15–20m",
+          "same"
+        ],
+        [
+          "One day of major disruption at the largest airports",
+          "≈ RUB 5bn",
+          "analysis of the July collapse, ATOR, 2025"
+        ],
+        [
+          "One day of collapse, upper estimate",
+          "up to RUB 20bn",
+          "EXPO.UAV expert, 2025"
+        ],
+        [
+          "Airlines’ extra annual costs",
+          "< 1% of costs",
+          "russia’s Transport Ministry"
+        ],
+        [
+          "Airline losses in 2026",
+          "> RUB 200bn",
+          "Forbes Russia (as reported by Dialog.UA)"
+        ]
+      ]
+    },
+    {
+      "type": "chart",
+      "kind": "bar",
+      "title": "Loss estimates vs the industry’s entire profit, RUB bn",
+      "subtitle": "Red: estimated losses; blue: what the industry earned from its core business in 2025",
+      "note": "“Transport Ministry < 1%” is calculated as 1% of industry costs (revenue minus operating profit ≈ RUB 1.89trn). “Lost revenue” is our estimate, see below.",
+      "rows": [
+        {
+          "country": "Industry operating profit, 2025",
+          "makers": "the entire safety margin",
+          "n": 31,
+          "tone": "accent"
+        },
+        {
+          "country": "Transport Ministry: < 1% of costs",
+          "n": 19,
+          "value": "up to 19",
+          "tone": "unv"
+        },
+        {
+          "country": "Lost revenue, Jan–Aug",
+          "makers": "our estimate",
+          "n": 57,
+          "value": "≈ 57",
+          "tone": "unv"
+        },
+        {
+          "country": "Forbes: losses in 2026",
+          "n": 200,
+          "value": "200+",
+          "tone": "unv"
+        }
+      ]
+    },
+    {
+      "type": "estimate",
+      "text": [
+        "Average revenue per passenger in 2025 was about RUB 17,700 (RUB 1.925trn ÷ 108.85m). In January–August 2026 airlines lost 3.2 million passengers, so roughly **RUB 56–57bn in forgone revenue**. Not all of it is down to drones: part of the fall reflects a shortage of aircraft. But the scale is telling: forgone revenue alone is almost twice the industry’s annual operating profit.",
+        "If Forbes’s RUB 200bn estimate is even half right, that is 5–10% of revenue for an industry working on a 1.6% margin. On that arithmetic russian airlines are loss-making at the operating level in 2026, kept afloat by state support and paper currency gains."
+      ]
+    },
+    {
+      "type": "links",
+      "items": [
+        {
+          "title": "News.ru",
+          "url": "https://news.ru/dengi/raskryt-razmer-ubytkov-kotorye-ponesli-perevozchiki-iz-za-aviakollapsa"
+        },
+        {
+          "title": "24 Kanal",
+          "url": "https://24tv.ua/zelenskiy-zakriy-nebo-mozhut-ataki-droniv-dobiti-aviaspoluchennya_n3164220"
+        },
+        {
+          "title": "Tourprom",
+          "url": "https://www.tourprom.ru/news/79341/"
+        },
+        {
+          "title": "Kommersant",
+          "url": "https://www.kommersant.ru/doc/8691614"
+        },
+        {
+          "title": "Dialog.UA",
+          "url": "https://www.dialog.ua/russia/nebo-nad-moskvoy-paralizovano-dronami-v-aeroportakh-stolitsy-rf-plan.html"
+        },
+        {
+          "title": "pravo163",
+          "url": "https://pravo163.ru/kak-vzyskat-stoimost-bileta-i-ubytki-esli-rejs-otmenili-iz-za-plana-kover-chto-govorit-zakon/"
+        }
+      ]
+    },
+    {
+      "type": "h2",
+      "text": "Who pays: the budget"
+    },
+    {
+      "type": "p",
+      "text": "Lower airline profits mean lower taxes. But an honest account of the budget hit has to start from the fact that russian aviation is already a net recipient: the state forgoes far more from it than it collects. So drones hit the budget in two ways: directly, through taxes and dividends, and indirectly, through growing demands for support."
+    },
+    {
+      "type": "stats",
+      "items": [
+        {
+          "label": "Budget loses",
+          "value": "RUB 10–20bn",
+          "tone": "unv",
+          "note": "a year: profit tax and VAT"
+        },
+        {
+          "label": "Budget already gives",
+          "value": "RUB 175bn",
+          "tone": "accent",
+          "note": "in VAT breaks in 2026 alone"
+        },
+        {
+          "label": "Share of revenue",
+          "value": "≈ 0.04%",
+          "note": "of a ≈ RUB 40trn federal budget"
+        }
+      ]
+    },
+    {
+      "type": "h3",
+      "text": "Direct revenue losses"
+    },
+    {
+      "type": "table",
+      "num": 2,
+      "columns": [
+        "Channel",
+        "How it works",
+        "Scale"
+      ],
+      "rows": [
+        [
+          "Profit tax",
+          "Rate of 25%: 8% to the federal budget, 17% to the regions. The 2025 base from core business was RUB 31bn of operating profit.",
+          "up to ≈ RUB 7.8bn a year"
+        ],
+        [
+          "VAT on forgone revenue",
+          "Domestic flights via Moscow pay 10%; flights bypassing Moscow, to the Far East, to Kaliningrad and international flights pay 0%. Applied to ≈ RUB 57bn of forgone revenue over 8 months.",
+          "no more than ≈ RUB 5bn"
+        ],
+        [
+          "Aeroflot dividends",
+          "RUB 21bn paid for 2025, most of it to the state as majority shareholder. Aeroflot posted a net loss of RUB 12.6bn in Q1 2026.",
+          "up to RUB 21bn at risk"
+        ]
+      ]
+    },
+    {
+      "type": "chart",
+      "kind": "bar",
+      "title": "What the russian budget loses from aviation, and what it already spends on it, RUB bn",
+      "subtitle": "One scale for both groups: the losses from “Kovyor” barely register next to what the state already gives the industry",
+      "note": "VAT breaks for 2026: RUB 110.9bn (0% for routes bypassing Moscow) + RUB 64.1bn (10% via Moscow). Kerosene excise refunds: RUB 77bn to the three largest carriers over two years. Route subsidies: RUB 24.6bn in 2025.",
+      "rows": [
+        {
+          "group": "Revenue losses · our estimate, upper bounds",
+          "country": "Profit tax",
+          "makers": "maximum per year",
+          "n": 7.8,
+          "value": "up to 7.8",
+          "tone": "unv"
+        },
+        {
+          "country": "VAT on forgone revenue",
+          "makers": "over 8 months",
+          "n": 5,
+          "value": "up to 5",
+          "tone": "unv"
+        },
+        {
+          "country": "Aeroflot dividends",
+          "makers": "at risk",
+          "n": 21,
+          "tone": "unv"
+        },
+        {
+          "group": "Existing state breaks and spending",
+          "country": "VAT breaks, 2026",
+          "makers": "110.9 (0%) + 64.1 (10%)",
+          "n": 175,
+          "tone": "accent"
+        },
+        {
+          "country": "Kerosene excise refunds",
+          "makers": "3 largest carriers, 2 years",
+          "n": 77,
+          "tone": "accent"
+        },
+        {
+          "country": "Route subsidies, 2025",
+          "n": 24.6,
+          "tone": "accent"
+        }
+      ]
+    },
+    {
+      "type": "estimate",
+      "text": [
+        "The direct budget loss from falling airline profits is small: **roughly RUB 10–20bn a year** in profit tax and VAT, plus the risk to Aeroflot’s dividend. Against federal revenues of about RUB 40 trillion, that is hundredths of a per cent. The reason is that the state barely taxes aviation as it is: VAT breaks cost it RUB 175bn in 2026 alone, and the government has already tabled a bill to extend them to 2030 for another ≈ RUB 223bn.",
+        "The real budget effect is delayed and cumulative. 2026 losses can be carried forward, so profit tax will be depressed for years. Aeroflot has already borrowed about RUB 150bn, and the state, as owner, will bail it out if needed. Regions with airports lose their 17% share of profit tax. And the longer the closures last, the harder the industry will press the Finance Ministry for the compensation the Transport Ministry has so far refused."
+      ]
+    },
+    {
+      "type": "links",
+      "items": [
+        {
+          "title": "Interfax — VAT breaks",
+          "url": "https://www.interfax.ru/business/1049549"
+        },
+        {
+          "title": "Interfax — extension to 2030",
+          "url": "https://www.interfax.ru/business/1119520"
+        },
+        {
+          "title": "ConsultantPlus",
+          "url": "https://www.consultant.ru/legalnews/25660/"
+        },
+        {
+          "title": "Brobank — profit tax",
+          "url": "https://brobank.ru/federalnye-nalogi-i-sbory/"
+        },
+        {
+          "title": "InvestFuture — dividends",
+          "url": "https://investfuture.ru/articles/aeroflot-utverzhdaet-dividendy-21-0-mlrd-rub-i-zakreplyaet-vyplaty-5-3-rub-na-aktsiyu-37095192"
+        },
+        {
+          "title": "Finuslugi — Q1 loss",
+          "url": "https://finuslugi.ru/navigator/investirovat/stat_dividendy-aeroflota-v-iyule-2026"
+        },
+        {
+          "title": "Kommersant — excise and loans",
+          "url": "https://www.kommersant.ru/doc/8625500"
+        },
+        {
+          "title": "TASS — subsidies",
+          "url": "https://finance.mail.ru/article/mintrans-ozhidaet-passazhiropotoka-aviakompaniy-na-urovne-2024-goda-65111633/"
+        },
+        {
+          "title": "Gaidar Institute — budget revenue",
+          "url": "https://www.iep.ru/files/RePEc/gai/monreo/monreo-2025-25-1463.pdf"
+        }
+      ]
+    },
+    {
+      "type": "h2",
+      "text": "Who pays: airlines, foreign carriers, the regions"
+    },
+    {
+      "type": "h3",
+      "text": "Airlines: the margin is gone, and the state won’t compensate"
+    },
+    {
+      "type": "p",
+      "text": "Aeroflot was already the only one of the top five carriers with an operating loss in 2025 (RUB 14.6bn) and closed Q1 2026 with an adjusted loss of RUB 7.9bn under russian accounting standards. The industry has negative cash flow and limited access to credit at high interest rates. With the Transport Ministry refusing to compensate “Kovyor” losses, the bill is passed on to passengers through fares."
+    },
+    {
+      "type": "h3",
+      "text": "Foreign carriers: the real tipping point"
+    },
+    {
+      "type": "p",
+      "text": "After Kyiv’s warning on 1 September that russian airspace was unsafe, foreign airlines began cutting flights: Pegasus, Turkish Airlines, flydubai, Kuwait Airways, Somon Air and others. According to 24 Kanal, Pegasus kept 2 of its 8 flights. None has left russia entirely, but insurers increasingly treat “Kovyor” delays as insured events. A foreign exit would hit the international segment, russia’s most profitable and currently its only growing one."
+    },
+    {
+      "type": "h3",
+      "text": "People and regions"
+    },
+    {
+      "type": "p",
+      "text": "For much of Siberia, the Arctic north and the Far East, flying is the only link to the centre, and rotation workers in the extractive industries fly through the Moscow hub. A Moscow shutdown ripples out as delays across the country. Rail can absorb only short routes such as Moscow–St Petersburg, while the Trans-Siberian and Baikal–Amur lines, according to 24 Kanal, are already saturated with freight to China."
+    },
+    {
+      "type": "links",
+      "items": [
+        {
+          "title": "Kommersant",
+          "url": "https://www.kommersant.ru/doc/8625500"
+        },
+        {
+          "title": "Prospect",
+          "url": "https://prospect.com.ru/news/6828662/aeroflot-postaraetsya-nivelirovat-vliyanie-kovrov-na-finrezultaty-2026-goda.html"
+        },
+        {
+          "title": "Kyiv Post",
+          "url": "https://www.kyivpost.com/post/83614"
+        },
+        {
+          "title": "Türkiye Today",
+          "url": "https://www.turkiyetoday.com/business/turkish-airlines-cancels-moscow-flights-as-zelenskyy-says-russian-airspace-not-safe-3227296"
+        },
+        {
+          "title": "24 Kanal",
+          "url": "https://24tv.ua/zelenskiy-zakriy-nebo-mozhut-ataki-droniv-dobiti-aviaspoluchennya_n3164220"
+        }
+      ]
+    },
+    {
+      "type": "h2",
+      "text": "Who pays: passengers"
+    },
+    {
+      "type": "p",
+      "text": "We found no independent polling on how russians view the airport closures, so we judge by behaviour and by what passengers tell local media. The behaviour is eloquent: between Moscow and St Petersburg people are switching to trains en masse. Air traffic on that route fell 18% in the first half, to 1.6 million, and rail’s share of business trips rose from 61% to 70%."
+    },
+    {
+      "type": "stats",
+      "kind": "tiles",
+      "items": [
+        {
+          "value": "×2.2",
+          "tone": "unv",
+          "note": "flights delayed more than 3 hours: 51,000 in January–September 2026"
+        },
+        {
+          "value": "57% → 52%",
+          "tone": "unv",
+          "note": "share of departures no more than 15 minutes late"
+        },
+        {
+          "value": "70%",
+          "note": "of those surveyed by MTS Ads named delays as their main complaint about flying"
+        },
+        {
+          "value": "+6–18%",
+          "note": "rise in domestic fares in September 2026 year on year (ATOR)"
+        }
+      ]
+    },
+    {
+      "type": "p",
+      "text": "Reports from Sheremetyevo on 17 and 23 October describe the same scenes: queues at information desks and for hotel rooms, people sleeping on the floor, sports teams unable to fly to matches. One passenger said they had been trying to get to Novosibirsk since Thursday; another described a scramble for food, water and new tickets."
+    },
+    {
+      "type": "p",
+      "text": "Politically this matters for one reason: the urban middle class of Moscow and St Petersburg, which the war had barely touched, now meets it in person, in the departure queue. Whether irritation over delays is turning into irritation with the authorities, none of the sources available to us has measured."
+    },
+    {
+      "type": "links",
+      "items": [
+        {
+          "title": "The Moscow Times",
+          "url": "https://ru.themoscowtimes.com/2026/08/06/rossiyane-nachali-massovo-otkazivatsya-ot-pereletov-mezhdu-moskvoi-i-peterburgom-iz-za-atak-dronov-a202811"
+        },
+        {
+          "title": "Meduza",
+          "url": "https://meduza.io/news/2026/08/06/rossiyane-stali-rezhe-letat-po-marshrutu-moskva-peterburg-sredi-prichin-chastye-zakrytiya-aeroportov-iz-za-bespilotnikov-ukrainy"
+        },
+        {
+          "title": "The Moscow Times (AlfaStrakhovanie)",
+          "url": "https://ru.themoscowtimes.com/2026/10/09/vrossii-vdvoe-virosla-chastota-otmeni-aviareisov-iz-za-atak-bespilotnikov-a208219"
+        },
+        {
+          "title": "Gazeta (MTS Ads)",
+          "url": "https://gazeta.press/business/news/2026/10/22/29582731.shtml"
+        },
+        {
+          "title": "AK&M (ATOR)",
+          "url": "https://www.akm.ru/press/aviakompanii_snizhayut_tseny_na_osen_gde_bilety_podesheveli_do_61/"
+        },
+        {
+          "title": "MSK1, 17 Oct",
+          "url": "https://msk1.ru/text/transport/2026/10/17/76707734/"
+        },
+        {
+          "title": "MSK1, 23 Oct",
+          "url": "https://msk1.ru/text/transport/2026/10/23/76710838"
+        },
+        {
+          "title": "Tolyatty.ru",
+          "url": "https://tolyatty.ru/text/incidents/2026/10/23/76721770/"
+        }
+      ]
+    },
+    {
+      "type": "h2",
+      "text": "What Moscow says",
+      "section": "kremlin"
+    },
+    {
+      "type": "p",
+      "text": "The official line is that there is no problem. Transport Minister Andrei Nikitin refused airlines compensation back in January and suggested treating airport closures as an “unpleasant routine”. Aeroflot admitted the “Kovyor” effect was “material” but not large enough to change its results fundamentally. After Zelensky warned that russian skies were unsafe, Rosaviatsia, the civil aviation authority, insisted that airports and foreign carriers were operating normally."
+    },
+    {
+      "type": "vs",
+      "a": {
+        "label": "What Aeroflot says",
+        "text": "The effect is “not that significant”"
+      },
+      "b": {
+        "label": "Aeroflot’s own numbers, September",
+        "text": "−9.7% domestic passengers",
+        "tone": "unv"
+      }
+    },
+    {
+      "type": "p",
+      "text": "Aeroflot’s own figures tell a different story: the group’s domestic traffic fell 9.7% in September, and the company attributed the decline partly to temporary restrictions."
+    },
+    {
+      "type": "links",
+      "items": [
+        {
+          "title": "EAN",
+          "url": "https://eanews.ru/rossiya/20260119113435/mintrans-otkazal-aviakompaniyam-v-kompensatsiyah-iz-za-zakrytiya-aeroportov"
+        },
+        {
+          "title": "Kommersant",
+          "url": "https://www.kommersant.ru/doc/8779726"
+        },
+        {
+          "title": "Kyiv Post",
+          "url": "https://www.kyivpost.com/post/83614"
+        },
+        {
+          "title": "InvestFuture",
+          "url": "https://investfuture.ru/articles/aeroflot-sokratil-perevozki-passazhirov-na-4-2-ba9462836e056996"
+        }
+      ]
+    },
+    {
+      "type": "h2",
+      "text": "Where the sources disagree"
+    },
+    {
+      "type": "diverge",
+      "items": [
+        {
+          "title": "Loss estimates differ tenfold",
+          "text": "russia’s Transport Ministry puts the extra costs at under 1% of airline costs (up to ~RUB 19bn a year); Forbes Russia, as reported by Ukrainian media, speaks of more than RUB 200bn in 2026 alone. The ministry has an interest in playing it down to avoid paying compensation; we could not check the Forbes figure in the original."
+        },
+        {
+          "title": "Market size",
+          "text": "A Ukrainian expert on the Freedom channel put the industry’s turnover at about “21 billion” (probably dollars). Reporting compiled by Kommersant gives 2025 revenue of RUB 1.925 trillion, about $24bn at the current rate."
+        },
+        {
+          "title": "Passenger traffic",
+          "text": "Rosaviatsia said in the summer that it saw no “significant decline”, while its own data for seven and eight months show the fall accelerating to −3.8% and −4.3%."
+        },
+        {
+          "title": "Number of closures",
+          "text": "Monitors count differently: Osprey records every restriction at every airport, while russian media often count only major hubs. Hence 2025 figures ranging from “more than 170 in October” to 1,923 for the year."
+        }
+      ]
+    },
+    {
+      "type": "h2",
+      "text": "Conclusion"
+    },
+    {
+      "type": "p",
+      "text": "Closing airports will not ground russian aviation outright, but it is already making it loss-making at the operating level and shifting the bill onto passengers. An industry on a 1.6% margin has no cushion: every per cent of cost added by “Kovyor” is profit that no longer exists. The biggest unused lever is foreign carriers: if they leave, russia loses its only growing segment and the Moscow hub much of its transit traffic."
+    },
+    {
+      "type": "p",
+      "text": "For the budget the direct hit is small for now, because the state already forgoes hundreds of billions from aviation in tax breaks. The real threat lies elsewhere: a loss-making industry that cannot be left without aircraft becomes one more line of spending in a war budget."
+    },
+    {
+      "type": "p",
+      "kind": "meta",
+      "text": "Analysis as of 25 October 2026. Our own estimates are marked separately."
+    }
+  ],
+  "sources": [
+    {
+      "title": "The Insider — airport closures, Osprey data",
+      "url": "https://theins.ru/news/296833"
+    },
+    {
+      "title": "Euronews — record closures",
+      "url": "https://www.euronews.com/2026/09/10/the-days-of-safety-are-over-russian-airports-face-record-closures"
+    },
+    {
+      "title": "UNITED24 Media — 993 closures, drone numbers",
+      "url": "https://united24media.com/war-in-ukraine/russias-war-is-closing-its-own-skies-as-airport-shutdowns-hit-993-in-one-month-22235"
+    },
+    {
+      "title": "The Insider — Germany, DLR data",
+      "url": "https://theins.ru/news/293512"
+    },
+    {
+      "title": "Kommersant — airline finances for 2025",
+      "url": "https://www.kommersant.ru/doc/8625500"
+    },
+    {
+      "title": "Kommersant — Transport Ministry on “less than 1%”",
+      "url": "https://www.kommersant.ru/doc/8691614"
+    },
+    {
+      "title": "Kommersant — Aeroflot on losses",
+      "url": "https://www.kommersant.ru/doc/8779726"
+    },
+    {
+      "title": "Interfax — Economy Ministry forecast",
+      "url": "https://www.interfax.ru/business/1118289"
+    },
+    {
+      "title": "TASS / Rambler — passenger traffic over 8 months",
+      "url": "https://finance.rambler.ru/business/57141430-passazhiropotok-aviakompaniy-rf-snizilsya-za-vosem-mesyatsev-na-4-3/"
+    },
+    {
+      "title": "The Moscow Times — AlfaStrakhovanie data",
+      "url": "https://ru.themoscowtimes.com/2026/10/09/vrossii-vdvoe-virosla-chastota-otmeni-aviareisov-iz-za-atak-bespilotnikov-a208219"
+    },
+    {
+      "title": "The Moscow Times — Moscow–St Petersburg",
+      "url": "https://ru.themoscowtimes.com/2026/08/06/rossiyane-nachali-massovo-otkazivatsya-ot-pereletov-mezhdu-moskvoi-i-peterburgom-iz-za-atak-dronov-a202811"
+    },
+    {
+      "title": "24 Kanal — “Zelensky, close the sky”",
+      "url": "https://24tv.ua/zelenskiy-zakriy-nebo-mozhut-ataki-droniv-dobiti-aviaspoluchennya_n3164220"
+    },
+    {
+      "title": "Dialog.UA — summary of Forbes Russia data",
+      "url": "https://www.dialog.ua/russia/nebo-nad-moskvoy-paralizovano-dronami-v-aeroportakh-stolitsy-rf-plan.html"
+    },
+    {
+      "title": "News.ru — cost of a flight cancellation",
+      "url": "https://news.ru/dengi/raskryt-razmer-ubytkov-kotorye-ponesli-perevozchiki-iz-za-aviakollapsa"
+    },
+    {
+      "title": "EAN — Nikitin on compensation",
+      "url": "https://eanews.ru/rossiya/20260119113435/mintrans-otkazal-aviakompaniyam-v-kompensatsiyah-iz-za-zakrytiya-aeroportov"
+    },
+    {
+      "title": "Kyiv Post — foreign carriers",
+      "url": "https://www.kyivpost.com/post/83614"
+    },
+    {
+      "title": "AeroTime — closures on 23 October",
+      "url": "https://www.aerotime.aero/articles/moscow-airports-shut-down-drone-attacks-october-23"
+    },
+    {
+      "title": "Interfax — VAT breaks for air travel, 2026–2028",
+      "url": "https://www.interfax.ru/business/1049549"
+    },
+    {
+      "title": "Interfax — extension of breaks to 2030",
+      "url": "https://www.interfax.ru/business/1119520"
+    },
+    {
+      "title": "InvestFuture — Aeroflot dividends for 2025",
+      "url": "https://investfuture.ru/articles/aeroflot-utverzhdaet-dividendy-21-0-mlrd-rub-i-zakreplyaet-vyplaty-5-3-rub-na-aktsiyu-37095192"
+    },
+    {
+      "title": "Gaidar Institute — 2026 budget parameters",
+      "url": "https://www.iep.ru/files/RePEc/gai/monreo/monreo-2025-25-1463.pdf"
+    }
+  ]
+}

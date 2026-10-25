@@ -23,7 +23,8 @@ const EN_COUNTRIES: [string, string[]][] = [["🇺🇦", ["Ukraine(?![’']s)"]]
   ["🇷🇴", ["Romania"]], ["🇭🇺", ["Hungary"]], ["🇸🇰", ["Slovakia"]], ["🇨🇿", ["Czech Republic", "Czechia"]], ["🇬🇪", ["Georgia"]], ["🇮🇱", ["Israel"]],
   ["🇸🇦", ["Saudi Arabia"]], ["🇶🇦", ["Qatar"]], ["🇨🇭", ["Switzerland"]], ["🇦🇹", ["Austria"]], ["🇪🇸", ["Spain"]], ["🇧🇪", ["Belgium"]], ["🇪🇺", ["European Union", "EU"]]];
 const EN_CRX: [string, RegExp][] = EN_COUNTRIES.map(([f, forms]) => [f, new RegExp(NOFLAG + L_ + "(" + forms.join("|") + ")" + R_, "gu")]);
-const EN_RU: [RegExp, (m: string) => string][] = [[new RegExp(L_ + "(Russia(?:n|ns|'s|’s)?)" + R_, "gu"), (m) => m.toLowerCase()]];
+// a media name keeps its capital ("Forbes Russia")
+const EN_RU: [RegExp, (m: string) => string][] = [[new RegExp("(?<!Forbes )" + L_ + "(Russia(?:n|ns|'s|’s)?)" + R_, "gu"), (m) => m.toLowerCase()]];
 
 /** House style: «росія»/"russia" lowercase without a flag; other countries get a flag at their first mention in a string. */
 export function houseStyle<T>(str: T, lang: Lang = "uk"): T {

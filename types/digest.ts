@@ -50,17 +50,35 @@ export type LossRow = {
 export type ArticlePreview = { title: string; lead?: string; button?: string; url?: string; image?: string; imageAlt?: string };
 /** Content blocks of an article, in reading order; unknown types are skipped. */
 export type ArticleBlock =
-  | { type: "p" | "h2" | "h3"; text: string; kind?: "meta" }
+  /** `section`: digest section id (`kremlin`…) — an h2 that repeats a digest section title shows that section's icon */
+  | { type: "p" | "h2" | "h3"; text: string; kind?: "meta"; section?: string }
   /** `image` is a file in the article folder (e.g. a unit emblem) */
   | { type: "list"; title?: string; ordered?: boolean; items: { title?: string; text: string; image?: string; imageAlt?: string }[] }
-  | { type: "table"; columns: string[]; rows: string[][] }
+  /** `num`: index of a numeric column (right-aligned, mono) */
+  | { type: "table"; columns: string[]; rows: string[][]; num?: number }
   /** blocks side by side (stack on a phone) */
   | { type: "cols"; cols: ArticleBlock[][] }
-  | { type: "chart"; kind: "bar"; title?: string; subtitle?: string; unit?: string; note?: string; source?: string;
-      rows: { country: string; flag?: string | null; n: number; share?: number; makers?: string; highlight?: boolean }[] };
+  /** `kind: "col"` = vertical bars. Row: `value` replaces the formatted `n`; `group` starts a labelled group (one scale for all);
+   *  `tone` colours the bar (default grey, `highlight` = accent) */
+  | { type: "chart"; kind: "bar" | "col"; title?: string; subtitle?: string; unit?: string; note?: string; source?: string;
+      rows: { country: string; flag?: string | null; n: number; share?: number; makers?: string; highlight?: boolean;
+        value?: string; group?: string; tone?: Tone }[] }
+  /** headline figures: a ruled strip, or `kind: "tiles"` */
+  | { type: "stats"; kind?: "tiles"; items: { value: string; label?: string; note?: string; tone?: Tone }[] }
+  /** editorial estimate box; `**x**` = bold */
+  | { type: "estimate"; title?: string; text: string[] }
+  /** where sources disagree */
+  | { type: "diverge"; title?: string; items: { title: string; text: string }[] }
+  /** claim vs fact, side by side */
+  | { type: "vs"; a: { label: string; text: string }; b: { label: string; text: string; tone?: Tone } }
+  /** "Resources: a, b, c" line under a section */
+  | { type: "links"; items: { title: string; url: string }[] };
+export type Tone = "unv" | "accent" | "muted";
 /** public/articles/<YYYY-MM-DD>/<name>/article.<lang>.json — the full article at /articles/<date>/<name>. */
 export type ArticleBody = {
   title?: string; lead?: string; image?: string | { src: string; alt?: string; caption?: string };
+  /** kicker above the title; `toc`: contents rail of the h2 blocks (wide screens) */
+  kicker?: string; toc?: boolean;
   blocks: ArticleBlock[]; sources?: { title: string; url: string; note?: string }[];
 };
 /** public/articles/<YYYY-MM-DD>/<name>/presentation.<lang>.json — an interactive page (`embed.src`, an HTML file in the folder)

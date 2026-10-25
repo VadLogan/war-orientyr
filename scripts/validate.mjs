@@ -20,6 +20,14 @@ if (noId.length || noMap.length) {
 }
 // articles/<YYYY-MM-DD>/<name>/: preview.uk.json required (title); a full article (article.uk.json, body[]) or a preview url
 const ART = new URL("../public/articles/", import.meta.url);
+// An article h2 that repeats a digest section title (uk, or its English in i18n/en.json) must carry that section's id
+// in `section`, so it shows the same icon as the digest.
+const EN = JSON.parse(fs.readFileSync(new URL("../i18n/en.json", import.meta.url), "utf8"));
+const secT = new Map(), secIds = new Set();
+for (const iss of [d, ...idx.filter((x) => x !== d.date).map((x) => rd(`issues/${x}.json`))]) for (const s of iss.sections || []) {
+  secIds.add(s.id);
+  if (s.title) { secT.set(s.title, s.id); if (EN[s.title]) secT.set(EN[s.title], s.id); }
+}
 const dirs = (u) => (fs.existsSync(u) ? fs.readdirSync(u, { withFileTypes: true }).filter((e) => e.isDirectory()).map((e) => e.name) : []);
 let nArt = 0;
 for (const date of dirs(ART)) {
@@ -32,6 +40,10 @@ for (const date of dirs(ART)) {
     for (const l of ["uk", "en"]) {
       if (has(`preview.${l}.json`)) { const p = rd(at + `preview.${l}.json`); if (!p.title) fail(`preview.${l}.json needs title`); if (p.url && !/^https?:\/\//.test(p.url)) fail(`preview.${l}.json url must be http(s)`); if (p.image && !has(p.image)) fail("image not found: " + p.image); }
       if (has(`article.${l}.json`) && !Array.isArray(rd(at + `article.${l}.json`).blocks)) fail(`article.${l}.json needs blocks[]`);
+      for (const f of [`article.${l}.json`, `presentation.${l}.json`]) if (has(f)) for (const b of rd(at + f).blocks || []) if (b.type === "h2") {
+        if (b.section && !secIds.has(b.section)) fail(`${f}: h2 "${b.text}": unknown section "${b.section}"`);
+        if (!b.section && secT.has(b.text)) fail(`${f}: h2 "${b.text}" is the digest section title — add "section": "${secT.get(b.text)}" (same icon as the digest)`);
+      }
       if (has(`presentation.${l}.json`)) {
         const s = rd(at + `presentation.${l}.json`);
         if (!s.title || !Array.isArray(s.blocks)) fail(`presentation.${l}.json needs title and blocks[]`);
