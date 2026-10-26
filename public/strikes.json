@@ -4655,6 +4655,24 @@
    "issue": "2026-10-25",
    "item": "belgorod-mall-2510",
    "url": "https://kyivindependent.com/"
+  },
+  {
+   "id": "omsk-kauchuk-2410",
+   "date": "2026-10-24",
+   "night": "24.10 (вечір)",
+   "object": "Завод «Омський каучук» (нафтохімія) і логістичний хаб Ozon",
+   "place": "Омськ, Омська область",
+   "kind": "oil",
+   "territory": "russia",
+   "lat": 54.99,
+   "lng": 73.37,
+   "approx": true,
+   "result": "за Радіо Свобода та ZN.ua — атака дронів, великі пожежі; Ozon підтвердив атаку; атрибуція — Telegram-канал Exilenova+, офіційного підтвердження немає",
+   "confirmed": null,
+   "local": "partial",
+   "issue": "2026-10-26",
+   "item": "omsk-kauchuk-2410",
+   "url": "https://www.radiosvoboda.org/a/newsomsk-ataka-rosiya-drony/33883584.html"
   }
  ],
  "coverage": {
