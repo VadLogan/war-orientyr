@@ -4586,14 +4586,14 @@
    "lat": 52.97,
    "lng": 36.07,
    "approx": true,
-   "result": "за Генштабом — уражено головний виробничий корпус; незалежних супутникових даних немає",
+   "result": "за Генштабом (26.10) — головний цех виробництва мікросхем, імовірно, знищено, пошкоджено будівлю та сервери; незалежних супутникових даних немає",
    "confirmed": {
     "by": "Генштаб ЗСУ",
-    "when": "24.10.2026, ≈11:22 (Укрінформ)"
+    "when": "24.10.2026, ≈11:22; результати — 26.10 13:21 (Укрінформ)"
    },
    "local": "silent",
-   "issue": "2026-10-25",
-   "item": "oryol-proton-2310",
+   "issue": "2026-10-27",
+   "item": "proton-oryol-2310",
    "url": "https://www.ukrinform.ua/rubric-ato/4177754-sili-oboroni-urazili-tolattikaucuk-pidpriemstvo-protonelektroteks-ta-litak-na-aerodromi-ejsk-u-rf.html"
   },
   {
@@ -4607,14 +4607,14 @@
    "lat": 53.51,
    "lng": 49.42,
    "approx": true,
-   "result": "за Генштабом — уражено; повідомляли про вибух і пожежу",
+   "result": "за Генштабом (26.10) — пошкоджено технологічний трубопровід, дві установки бутилового каучуку й одну ректифікаційну установку; за Astra — пожежа на заводі",
    "confirmed": {
     "by": "Генштаб ЗСУ",
-    "when": "24.10.2026, ≈11:22 (Укрінформ)"
+    "when": "24.10.2026, ≈11:22; результати — 26.10 13:21 (Укрінформ)"
    },
    "local": "silent",
-   "issue": "2026-10-25",
-   "item": "tolyatti-kauchuk-2410",
+   "issue": "2026-10-27",
+   "item": "tolyattikauchuk-2410",
    "url": "https://www.ukrinform.ua/rubric-ato/4177754-sili-oboroni-urazili-tolattikaucuk-pidpriemstvo-protonelektroteks-ta-litak-na-aerodromi-ejsk-u-rf.html"
   },
   {
@@ -4673,6 +4673,69 @@
    "issue": "2026-10-26",
    "item": "omsk-kauchuk-2410",
    "url": "https://www.radiosvoboda.org/a/newsomsk-ataka-rosiya-drony/33883584.html"
+  },
+  {
+   "id": "energiya-yelets-2526",
+   "date": "2026-10-25",
+   "night": "25–26.10",
+   "object": "Завод «Енергія» (батареї для модулів наведення авіабомб, ракет «Калібр» та «Іскандер-М»)",
+   "place": "Єлець, Липецька область",
+   "kind": "defence-industry",
+   "territory": "russia",
+   "lat": 52.6236,
+   "lng": 38.5017,
+   "approx": true,
+   "result": "за Генштабом — пошкоджено цех виробництва елементів живлення для зброї, пожежа; губернатор підтвердив удар по підприємству в Єльці й загибель працівника, завод не назвав",
+   "confirmed": {
+    "by": "Генштаб ЗСУ",
+    "when": "26.10.2026, 13:21 (Укрінформ)"
+   },
+   "local": "partial",
+   "issue": "2026-10-27",
+   "item": "energiya-yelets-2526",
+   "url": "https://www.ukrinform.ua/rubric-ato/4178247-genstab-pidtverdiv-urazenna-zavodu-energia-v-elci-akij-viroblae-batarei-dla-aviabomb-i-iskanderm.html"
+  },
+  {
+   "id": "donetsk-uav-2310",
+   "date": "2026-10-23",
+   "night": "23.10",
+   "object": "Об’єкт підготовки й пуску ударних дронів",
+   "place": "Донеччина (окупована; точне місце не назване)",
+   "kind": "military",
+   "territory": "occupied",
+   "lat": 48.0159,
+   "lng": 37.8028,
+   "approx": true,
+   "result": "за Генштабом — пошкоджено три будівлі для підготовки й заряджання дронів та одну пускову рейку",
+   "confirmed": {
+    "by": "Генштаб ЗСУ",
+    "when": "26.10.2026, 13:21 (Укрінформ)"
+   },
+   "local": "silent",
+   "issue": "2026-10-27",
+   "item": "donetsk-uav-2310",
+   "url": "https://www.ukrinform.ua/rubric-ato/4178247-genstab-pidtverdiv-urazenna-zavodu-energia-v-elci-akij-viroblae-batarei-dla-aviabomb-i-iskanderm.html"
+  },
+  {
+   "id": "ua-front-targets-2526",
+   "date": "2026-10-26",
+   "night": "25–26.10",
+   "object": "Вузол зв’язку та майстерня БпЛА; також пункти управління біля Мирнограда, Червоногорівки й Вишневого, склади біля Комісарівки й Катерини",
+   "place": "біля Мелітополя, Запорізька область",
+   "kind": "military",
+   "territory": "occupied",
+   "lat": 46.8489,
+   "lng": 35.3675,
+   "approx": true,
+   "result": "за Генштабом — уражено; заяви окупаційної влади перевірити не вдалося",
+   "confirmed": {
+    "by": "Генштаб ЗСУ",
+    "when": "26.10.2026, 15:40 (Укрінформ)"
+   },
+   "local": "silent",
+   "issue": "2026-10-27",
+   "item": "ua-front-targets-2526",
+   "url": "https://ukrinform.ua/rubric-ato/4178301-sili-oboroni-urazili-vuzol-zvazku-majsternu-bpla-ta-skladi-rosian.html"
   }
  ],
  "coverage": {

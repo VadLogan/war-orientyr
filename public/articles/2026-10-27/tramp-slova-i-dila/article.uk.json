@@ -1,0 +1,226 @@
+{
+  "kicker": "Аналітика · США",
+  "title": "Обіцяв мир і дешевий бензин: що Трамп казав і що зробив",
+  "lead": "53 рази Трамп обіцяв закінчити війну в Україні за 24 години. За 645 днів при владі він почав війну з Іраном, бензин у США подорожчав більш ніж на 40%, а щоб збити ціни перед виборами 3 листопада, Білий дім послабив тиск на росію і вимагає від України не бити по російських НПЗ.",
+  "toc": true,
+  "image": {"src": "cover.webp", "alt": "Ілюстрація: обличчя Дональда Трампа, розділене навпіл. Ліворуч, у диму, напис WORDS, палаючі нафтові вишки й густий дим під ними; праворуч обличчя ніби з металу, напис DEALS, контейнери з написом TARIFFS і портрети з підписами China, EU, India, Saudi Arabia. Унизу — винищувачі, контейнеровози й солдати", "caption": "Ілюстрація WAR·Орієнтир."},
+  "blocks": [
+    { "type": "p", "text": "До проміжних виборів у США лишився тиждень, і головна тема кампанії — ціни на пальне. Для України це не далека американська політика. Саме заради дешевшого дизеля Білий дім у жовтні дозволив росії продавати його в США, призупинив найжорсткіші санкції проти неї і вимагає від Києва припинити удари по російських нафтопереробних заводах. Ми зіставили, що Дональд Трамп обіцяв, що він каже тепер і що зробив насправді: від мітингів 2024 року до цього тижня." },
+    { "type": "stats", "items": [
+      { "label": "«Закінчу війну за 24 години»", "value": "53 рази", "note": "стільки разів обіцяв до інавгурації (підрахунок CNN); минуло 645 днів каденції" },
+      { "label": "Бензин у США", "value": "$4,27", "tone": "unv", "note": "за галон, 27.10 (AAA); трохи менше $3 у день початку війни з Іраном, 28.02" },
+      { "label": "«Дивіденд Трампа»", "value": "$5 000", "note": "кожному дорослому громадянину, якщо республіканці виграють обидві палати; ≈ $1,2 трлн" },
+      { "label": "Мита до 500% проти росії", "value": "2 дні", "tone": "unv", "note": "лишалося до набуття чинності, коли Трамп їх призупинив (16.10)" }
+    ] },
+
+    { "type": "h2", "text": "Обіцянки 2024 року" },
+    { "type": "p", "text": "Передвиборча кампанія Трампа трималася на трьох обіцянках, і кожна мала чітку цифру або термін: мир, дешева енергія, нижчі ціни. Термін кожної вже минув." },
+    { "type": "table", "columns": ["Обіцянка", "Що казав", "Що сталося"], "rows": [
+      ["Мир в Україні", "«Протягом 24 годин ця війна буде врегульована» (травень 2023); «Я врегулюю її ще до того, як стану президентом» (дебати, 10.09.2024). CNN нарахував щонайменше 53 такі обіцянки.", "У квітні 2025-го Трамп сказав Time, що це було сказано «жартома». Війна триває; у жовтні 2026-го він вимагає, щоб Зеленський «захотів» її врегулювати."],
+      ["Без нових воєн", "«Кажуть: “Він почне війну”. Я не почну війну. Я зупиню війни» — промова переможця, 6.11.2024.", "У червні 2025-го США вдарили по ядерних об’єктах Ірану; 28 лютого 2026-го разом з Ізраїлем почали війну з Іраном, яка йде восьмий місяць."],
+      ["Енергія вдвічі дешевша", "«Я зріжу ваші ціни на енергію й електрику вдвічі за 12 місяців», максимум за 18 — на мітингах восени 2024-го.", "Через рік нафта подешевшала приблизно на 20%, бензин — приблизно на 10%, електрика не подешевшала (NPR). Після початку війни з Іраном бензин подорожчав з ≈ $3 до $4,27."],
+      ["Ціни знизяться з першого дня", "«З дня, коли я складу присягу, я швидко знижу ціни» — серпень 2024.", "Згодом Трамп сказав NBC, що не може «гарантувати» зниження цін, а Time — що «важко знизити те, що вже піднялося»."]
+    ] },
+    { "type": "links", "items": [
+      { "title": "CNN: 53 обіцянки про 24 години", "url": "https://ktvz.com/politics/cnn-us-politics/2025/04/25/fact-check-it-wasnt-in-jest-here-are-53-times-trump-said-hed-end-ukraine-war-within-24-hours-or-before-taking-office/" },
+      { "title": "Kyiv Post: промова 6.11.2024", "url": "https://kyivpost.com/post/41784" },
+      { "title": "NPR: енергія за рік", "url": "https://www.npr.org/2026/01/20/nx-s1-5670378/trump-energy-promises-one-year" },
+      { "title": "CNN: ціни з першого дня", "url": "https://kvia.com/news/business-technology/cnn-business-consumer/2025/01/28/trump-said-hed-bring-prices-down-on-day-one-that-hasnt-happened/" }
+    ] },
+
+    { "type": "h2", "text": "Нафта: від «знизьте ціну — і війна скінчиться» до дизеля з росії" },
+    { "type": "p", "text": "23 січня 2025 року, на третій день каденції, Трамп у відеозверненні до Давоського форуму попросив Саудівську Аравію та ОПЕК знизити ціну на нафту: «Якби ціна впала, російсько-українська війна закінчилася б негайно». Того дня Brent коштувала $78,29 за барель. Логіка була зрозумілою: дешева нафта означає менше грошей у бюджеті рф на війну." },
+    { "type": "p", "text": "Через рік ціни повернули в протилежний бік — і через війну, яку США почали разом з Ізраїлем. Після ударів по Ірану 28 лютого 2026-го Тегеран перекрив Ормузьку протоку, через яку йде значна частина світового експорту нафти. Brent тримається вище $100 (7 жовтня — близько $101,5), а середня ціна бензину в США піднялася з трохи менш як $3 за галон у день початку війни до $4,27 станом на 27 жовтня. Вересень став найдорожчим вереснем в історії спостережень AAA: у середньому $4,33, на 50 центів вище за попередній рекорд." },
+    { "type": "chart", "kind": "col", "title": "Середня ціна бензину в США, $ за галон", "subtitle": "Звичайний бензин, середнє по країні", "note": "28.02 — «трохи менше $3» (NerdWallet за AAA); решта — AAA. Вересень — середнє за місяць.", "rows": [
+      { "country": "1.10.2025", "n": 3.16, "value": "$3,16" },
+      { "country": "28.02.2026", "makers": "початок війни з Іраном", "n": 2.98, "value": "≈ $3" },
+      { "country": "Вересень 2026", "n": 4.33, "value": "$4,33", "tone": "unv" },
+      { "country": "27.10.2026", "n": 4.27, "value": "$4,27", "tone": "unv" }
+    ] },
+    { "type": "p", "text": "Відтоді Трамп пояснює ціни по-різному. Наприкінці березня в інтерв’ю Financial Times сказав, що волів би «забрати нафту в Ірані», і не виключив захоплення острова Харк, через який іде понад 90% іранського експорту. 5 жовтня на мітингу в Небрасці пообіцяв, що війна з Іраном «закінчиться дуже скоро, і ваші ціни знизяться». 20 жовтня в Овальному кабінеті назвав дорожчий бензин «невеликою ціною за те, щоб не дати Ірану ядерну зброю»." },
+    { "type": "p", "text": "Але в розмові про Україну причина інша. 6 жовтня в Truth Social Трамп пов’язав зростання цін на пальне з тим, що Україна «підриває» російські НПЗ. 10 жовтня сказав журналістам, що Зеленський «хоче створювати проблеми для світу», і додав: «Краще б він, чорт забирай, припинив» («He better damn well stop»). 15 жовтня на Newsmax назвав українські удари по НПЗ «ганьбою»." },
+    { "type": "vs", "a": { "label": "Трамп, 6–15 жовтня", "text": "Пальне дорожчає, бо Україна б’є по російських НПЗ" }, "b": { "label": "Цифри", "text": "Бензин подорожчав більш ніж на 40% з 28 лютого — дня, коли США почали війну з Іраном і закрився Ормуз", "tone": "unv" } },
+    { "type": "p", "text": "Зеленський і енергетичні експерти, на яких посилаються ЗМІ, пов’язують подорожчання передусім з Ормузькою протокою та іранськими ударами по НПЗ у Перській затоці. Сам Трамп у дописі 6 жовтня звинуватив і демократів, які, за його словами, «закривають заводи» в Каліфорнії." },
+    { "type": "h3", "text": "Дизельна угода" },
+    { "type": "p", "text": "9 жовтня, після розмови з Путіним, Трамп оголосив, що росія постачатиме дизель на американський і світовий ринки, і подякував йому: «Я хочу подякувати президентові Путіну». Мінфін США видав тимчасову ліцензію до 7 квітня 2027 року. За словами Трампа (Axios), росія «негайно» поставить близько 2,24 млн барелів, наступного місяця — 3,73 млн." },
+    { "type": "estimate", "text": ["США споживають близько 3,8 млн барелів дистилятного палива (дизель і пічне паливо) на добу (EIA, травень 2025). Отже, перша партія — це **приблизно 14 годин американського споживання**, обидві разом — близько півтори доби. Аналітики, яких цитує CNN, оцінили приріст пропозиції в 5–6% до кінця року; NYT пише, що росія фізично не здатна поставити обіцяне, бо через українські удари пального бракує навіть на внутрішньому ринку."] },
+    { "type": "links", "items": [
+      { "title": "NBC: Давос, 23.01.2025", "url": "https://www.nbcwashington.com/news/business/money-report/oil-turns-lower-after-trump-says-hell-ask-saudi-arabia-and-opec-to-bring-the-price-down/" },
+      { "title": "AAA", "url": "https://gasprices.aaa.com/national-average-dips-following-record-setting-september/" },
+      { "title": "NerdWallet", "url": "https://www.nerdwallet.com/finance/learn/are-gas-prices-going-down" },
+      { "title": "Al Jazeera: острів Харк", "url": "https://aljazeera.com/economy/2026/3/30/trump-wants-to-take-irans-oil-can-he-and-what-would-that-mean" },
+      { "title": "ZN.ua: «ганьба»", "url": "https://zn.ua/ukr/usa/tramp-nazvav-hanboju-udari-ukrajini-po-rosijskikh-npz.html" },
+      { "title": "Axios: дизельна угода", "url": "https://www.axios.com/2026/10/13/trump-russia-diesel-deal" },
+      { "title": "EIA", "url": "https://www.eia.gov/todayinenergy/detail.php?id=66005" }
+    ] },
+
+    { "type": "h2", "text": "Іран: війна, якої не мало бути" },
+    { "type": "p", "text": "Перший удар Трамп завдав ще в червні 2025-го: американські бомбардувальники атакували ядерні об’єкти у Фордо, Натанзі та Ісфагані, і він заявив, що їх «повністю й остаточно знищено». Через 16 місяців він сам каже, що цього замало: 20 жовтня 2026-го, говорячи про об’єкт «під сотнями тонн породи», він сказав, що ударів «недостатньо», бо США мають гарантувати, що Іран не відновить програму ні через п’ять, ні через десять років." },
+    { "type": "list", "title": "Хроніка війни з Іраном", "ordered": true, "items": [
+      { "title": "28 лютого 2026", "text": "США та Ізраїль атакують Іран (американська операція Epic Fury). Загинув верховний лідер Алі Хаменеї. Іран б’є по Ізраїлю, американських базах і країнах Затоки, Ормузьку протоку фактично закрито. Трамп каже, що війна «вже майже завершена» (9.03), але «без обмежень у часі» (6.03)." },
+      { "title": "7–8 квітня", "text": "Зранку Трамп погрожує: «Сьогодні вночі загине ціла цивілізація». Увечері оголошує двотижневе перемир’я за посередництва Пакистану." },
+      { "title": "12–13 квітня", "text": "Переговори в Ісламабаді провалюються; США оголошують морську блокаду іранських портів." },
+      { "title": "17 червня", "text": "Меморандум про припинення війни, блокаду знято." },
+      { "title": "Липень", "text": "Перемир’я розвалюється після атак на судна в Ормузькій протоці; США відновлюють блокаду й удари." },
+      { "title": "8 жовтня", "text": "Трамп у Truth Social: США не атакуватимуть Іран «до проміжних виборів», бо тривають «продуктивні розмови»." },
+      { "title": "25 жовтня", "text": "«Мені треба ухвалити рішення: добити це, що дуже легко, чи укласти угоду?» (Fox News). До Затоки йде третя авіаносна група." }
+    ] },
+    { "type": "vs", "a": { "label": "Обіцянка, 6.11.2024", "text": "«Я не почну війну. Я зупиню війни»" }, "b": { "label": "Жовтень 2026", "text": "Восьмий місяць війни з Іраном; удар відкладено до виборів", "tone": "unv" } },
+    { "type": "links", "items": [
+      { "title": "KUTV: «знищено», 2025", "url": "https://kutv.com/news/nation-world/us-struck-three-iranian-nuclear-sites-trump-says-joining-israeli-air-campaign" },
+      { "title": "Newsweek: Хаменеї", "url": "https://newsweek.com/us-iran-strikes-iran-supreme-leader-ayatollah-ali-khamanei-killed-11598102" },
+      { "title": "Michigan Public: перемир’я", "url": "https://www.michiganpublic.org/2026-04-07/trump-backs-down-from-imminent-threat-to-annihilate-iran-announcing-2-week-ceasefire" },
+      { "title": "Bloomberg Law: липень", "url": "https://news.bloomberglaw.com/tariff-news/us-iran-truce-collapses-as-attacks-worsen-and-blockade-returns" },
+      { "title": "Fox News, 20.10", "url": "https://www.foxnews.com/live-news/iran-war-news-trump-israel-russia-october-20" },
+      { "title": "The National, 25.10", "url": "https://www.thenationalnews.com/news/us/2026/10/25/trump-iran-strike/" },
+      { "title": "Wikipedia: хроніка", "url": "https://en.wikipedia.org/wiki/2026_Iran_war" }
+    ] },
+
+    { "type": "h2", "text": "Україна: від «24 годин» до «нового лідера»" },
+    { "type": "p", "text": "Перший рік каденції йшов хвилями: тиск на Київ, потім на москву, потім знову на Київ. 28 лютого 2025-го — сварка із Зеленським в Овальному кабінеті, 3 березня — пауза у військовій допомозі. 14 липня — ультиматум росії: 100% мит на її торговельних партнерів, якщо за 50 днів не буде угоди. 15 серпня — саміт з Путіним в Анкориджі без перемир’я; після нього Трамп сказав, що санкції поки не потрібні. 22 жовтня 2025-го — найжорсткіший крок проти росії за каденцію: санкції проти «Роснєфті» та «Лукойлу»." },
+    { "type": "p", "text": "У лютому 2026-го пройшли тристоронні переговори в Женеві (17–18 лютого). Наступний раунд в Абу-Дабі скасували через війну з Іраном. У вересні Віткофф і Кушнер зустрілися з Путіним у москві, а 18 вересня Трамп підписав «закон Грема» про санкції проти росії та Ірану. Далі настав жовтень, коли ціна війни з Іраном лягла на Україну." },
+    { "type": "table", "columns": ["Дата", "Що сказав або зробив Трамп"], "rows": [
+      ["9.10", "Дизельна угода з росією після розмови з Путіним: «Я хочу подякувати президентові Путіну»."],
+      ["10.10", "Україні потрібен «новий лідер, який зможе домовитися»; про удари по НПЗ — «краще б він, чорт забирай, припинив»."],
+      ["11.10", "«Енергетичне перемир’я» в Truth Social: «Обидві сторони погодилися. Не порушуйте його!» Підтвердження сторін немає."],
+      ["12.10", "На питання, чи сторони справді погодилися: «Вони погодилися. Знаєте чому? Бо я сказав, що вони погодилися»."],
+      ["13–14.10", "росія завдає масованого удару балістикою й дронами; у Києві влучання в ТЕЦ-4, за Зеленським, щонайменше 600 тис. людей без світла. Трамп звинувачує в порушенні «перемир’я» Україну, доказів не наводить."],
+      ["15.10", "«Я не великий шанувальник Зеленського» (Newsmax)."],
+      ["16.10", "Указ про призупинення мит і санкцій за «законом Грема» — за два дні до набуття ними чинності."],
+      ["18.10", "Не хоче «нерозважливо відштовхнути росію від столу переговорів»; про Зеленського: «Він не хоче завершувати цю війну»."],
+      ["19.10", "росія «поводиться нормально»; «Зеленський не знає, про що говорить»."],
+      ["20.10", "«Зеленський має захотіти врегулювати цю війну… якщо ні, думаю, буде дуже погано». Називає $350 млрд допомоги, не пояснюючи розрахунку."],
+      ["23.10", "На мітингу у Флориді вперше припускає мита проти обох — України й росії: «Мабуть, нам слід зробити це негайно… Я про це не думав». Тут же сумнівається: США купують в обох замало."],
+      ["25.10", "Після війни США «вестимуть бізнес» і з Україною, і з росією."]
+    ] },
+    { "type": "vs", "a": { "label": "Трамп, 12 жовтня", "text": "«Вони погодилися, бо я так сказав»" }, "b": { "label": "Ніч на 14 жовтня", "text": "Масований удар по енергетиці; ТЕЦ-4 у Києві, 600 тис. без світла", "tone": "unv" } },
+    { "type": "p", "text": "Паралельно, за Washington Post і Kyiv Independent з посиланням на анонімних посадовців, адміністрація попереджала Київ, що нові удари по російських НПЗ можуть зупинити обмін розвідданими. Сам Трамп каже, що обмін не припинявся: «Ми їм допомагаємо». Зеленський стверджує, що після 11 жовтня Україна по російських НПЗ не била, а росія по українській енергетиці била." },
+    { "type": "links", "items": [
+      { "title": "GPB/NPR: пауза в допомозі", "url": "https://www.gpb.org/news/2025/03/03/president-trump-pauses-ukraine-military-aid" },
+      { "title": "Axios: Анкоридж", "url": "https://www.axios.com/2025/08/16/trump-putin-summit-failure-ukraine-ceasefire" },
+      { "title": "Мінфін США: «Роснєфть» і «Лукойл»", "url": "https://content.govdelivery.com/accounts/USTREAS/bulletins/3f8422d" },
+      { "title": "Kyiv Independent: «бо я сказав»", "url": "https://kyivindependent.com/trump-says-ukraine-russia-agree-to-energy-strike-ceasefire-because-i-said-they-agreed/" },
+      { "title": "Kyiv Independent: удар 14.10", "url": "https://kyivindependent.com/ostentatious-disrespect-zelensky-says-russia-defied-trumps-energy-ceasefire-with-massive-missile-strike/" },
+      { "title": "Kyiv Independent: Newsmax", "url": "https://kyivindependent.com/im-not-a-big-fan-of-zelensky-trump-says-as-us-ukraine-tensions-deepen-2/" },
+      { "title": "Укрінформ, 19.10", "url": "https://www.ukrinform.ua/rubric-polytics/4175730-tramp-sprobuvav-poasniti-svoi-ostanni-risenna-stosovno-rosii.html" },
+      { "title": "Fox News, 20.10", "url": "https://www.foxnews.com/live-news/iran-war-news-trump-israel-russia-october-20" }
+    ] },
+
+    { "type": "h2", "text": "$5 000, якщо переможуть республіканці" },
+    { "type": "p", "text": "9 вересня на з’їзді республіканців у Далласі Трамп пообіцяв кожному дорослому громадянину США по $5 000 — «дивіденд Трампа»: «Якщо республіканці переможуть, ви переможете разом з нами й отримаєте $5 000». Умова — партія має втримати і Палату представників, і Сенат. Гроші треба буде витратити в США: «Ми не хочемо, щоб ви їхали витрачати їх у Канаду». 3 жовтня він повторив обіцянку у відео: «Лише я можу дати вам цю обіцянку… Я з нетерпінням чекаю, коли підписуватиму ці чеки!»" },
+    { "type": "stats", "kind": "tiles", "items": [
+      { "value": "≈ $1,2 трлн", "note": "вартість для ≈ 245 млн дорослих громадян (PBS); сам Трамп називає «приблизно $1 трлн»" },
+      { "value": "21%", "tone": "unv", "note": "зареєстрованих виборців вірять, що він заплатить; 57% — що ні (Economist/YouGov, 11–14.09)" },
+      { "value": "≈ 72%", "note": "усіх митних надходжень, які Tax Policy Center прогнозує на 11 років (≈ $1,7 трлн)" },
+      { "value": "0 з 3", "tone": "unv", "note": "попередніх обіцянок чеків американцям виконано (Yahoo Finance)" }
+    ] },
+    { "type": "table", "columns": ["Обіцянка", "Коли", "Сума", "Чим закінчилося"], "rows": [
+      ["«Дивіденд DOGE»", "лютий 2025", "≈ $5 000", "Тихо відмовилися після відходу Маска з уряду"],
+      ["«Митний дивіденд»", "листопад 2025", "$2 000 кожному", "Не виплачено"],
+      ["Виплати на медстрахування «прямо вам»", "2026", "не названо", "Деталей і чеків немає"],
+      ["«Дивіденд воїна»", "грудень 2025", "$1 776 військовим", "Виплачено як доплату на житло, переважно нижчим чинам"],
+      ["«Дивіденд Трампа»", "вересень 2026", "$5 000 кожному дорослому", "Залежить від виборів 3 листопада і Конгресу"]
+    ] },
+    { "type": "p", "text": "Звідки гроші, не пояснено. Віцепрезидент Венс назвав джерелом мита. Але в лютому Верховний суд скасував головні мита Трампа, і з ≈ $166 млрд, зібраних за ними, близько $100 млрд до серпня вже повернули імпортерам. Сам дивіденд можливий лише через закон: сенатор-республіканець Берні Морено обіцяє внести його після 3 листопада." },
+    { "type": "p", "text": "Чи законно обіцяти гроші за результат виборів? Професор виборчого права UCLA Рік Гейсен вважає, що Трамп має «сильний захист» за Першою поправкою. Експерт з етики Річард Пейнтер нагадує прецедент: у 1972 році демократ Джордж Макговерн обіцяв американцям по $1 000 на рік — і програв: за словами Пейнтера, виборці побачили в цьому рецепт інфляції. Цього разу ще й не збігається, кому саме обіцяно: 2 жовтня в Truth Social Трамп написав «кожному громадянину», а того ж дня в Алабамі — «усім дорослим громадянам». Різниця — близько 73 млн людей, або ще ≈ $400 млрд." },
+    { "type": "links", "items": [
+      { "title": "PBS", "url": "https://www.pbs.org/newshour/politics/trump-promised-5000-checks-if-republicans-win-the-midterms-how-would-that-work" },
+      { "title": "Yahoo Finance", "url": "https://finance.yahoo.com/economy/article/only-i-can-make-you-this-promise-trump-re-ups-pledge-to-send-americans-5000-if-gop-wins-135647789.html" },
+      { "title": "Fortune: опитування", "url": "https://fortune.com/2026/10/08/trump-changing-5000-dividend-21-voters-pay/" },
+      { "title": "Al Jazeera", "url": "https://www.aljazeera.com/news/2026/9/10/trump-promises-5000-payouts-if-gop-wins-midterms-can-the-us-afford-it" },
+      { "title": "CBP: повернення мит", "url": "https://www.vatupdate.com/2026/08/08/cbp-certifies-roughly-usd-100-billion-in-ieepa-duty-refunds-as-cape-rollout-advances/" }
+    ] },
+
+    { "type": "h2", "text": "Мита: пінгвінам — так, росії — ні" },
+    { "type": "p", "text": "2 квітня 2025-го, у «День визволення», Трамп запровадив базове мито 10% для всього світу і вищі «взаємні» ставки для десятків країн. До списку потрапили навіть безлюдні острови Герд і Макдональд біля Антарктиди, де живуть хіба що пінгвіни. росії в ньому не було. Білий дім пояснив, що санкції й так «унеможливлюють будь-яку значущу торгівлю»: товарообіг США з росією впав з ≈ $36 млрд у 2021 році до ≈ $3,5 млрд у 2024-му." },
+    { "type": "p", "text": "20 лютого 2026 року Верховний суд 6 голосами проти 3 постановив, що закон про надзвичайні економічні повноваження (IEEPA) не дає президентові права запроваджувати мита. Трамп замінив їх глобальним митом 10% за іншим законом; воно діяло максимально дозволені 150 днів і 24 липня втратило силу. Тепер діють нові мита 10–12,5% проти 60 країн — формально за те, що ті не забороняють товари, зроблені примусовою працею." },
+    { "type": "h3", "text": "Мита проти росії: погрози, що не настали" },
+    { "type": "table", "columns": ["Коли", "Погроза", "Що сталося"], "rows": [
+      ["14.07.2025", "100% мит на торговельних партнерів росії, якщо за 50 днів не буде угоди", "Саміт в Анкориджі 15.08, мита не запроваджено"],
+      ["Серпень 2025", "+25% мита для Індії за російську нафту (разом 50%)", "Скасовано 7.02.2026 після торговельної угоди й обіцянки Індії не купувати російську нафту"],
+      ["18.09.2026", "«Закон Грема»: до 500% на російські товари, до 100% на п’ятьох найбільших покупців російської нафти й газу. Сенат — 86 проти 11, Палата — 262 проти 159", "Призупинено указом 16.10, за два дні до набуття чинності"],
+      ["23.10.2026", "Мита проти і України, і росії, щоб змусити їх до миру", "Сам Трамп одразу засумнівався, що це спрацює"]
+    ] },
+    { "type": "vs", "a": { "label": "Конгрес, вересень", "text": "До 500% мит на російські товари з 18 жовтня" }, "b": { "label": "Указ Трампа, 16 жовтня", "text": "Призупинено; «60 днів на аналіз» (Рубіо)", "tone": "unv" } },
+    { "type": "p", "text": "Єдине мито за купівлю російської нафти, яке США справді стягували, — 25% для Індії — діяло з кінця серпня 2025-го до лютого 2026-го. Пояснення призупинення «закону Грема» в адміністрації розходяться: держсекретар Рубіо каже, що світові потрібна нафта, а російський дизель усе одно потрапить на ринок; міністр енергетики Райт називає дизельну угоду «стимулом» до енергетичного перемир’я; міністр фінансів Бессент нагадує санкції 2025 року проти «Роснєфті» й «Лукойлу»: «Ніхто не був жорсткішим щодо санкцій проти росії, ніж президент Трамп». ISW оцінює, що призупинення «допоможе росії фінансувати й затягувати війну»." },
+    { "type": "links", "items": [
+      { "title": "Kyiv Independent: список мит", "url": "https://kyivindependent.com/russia-missing-from-trumps-sweeping-tariffs-list-as-its-already-sanctioned-white-house-confirms/" },
+      { "title": "Jones Day: рішення Верховного суду", "url": "https://www.jonesday.com/en/insights/2026/02/united-states-supreme-court-invalidates-ieepa-tariffs" },
+      { "title": "ABA: мита після суду", "url": "https://www.americanbar.org/groups/public_contract_law/resources/procurement-lawyer/2026-fall/ieepa-tariffs-struck-down-replacement-tariffs-expired/" },
+      { "title": "Scripps: 50 днів", "url": "https://www.scrippsnews.com/politics/trump-threatens-100-secondary-tariffs-on-russia-if-no-deal-reached-on-ukraine-within-50-days" },
+      { "title": "Bloomberg: Індія", "url": "https://www.bloomberg.com/news/articles/2026-02-06/trump-removes-india-s-25-russia-related-tariff-after-deal" },
+      { "title": "Baker McKenzie: «закон Грема»", "url": "https://sanctionsnews.bakermckenzie.com/us-president-signs-russia-and-iran-sanctions-bill-with-new-tariff-powers/" },
+      { "title": "ABC News: указ 16.10", "url": "https://abcnews.com/Politics/trump-signs-order-waiving-graham-act-sanctions-russia/story?id=137341529" },
+      { "title": "Axios: пояснення адміністрації", "url": "https://www.axios.com/2026/10/18/trump-russia-diesel-deal-rubio-wright-sanctions" },
+      { "title": "ISW, 17.10", "url": "https://www.criticalthreats.org/analysis/russian-offensive-campaign-assessment-october-17-2026" }
+    ] },
+
+    { "type": "h2", "text": "Що кажуть на болотах", "section": "kremlin" },
+    { "type": "p", "text": "У москві жовтневі рішення Вашингтона зустріли як перемогу. Спецпредставник Путіна Кирило Дмитрієв назвав заклик Трампа обрати в Україні «нового лідера» «іконічним та історичним моментом», а призупинення «закону Грема» — «справді історичним моментом». Пєсков назвав дизельну угоду «взаємовигідною» і не пов’язаною з позицією москви щодо України. Помічник Путіна Юрій Ушаков після розмови 9 жовтня підкреслив, що Путін не брав на себе зобов’язання відновити переговори, а Лавров 15 жовтня заявив, що росія не погодиться на припинення вогню, яке дало б Києву змогу переозброїтися." },
+    { "type": "vs", "a": { "label": "Білий дім розраховував", "text": "На нові поступки Путіна після пом’якшення санкцій" }, "b": { "label": "Путін дав (Axios, 21.10)", "text": "Лише згоду вести переговори і звільнення одного американця", "tone": "unv" } },
+    { "type": "links", "items": [
+      { "title": "Deccan Chronicle / Sky News: Дмитрієв", "url": "https://www.deccanchronicle.com/amp/world/europe/russia-calls-trumps-sanctions-waiver-a-historic-moment-1996640" },
+      { "title": "Обозреватель: Пєсков", "url": "https://www.obozrevatel.com/ukr/section-politics-news/news-kontakty-tryvayut-u-kremli-zrobyly-tsynichnu-zayavu-pro-enerhetychne-peremyrya-13-10-2026.html" },
+      { "title": "Axios, 21.10", "url": "https://axios.com/2026/10/21/russia-ukraine-putin-witkoff-peace" }
+    ] },
+
+    { "type": "h2", "text": "Розбіжності між джерелами" },
+    { "type": "diverge", "items": [
+      { "title": "На скільки призупинено «закон Грема»", "text": "У тексті указу від 16.10 призупинення діє без строку, доки президент або держсекретар не вирішать інакше. Рубіо 18.10 назвав його 60-денною паузою для аналізу. Якщо вірити Рубіо, рішення має бути приблизно до 15 грудня." },
+      { "title": "Скільки коштує «дивіденд Трампа»", "text": "PBS рахує ≈ $1,2 трлн (≈ 245 млн дорослих громадян), Al Jazeera і Fortune — ≈ $1,3 трлн (до 270 млн), сам Трамп — «приблизно $1 трлн». Якщо платити всім громадянам, а не лише дорослим, — понад $1,7 трлн." },
+      { "title": "Хто порушив «енергетичне перемир’я»", "text": "Трамп 13.10 звинуватив Україну, доказів не навів. Зеленський каже, що Україна з 11.10 не била по НПЗ, а росія понад 170 разів влучила у важливі енергетичні об’єкти України. Пєсков: «жодного мораторію з боку Києва фактично не було». Незалежного підрахунку немає." }
+    ] },
+
+    { "type": "h2", "text": "Висновок" },
+    { "type": "p", "text": "У Трампових обіцянок спільна форма: велике кругле число і близький термін. 24 години, 12 місяців, 50 днів, 500%, $5 000. Термін минає, і захід або скасовують, або називають жартом, або призупиняють. Кроків проти росії за каденцію було небагато, і частину з них відкотили: мито для Індії скасували, «закон Грема» призупинили за два дні до старту. Найпомітнішими лишаються санкції 2025 року проти «Роснєфті» й «Лукойлу» — і саме на них тепер посилається адміністрація." },
+    { "type": "p", "text": "У жовтні 2026-го все підпорядковано одному числу — ціні бензину до 3 листопада. Війну з Іраном, яка цю ціну підняла, почали США. Але рахунок дедалі більше виставляють Україні: її удари по російських НПЗ Білий дім називає причиною подорожчання, а росія отримує ліцензію на дизель і паузу в санкціях. За чим стежити після виборів: чи вдарять США по Ірану, чи закінчиться «60-денна пауза» в санкціях і чи з’явиться в Конгресі законопроєкт про $5 000." },
+    { "type": "p", "kind": "meta", "text": "Аналітичний матеріал станом на 27 жовтня 2026 року. Цитати Трампа подано в нашому перекладі за першоджерелами або названими ЗМІ; оцінки редакції позначено окремо." }
+  ],
+  "sources": [
+    { "title": "CNN (через KTVZ) — 53 обіцянки закінчити війну за 24 години", "url": "https://ktvz.com/politics/cnn-us-politics/2025/04/25/fact-check-it-wasnt-in-jest-here-are-53-times-trump-said-hed-end-ukraine-war-within-24-hours-or-before-taking-office/" },
+    { "title": "Kyiv Post — промова переможця 6.11.2024", "url": "https://kyivpost.com/post/41784" },
+    { "title": "NPR — обіцянка вдвічі здешевити енергію, рік потому", "url": "https://www.npr.org/2026/01/20/nx-s1-5670378/trump-energy-promises-one-year" },
+    { "title": "CNN (через KVIA) — ціни «з першого дня»", "url": "https://kvia.com/news/business-technology/cnn-business-consumer/2025/01/28/trump-said-hed-bring-prices-down-on-day-one-that-hasnt-happened/" },
+    { "title": "NBC — Давос, прохання до ОПЕК", "url": "https://www.nbcwashington.com/news/business/money-report/oil-turns-lower-after-trump-says-hell-ask-saudi-arabia-and-opec-to-bring-the-price-down/" },
+    { "title": "AAA — середня ціна бензину", "url": "https://gasprices.aaa.com/national-average-dips-following-record-setting-september/" },
+    { "title": "NerdWallet — ціна бензину 28.02.2026", "url": "https://www.nerdwallet.com/finance/learn/are-gas-prices-going-down" },
+    { "title": "Al Jazeera — «забрати нафту в Ірані»", "url": "https://aljazeera.com/economy/2026/3/30/trump-wants-to-take-irans-oil-can-he-and-what-would-that-mean" },
+    { "title": "Axios — дизельна угода", "url": "https://www.axios.com/2026/10/13/trump-russia-diesel-deal" },
+    { "title": "EIA — споживання дистилятів", "url": "https://www.eia.gov/todayinenergy/detail.php?id=66005" },
+    { "title": "ZN.ua — удари по НПЗ «ганьба»", "url": "https://zn.ua/ukr/usa/tramp-nazvav-hanboju-udari-ukrajini-po-rosijskikh-npz.html" },
+    { "title": "KUTV — удари по Ірану, червень 2025", "url": "https://kutv.com/news/nation-world/us-struck-three-iranian-nuclear-sites-trump-says-joining-israeli-air-campaign" },
+    { "title": "Newsweek — загибель Хаменеї", "url": "https://newsweek.com/us-iran-strikes-iran-supreme-leader-ayatollah-ali-khamanei-killed-11598102" },
+    { "title": "Michigan Public — двотижневе перемир’я", "url": "https://www.michiganpublic.org/2026-04-07/trump-backs-down-from-imminent-threat-to-annihilate-iran-announcing-2-week-ceasefire" },
+    { "title": "Bloomberg Law — розпад перемир’я в липні", "url": "https://news.bloomberglaw.com/tariff-news/us-iran-truce-collapses-as-attacks-worsen-and-blockade-returns" },
+    { "title": "Wikipedia — хроніка війни з Іраном 2026", "url": "https://en.wikipedia.org/wiki/2026_Iran_war" },
+    { "title": "Fox News — живий блог 20.10", "url": "https://www.foxnews.com/live-news/iran-war-news-trump-israel-russia-october-20" },
+    { "title": "The National — «мені треба ухвалити рішення»", "url": "https://www.thenationalnews.com/news/us/2026/10/25/trump-iran-strike/" },
+    { "title": "GPB / NPR — пауза у військовій допомозі, березень 2025", "url": "https://www.gpb.org/news/2025/03/03/president-trump-pauses-ukraine-military-aid" },
+    { "title": "Axios — саміт в Анкориджі", "url": "https://www.axios.com/2025/08/16/trump-putin-summit-failure-ukraine-ceasefire" },
+    { "title": "Мінфін США — санкції проти «Роснєфті» й «Лукойлу»", "url": "https://content.govdelivery.com/accounts/USTREAS/bulletins/3f8422d" },
+    { "title": "Kyiv Independent — переговори в Женеві й Маямі", "url": "https://kyivindependent.com/ukrainian-delegations-meets-witkoff-kushner-in-miami-plan-to-continue-talks-on-march-22/" },
+    { "title": "Kyiv Independent — «бо я сказав, що вони погодилися»", "url": "https://kyivindependent.com/trump-says-ukraine-russia-agree-to-energy-strike-ceasefire-because-i-said-they-agreed/" },
+    { "title": "Kyiv Independent — удар по Києву 14.10", "url": "https://kyivindependent.com/ostentatious-disrespect-zelensky-says-russia-defied-trumps-energy-ceasefire-with-massive-missile-strike/" },
+    { "title": "Kyiv Independent — «не великий шанувальник»", "url": "https://kyivindependent.com/im-not-a-big-fan-of-zelensky-trump-says-as-us-ukraine-tensions-deepen-2/" },
+    { "title": "Укрінформ — пояснення рішень щодо росії, 19.10", "url": "https://www.ukrinform.ua/rubric-polytics/4175730-tramp-sprobuvav-poasniti-svoi-ostanni-risenna-stosovno-rosii.html" },
+    { "title": "Axios — підсумки переговорів Віткоффа, 21.10", "url": "https://axios.com/2026/10/21/russia-ukraine-putin-witkoff-peace" },
+    { "title": "PBS — як працюватимуть чеки на $5 000", "url": "https://www.pbs.org/newshour/politics/trump-promised-5000-checks-if-republicans-win-the-midterms-how-would-that-work" },
+    { "title": "Yahoo Finance — усі обіцянки виплат", "url": "https://finance.yahoo.com/economy/article/only-i-can-make-you-this-promise-trump-re-ups-pledge-to-send-americans-5000-if-gop-wins-135647789.html" },
+    { "title": "Fortune — опитування Economist/YouGov", "url": "https://fortune.com/2026/10/08/trump-changing-5000-dividend-21-voters-pay/" },
+    { "title": "Al Jazeera — чи може США це собі дозволити", "url": "https://www.aljazeera.com/news/2026/9/10/trump-promises-5000-payouts-if-gop-wins-midterms-can-the-us-afford-it" },
+    { "title": "VATupdate — CBP: ≈ $100 млрд повернених мит", "url": "https://www.vatupdate.com/2026/08/08/cbp-certifies-roughly-usd-100-billion-in-ieepa-duty-refunds-as-cape-rollout-advances/" },
+    { "title": "Kyiv Independent — росії немає в списку мит", "url": "https://kyivindependent.com/russia-missing-from-trumps-sweeping-tariffs-list-as-its-already-sanctioned-white-house-confirms/" },
+    { "title": "Jones Day — рішення Верховного суду щодо IEEPA", "url": "https://www.jonesday.com/en/insights/2026/02/united-states-supreme-court-invalidates-ieepa-tariffs" },
+    { "title": "American Bar Association — мита після рішення суду", "url": "https://www.americanbar.org/groups/public_contract_law/resources/procurement-lawyer/2026-fall/ieepa-tariffs-struck-down-replacement-tariffs-expired/" },
+    { "title": "Scripps News — ультиматум на 50 днів", "url": "https://www.scrippsnews.com/politics/trump-threatens-100-secondary-tariffs-on-russia-if-no-deal-reached-on-ukraine-within-50-days" },
+    { "title": "Bloomberg — скасування мита для Індії", "url": "https://www.bloomberg.com/news/articles/2026-02-06/trump-removes-india-s-25-russia-related-tariff-after-deal" },
+    { "title": "Baker McKenzie — «закон Грема»", "url": "https://sanctionsnews.bakermckenzie.com/us-president-signs-russia-and-iran-sanctions-bill-with-new-tariff-powers/" },
+    { "title": "ABC News — указ про призупинення", "url": "https://abcnews.com/Politics/trump-signs-order-waiving-graham-act-sanctions-russia/story?id=137341529" },
+    { "title": "Білий дім — указ від 16.10", "url": "https://www.whitehouse.gov/presidential-actions/2026/10/implementing-the-lindsey-o-graham-sanctioning-russia-and-iran-act-of-2026/" },
+    { "title": "Kyiv Independent — Рубіо про 60 днів", "url": "https://kyivindependent.com/marco-rubio-says-trumps-russian-oil-sanctions-waiver-is-a-60-day-pause-denies-restricting-starlink-access/" },
+    { "title": "Axios — пояснення Рубіо, Райта й Бессента", "url": "https://www.axios.com/2026/10/18/trump-russia-diesel-deal-rubio-wright-sanctions" },
+    { "title": "ISW / Critical Threats — оцінка за 17.10", "url": "https://www.criticalthreats.org/analysis/russian-offensive-campaign-assessment-october-17-2026" },
+    { "title": "Deccan Chronicle / Sky News — Дмитрієв", "url": "https://www.deccanchronicle.com/amp/world/europe/russia-calls-trumps-sanctions-waiver-a-historic-moment-1996640" },
+    { "title": "Обозреватель — Пєсков про дизельну угоду", "url": "https://www.obozrevatel.com/ukr/section-politics-news/news-kontakty-tryvayut-u-kremli-zrobyly-tsynichnu-zayavu-pro-enerhetychne-peremyrya-13-10-2026.html" }
+  ]
+}

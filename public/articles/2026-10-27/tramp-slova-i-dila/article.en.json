@@ -1,0 +1,226 @@
+{
+  "kicker": "Analysis · United States",
+  "title": "Peace in 24 hours, cheaper fuel: Trump’s promises against his record",
+  "lead": "Donald Trump said at least 53 times that he would end russia’s war on Ukraine within a day, and promised to halve Americans’ energy bills. Twenty-one months into his term, the US is at war with Iran, petrol costs over 40% more than when that war began, and a week before the midterms the White House has paused its toughest russia sanctions, licensed russian diesel and blames Ukraine for fuel prices.",
+  "toc": true,
+  "image": {"src": "cover.webp", "alt": "Illustration: Donald Trump’s face split in two. On the left, in smoke, the word WORDS, burning oil rigs and thick smoke below them; on the right a face that looks cast in metal, the word DEALS, containers marked TARIFFS and portraits labelled China, EU, India and Saudi Arabia. Below, fighter jets, container ships and soldiers", "caption": "Illustration: WAR·Orientyr."},
+  "blocks": [
+    { "type": "p", "text": "Americans vote in the midterm elections on 3 November, when all 435 House seats and a third of the Senate are up. Fuel prices are the issue Trump talks about most, and the way he is tackling them reaches far beyond the US. In October his administration let russia sell diesel into the American market, suspended a sanctions law the Senate had passed by 86 votes to 11, and pressed Kyiv to stop striking russian oil refineries. This piece sets what Trump promised, and what he says now, against what he has actually done, from the 2024 campaign to this week." },
+    { "type": "stats", "items": [
+      { "label": "“I’ll end the war in 24 hours”", "value": "53 times", "note": "the pledge before taking office, by CNN’s count; 645 days of his term have passed" },
+      { "label": "US petrol, national average", "value": "$4.27", "tone": "unv", "note": "a gallon on 27 Oct (AAA); just under $3 on 28 Feb, the day the Iran war began" },
+      { "label": "The “Trump dividend”", "value": "$5,000", "note": "per adult citizen if Republicans hold both chambers; ≈ $1.2 trillion" },
+      { "label": "Tariffs of up to 500% on russia", "value": "2 days", "tone": "unv", "note": "before they were due to take effect, Trump waived them (16 Oct)" }
+    ] },
+
+    { "type": "h2", "text": "The 2024 promises" },
+    { "type": "p", "text": "Trump’s campaign rested on three pledges, each with a number or a deadline attached: peace, cheap energy and lower prices. Every one of those deadlines has now passed." },
+    { "type": "table", "columns": ["Pledge", "What he said", "What happened"], "rows": [
+      ["Peace in Ukraine", "“Within 24 hours that war will be settled” (May 2023); “I will get it settled before I even become president” (debate, 10 Sep 2024). CNN counted at least 53 such pledges.", "In April 2025 he told Time it had been “said in jest”. The war goes on; in October 2026 he says Zelensky “has to want to settle” it."],
+      ["No new wars", "“They said, ‘He will start a war.’ I’m not going to start a war. I’m going to stop wars” — victory speech, 6 Nov 2024.", "The US bombed Iran’s nuclear sites in June 2025, and with Israel went to war with Iran on 28 February 2026. The war is in its eighth month."],
+      ["Energy at half price", "“I will cut your energy and electricity prices in half within 12 months”, at most 18 — repeated at rallies in autumn 2024.", "A year on, crude was about 20% cheaper and petrol about 10%; electricity was not (NPR). Since the Iran war began, petrol has risen from about $3 to $4.27."],
+      ["Lower prices from day one", "“Starting the day I take the oath of office, I will rapidly drive prices down” — August 2024.", "He later told NBC he could not “guarantee” lower prices, and Time that “it’s hard to bring things down once they’re up”."]
+    ] },
+    { "type": "links", "items": [
+      { "title": "CNN: 53 pledges", "url": "https://ktvz.com/politics/cnn-us-politics/2025/04/25/fact-check-it-wasnt-in-jest-here-are-53-times-trump-said-hed-end-ukraine-war-within-24-hours-or-before-taking-office/" },
+      { "title": "Kyiv Post: 6 Nov 2024 speech", "url": "https://kyivpost.com/post/41784" },
+      { "title": "NPR: energy one year on", "url": "https://www.npr.org/2026/01/20/nx-s1-5670378/trump-energy-promises-one-year" },
+      { "title": "CNN: prices on day one", "url": "https://kvia.com/news/business-technology/cnn-business-consumer/2025/01/28/trump-said-hed-bring-prices-down-on-day-one-that-hasnt-happened/" }
+    ] },
+
+    { "type": "h2", "text": "Oil: from “cut the price and the war ends” to russian diesel" },
+    { "type": "p", "text": "On 23 January 2025, his third day in office, Trump told the World Economic Forum in Davos by video that he would ask Saudi Arabia and OPEC to bring down the price of oil: “If the price came down, the Russia-Ukraine war would end immediately.” Brent closed that day at $78.29 a barrel. The logic was simple: cheap oil means less money for the kremlin’s war budget." },
+    { "type": "p", "text": "Thirteen months later prices went the other way, because of a war the US started with Israel. After the strikes on Iran on 28 February 2026, Tehran choked off the Strait of Hormuz, the narrow exit from the Gulf for a large share of the world’s seaborne oil. Brent has stayed above $100 (about $101.50 on 7 October). The US average for a gallon of regular petrol went from just under $3 on the day the war began to $4.27 on 27 October. September 2026 was the most expensive September on AAA’s record: $4.33 on average, 50 cents above the previous high." },
+    { "type": "chart", "kind": "col", "title": "Average US petrol price, $ a gallon", "subtitle": "Regular grade, national average", "note": "28 Feb: “just under $3” (NerdWallet, citing AAA); other points AAA. September is the monthly average.", "rows": [
+      { "country": "1 Oct 2025", "n": 3.16, "value": "$3.16" },
+      { "country": "28 Feb 2026", "makers": "Iran war begins", "n": 2.98, "value": "≈ $3" },
+      { "country": "Sep 2026", "n": 4.33, "value": "$4.33", "tone": "unv" },
+      { "country": "27 Oct 2026", "n": 4.27, "value": "$4.27", "tone": "unv" }
+    ] },
+    { "type": "p", "text": "Trump’s explanations depend on the audience. In late March he told the Financial Times he would prefer to “take the oil in Iran” and did not rule out seizing Kharg Island, the terminal that handles over 90% of Iran’s oil exports. At a rally in Nebraska on 5 October he promised the Iran war would “end very soon, and your prices are going to come down”. In the Oval Office on 20 October he called dearer petrol “a small price to pay for not letting Iran have a nuclear weapon”." },
+    { "type": "p", "text": "When the subject is Ukraine, the culprit changes. On 6 October he linked rising fuel prices on Truth Social to Ukraine blowing up russian refineries, and to Democrats “closing plants” in California. On 10 October he said Zelensky “wants to make problems for the world” and added: “He better damn well stop.” On 15 October he told Newsmax the strikes were a “disgrace”." },
+    { "type": "vs", "a": { "label": "Trump, 6–15 October", "text": "Fuel is dearer because Ukraine hits russian refineries" }, "b": { "label": "The numbers", "text": "Petrol is up over 40% since 28 February, the day the US went to war with Iran and Hormuz closed", "tone": "unv" } },
+    { "type": "p", "text": "Zelensky, and the energy analysts quoted in the press, put the rise down mainly to Hormuz and to Iranian strikes on refineries in the Gulf." },
+    { "type": "h3", "text": "The diesel deal" },
+    { "type": "p", "text": "On 9 October, after a call with Vladimir Putin, Trump announced that russia would supply diesel to the US and world markets, and said: “I want to thank President Putin, to be honest with you.” The US Treasury issued a temporary licence for russian diesel running to 7 April 2027; a group of senators argues the deal breaks the 2022 US ban on russian oil imports. According to Trump (via Axios), russia would “immediately” deliver about 2.24 million barrels, and 3.73 million the following month." },
+    { "type": "estimate", "text": ["The US burns about 3.8 million barrels of distillate fuel (diesel and heating oil) a day (EIA, May 2025). The first shipment is therefore **roughly 14 hours of American consumption**, and both together about a day and a half. Analysts quoted by CNN expected supply to rise by 5–6% by the end of the year; the New York Times reports that russia cannot physically deliver what was promised, because Ukrainian strikes have left it short of fuel at home."] },
+    { "type": "links", "items": [
+      { "title": "NBC: Davos, 23 Jan 2025", "url": "https://www.nbcwashington.com/news/business/money-report/oil-turns-lower-after-trump-says-hell-ask-saudi-arabia-and-opec-to-bring-the-price-down/" },
+      { "title": "AAA", "url": "https://gasprices.aaa.com/national-average-dips-following-record-setting-september/" },
+      { "title": "NerdWallet", "url": "https://www.nerdwallet.com/finance/learn/are-gas-prices-going-down" },
+      { "title": "Al Jazeera: Kharg Island", "url": "https://aljazeera.com/economy/2026/3/30/trump-wants-to-take-irans-oil-can-he-and-what-would-that-mean" },
+      { "title": "ZN.ua: “disgrace”", "url": "https://zn.ua/ukr/usa/tramp-nazvav-hanboju-udari-ukrajini-po-rosijskikh-npz.html" },
+      { "title": "Axios: the diesel deal", "url": "https://www.axios.com/2026/10/13/trump-russia-diesel-deal" },
+      { "title": "EIA", "url": "https://www.eia.gov/todayinenergy/detail.php?id=66005" }
+    ] },
+
+    { "type": "h2", "text": "Iran: the war that was not supposed to happen" },
+    { "type": "p", "text": "Trump first struck Iran in June 2025, when US bombers hit the nuclear sites at Fordow, Natanz and Isfahan and he declared them “completely and totally obliterated”. Sixteen months later he says that was not enough: on 20 October 2026, speaking of a site “under hundreds of tons of rock”, he said “it’s not good enough for me”, because the US must make sure Iran does not rebuild its programme in five or ten years." },
+    { "type": "list", "title": "The Iran war so far", "ordered": true, "items": [
+      { "title": "28 February 2026", "text": "The US (Operation Epic Fury) and Israel attack Iran; Supreme Leader Ali Khamenei is killed. Iran fires at Israel, at US bases and at Gulf states, and Hormuz is effectively shut. Trump says there are “no time limits” (6 March), then that the war is “very complete, pretty much” (9 March)." },
+      { "title": "7–8 April", "text": "In the morning Trump warns that “a whole civilization will die tonight”. By the evening he announces a two-week ceasefire brokered by Pakistan." },
+      { "title": "12–13 April", "text": "Talks in Islamabad fail; the US imposes a naval blockade of Iranian ports." },
+      { "title": "17 June", "text": "A memorandum to end the war is signed and the blockades are lifted." },
+      { "title": "July", "text": "The truce collapses after attacks on shipping in Hormuz; the US reimposes the blockade and resumes air strikes." },
+      { "title": "8 October", "text": "Trump on Truth Social: the US will not attack Iran “at any time prior to the Midterm Elections”, citing “productive” talks." },
+      { "title": "25 October", "text": "“I have a decision to make: Do I finish it off, which would be very easy to do, or do I make a deal?” (Fox News). A third US carrier group heads for the Gulf." }
+    ] },
+    { "type": "vs", "a": { "label": "Pledge, 6 Nov 2024", "text": "“I’m not going to start a war. I’m going to stop wars”" }, "b": { "label": "October 2026", "text": "Eighth month of war with Iran; next strike put off until after the vote", "tone": "unv" } },
+    { "type": "links", "items": [
+      { "title": "KUTV: “obliterated”, 2025", "url": "https://kutv.com/news/nation-world/us-struck-three-iranian-nuclear-sites-trump-says-joining-israeli-air-campaign" },
+      { "title": "Newsweek: Khamenei", "url": "https://newsweek.com/us-iran-strikes-iran-supreme-leader-ayatollah-ali-khamanei-killed-11598102" },
+      { "title": "Michigan Public: ceasefire", "url": "https://www.michiganpublic.org/2026-04-07/trump-backs-down-from-imminent-threat-to-annihilate-iran-announcing-2-week-ceasefire" },
+      { "title": "Bloomberg Law: July", "url": "https://news.bloomberglaw.com/tariff-news/us-iran-truce-collapses-as-attacks-worsen-and-blockade-returns" },
+      { "title": "Fox News, 20 Oct", "url": "https://www.foxnews.com/live-news/iran-war-news-trump-israel-russia-october-20" },
+      { "title": "The National, 25 Oct", "url": "https://www.thenationalnews.com/news/us/2026/10/25/trump-iran-strike/" },
+      { "title": "Wikipedia: timeline", "url": "https://en.wikipedia.org/wiki/2026_Iran_war" }
+    ] },
+
+    { "type": "h2", "text": "Ukraine: from “24 hours” to “a new leader”" },
+    { "type": "p", "text": "His first year swung between pressure on Kyiv and pressure on Moscow. On 28 February 2025 came the Oval Office shouting match with Zelensky; on 3 March, a pause in US military aid. On 14 July Trump gave russia 50 days to make a deal or face 100% “secondary” tariffs on its trading partners. On 15 August he met Putin in Anchorage, Alaska; there was no ceasefire, and afterwards he said he did not think sanctions were needed for now. On 22 October 2025 came his toughest step against russia: sanctions on Rosneft and Lukoil, the country’s two largest oil companies." },
+    { "type": "p", "text": "In 2026 there were three-way talks in Geneva on 17–18 February; the next round, in Abu Dhabi, was called off when the Iran war began. In September Trump’s special envoy Steve Witkoff and his son-in-law Jared Kushner, who run the Ukraine file, met Putin in Moscow, and on 18 September Trump signed the Lindsey O. Graham Sanctioning Russia and Iran Act. Then came October, when the cost of the Iran war landed on Ukraine." },
+    { "type": "table", "columns": ["Date", "What Trump said or did"], "rows": [
+      ["9 Oct", "Diesel deal with russia after a call with Putin: “I want to thank President Putin.”"],
+      ["10 Oct", "Ukraine needs “a new leader who can make a deal”; on refinery strikes: “He better damn well stop.”"],
+      ["11 Oct", "Announces an “energy ceasefire” on Truth Social: “Both parties have agreed. Do not break it!” Neither side confirmed."],
+      ["12 Oct", "Asked whether the sides really agreed: “They agreed. Do you know why? Because I said they agreed.”"],
+      ["13–14 Oct", "russia launches a mass attack with ballistic missiles and drones; in Kyiv a combined heat and power plant is hit, and at least 600,000 people lose power, according to Zelensky. Trump blames Ukraine for breaking the “ceasefire” but offers no evidence."],
+      ["15 Oct", "“I’m not a big fan of Zelensky” (Newsmax)."],
+      ["16 Oct", "Order waiving the Graham Act’s tariffs and sanctions, two days before they were due to take effect."],
+      ["18 Oct", "Does not want to “drive, foolishly, Russia away from the bargaining table”; says Zelensky does not want to end the war."],
+      ["19 Oct", "russia is “behaving normally”; “Zelensky doesn’t know what he is talking about.”"],
+      ["20 Oct", "“Zelenskyy has to want to settle this war … if he doesn’t, I think it’s going to be a very bad thing.” Puts US aid at $350bn without saying how."],
+      ["23 Oct", "At a Florida rally floats tariffs on both Ukraine and russia: “Probably we should do that immediately… I did not think of it.” Then doubts it would work, as the US buys too little from either."],
+      ["25 Oct", "After the war the US will “do business” with both Ukraine and russia."]
+    ] },
+    { "type": "vs", "a": { "label": "Trump, 12 October", "text": "“They agreed … because I said they agreed”" }, "b": { "label": "Night of 14 October", "text": "Mass strike on Ukraine’s grid; Kyiv power plant hit, 600,000 without power", "tone": "unv" } },
+    { "type": "p", "text": "At the same time, according to the Washington Post and the Kyiv Independent, citing unnamed officials, Washington warned Kyiv that further strikes on russian refineries could cut off intelligence sharing. Trump says sharing never stopped: “We help them.” Zelensky says Ukraine has not hit russian refineries since 11 October, while russia has kept hitting Ukraine’s energy system." },
+    { "type": "links", "items": [
+      { "title": "GPB/NPR: aid pause", "url": "https://www.gpb.org/news/2025/03/03/president-trump-pauses-ukraine-military-aid" },
+      { "title": "Axios: Anchorage", "url": "https://www.axios.com/2025/08/16/trump-putin-summit-failure-ukraine-ceasefire" },
+      { "title": "US Treasury: Rosneft and Lukoil", "url": "https://content.govdelivery.com/accounts/USTREAS/bulletins/3f8422d" },
+      { "title": "Kyiv Independent: “because I said”", "url": "https://kyivindependent.com/trump-says-ukraine-russia-agree-to-energy-strike-ceasefire-because-i-said-they-agreed/" },
+      { "title": "Kyiv Independent: 14 Oct strike", "url": "https://kyivindependent.com/ostentatious-disrespect-zelensky-says-russia-defied-trumps-energy-ceasefire-with-massive-missile-strike/" },
+      { "title": "Kyiv Independent: Newsmax", "url": "https://kyivindependent.com/im-not-a-big-fan-of-zelensky-trump-says-as-us-ukraine-tensions-deepen-2/" },
+      { "title": "Axios, 18 Oct", "url": "https://www.axios.com/2026/10/18/zelensky-witkoff-kushner-ukraine-russia-crisis" },
+      { "title": "Fox News, 20 Oct", "url": "https://www.foxnews.com/live-news/iran-war-news-trump-israel-russia-october-20" }
+    ] },
+
+    { "type": "h2", "text": "$5,000 if Republicans win" },
+    { "type": "p", "text": "On 9 September, at the Republican midterm convention in Dallas, Trump promised every adult citizen $5,000 — the “Trump dividend”: “If the Republicans win, you win with us and you get $5,000.” The condition is that his party keeps both the House and the Senate. The money must be spent at home: “We don’t want you going to Canada to spend the money.” On 3 October he repeated it in a video: “Only I can make you this promise… I look forward to signing those checks!”" },
+    { "type": "stats", "kind": "tiles", "items": [
+      { "value": "≈ $1.2trn", "note": "cost for about 245 million adult citizens (PBS); Trump himself says “approximately $1 trillion”" },
+      { "value": "21%", "tone": "unv", "note": "of registered voters think he will pay; 57% think not (Economist/YouGov, 11–14 Sep)" },
+      { "value": "≈ 72%", "note": "of all the tariff revenue the Tax Policy Center projects for 2026–36 (≈ $1.7trn)" },
+      { "value": "0 of 3", "tone": "unv", "note": "earlier promises of cheques to Americans this term that were paid (Yahoo Finance)" }
+    ] },
+    { "type": "table", "columns": ["Promise", "When", "Amount", "Outcome"], "rows": [
+      ["“DOGE dividend”", "Feb 2025", "≈ $5,000", "Quietly dropped after Elon Musk left government"],
+      ["“Tariff dividend”", "Nov 2025", "$2,000 each", "Not paid"],
+      ["Health-care payments sent “directly to you”", "2026", "not specified", "No details, no cheques"],
+      ["“Warrior dividend”", "Dec 2025", "$1,776 to service members", "Paid, as a housing supplement mainly for lower ranks"],
+      ["“Trump dividend”", "Sep 2026", "$5,000 per adult citizen", "Depends on the 3 November vote and on Congress"]
+    ] },
+    { "type": "p", "text": "How it would be paid for is unclear. Vice-President JD Vance points to tariff revenue. But in February the Supreme Court struck down Trump’s main tariffs, and of roughly $166bn collected under them, about $100bn had been refunded to importers by August. A payout would need an act of Congress; Republican Senator Bernie Moreno says he will introduce one after 3 November." },
+    { "type": "p", "text": "Is it legal to promise voters money for an election result? Rick Hasen, an election-law professor at UCLA, thinks Trump would have a “strong First Amendment defense”. Richard Painter, an ethics expert at the University of Minnesota, recalls George McGovern’s 1972 pledge of $1,000 a year per person; McGovern lost, and in Painter’s view voters saw it as a recipe for inflation. Even the recipients keep changing: on 2 October Trump wrote “every U.S. citizen” on Truth Social and said “all adult citizens” at a stop in Alabama the same day. The gap is about 73 million people, or roughly $400bn more." },
+    { "type": "links", "items": [
+      { "title": "PBS", "url": "https://www.pbs.org/newshour/politics/trump-promised-5000-checks-if-republicans-win-the-midterms-how-would-that-work" },
+      { "title": "Yahoo Finance", "url": "https://finance.yahoo.com/economy/article/only-i-can-make-you-this-promise-trump-re-ups-pledge-to-send-americans-5000-if-gop-wins-135647789.html" },
+      { "title": "Fortune: the poll", "url": "https://fortune.com/2026/10/08/trump-changing-5000-dividend-21-voters-pay/" },
+      { "title": "Al Jazeera", "url": "https://www.aljazeera.com/news/2026/9/10/trump-promises-5000-payouts-if-gop-wins-midterms-can-the-us-afford-it" },
+      { "title": "CBP: tariff refunds", "url": "https://www.vatupdate.com/2026/08/08/cbp-certifies-roughly-usd-100-billion-in-ieepa-duty-refunds-as-cape-rollout-advances/" }
+    ] },
+
+    { "type": "h2", "text": "Tariffs: penguins yes, russia no" },
+    { "type": "p", "text": "On 2 April 2025, “Liberation Day”, Trump imposed a 10% baseline tariff on the world and higher “reciprocal” rates on dozens of countries. The list even included the Heard and McDonald Islands, an uninhabited Australian territory near Antarctica whose residents are penguins and seals. russia was not on it. The White House said existing sanctions “preclude any meaningful trade”: US–russia trade had fallen from about $36bn in 2021 to about $3.5bn in 2024." },
+    { "type": "p", "text": "On 20 February 2026 the Supreme Court ruled 6–3 that the International Emergency Economic Powers Act (IEEPA), the 1977 sanctions law Trump had used, does not allow the president to impose tariffs. Trump replaced them with a 10% global tariff under a trade law that caps such duties at 150 days; it lapsed on 24 July. In its place came tariffs of 10–12.5% on 60 countries, formally for failing to ban goods made with forced labour." },
+    { "type": "h3", "text": "Tariffs on russia: threats that never landed" },
+    { "type": "table", "columns": ["When", "Threat", "What happened"], "rows": [
+      ["14 Jul 2025", "100% tariffs on russia’s trading partners unless there is a deal within 50 days", "Anchorage summit on 15 Aug; no tariffs"],
+      ["Aug 2025", "An extra 25% on India for buying russian oil (50% in total)", "Lifted on 7 Feb 2026 after a trade deal and India’s pledge to stop buying russian oil"],
+      ["18 Sep 2026", "Graham Act: up to 500% on russian goods, up to 100% on the five biggest buyers of russian oil and gas. Senate 86–11, House 262–159", "Waived by order on 16 Oct, two days before taking effect"],
+      ["23 Oct 2026", "Tariffs on both Ukraine and russia to force a peace", "Trump doubted at once that it would work"]
+    ] },
+    { "type": "vs", "a": { "label": "Congress, September", "text": "Tariffs of up to 500% on russian goods from 18 October" }, "b": { "label": "Trump’s order, 16 October", "text": "Waived; a “60-day” review, says Rubio", "tone": "unv" } },
+    { "type": "p", "text": "The only tariff the US actually collected over russian oil, the 25% on India, ran from late August 2025 to February 2026. The administration’s explanations for the Graham Act waiver do not match. Secretary of State Marco Rubio says the world needs oil and russian diesel will reach the market anyway; Energy Secretary Chris Wright calls the diesel deal an incentive for an energy ceasefire; Treasury Secretary Scott Bessent points to the 2025 sanctions on Rosneft and Lukoil: “No one has been tougher on Russian sanctions than President Trump.” The Institute for the Study of War, a Washington think tank, judges that the waiver “will help Russia finance and protract the war in Ukraine”." },
+    { "type": "links", "items": [
+      { "title": "Kyiv Independent: the tariff list", "url": "https://kyivindependent.com/russia-missing-from-trumps-sweeping-tariffs-list-as-its-already-sanctioned-white-house-confirms/" },
+      { "title": "Jones Day: Supreme Court ruling", "url": "https://www.jonesday.com/en/insights/2026/02/united-states-supreme-court-invalidates-ieepa-tariffs" },
+      { "title": "ABA: tariffs after the ruling", "url": "https://www.americanbar.org/groups/public_contract_law/resources/procurement-lawyer/2026-fall/ieepa-tariffs-struck-down-replacement-tariffs-expired/" },
+      { "title": "Scripps: 50 days", "url": "https://www.scrippsnews.com/politics/trump-threatens-100-secondary-tariffs-on-russia-if-no-deal-reached-on-ukraine-within-50-days" },
+      { "title": "Bloomberg: India", "url": "https://www.bloomberg.com/news/articles/2026-02-06/trump-removes-india-s-25-russia-related-tariff-after-deal" },
+      { "title": "Baker McKenzie: Graham Act", "url": "https://sanctionsnews.bakermckenzie.com/us-president-signs-russia-and-iran-sanctions-bill-with-new-tariff-powers/" },
+      { "title": "ABC News: the 16 Oct order", "url": "https://abcnews.com/Politics/trump-signs-order-waiving-graham-act-sanctions-russia/story?id=137341529" },
+      { "title": "Axios: the administration’s case", "url": "https://www.axios.com/2026/10/18/trump-russia-diesel-deal-rubio-wright-sanctions" },
+      { "title": "ISW, 17 Oct", "url": "https://www.criticalthreats.org/analysis/russian-offensive-campaign-assessment-october-17-2026" }
+    ] },
+
+    { "type": "h2", "text": "What Moscow says", "section": "kremlin" },
+    { "type": "p", "text": "Moscow greeted Washington’s October decisions as a win. Kirill Dmitriev, Putin’s special envoy and head of russia’s sovereign wealth fund, called Trump’s call for a “new leader” in Ukraine an “iconic and historic moment”, and the Graham Act waiver “a truly historic moment”. Dmitry Peskov, the kremlin spokesman, called the diesel deal mutually beneficial and unrelated to Moscow’s position on Ukraine. Yuri Ushakov, Putin’s foreign-policy aide, stressed after the 9 October call that Putin had made no commitment to resume talks, and on 15 October foreign minister Sergei Lavrov said russia would not accept a ceasefire that let Kyiv rearm." },
+    { "type": "vs", "a": { "label": "What the White House hoped for", "text": "New concessions from Putin after the sanctions were eased" }, "b": { "label": "What Putin gave (Axios, 21 Oct)", "text": "Agreement to keep talking, and the release of one American", "tone": "unv" } },
+    { "type": "links", "items": [
+      { "title": "Deccan Chronicle / Sky News: Dmitriev", "url": "https://www.deccanchronicle.com/amp/world/europe/russia-calls-trumps-sanctions-waiver-a-historic-moment-1996640" },
+      { "title": "Obozrevatel: Peskov", "url": "https://www.obozrevatel.com/ukr/section-politics-news/news-kontakty-tryvayut-u-kremli-zrobyly-tsynichnu-zayavu-pro-enerhetychne-peremyrya-13-10-2026.html" },
+      { "title": "Axios, 21 Oct", "url": "https://axios.com/2026/10/21/russia-ukraine-putin-witkoff-peace" }
+    ] },
+
+    { "type": "h2", "text": "Where the sources disagree" },
+    { "type": "diverge", "items": [
+      { "title": "How long the Graham Act waiver lasts", "text": "The text of the 16 October order has no end date: the waiver stands until the president or the secretary of state decides otherwise. Rubio described it on 18 October as a 60-day pause for analysis. If Rubio is right, a decision is due around 15 December." },
+      { "title": "What the “Trump dividend” would cost", "text": "PBS puts it at about $1.2trn (around 245 million adult citizens), Al Jazeera and Fortune at about $1.3trn (up to 270 million), Trump at “approximately $1 trillion”. Paying every citizen rather than every adult would cost over $1.7trn." },
+      { "title": "Who broke the “energy ceasefire”", "text": "Trump blamed Ukraine on 13 October without evidence. Zelensky says Ukraine has not hit russian refineries since 11 October, while russia has struck major energy sites in Ukraine more than 170 times. Peskov says there was “in fact no moratorium” on Kyiv’s side. There is no independent count." }
+    ] },
+
+    { "type": "h2", "text": "Conclusion" },
+    { "type": "p", "text": "Trump’s promises share a shape: a big round number and a short deadline. Twenty-four hours, twelve months, fifty days, 500%, $5,000. The deadline passes and the measure is dropped, called a joke or waived. There have been few steps against russia in his term, and some have been reversed: the India tariff was lifted and the Graham Act waived two days before it bit. The 2025 sanctions on Rosneft and Lukoil still stand, and they are what the administration now cites." },
+    { "type": "p", "text": "In October 2026 everything bends to one number: the price of petrol on 3 November. The US started the Iran war that drove it up, yet the bill is increasingly sent to Ukraine: the White House blames its refinery strikes for dearer fuel, while russia gets a diesel licence and a pause in sanctions. After the vote, watch three things: whether the US strikes Iran, whether the “60-day” sanctions pause ends, and whether a $5,000 bill appears in Congress." },
+    { "type": "p", "kind": "meta", "text": "Analysis as of 27 October 2026. Trump’s words are quoted from the original or from the outlet named; our own estimates are marked separately." }
+  ],
+  "sources": [
+    { "title": "CNN (via KTVZ) — 53 pledges to end the war in 24 hours", "url": "https://ktvz.com/politics/cnn-us-politics/2025/04/25/fact-check-it-wasnt-in-jest-here-are-53-times-trump-said-hed-end-ukraine-war-within-24-hours-or-before-taking-office/" },
+    { "title": "Kyiv Post — victory speech, 6 Nov 2024", "url": "https://kyivpost.com/post/41784" },
+    { "title": "NPR — the pledge to halve energy bills, one year on", "url": "https://www.npr.org/2026/01/20/nx-s1-5670378/trump-energy-promises-one-year" },
+    { "title": "CNN (via KVIA) — prices “on day one”", "url": "https://kvia.com/news/business-technology/cnn-business-consumer/2025/01/28/trump-said-hed-bring-prices-down-on-day-one-that-hasnt-happened/" },
+    { "title": "NBC — Davos, the request to OPEC", "url": "https://www.nbcwashington.com/news/business/money-report/oil-turns-lower-after-trump-says-hell-ask-saudi-arabia-and-opec-to-bring-the-price-down/" },
+    { "title": "AAA — national average petrol price", "url": "https://gasprices.aaa.com/national-average-dips-following-record-setting-september/" },
+    { "title": "NerdWallet — petrol price on 28 Feb 2026", "url": "https://www.nerdwallet.com/finance/learn/are-gas-prices-going-down" },
+    { "title": "Al Jazeera — “take the oil in Iran”", "url": "https://aljazeera.com/economy/2026/3/30/trump-wants-to-take-irans-oil-can-he-and-what-would-that-mean" },
+    { "title": "Axios — the diesel deal", "url": "https://www.axios.com/2026/10/13/trump-russia-diesel-deal" },
+    { "title": "EIA — distillate consumption", "url": "https://www.eia.gov/todayinenergy/detail.php?id=66005" },
+    { "title": "ZN.ua — refinery strikes a “disgrace”", "url": "https://zn.ua/ukr/usa/tramp-nazvav-hanboju-udari-ukrajini-po-rosijskikh-npz.html" },
+    { "title": "KUTV — strikes on Iran, June 2025", "url": "https://kutv.com/news/nation-world/us-struck-three-iranian-nuclear-sites-trump-says-joining-israeli-air-campaign" },
+    { "title": "Newsweek — Khamenei killed", "url": "https://newsweek.com/us-iran-strikes-iran-supreme-leader-ayatollah-ali-khamanei-killed-11598102" },
+    { "title": "Michigan Public — two-week ceasefire", "url": "https://www.michiganpublic.org/2026-04-07/trump-backs-down-from-imminent-threat-to-annihilate-iran-announcing-2-week-ceasefire" },
+    { "title": "Bloomberg Law — the truce collapses in July", "url": "https://news.bloomberglaw.com/tariff-news/us-iran-truce-collapses-as-attacks-worsen-and-blockade-returns" },
+    { "title": "Wikipedia — 2026 Iran war timeline", "url": "https://en.wikipedia.org/wiki/2026_Iran_war" },
+    { "title": "Fox News — live blog, 20 Oct", "url": "https://www.foxnews.com/live-news/iran-war-news-trump-israel-russia-october-20" },
+    { "title": "The National — “I have a decision to make”", "url": "https://www.thenationalnews.com/news/us/2026/10/25/trump-iran-strike/" },
+    { "title": "GPB / NPR — pause in military aid, March 2025", "url": "https://www.gpb.org/news/2025/03/03/president-trump-pauses-ukraine-military-aid" },
+    { "title": "Axios — the Anchorage summit", "url": "https://www.axios.com/2025/08/16/trump-putin-summit-failure-ukraine-ceasefire" },
+    { "title": "US Treasury — sanctions on Rosneft and Lukoil", "url": "https://content.govdelivery.com/accounts/USTREAS/bulletins/3f8422d" },
+    { "title": "Kyiv Independent — talks in Geneva and Miami", "url": "https://kyivindependent.com/ukrainian-delegations-meets-witkoff-kushner-in-miami-plan-to-continue-talks-on-march-22/" },
+    { "title": "Kyiv Independent — “because I said they agreed”", "url": "https://kyivindependent.com/trump-says-ukraine-russia-agree-to-energy-strike-ceasefire-because-i-said-they-agreed/" },
+    { "title": "Kyiv Independent — the 14 Oct strike on Kyiv", "url": "https://kyivindependent.com/ostentatious-disrespect-zelensky-says-russia-defied-trumps-energy-ceasefire-with-massive-missile-strike/" },
+    { "title": "Kyiv Independent — “not a big fan”", "url": "https://kyivindependent.com/im-not-a-big-fan-of-zelensky-trump-says-as-us-ukraine-tensions-deepen-2/" },
+    { "title": "Ukrinform — Trump explains his russia decisions, 19 Oct", "url": "https://www.ukrinform.ua/rubric-polytics/4175730-tramp-sprobuvav-poasniti-svoi-ostanni-risenna-stosovno-rosii.html" },
+    { "title": "Axios — Witkoff’s talks, 21 Oct", "url": "https://axios.com/2026/10/21/russia-ukraine-putin-witkoff-peace" },
+    { "title": "PBS — how the $5,000 cheques would work", "url": "https://www.pbs.org/newshour/politics/trump-promised-5000-checks-if-republicans-win-the-midterms-how-would-that-work" },
+    { "title": "Yahoo Finance — every payout promise this term", "url": "https://finance.yahoo.com/economy/article/only-i-can-make-you-this-promise-trump-re-ups-pledge-to-send-americans-5000-if-gop-wins-135647789.html" },
+    { "title": "Fortune — the Economist/YouGov poll", "url": "https://fortune.com/2026/10/08/trump-changing-5000-dividend-21-voters-pay/" },
+    { "title": "Al Jazeera — can the US afford it?", "url": "https://www.aljazeera.com/news/2026/9/10/trump-promises-5000-payouts-if-gop-wins-midterms-can-the-us-afford-it" },
+    { "title": "VATupdate — CBP: about $100bn in tariffs refunded", "url": "https://www.vatupdate.com/2026/08/08/cbp-certifies-roughly-usd-100-billion-in-ieepa-duty-refunds-as-cape-rollout-advances/" },
+    { "title": "Kyiv Independent — russia missing from the tariff list", "url": "https://kyivindependent.com/russia-missing-from-trumps-sweeping-tariffs-list-as-its-already-sanctioned-white-house-confirms/" },
+    { "title": "Jones Day — the Supreme Court on IEEPA", "url": "https://www.jonesday.com/en/insights/2026/02/united-states-supreme-court-invalidates-ieepa-tariffs" },
+    { "title": "American Bar Association — tariffs after the ruling", "url": "https://www.americanbar.org/groups/public_contract_law/resources/procurement-lawyer/2026-fall/ieepa-tariffs-struck-down-replacement-tariffs-expired/" },
+    { "title": "Scripps News — the 50-day ultimatum", "url": "https://www.scrippsnews.com/politics/trump-threatens-100-secondary-tariffs-on-russia-if-no-deal-reached-on-ukraine-within-50-days" },
+    { "title": "Bloomberg — India’s tariff lifted", "url": "https://www.bloomberg.com/news/articles/2026-02-06/trump-removes-india-s-25-russia-related-tariff-after-deal" },
+    { "title": "Baker McKenzie — the Graham Act", "url": "https://sanctionsnews.bakermckenzie.com/us-president-signs-russia-and-iran-sanctions-bill-with-new-tariff-powers/" },
+    { "title": "ABC News — the waiver order", "url": "https://abcnews.com/Politics/trump-signs-order-waiving-graham-act-sanctions-russia/story?id=137341529" },
+    { "title": "White House — order of 16 Oct", "url": "https://www.whitehouse.gov/presidential-actions/2026/10/implementing-the-lindsey-o-graham-sanctioning-russia-and-iran-act-of-2026/" },
+    { "title": "Kyiv Independent — Rubio on the 60 days", "url": "https://kyivindependent.com/marco-rubio-says-trumps-russian-oil-sanctions-waiver-is-a-60-day-pause-denies-restricting-starlink-access/" },
+    { "title": "Axios — Rubio, Wright and Bessent explain", "url": "https://www.axios.com/2026/10/18/trump-russia-diesel-deal-rubio-wright-sanctions" },
+    { "title": "ISW / Critical Threats — assessment of 17 Oct", "url": "https://www.criticalthreats.org/analysis/russian-offensive-campaign-assessment-october-17-2026" },
+    { "title": "Deccan Chronicle / Sky News — Dmitriev", "url": "https://www.deccanchronicle.com/amp/world/europe/russia-calls-trumps-sanctions-waiver-a-historic-moment-1996640" },
+    { "title": "Obozrevatel — Peskov on the diesel deal", "url": "https://www.obozrevatel.com/ukr/section-politics-news/news-kontakty-tryvayut-u-kremli-zrobyly-tsynichnu-zayavu-pro-enerhetychne-peremyrya-13-10-2026.html" }
+  ]
+}
