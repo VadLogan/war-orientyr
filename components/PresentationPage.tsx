@@ -2,17 +2,17 @@
 // The interactive part runs in a frame; every text of it is rendered here as plain HTML, so the page reads without scripts.
 // With `phases`, the frame is a full-viewport map and the page drives it (PhaseExplorer); without, it is one tall frame.
 import Link from "next/link";
-import { articleHref, href } from "@/lib/routes";
-import { longDate } from "@/lib/text";
+import { href } from "@/lib/routes";
+import { loc, longDate } from "@/lib/text";
 import type { Article, PresentationBody, PresPhase } from "@/types/digest";
 import { UI, type Lang, type UIStrings } from "@/lib/ui";
 import { flags } from "@/components/Flag";
 import Shell from "./Shell";
 import EmbedFrame from "./EmbedFrame";
 import PhaseExplorer from "./PhaseExplorer";
-import { Block, LdJson, Sources } from "./ArticlePage";
+import { artHrefs, Block, LdJson, Sources } from "./ArticlePage";
 
-type P = { a: Article & { presentation: PresentationBody }; lang: Lang; latest: string; dates: string[] };
+type P = { a: Article & { presentation: PresentationBody }; lang: Lang; latest: string; dates: string[]; from?: "de" };
 
 /** Claimed (cumulative `area`) vs measured (drop of DeepState `occupied` since the first phase), one row per phase that gained ground. */
 function Compare({ c, phases, locale }: { c: NonNullable<PresentationBody["compare"]>; phases: PresPhase[]; locale: string }) {
@@ -63,21 +63,20 @@ function Places({ title, phases, t }: { title: string; phases: PresPhase[]; t: U
   );
 }
 
-export default function PresentationPage({ a, lang, latest, dates }: P) {
+export default function PresentationPage({ a, lang, latest, dates, from }: P) {
   const t = UI[lang] as UIStrings, S = a.presentation, inIssue = dates.includes(a.date);
-  const base = `/articles/${a.date}/${a.name}/`, locale = lang === "en" ? "en-GB" : "uk-UA";
+  const base = `/articles/${a.date}/${a.name}/`, locale = loc(lang);
   const phases = S.phases?.length ? S.phases : null;
   return (
     <div className="shell">
-      <Shell lang={lang} t={t} view="digest" date={latest} latest={latest} dates={dates}
-        langHrefs={{ uk: articleHref("uk", a.date, a.name), en: articleHref("en", a.date, a.name) }} />
+      <Shell lang={lang} t={t} view="digest" date={latest} latest={latest} dates={dates} langHrefs={artHrefs(a)} from={from} />
       <LdJson a={a} lang={lang} />
       <main id="main">
         <article className="article pres">
           <header className="pres-hero">
             <div>
               <Link className="back" href={href(lang, "digest", inIssue ? a.date : null, latest)}>{t.art.back}</Link>
-              {lang === "en" && a.contentLang !== "en" && <p className="lang-note">{t.art.langNote}</p>}
+              {lang !== "uk" && a.contentLang !== lang && <p className="lang-note">{t.art.langNote}</p>}
               {S.kicker && <p className="art-kicker">{flags(S.kicker)}</p>}
               <h1>{flags(S.title)}</h1>
               {S.lead && <p className="art-lead">{flags(S.lead)}</p>}

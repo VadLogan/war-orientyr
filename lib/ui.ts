@@ -1,7 +1,7 @@
 // UI strings, moved verbatim from the legacy app.js. Markup values (brand) are trusted static SVG.
 import { plural } from "./text";
 
-export const UI = {
+const BASE = {
   uk:{brand:'<svg width="34" height="34" viewBox="0 0 100 100" aria-hidden="true"><path d="M80.8 35.6 A34 34 0 1 1 64.4 19.2" style="fill:none;stroke:var(--accent);stroke-width:13"/><polyline points="27,52 34,64 42,44 51,60 74,26" style="fill:none;stroke:var(--bt);stroke-width:7;stroke-linecap:round;stroke-linejoin:round"/><polygon points="86.1,38 62,13.9 90.3,9.7" style="fill:var(--bt);stroke:var(--bt);stroke-width:3;stroke-linejoin:round"/></svg><span class="bl"><span class="bw">WAR</span><span class="bd">·</span><span class="bn">Орієнтир</span></span>',digest:'Дайджест',dash:'Дашборд',
     nf:{title:'Сторінку не знайдено',line:'Помилка 404 · Сторінку не знайдено',h:'Сторінки не існує',lede:'Посилання застаріло або містить помилку, чи випуску за цю дату не було. Відкрийте останній випуск або виберіть дату в архіві.',toLatest:'До останнього випуску',hint:'Адреса випуску має вигляд',dashHint:', дашборд —',fmt:'РРРР-ММ-ДД'},
     statusOf:'Стан війни на',day:'-й день',
@@ -113,6 +113,39 @@ export const UI = {
       srcs:'Sources',loading:'Loading…',err:'Could not load the data (landcost.json or maps/maps.json).'}}
 };
 
+/** German: the digest and article chrome. The dashboard has no German version (a /de dashboard shows the English one),
+ *  so its strings stay English. */
+const DE = {
+  brand: BASE.en.brand, digest: 'Digest', dash: 'Dashboard',
+  nf: { title: 'Seite nicht gefunden', line: 'Fehler 404 · Seite nicht gefunden', h: 'Diese Seite gibt es nicht', lede: 'Der Link ist veraltet oder fehlerhaft, oder an diesem Tag gab es keine Ausgabe. Öffnen Sie die neueste Ausgabe oder wählen Sie ein Datum im Archiv.', toLatest: 'Zur neuesten Ausgabe', hint: 'Die Adresse einer Ausgabe sieht so aus:', dashHint: ', das Dashboard:', fmt: 'JJJJ-MM-TT' },
+  statusOf: 'Kriegslage am', day: '',
+  sec: { victims: 'Opfer des Krieges', front: 'Front', strikes: 'Angriffe & Luftabwehr', deepstrikes: 'Ukrainische Angriffe auf russland, letzte 24 h', trump: 'Was Trump sagt', diplo: 'Diplomatie, Sanktionen & Hilfe', react: 'Reaktionen der Welt', kremlin: 'Stimmen aus dem Sumpf' },
+  items: (n: any) => n + (n === 1 ? ' Meldung' : ' Meldungen'),
+  unv: 'unbestätigt', fun: 'kurios', loc: { label: 'Lokale Behörden', confirms: 'lokale Behörden bestätigen', partial: 'lokale Behörden: indirekt', silent: 'lokale Behörden schweigen', denies: 'lokale Behörden dementieren' },
+  diverge: 'Abweichungen der Quellen', sources: 'Quellen', toc: 'In dieser Ausgabe', vs: 'gegen',
+  st: { ok: 'gelesen', partial: 'teilweise', unavailable: 'nicht erreichbar' }, kindRu: 'russische Quelle, nur zum Vergleich',
+  dlMd: 'Markdown herunterladen', dlHtml: 'Druckversion (.html)', saved: 'Gespeichert', sent: 'Gesendet', declined: 'Speichern abgebrochen', failed: 'Datei konnte nicht gespeichert werden',
+  countNote: 'Der Starttag wird mitgezählt.',
+  tLaunched: 'Gestartete Drohnen', tIntercepted: 'Abgeschossen / unterdrückt', tHits: 'Orte mit Einschlägen', tClashes: 'Gefechte',
+  ofLaunched: (p: any) => `${p} % der gestarteten`, debris: (n: any) => `weitere ${n} mit herabfallenden Trümmern`,
+  pDiv: 'Abweichungen des Tages', pCov: 'Quellenprüfung', pUnv: 'Unbestätigte Behauptungen',
+  chk: 'Was nicht gefunden oder geprüft werden konnte', chkMore: 'Alles anzeigen', chkLess: 'Einklappen',
+  covLine: (o: any, p: any) => `${o} vollständig gelesen · ${p} teilweise oder aus zweiter Hand`,
+  openDigest: 'Im Digest öffnen', none: 'Keine',
+  langNote: 'Der Text dieser Ausgabe ist auf Ukrainisch. Zitate aus englischsprachigen Quellen stehen im Original.',
+  art: { ...BASE.en.art, back: '← Zurück', read: 'Artikel lesen', kicker: 'Artikel der Ausgabe', zoom: 'Bild vergrößern', close: 'Schließen', issue: 'Ausgabe vom', langNote: 'Dieser Artikel ist auf Ukrainisch.', asOf: 'Datenstand', phases: 'Phasen der Operation', legend: 'Kartenlegende', moves: 'Verlauf der Phase', area: 'km² zurückerobert, kumuliert (3. Korps)', sets: 'Ortschaften, kumuliert', loss: 'Verluste des Gegners in der Phase*', pow: 'Gefangene in der Phase', ua: 'Ukraine', ru: 'russland', defence: 'Verteidigung', brief: 'Kurz', lib: 'befreit', ctl: 'Kontrolle wiederhergestellt, geräumt', play: '▶ Abspielen', pause: '❚❚ Pause', again: '↻ Von vorn', progress: 'Verlauf der Operation', rotate: 'Drehen Sie das Telefon quer – die Karte wird größer.' },
+  pickDate: 'Ausgabe', prev: 'Zurück', next: 'Weiter', prevA: 'Vorherige Ausgabe', nextA: 'Nächste Ausgabe', latest: 'Neueste', count: (n: any) => `${n} ${n === 1 ? 'Ausgabe' : 'Ausgaben'} im Archiv`,
+  archived: 'Archiv', viewingOld: (d: any) => `Sie sehen die Ausgabe vom ${d}.`, toLatest: 'Zur neuesten', issueErr: 'Die Ausgabe für dieses Datum konnte nicht geladen werden.',
+};
+
+export const UI = { ...BASE, de: { ...BASE.en, ...DE, stk: { ...BASE.en.stk, distNote: (a: any) => `📏 Entfernung in Luftlinie zum nächsten Punkt des ukrainisch kontrollierten Gebiets (Frontlinie laut DeepState ${a} oder Staatsgrenze), auf 5 km gerundet; bei „≈“-Markierungen ungefähr.`, dist: (k: any) => `${k} km vom ukrainisch kontrollierten Gebiet`, distNear: 'nahe der Frontlinie' } } };
+
+/** Notice on the English page shown instead of a German one that does not exist (yet). */
+export const DE_MISSING = {
+  de: 'Diese Seite gibt es noch nicht auf Deutsch – wir zeigen die englische Fassung. Bitte wählen Sie oben eine andere Sprache.',
+  en: 'This page isn’t available in German yet, so it is shown in English. You can pick another language above.',
+};
+
 export type Lang = keyof typeof UI;
 export type UIStrings = (typeof UI)["uk"];
 
@@ -120,4 +153,5 @@ export type UIStrings = (typeof UI)["uk"];
 export const LANGS: { code: Lang; name: string; en: string; uk: string; short: string; flag?: string }[] = [
   { code: "uk", name: "Українська", en: "Ukrainian", uk: "українська", short: "УКР", flag: "🇺🇦" },
   { code: "en", name: "English", en: "English", uk: "англійська", short: "ENG", flag: "🇬🇧" },
+  { code: "de", name: "Deutsch", en: "German", uk: "німецька", short: "DEU", flag: "🇩🇪" },
 ];

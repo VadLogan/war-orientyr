@@ -2,14 +2,15 @@
 import Link from "next/link";
 import { longDate, midDate } from "@/lib/text";
 import { href, type View } from "@/lib/routes";
-import { LANGS, type Lang, type UIStrings } from "@/lib/ui";
+import { DE_MISSING, LANGS, type Lang, type UIStrings } from "@/lib/ui";
 import IssueSelect from "./IssueSelect";
 import LangPicker from "./LangPicker";
 
-/** `langHrefs`: a page outside the issue views (an article) — tabs link to the latest issue, no date bar. */
-type P = { lang: Lang; t: UIStrings; view: View; date: string; latest: string; dates: string[]; langHrefs?: Record<Lang, string> };
+/** `langHrefs`: a page outside the issue views (an article) — tabs link to the latest issue, no date bar.
+ *  `from`: the language the reader asked for (a /de URL) when this page has no version in it and is shown in `lang`. */
+type P = { lang: Lang; t: UIStrings; view: View; date: string; latest: string; dates: string[]; langHrefs?: Record<Lang, string>; from?: "de" };
 
-export default function Shell({ lang, t, view, date, latest, dates, langHrefs }: P) {
+export default function Shell({ lang, t, view, date, latest, dates, langHrefs, from }: P) {
   const bare = !!langHrefs;
   const i = dates.indexOf(date), isLatest = date === latest;
   const to = (o: Partial<{ lang: Lang; view: View; date: string }>) => href(o.lang ?? lang, o.view ?? view, o.date ?? date, latest);
@@ -29,6 +30,7 @@ export default function Shell({ lang, t, view, date, latest, dates, langHrefs }:
           <LangPicker lang={lang} hrefs={langHrefs ?? Object.fromEntries(LANGS.map((l) => [l.code, to({ lang: l.code })])) as Record<Lang, string>} />
         </div>
       </header>
+      {from && <p className="lang-note lang-alert" role="status"><span lang="de">{DE_MISSING.de}</span> <span>{DE_MISSING.en}</span></p>}
       {!bare && dates.length > 0 && (
         <nav className="datebar">
           <label htmlFor="issueSel">{t.pickDate}</label>

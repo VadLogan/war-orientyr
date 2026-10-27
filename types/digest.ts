@@ -1,4 +1,5 @@
 // Shape of public/digest.json and public/issues/<date>.json (only the fields the UI reads).
+import type { Lang } from "@/lib/ui";
 export type Status = "ok" | "partial" | "unavailable";
 export type Verdict = "confirms" | "partial" | "silent" | "denies";
 
@@ -106,12 +107,12 @@ export type PresPhase = {
 /** As read by lib/data.ts: `href` = the preview's `url` or the article page; `img` = public path of the image. */
 export type Article = {
   date: string; name: string; href: string; img?: string; preview: ArticlePreview;
-  article: ArticleBody | null; presentation: PresentationBody | null; contentLang: "uk" | "en";
+  article: ArticleBody | null; presentation: PresentationBody | null; contentLang: Lang;
 };
 
 export type Digest = {
   /** set by lib/data.ts: the language the text actually is in (English falls back to Ukrainian) */
-  contentLang?: "uk" | "en";
+  contentLang?: Lang;
   schema: number;
   date: string;
   weekday: string;

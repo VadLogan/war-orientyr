@@ -3,13 +3,12 @@ import { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import type { SourceMatrix } from "@/lib/data";
 import { href } from "@/lib/routes";
-import type { Lang } from "@/lib/ui";
-import { AppCtx, strings, type Ctx, type DashIssue } from "../ctx";
+import { AppCtx, strings, type Ctx, type DashIssue, type DashLang } from "../ctx";
 import Tooltip from "../Tooltip";
 import Dashboard from "./Dashboard";
 
 /** Client root of the dashboard page; data comes from the server, navigation goes through the router. */
-export default function DashProvider({ lang, D, LATEST, DATES, MAPS, smx }: { lang: Lang; D: DashIssue; LATEST: DashIssue; DATES: string[]; MAPS: string; smx: SourceMatrix | null }) {
+export default function DashProvider({ lang, D, LATEST, DATES, MAPS, smx }: { lang: DashLang; D: DashIssue; LATEST: DashIssue; DATES: string[]; MAPS: string; smx: SourceMatrix | null }) {
   const router = useRouter();
   const ctx: Ctx = useMemo(() => ({
     lang, t: strings(lang), D, LATEST, DATES, MAPS, smx,

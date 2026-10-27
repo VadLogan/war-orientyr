@@ -11,16 +11,19 @@ import type { Lang } from "./ui";
 
 const read = async <T,>(p: string): Promise<T> => JSON.parse(await fs.readFile(path.join(process.cwd(), "public", p), "utf8"));
 
-/** English text (i18n/en.json); the data itself is shared by both languages. */
-const getEnglish = cache(async (): Promise<Record<string, string>> => JSON.parse(await fs.readFile(path.join(process.cwd(), "i18n/en.json"), "utf8")));
+/** Translated text (i18n/en.json, i18n/de.json); the data itself is shared by all languages. */
+const getTexts = cache(async (lang: Lang): Promise<Record<string, string>> => {
+  try { return JSON.parse(await fs.readFile(path.join(process.cwd(), `i18n/${lang}.json`), "utf8")); } catch { return {}; }
+});
 
-/** An issue in the requested language: English text applied when every string is translated, else the Ukrainian text.
+/** An issue in the requested language: its text applied when every string is translated, else the Ukrainian text
+ *  (a German page without German text shows the English page instead — see DigestPage).
  *  Sources that could not be opened (`status: "unavailable"`) are dropped — readers see only what was read. */
 async function readIssue(p: string, lang: Lang): Promise<Digest> {
   const data = await read<Digest>(p);
   if (data.sources) data.sources = data.sources.filter((s) => s.status !== "unavailable");
-  const en = lang === "en" ? translate(data, await getEnglish()) : null;
-  return en ? { ...styleData(en, "", "en"), contentLang: "en" } : { ...styleData(data, ""), contentLang: "uk" };
+  const tr = lang !== "uk" ? translate(data, await getTexts(lang)) : null;
+  return tr ? { ...styleData(tr, "", lang), contentLang: lang } : { ...styleData(data, ""), contentLang: "uk" };
 }
 
 export const getLatest = cache(async (lang: Lang = "uk") => readIssue("digest.json", lang));
@@ -66,14 +69,15 @@ export const getArticleDirs = cache(async () => {
   return out.sort((a, b) => (a.date + a.name < b.date + b.name ? -1 : 1));
 });
 
-/** One article in `lang` (English files fall back to Ukrainian); null without preview.uk.json. */
+/** One article in `lang` (German files fall back to English, English to Ukrainian); null without preview.uk.json. */
 export const getArticle = cache(async (date: string, name: string, lang: Lang = "uk"): Promise<Article | null> => {
   const dir = (await getArticleDirs()).find((x) => x.date === date && x.name === name);
   if (!dir) return null;
-  const pick = (base: string) => (lang === "en" && dir.files.includes(`${base}.en.json`) ? `${base}.en.json` : dir.files.includes(`${base}.uk.json`) ? `${base}.uk.json` : null);
+  const order: Lang[] = lang === "de" ? ["de", "en", "uk"] : lang === "en" ? ["en", "uk"] : ["uk"];
+  const pick = (base: string) => order.map((l) => `${base}.${l}.json`).find((f) => dir.files.includes(f)) ?? null;
   const pf = pick("preview"), af = pick("article"), sf = pick("presentation");
   if (!pf) return null;
-  const lng = (f: string): Lang => (f.endsWith(".en.json") ? "en" : "uk");
+  const lng = (f: string) => f.split(".").at(-2) as Lang;
   const rd = async <T,>(f: string): Promise<T> => styleData(await read(`articles/${date}/${name}/${f}`), "", lng(f));
   const preview = await rd<Article["preview"]>(pf), article = af ? await rd<NonNullable<Article["article"]>>(af) : null;
   const presentation = sf ? await rd<NonNullable<Article["presentation"]>>(sf) : null;

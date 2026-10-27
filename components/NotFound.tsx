@@ -6,7 +6,7 @@ import LangLink from "./LangLink";
 
 export default function NotFound({ lang }: { lang: Lang }) {
   const t = UI[lang], nf = t.nf;
-  const other: Lang = lang === "en" ? "uk" : "en";
+  const other: Lang = lang === "uk" ? "en" : "uk";
   const path = (view: "digest" | "dashboard") => href(lang, view, nf.fmt, "");
   return (
     <div className="shell">

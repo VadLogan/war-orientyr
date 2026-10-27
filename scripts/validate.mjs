@@ -20,13 +20,14 @@ if (noId.length || noMap.length) {
 }
 // articles/<YYYY-MM-DD>/<name>/: preview.uk.json required (title); a full article (article.uk.json, body[]) or a preview url
 const ART = new URL("../public/articles/", import.meta.url);
-// An article h2 that repeats a digest section title (uk, or its English in i18n/en.json) must carry that section's id
+// An article h2 that repeats a digest section title (uk, or its English/German in i18n/en.json, de.json) must carry that section's id
 // in `section`, so it shows the same icon as the digest.
 const EN = JSON.parse(fs.readFileSync(new URL("../i18n/en.json", import.meta.url), "utf8"));
+const DE_FILE = new URL("../i18n/de.json", import.meta.url), DE = fs.existsSync(DE_FILE) ? JSON.parse(fs.readFileSync(DE_FILE, "utf8")) : {}; // must stay valid JSON
 const secT = new Map(), secIds = new Set();
 for (const iss of [d, ...idx.filter((x) => x !== d.date).map((x) => rd(`issues/${x}.json`))]) for (const s of iss.sections || []) {
   secIds.add(s.id);
-  if (s.title) { secT.set(s.title, s.id); if (EN[s.title]) secT.set(EN[s.title], s.id); }
+  if (s.title) { secT.set(s.title, s.id); if (EN[s.title]) secT.set(EN[s.title], s.id); if (DE[s.title]) secT.set(DE[s.title], s.id); }
 }
 const dirs = (u) => (fs.existsSync(u) ? fs.readdirSync(u, { withFileTypes: true }).filter((e) => e.isDirectory()).map((e) => e.name) : []);
 let nArt = 0;
@@ -37,7 +38,7 @@ for (const date of dirs(ART)) {
     const fail = (m) => { console.error(at + ": " + m); process.exit(1); };
     if (!/^[a-z0-9-]+$/.test(name)) fail("folder name: a-z, 0-9, - only (it is the URL)");
     if (!has("preview.uk.json")) fail("missing preview.uk.json");
-    for (const l of ["uk", "en"]) {
+    for (const l of ["uk", "en", "de"]) {
       if (has(`preview.${l}.json`)) { const p = rd(at + `preview.${l}.json`); if (!p.title) fail(`preview.${l}.json needs title`); if (p.url && !/^https?:\/\//.test(p.url)) fail(`preview.${l}.json url must be http(s)`); if (p.image && !has(p.image)) fail("image not found: " + p.image); }
       if (has(`article.${l}.json`) && !Array.isArray(rd(at + `article.${l}.json`).blocks)) fail(`article.${l}.json needs blocks[]`);
       for (const f of [`article.${l}.json`, `presentation.${l}.json`]) if (has(f)) for (const b of rd(at + f).blocks || []) if (b.type === "h2") {

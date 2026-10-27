@@ -10,6 +10,9 @@
 //   node scripts/i18n.mjs merge     → moves filled-in entries of i18n/missing.json into i18n/en.json
 //   node scripts/i18n.mjs build     → regenerates public/i18n/** (runs before `dev` and `build`)
 //
+//   German (i18n/de.json, i18n/missing.de.json): `missing de` / `merge de` — only the current issue (digest.json); a German
+//   digest page without full German text shows the English page instead, and there is no German dashboard (no build step).
+//
 // Translate the raw strings: house style (lowercase "russia", country flags) is applied at render time.
 // Not translated: `url`, and `en` / `uk` fields (already in both languages). Rules: lib/i18n.mjs.
 import fs from "node:fs";
@@ -18,7 +21,8 @@ import { texts } from "../lib/i18n.mjs";
 
 const ROOT = path.join(path.dirname(new URL(import.meta.url).pathname), "..");
 const PUB = path.join(ROOT, "public"), OUT = path.join(PUB, "i18n");
-const TM_FILE = path.join(ROOT, "i18n/en.json"), MISSING = path.join(ROOT, "i18n/missing.json");
+const LANG = process.argv[3] || "en";
+const TM_FILE = path.join(ROOT, `i18n/${LANG}.json`), MISSING = path.join(ROOT, LANG === "en" ? "i18n/missing.json" : `i18n/missing.${LANG}.json`);
 
 const readJson = (f, dflt) => (fs.existsSync(f) ? JSON.parse(fs.readFileSync(f, "utf8")) : dflt);
 const writeJson = (f, o) => { fs.mkdirSync(path.dirname(f), { recursive: true }); fs.writeFileSync(f, JSON.stringify(o, null, 1) + "\n"); };
@@ -39,13 +43,13 @@ const isIssue = (f) => f === "digest.json" || f.startsWith("issues/");
 
 const cmd = process.argv[2];
 const tm = readJson(TM_FILE, {});
-const files = dataFiles();
+const files = LANG === "en" ? dataFiles() : ["digest.json"];
 
 if (cmd === "missing") {
   const miss = {};
   for (const f of files) for (const s of texts(readJson(path.join(PUB, f)))) if (!tm[s] && !(s in miss)) miss[s] = "";
   writeJson(MISSING, miss);
-  console.log(`${Object.keys(miss).length} untranslated strings → i18n/missing.json`);
+  console.log(`${Object.keys(miss).length} untranslated strings → ${path.relative(ROOT, MISSING)}`);
 } else if (cmd === "merge") {
   const miss = readJson(MISSING, {});
   let n = 0;
@@ -53,7 +57,7 @@ if (cmd === "missing") {
   writeJson(TM_FILE, tm);
   writeJson(MISSING, miss);
   console.log(`merged ${n}; ${Object.keys(miss).length} still missing`);
-} else if (cmd === "build") {
+} else if (cmd === "build" && LANG === "en") {
   fs.rmSync(OUT, { recursive: true, force: true });
   fs.rmSync(path.join(PUB, "en"), { recursive: true, force: true }); // old full-copy mirrors, no longer used
   const partial = [];
@@ -64,6 +68,6 @@ if (cmd === "missing") {
   }
   console.log(`i18n: ${files.length - partial.length}/${files.length} files in English` + (partial.length ? `; untranslated strings in ${partial.join(", ")} — run \`npm run i18n:missing\`` : ""));
 } else {
-  console.error("usage: node scripts/i18n.mjs missing|merge|build");
+  console.error("usage: node scripts/i18n.mjs missing|merge [de] | build");
   process.exit(1);
 }

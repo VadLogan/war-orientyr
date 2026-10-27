@@ -11,7 +11,9 @@
     "validate": "node scripts/validate.mjs",
     "publish": "node scripts/publish.mjs",
     "i18n:missing": "node scripts/i18n.mjs missing",
-    "i18n:merge": "node scripts/i18n.mjs merge"
+    "i18n:merge": "node scripts/i18n.mjs merge",
+    "i18n:missing:de": "node scripts/i18n.mjs missing de",
+    "i18n:merge:de": "node scripts/i18n.mjs merge de"
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1",

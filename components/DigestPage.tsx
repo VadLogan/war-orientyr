@@ -7,13 +7,14 @@ import Mast from "./Mast";
 import Digest from "./digest/Digest";
 import HashRedirect from "./HashRedirect";
 
-export default async function DigestPage({ lang, params }: { lang: Lang; params: DateParams }) {
+export default async function DigestPage({ lang, params, from }: { lang: Lang; params: DateParams; from?: "de" }) {
   const { latest, dates, D } = await resolve(params, lang);
+  if (lang === "de" && D.contentLang !== "de") return <div lang="en" style={{ display: "contents" }}><DigestPage lang="en" params={params} from="de" /></div>; // no German text for this issue
   const t = UI[lang] as UIStrings;
   return (
     <>
       <div className="shell">
-        <Shell lang={lang} t={t} view="digest" date={D.date} latest={latest.date} dates={dates} />
+        <Shell lang={lang} t={t} view="digest" date={D.date} latest={latest.date} dates={dates} from={from} />
         <Mast D={D} lang={lang} dashboard={false} articles={await getPreviews(D.date, lang)} />
         <main id="main"><div className="view"><Digest D={D} lang={lang} t={t} strikes={await getStrikes()} /></div></main>
       </div>

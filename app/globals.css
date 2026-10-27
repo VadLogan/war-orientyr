@@ -186,6 +186,7 @@ h2{font-family:var(--ui);font-size:15px;font-weight:600;letter-spacing:.12em;tex
 #msg{font-family:var(--ui);font-size:13.5px;color:var(--muted)}
 footer.foot{font-style:italic;color:var(--muted);font-size:14.5px;border-top:1px solid var(--rule-strong);padding-top:12px}
 .lang-note{font-family:var(--ui);font-size:13.5px;color:var(--muted);background:var(--accent-soft);padding:8px 12px;border-radius:2px}
+.lang-alert{margin:10px 0 0;color:var(--ink,inherit)}
 
 /* dashboard view */
 .dash{display:flex;flex-direction:column;gap:20px}

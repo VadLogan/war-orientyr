@@ -29,7 +29,7 @@ function ArtCard({ a, t }: { a: Article; t: UIStrings }) {
 export default function Mast({ D, lang, dashboard, articles = [] }: { D: Digest; lang: Lang; dashboard: boolean; articles?: Article[] }) {
   const dt = dateTitle(D, lang);
   const H = D.headline && D.headline.title ? D.headline : null;
-  const more = (item: string) => <a className="lede-more" href={"#it-" + item}>{lang === "en" ? "Read more ↓" : "Детальніше ↓"}</a>;
+  const more = (item: string) => <a className="lede-more" href={"#it-" + item}>{{ uk: "Детальніше ↓", en: "Read more ↓", de: "Mehr dazu ↓" }[lang]}</a>;
   const P = Array.isArray(D.ledeParts) && D.ledeParts.length ? D.ledeParts : null;
   const parts = P?.map((x, k) => <p key={k}>{x.label && <b>{flags(x.label)}</b>}{flags(x.text)}</p>);
 

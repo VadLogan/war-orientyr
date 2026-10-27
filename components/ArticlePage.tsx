@@ -5,16 +5,17 @@ import Link from "next/link";
 import { getArticle, getArticleDirs, getDates, getLatest } from "@/lib/data";
 import { articleHref, href, SITE, SITE_NAME } from "@/lib/routes";
 import { seoMeta } from "@/lib/page";
-import { clip, longDate, noFlag } from "@/lib/text";
+import { clip, loc, longDate, noFlag } from "@/lib/text";
 import type { Article, ArticleBlock } from "@/types/digest";
-import { UI, type Lang, type UIStrings } from "@/lib/ui";
+import { LANGS, UI, type Lang, type UIStrings } from "@/lib/ui";
 import Shell from "./Shell";
 import ImgZoom from "./ImgZoom";
 import { flags } from "@/components/Flag";
 import PresentationPage from "./PresentationPage";
 import { SecIco } from "./digest/Digest";
 
-const num = (v: number, lang: Lang) => v.toLocaleString(lang === "en" ? "en-GB" : "uk-UA", { maximumFractionDigits: 1 });
+const num = (v: number, lang: Lang) => v.toLocaleString(loc(lang), { maximumFractionDigits: 1 });
+const IN_ART: Record<Lang, string> = { uk: "У матеріалі", en: "In this article", de: "In diesem Artikel" };
 
 /** Bars, one series, one scale: value and share at the bar end, makers under the label (no hover needed).
  *  `col`: vertical bars, value on top, label under. */
@@ -83,7 +84,7 @@ export function Block({ b, lang, base, id }: { b: ArticleBlock; lang: Lang; base
     );
     case "estimate": return (
       <aside className="art-est">
-        <span className="chip part">{flags(b.title || (lang === "en" ? "Our estimate" : "Оцінка редакції"))}</span>
+        <span className="chip part">{flags(b.title || ({ uk: "Оцінка редакції", en: "Our estimate", de: "Einschätzung der Redaktion" }[lang]))}</span>
         {b.text.map((x, k) => <p key={k}>{rich(x)}</p>)}
       </aside>
     );
@@ -100,7 +101,7 @@ export function Block({ b, lang, base, id }: { b: ArticleBlock; lang: Lang; base
       </div>
     );
     case "links": return (
-      <p className="reslinks art-res">{lang === "en" ? "Resources:" : "Ресурси:"}{" "}
+      <p className="reslinks art-res">{{ uk: "Ресурси:", en: "Resources:", de: "Ressourcen:" }[lang]}{" "}
         {b.items.map((x, k) => <span key={k}>{k > 0 && ", "}<a href={x.url} target="_blank" rel="noopener">{flags(x.title)}</a></span>)}</p>
     );
     case "cols": return <div className="art-cols">{b.cols.map((c, k) => <div key={k}>{c.map((x, j) => <Block b={x} lang={lang} base={base} key={j} />)}</div>)}</div>;
@@ -139,7 +140,9 @@ export const heading = (a: Article) => {
 
 export async function articleMeta(lang: Lang, params: ArticleParams): Promise<Metadata> {
   const a = await load(params, lang), url = (l: Lang) => articleHref(l, a.date, a.name), h = heading(a);
-  return seoMeta(lang, url, clip(h.title, 60), clip(h.lead, 160), a.img || undefined);
+  const de = lang === "de" ? a.contentLang === "de" : (await load(params, "de")).contentLang === "de";
+  if (lang === "de" && !de) return articleMeta("en", params);
+  return seoMeta(lang, url, clip(h.title, 60), clip(h.lead, 160), a.img || undefined, de);
 }
 
 /** schema.org NewsArticle for search engines (title, date, image, language, publisher). */
@@ -154,9 +157,13 @@ export function LdJson({ a, lang }: { a: Article; lang: Lang }) {
   return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld).replace(/</g, "\\u003c") }} />;
 }
 
-export default async function ArticlePage({ lang, params }: { lang: Lang; params: ArticleParams }) {
+/** Article hrefs of the language picker. */
+export const artHrefs = (a: Article) => Object.fromEntries(LANGS.map((l) => [l.code, articleHref(l.code, a.date, a.name)])) as Record<Lang, string>;
+
+export default async function ArticlePage({ lang, params, from }: { lang: Lang; params: ArticleParams; from?: "de" }) {
   const [a, latest, dates] = await Promise.all([load(params, lang), getLatest(), getDates()]);
-  if (a.presentation) return <PresentationPage a={{ ...a, presentation: a.presentation }} lang={lang} latest={latest.date} dates={dates} />;
+  if (lang === "de" && a.contentLang !== "de") return <div lang="en" style={{ display: "contents" }}><ArticlePage lang="en" params={params} from="de" /></div>; // no German version
+  if (a.presentation) return <PresentationPage a={{ ...a, presentation: a.presentation }} lang={lang} latest={latest.date} dates={dates} from={from} />;
   const t = UI[lang] as UIStrings, A = a.article!, inIssue = dates.includes(a.date);
   const img = typeof A.image === "object" ? A.image : null;
   const toc = A.toc ? A.blocks.flatMap((b, k) => (b.type === "h2" ? [{ id: "s" + k, text: b.text }] : [])) : [];
@@ -164,7 +171,7 @@ export default async function ArticlePage({ lang, params }: { lang: Lang; params
   const body = (
         <article className="col article">
           <Link className="back" href={href(lang, "digest", inIssue ? a.date : null, latest.date)}>{t.art.back}</Link>
-          {lang === "en" && a.contentLang !== "en" && <p className="lang-note">{t.art.langNote}</p>}
+          {lang !== "uk" && a.contentLang !== lang && <p className="lang-note">{t.art.langNote}</p>}
           {A.kicker && <p className="art-kicker">{flags(A.kicker)}</p>}
           <h1>{flags(A.title || a.preview.title)}</h1>
           {(A.lead || a.preview.lead) && <p className="art-lead">{flags(A.lead || a.preview.lead)}</p>}
@@ -179,15 +186,14 @@ export default async function ArticlePage({ lang, params }: { lang: Lang; params
   );
   return (
     <div className="shell">
-      <Shell lang={lang} t={t} view="digest" date={latest.date} latest={latest.date} dates={dates}
-        langHrefs={{ uk: articleHref("uk", a.date, a.name), en: articleHref("en", a.date, a.name) }} />
+      <Shell lang={lang} t={t} view="digest" date={latest.date} latest={latest.date} dates={dates} langHrefs={artHrefs(a)} from={from} />
       <LdJson a={a} lang={lang} />
       <main id="main">
         {toc.length ? (
           <div className="dgrid">
             {body}
-            <nav className="toc art-toc" aria-label={lang === "en" ? "In this article" : "У матеріалі"}>
-              <p>{lang === "en" ? "In this article" : "У матеріалі"}</p>
+            <nav className="toc art-toc" aria-label={IN_ART[lang]}>
+              <p>{IN_ART[lang]}</p>
               <ul>{toc.map((x, k) => <li key={x.id}><a href={"#" + x.id}><span className="n">{String(k + 1).padStart(2, "0")}</span>{flags(x.text)}</a></li>)}</ul>
             </nav>
           </div>
