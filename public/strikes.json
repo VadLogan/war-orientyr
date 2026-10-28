@@ -4736,6 +4736,42 @@
    "issue": "2026-10-27",
    "item": "ua-front-targets-2526",
    "url": "https://ukrinform.ua/rubric-ato/4178301-sili-oboroni-urazili-vuzol-zvazku-majsternu-bpla-ta-skladi-rosian.html"
+  },
+  {
+   "id": "azot-2810",
+   "date": "2026-10-28",
+   "night": "27–28.10",
+   "object": "Хімічний комбінат «Новомосковський Азот»",
+   "place": "Новомосковськ, Тульська область",
+   "kind": "defence-industry",
+   "territory": "russia",
+   "lat": 54.0167,
+   "lng": 38.2833,
+   "approx": true,
+   "result": "за Цензор.НЕТ і Novyny.LIVE (з посиланням на Exilenova+) — атака дронів, пожежа, імовірно в агрегаті виробництва аміаку (не підтверджено); губернатор Міляєв підтвердив атаку на область і пошкодження об’єктів у промисловій зоні уламками БпЛА, об’єкт не назвав; офіційного українського підтвердження немає",
+   "confirmed": null,
+   "local": "partial",
+   "issue": "2026-10-28",
+   "item": "azot-2810",
+   "url": "https://censor.net/ua/news/4030729/ataka-na-himzavod-azot-u-tulskiyi-oblasti-rf-scho-vje-vidomo"
+  },
+  {
+   "id": "lipetsk-2810",
+   "date": "2026-10-28",
+   "night": "27–28.10",
+   "object": "Військовий аеродром Липецьк; також район Новолипецького металургійного комбінату (НЛМК)",
+   "place": "Липецьк, Липецька область",
+   "kind": "airfield",
+   "territory": "russia",
+   "lat": 52.6031,
+   "lng": 39.5708,
+   "approx": true,
+   "result": "за Обозревателем і Слово і Діло (з посиланням на Exilenova+ та російські канали) — ППО працювала по реактивних дронах, повідомляли про влучання й пожежу в районі аеродрому та біля НЛМК; чи горіло на самому аеродромі, не підтверджено; губернатор оголосив лише ракетну небезпеку; офіційного українського підтвердження немає",
+   "confirmed": null,
+   "local": "silent",
+   "issue": "2026-10-28",
+   "item": "lipetsk-2810",
+   "url": "https://www.obozrevatel.com/ukr/section-novosti-rossii/news-reaktyvni-drony-atakuvaly-rosiyskyy-lypetsk-povidomlyayut-pro-vybukhy-i-pozhezhu-v-rayoni-aerodromu-foto-i-video-28-10-2026.html"
   }
  ],
  "coverage": {
