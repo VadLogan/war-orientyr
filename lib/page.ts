@@ -31,18 +31,18 @@ export async function pageMeta(lang: Lang, view: View, params: DateParams): Prom
   let meta: Metadata;
   if (root) {
     // "/" and "/dashboard" change daily: generic title/description, so a search result doesn't promise a past issue's story.
-    const title = view === "dashboard" ? UI[lang].dash : SITE_NAME[lang];
+    const title = view === "digest" ? SITE_NAME[lang] : UI[lang][view === "maps" ? "maps" : "dash"];
     meta = seoMeta(lang, (l) => href(l, view, null, ""), title, SITE_DESC[lang], undefined, de);
     if (view === "digest") meta.title = { absolute: title };
   } else {
     // digest: the issue's headline (old issues have none → date); dashboard: date. Site name added by the layout template.
-    const title = view === "digest" && D.headline?.title ? clip(D.headline.title, 60) : dateTitle(D, lang).h + (view === "dashboard" ? " · " + UI[lang].dash : "");
+    const title = view === "digest" && D.headline?.title ? clip(D.headline.title, 60) : dateTitle(D, lang).h + (view === "digest" ? "" : " · " + UI[lang][view === "maps" ? "maps" : "dash"]);
     const description = clip((D.headline?.title ? D.headline.text : D.lede) || D.lede || "", 160);
     meta = seoMeta(lang, (l) => href(l, view, D.date, ""), title, description, undefined, de); // always the dated URL, the latest issue too
   }
   return {
     ...meta,
-    ...(view === "dashboard" && {
+    ...(view !== "digest" && {
       icons: { icon: [{ url: "/dash/icon.svg", type: "image/svg+xml" }, { url: "/dash/icon-32.png", sizes: "32x32" }], apple: "/dash/apple-icon.png" },
     }),
   };

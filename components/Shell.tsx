@@ -26,6 +26,8 @@ export default function Shell({ lang, t, view, date, latest, dates, langHrefs, f
               <svg className="ico" viewBox="0 0 24 24" aria-hidden="true"><path className="fl" d="M4.75 5.5a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1V18a1.75 1.75 0 0 0 1.75 1.75H6.5A1.75 1.75 0 0 1 4.75 18z" /><path d="M16.75 8.5h2.5v9.5a1.75 1.75 0 0 1-1.75 1.75M8 8.5h5.5M8 12h5.5M8 15.5h3.5" /></svg>{t.digest}</Tab>
             <Tab on={view === "dashboard"} to={to({ view: "dashboard" })}>
               <svg className="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19.75h16" /><rect className="fl" x="5.75" y="12" width="3" height="5" rx=".75" /><rect className="fl" x="10.5" y="5.5" width="3" height="11.5" rx=".75" /><rect className="fl" x="15.25" y="9" width="3" height="8" rx=".75" /></svg>{t.dash}</Tab>
+            <Tab on={view === "maps"} to={to({ view: "maps" })}>
+              <svg className="ico" viewBox="0 0 24 24" aria-hidden="true"><path className="fl" d="M3.75 6.5l5.5-2.25 5.5 2.25 5.5-2.25v13.25l-5.5 2.25-5.5-2.25-5.5 2.25z" /><path d="M9.25 4.25v13.25M14.75 6.5v13.25" /></svg>{t.maps}</Tab>
           </div>
           <LangPicker lang={lang} hrefs={langHrefs ?? Object.fromEntries(LANGS.map((l) => [l.code, to({ lang: l.code })])) as Record<Lang, string>} />
         </div>

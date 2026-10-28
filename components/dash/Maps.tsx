@@ -1,16 +1,16 @@
 "use client";
 import { Fragment, useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
-import { geoConicConformal, geoPath, select, zoom, zoomIdentity, type GeoPermissibleObjects, type ZoomBehavior, type ZoomTransform } from "d3";
+import { Delaunay, geoConicConformal, geoPath, select, zoom, zoomIdentity, type GeoPermissibleObjects, type GeoProjection, type ZoomBehavior, type ZoomTransform } from "d3";
+import type { UIStrings } from "@/lib/ui";
 import { dayN, fmt, houseStyle as hsBase } from "@/lib/text";
 import { distLabel, kmBetween, type Strike, type StrikesBase, type StrikesData } from "@/lib/strikes";
 import { useApp } from "../ctx";
 import { LOCK } from "../digest/Item";
 import { useElWidth, useJson, useSticky } from "./hooks";
 import type { MapsData } from "./Panels";
+import { DIRS, dirOf, areaTiles, Cities, countV, fitFront, lastDay, Layers, makeGeo, Mark, MarkIco, mp, PAIR_SRC, Sw, SRC_COL, Tiles, VerdictBar, VG, vgOf, type Ev, type Geo, type Rings } from "./mapParts";
 import { flags } from "@/components/Flag";
 
-type Rings = number[][][][];
-const mp = (c: Rings) => ({ type: "Feature", properties: {}, geometry: { type: "MultiPolygon", coordinates: c } }) as GeoPermissibleObjects;
 
 /* ---------- shared: d3-zoom on an SVG, transform kept in (sticky) React state ---------- */
 function useZoom(key: string, ready: boolean, ext: [number, number], tExt: [[number, number], [number, number]]) {
@@ -70,61 +70,92 @@ const tipHandlers = (setTip: (t: Tip) => void, body: () => ReactNode) => ({
   onFocus: (ev: React.FocusEvent) => { const b = (ev.target as Element).getBoundingClientRect(); setTip({ x: b.right, y: b.bottom, body: body() }); },
   onBlur: () => setTip(null),
 });
-const Tiles = ({ items }: { items: [string, ReactNode, string][] }) => (
-  <>{items.map(([l, v, s]) => <div className="tile" key={l}><small>{flags(l)}</small><b>{v}</b><span>{flags(s)}</span></div>)}</>
-);
 
 /* ---------- Maps: how DeepState / ISW / DIVGEN draw the front ---------- */
-const SRC_COL: Record<string, string> = { ds: "--m-occ", isw: "--m-isw", dg: "--m-dg" };
-const PAIR_SRC: Record<string, [string, string]> = { dg_ds: ["dg", "ds"], dg_isw: ["dg", "isw"], isw_ds: ["isw", "ds"] };
-const LY: Record<string, string> = { ds: "ds_occ", isw: "isw", dg: "dg_ru" };
-const EVC: Record<string, string> = { occ: "--m-occ", grey: "--m-grey", edge: "--muted", ua: "--m-dg", far: "--m-onlydg" };
-const EVF: Record<string, string> = { occ: "var(--m-occ)", grey: "var(--m-grey)", adv: "var(--m-grey)", edge: "var(--muted)", ua: "var(--m-dg)", far: "var(--m-onlydg)", out: "var(--muted)" };
-const Sw = ({ c, l, cls = "" }: { c: string; l: string; cls?: string }) => <span><i className={cls} style={cls === "line" ? { borderColor: `var(${c})` } : { background: `var(${c})` }} />{flags(l)}</span>;
+const ALL_V: Record<VG, boolean> = { occ: true, grey: true, edge: true, ua: true, far: true, out: true };
+const PERS = [7, 14, 30];
+function useMapGeo(M: MapsData | null, W: number, H: number): Geo | null {
+  return useMemo(() => (M ? makeGeo(M, W, H) : null), [M, W, H]);
+}
+
 
 export function MapsCompare() {
-  const { t, lang, MAPS } = useApp();
+  const { t, lang, MAPS, D } = useApp();
   const hs = (x: string) => hsBase(x, lang);
   const [mode, setMode] = useSticky("mapMode", "cmp");
-  const [pair, setPair] = useSticky("mapPair", "isw_ds");
+  const [sect, setSect] = useSticky("mapSect", true);
+  // General Staff: russian attacks per direction in the issue's day (names come translated on English pages)
+  const gsBy = new Map((D.front?.directions || []).map((x) => [x.name, x.attacks]));
+  const gsOf = (d: (typeof DIRS)[number]) => gsBy.get(d.uk) ?? gsBy.get(d.en);
+  const [pair, setPair] = useSticky("mapPair", "dg_ds");
   const [ev, setEv] = useSticky("mapEv", true);
+  const [per, setPer] = useSticky("mapPer", 30);
+  const [vf, setVf] = useSticky("mapVf", ALL_V);
+  const [ref, setRef] = useSticky<"ds" | "isw">("mapRef", "ds");
+  const [dir, setDir] = useSticky<string | null>("mapDir", null);
+  const [off, setOff] = useSticky("mapOff", 0); // claims window: days back from the snapshot's newest claim
+  const [hl, setHl] = useState<string | number | null>(null);
+  const [sel, setSel] = useState<Ev | null>(null); // claim picked in the list or on the map: ring + card stay until closed
   const [tip, setTip] = useState<Tip>(null);
-  const { data: M, err } = useJson<MapsData>(MAPS);
+  // snapshot shown: starts at the page date's one, then steps through the archive here, without leaving the page
+  const pageSnap = MAPS.match(/(\d{4}-\d{2}-\d{2})\.json$/)?.[1] ?? null;
+  const [snap, setSnap] = useState(pageSnap);
+  useEffect(() => setSnap(pageSnap), [pageSnap]);
+  const arch = useJson<{ dates: string[] }>(pageSnap ? "/maps/archive/index.json" : null);
+  const snaps = (arch.data?.dates || []).slice().sort(), si = snap ? snaps.indexOf(snap) : -1;
+  const { data: M, err } = useJson<MapsData>(snap ? `/maps/archive/${snap}.json` : MAPS);
   const wrapRef = useRef<HTMLDivElement>(null);
   const w = useElWidth(wrapRef);
-  const W = Math.max(300, w || 800), H = Math.round(Math.min(600, Math.max(340, W * 0.62)));
+  const W = Math.max(300, w || 800), H = Math.round(Math.min(640, Math.max(340, W * 0.66)));
   const z = useZoom("mapZ", !!M, [1, 40], [[-W * 0.2, -H * 0.2], [W * 1.2, H * 1.2]]);
-  const geo = useMemo(() => {
-    if (!M) return null;
-    const ua = M.base.find((b) => b.ua)!;
-    const proj = geoConicConformal().parallels([45, 52]).rotate([-31.5, 0]).fitExtent([[12, 12], [W - 12, H - 12]], mp(ua.c));
-    const path = geoPath(proj);
-    return { proj, d: (c?: Rings) => (c && c.length ? path(mp(c)) || "" : "") };
-  }, [M, W, H]);
-
-  const SegBtn = (k: string, l: string, cur: string, set: (v: string) => void) => <button type="button" key={k} aria-pressed={cur === k} onClick={() => set(k)}>{l}</button>;
-  const head = (
-    <>
-      <div className="tl-head"><h2>{t.map}</h2><p>{flags(t.mapSub)}</p></div>
-    </>
-  );
+  const geo = useMapGeo(M, W, H);
   const F = (n: number) => fmt(Math.round(n), lang);
   const sk = { ds: "deepstate", isw: "isw", dg: "divgen" } as const;
+  const SegBtn = <T extends string | number>(k: T, l: string, cur: T, set: (v: T) => void) => <button type="button" key={k} aria-pressed={cur === k} onClick={() => set(k)}>{l}</button>;
 
-  let tiles: [string, ReactNode, string][] = [], evc = "", srcLine: ReactNode = null, method = "", legend: ReactNode[] = [];
-  let ref: "ds" | "isw" = "ds";
+  const last = M ? lastDay(M) : 0, first = M ? Math.min(...M.events.map((e) => dayN(e.d))) : 0;
+  const maxOff = Math.max(0, last - first - per + 1), o = Math.min(off, maxOff), end = last - o;
+  const inPer = M ? M.events.filter((e) => { const n = dayN(e.d); return n > end - per && n <= end; }) : [];
+  const dayStr = (n: number) => dmy(new Date(n * 864e5).toISOString().slice(0, 10)).slice(0, 5);
+  const pickPer = (n: number) => { setPer(n); setOff(0); };
+  const pickDir = (d: string | null) => {
+    setDir(d); setSel(null);
+    if (!M || !geo) return;
+    if (!d) { z.to(fitFront(M, geo, W, H), 400); return; }
+    const pts = inPer.filter((e) => evDir.get(e) === d).map((e) => geo.proj([e.lng, e.lat])!);
+    const a = DIRS.find((x) => x.id === d)!;
+    pts.push(geo.proj([a.lng, a.lat])!);
+    const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]);
+    const x0 = Math.min(...xs) - 30, x1 = Math.max(...xs) + 30, y0 = Math.min(...ys) - 30, y1 = Math.max(...ys) + 30;
+    const kk = Math.min(40, 0.85 / Math.max((x1 - x0) / W, (y1 - y0) / H));
+    z.to(zoomIdentity.translate(W / 2, H / 2).scale(kk).translate(-(x0 + x1) / 2, -(y0 + y1) / 2), 500);
+  };
+  const evDir = useMemo(() => new Map((M?.events || []).map((e) => [e, dirOf(e)])), [M]);
+  const dirCnt: Record<string, number> = {};
+  inPer.forEach((e) => { const d = evDir.get(e); if (d) dirCnt[d] = (dirCnt[d] || 0) + 1; });
+  const dirShown = DIRS.filter((d) => dirCnt[d.id] || gsOf(d) != null || d.id === dir);
+  const gsMax = Math.max(1, ...DIRS.map((d) => gsOf(d) ?? 0));
+  const dirRank = [...dirShown].sort((a, b) => (gsOf(b) ?? -1) - (gsOf(a) ?? -1) || (dirCnt[b.id] || 0) - (dirCnt[a.id] || 0));
+  // direction sectors: Voronoi cells of the anchors, shown only in a band along the DeepState line (SVG mask)
+  const cells = useMemo(() => {
+    if (!geo) return null;
+    const pts = DIRS.map((d) => geo.proj([d.lng, d.lat])!);
+    const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]);
+    const v = Delaunay.from(pts).voronoi([Math.min(...xs) - 120, Math.min(...ys) - 120, Math.max(...xs) + 120, Math.max(...ys) + 40]);
+    return DIRS.map((_, i) => v.renderCell(i));
+  }, [geo]);
+  const inDir = dir ? inPer.filter((e) => evDir.get(e) === dir) : inPer;
+  const cnt = countV(inDir, ref);
+  const shown = ev ? inDir.filter((e) => vf[vgOf(e[ref])]).sort((a, b) => (a.d < b.d ? 1 : a.d > b.d ? -1 : 0)) : [];
+  const selOn = sel && shown.some((e) => e.id === sel.id && e.d === sel.d) ? sel : null;
+  const dirty = per !== 30 || o > 0 || !!dir || VG.some((g) => !vf[g]);
+  const pickV = (g: VG) => setVf(VG.every((x) => vf[x] === (x === g)) ? ALL_V : (Object.fromEntries(VG.map((x) => [x, x === g])) as Record<VG, boolean>));
+  const toggleV = (g: VG) => setVf({ ...vf, [g]: !vf[g] });
+
+  let legend: ReactNode[] = [], srcLine: ReactNode = null, method = "";
   if (M) {
-    const A = M.areas, S = M.sources;
-    const nc: Record<string, number> = { ds: A.ds_nc, isw: A.isw_nc, dg: A.dg_nc };
-    const order = Object.keys(nc).sort((a, b) => nc[b] - nc[a]);
-    tiles = (["ds", "isw", "dg"] as const).map((k) => [t.tArea(t.src[k]), F(nc[k]), t.kmNC]);
-    if (mode === "cmp") { const [a, b] = PAIR_SRC[pair]; tiles.push([t.tPair(t.src[a as "ds"], t.src[b as "ds"]), F(A[pair + "_a"]) + " / " + F(A[pair + "_b"]), pair === "dg_ds" ? t.kmPairGrey(F(A.only_dg_grey)) : t.kmPair]); }
-    else tiles.push([t.tSpread, F(nc[order[0]] - nc[order[2]]), t.kmSpread(t.src[order[0] as "ds"], t.src[order[2] as "ds"])]);
-    ref = mode === "isw" ? "isw" : mode === "cmp" ? (pair === "dg_isw" ? "isw" : "ds") : "ds";
-    const cnt: Record<string, number> = {};
-    M.events.forEach((e) => { const k = e[ref] as string; cnt[k] = (cnt[k] || 0) + 1; });
-    evc = ev ? t.evCount(M.events.length, t.src[ref], cnt) + " " + t.evRef(t.src[ref]) + "." : "";
-    srcLine = <>{t.mSnap}{" "}{(["ds", "isw", "dg"] as const).map((k, i) => { const s = S[sk[k]]; return <Fragment key={k}>{i > 0 && "; "}<a href={s.url} target="_blank" rel="noopener">{t.src[k]}</a> — {s.asOfLabel} ({flags(t.srcKind[k])})</Fragment>; })}. {t.kmCrimea(F(A.crimea))}</>;
+    const S = M.sources;
+    srcLine = <>{t.mSnap}{" "}{(["ds", "isw", "dg"] as const).map((k, i) => { const s = S[sk[k]]; return <Fragment key={k}>{i > 0 && "; "}<a href={s.url} target="_blank" rel="noopener">{t.src[k]}</a> — {s.asOfLabel} ({flags(t.srcKind[k])})</Fragment>; })}. {t.kmCrimea(F(M.areas.crimea))}</>;
     method = hs(M.method || "") + " " + (["deepstate", "isw", "divgen"] as const).map((k) => hs(S[k].note)).join(" ");
     if (mode === "ds") legend.push(<Sw key="a" c="--m-occ" l={t.lg.ds} />, <Sw key="b" c="--m-grey" l={t.lg.dsGrey} />);
     else if (mode === "isw") legend.push(<Sw key="a" c="--m-isw" l={t.lg.isw} />, <Sw key="b" c="--m-iswadv" l={t.lg.iswAdv} />);
@@ -135,86 +166,187 @@ export function MapsCompare() {
       if (pair === "dg_ds") legend.push(<Sw key="d" c="--m-onlydgg" l={t.lg.onlyGrey} />);
       legend.push(<Sw key="e" c="--m-onlyds" l={t.lg.onlyB(t.src[b as "ds"])} />);
     }
-    if (ev) Object.keys(EVC).forEach((k) => legend.push(<Sw key={"ev" + k} c={EVC[k]} l={t.evLg[k as "occ"]} cls="dot" />));
   }
-
-  const front = () => {
-    if (!M || !geo) return;
-    const pts = M.events.filter((e) => e.ds !== "out").map((e) => geo.proj([e.lng, e.lat])!);
-    if (!pts.length) return;
-    const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]);
-    const x0 = Math.min(...xs) - 20, x1 = Math.max(...xs) + 20, y0 = Math.min(...ys) - 20, y1 = Math.max(...ys) + 20;
-    const k = Math.min(40, 0.9 / Math.max((x1 - x0) / W, (y1 - y0) / H));
-    z.to(zoomIdentity.translate(W / 2, H / 2).scale(k).translate(-(x0 + x1) / 2, -(y0 + y1) / 2), 400);
-  };
   const onKey = (e: KeyboardEvent) => {
     const st = 60 / z.t.k;
     if (e.key === "+" || e.key === "=") z.scale(1.4); else if (e.key === "-") z.scale(1 / 1.4);
     else if (e.key === "ArrowLeft") z.pan(st, 0); else if (e.key === "ArrowRight") z.pan(-st, 0);
     else if (e.key === "ArrowUp") z.pan(0, st); else if (e.key === "ArrowDown") z.pan(0, -st);
+    else if (e.key === "Escape" && sel) setSel(null);
     else return;
     e.preventDefault();
   };
-
-  let layers: ReactNode = null;
-  if (M && geo) {
-    const L = M.layers;
-    const P = (c: Rings | undefined, fill: string, op: number, stroke?: string, sw?: number, key?: string) =>
-      c && c.length ? <path key={key} d={geo.d(c)} fill={fill} fillOpacity={op} stroke={stroke || "none"} strokeWidth={sw || 0} fillRule="evenodd" /> : null;
-    const [a, b] = PAIR_SRC[pair];
-    layers = <>
-      {M.base.map((bb, i) => P(bb.c, bb.ua ? "var(--m-ua)" : "var(--m-land)", 1, "var(--m-border)", bb.ua ? 1.4 : 0.8, "b" + i))}
-      {mode === "ds" ? <>{P(L.ds_occ, "var(--m-occ)", 0.38, "var(--m-occ)", 1)}{P(L.ds_grey, "var(--m-grey)", 0.45, "var(--m-grey)", 0.6)}</>
-        : mode === "isw" ? <>{P(L.isw, "var(--m-isw)", 0.35, "var(--m-isw)", 1)}{P(L.isw_adv, "var(--m-iswadv)", 0.55, "var(--m-iswadv)", 0.6)}</>
-        : mode === "dg" ? P(L.dg_ru, "var(--m-dg)", 0.33, "var(--m-dg)", 1)
-        : <>
-          {pair === "dg_ds" ? <>{P(L.dg_ds_a, "var(--m-onlydg)", 0.75)}{P(L.only_dg_grey, "var(--m-onlydgg)", 0.85)}</> : P(L[pair + "_a"], "var(--m-onlydg)", 0.75)}
-          {P(L[pair + "_b"], "var(--m-onlyds)", 0.7)}{P(L[LY[b]], "none", 0, `var(${SRC_COL[b]})`, 1.4)}{P(L[LY[a]], "none", 0, `var(${SRC_COL[a]})`, 1.2)}
-        </>}
-    </>;
-  }
+  const focusEv = (e: Ev) => {
+    if (!geo) return;
+    setSel(e);
+    const [x, y] = geo.proj([e.lng, e.lat])!;
+    // the point lands right of centre, clear of the claim card in the top-left corner
+    z.to(zoomIdentity.translate(W * 0.62, H * 0.55).scale(Math.max(z.t.k, 12)).translate(-x, -y), 500);
+    wrapRef.current?.scrollIntoView({ block: "center", behavior: "smooth" });
+  };
+  // first open: frame the front instead of the whole country (a zoom kept from earlier in the session stays)
+  const framed = useRef(false);
+  useEffect(() => {
+    if (framed.current || !M || !geo) return;
+    framed.current = true;
+    if (z.t.k === 1 && z.t.x === 0 && z.t.y === 0) z.to(fitFront(M, geo, W, H), 0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [M, geo]);
   const k = z.t.k;
+  const evTip = (e: Ev) => () => <>
+    <div className="d">{dmy(e.d)}</div><div>{flags(hs(e.t))}</div>
+    <div className="s">{"DeepState: " + t.evSt.ds[e.ds as "occ"] + " (" + t.evAsOf(M!.sources.deepstate.asOfLabel) + ")"}</div>
+    <div className="s">{"ISW: " + t.evSt.isw[e.isw as "occ"] + " (" + t.evAsOf(M!.sources.isw.asOfLabel) + ")"}</div>
+    <div className="s">{"DIVGEN #" + e.id}</div>
+  </>;
 
   return (
-    <section className="tlwrap" id="maps">
-      {head}
-      <div className="tiles map-tiles"><Tiles items={tiles} /></div>
-      <div className="tl-controls">
-        <div className="seg" role="group" aria-label={t.map}>{SegBtn("ds", t.src.ds, mode, setMode)}{SegBtn("isw", t.src.isw, mode, setMode)}{SegBtn("dg", t.src.dg, mode, setMode)}{SegBtn("cmp", t.mCmp, mode, setMode)}</div>
-        <div className="seg" role="group" hidden={mode !== "cmp"}>{(["dg_ds", "dg_isw", "isw_ds"] as const).map((p) => SegBtn(p, t.pairs[p], pair, setPair))}</div>
-        <span className="spacer" />
-        <div className="seg"><button type="button" aria-pressed={ev} onClick={() => setEv(!ev)}>{t.mEv}</button></div>
-        <div className="seg"><button type="button" onClick={front}>{t.mFront}</button></div>
+    <section className="tlwrap mp" id="maps">
+      <div className="mp-head"><h2>{t.mpH}</h2><p>{flags(t.mpLede)}</p></div>
+      <div className="tiles map-tiles">{M && <Tiles items={areaTiles(M, t, F, mode, pair)} />}</div>
+      <div className="mp-grid">
+        <aside className="mp-rail">
+          <fieldset>
+            <legend>{t.mpSnapH}</legend>
+            <div className="mp-step">
+              <button type="button" aria-label={t.mpPrevD} title={t.mpPrevD} disabled={si <= 0} onClick={() => setSnap(snaps[si - 1])}>‹</button>
+              <span><b>{snap ? dmy(snap) : "—"}</b>{M && <small>{t.mpSnapSrc(M.sources.deepstate.asOfLabel)}</small>}</span>
+              <button type="button" aria-label={t.mpNextD} title={t.mpNextD} disabled={si < 0 || si >= snaps.length - 1} onClick={() => setSnap(snaps[si + 1])}>›</button>
+            </div>
+            {snap !== pageSnap && pageSnap && <button type="button" className="linkbtn" onClick={() => setSnap(pageSnap)}>{t.mpSnapBack(dmy(pageSnap))}</button>}
+          </fieldset>
+          <fieldset>
+            <legend>{t.mpView}</legend>
+            <div className="seg mp-seg4" role="group" aria-label={t.mpView}>{SegBtn("ds", t.src.ds, mode, setMode)}{SegBtn("isw", "ISW", mode, setMode)}{SegBtn("dg", "DIVGEN", mode, setMode)}{SegBtn("cmp", t.mCmp, mode, setMode)}</div>
+            {mode === "cmp" && <label className="mp-field">{t.mpPair}
+              <select value={pair} onChange={(e) => setPair(e.target.value)}>{(["dg_ds", "dg_isw", "isw_ds"] as const).map((p) => <option key={p} value={p}>{t.pairs[p]}</option>)}</select>
+            </label>}
+          </fieldset>
+          <fieldset>
+            <legend><label className="mp-chk"><input type="checkbox" checked={ev} onChange={() => setEv(!ev)} />{t.mpClaims}</label></legend>
+            <div className="mp-sub">{t.mpPer}</div>
+            <div className="seg" role="group" aria-label={t.mpPer}>{PERS.map((n) => SegBtn(n, t.mpDays(n), per, pickPer))}</div>
+            {M && <>
+              <div className="mp-sub">{t.mpWin}</div>
+              <div className="mp-step">
+                <button type="button" aria-label={t.mpEarlier} title={t.mpEarlier} disabled={o >= maxOff} onClick={() => setOff(Math.min(maxOff, o + per))}>‹</button>
+                <span><b>{dayStr(end - per + 1)} – {dayStr(end)}</b></span>
+                <button type="button" aria-label={t.mpLater} title={t.mpLater} disabled={o <= 0} onClick={() => setOff(Math.max(0, o - per))}>›</button>
+              </div>
+              {o > 0 && <button type="button" className="linkbtn" onClick={() => setOff(0)}>{t.mpNewest}</button>}
+            </>}
+            <div className="mp-sub">{t.mpDir}</div>
+            <label className="mp-chk"><input type="checkbox" checked={sect} onChange={() => setSect(!sect)} /><span>{t.mpSect}</span></label>
+            <div className="mp-dirs" role="group" aria-label={t.mpDir}>
+              <button type="button" aria-pressed={!dir} onClick={() => pickDir(null)}>{t.mpAllDir}</button>
+            </div>
+            <div className="mp-dirlist" role="group" aria-label={t.mpDir}>
+              <div className="mp-dirlist-h"><span>{t.mpDirAtt}</span><span>{t.mpDirCl}</span></div>
+              {dirRank.map((d) => { const g = gsOf(d), l = lang === "en" ? d.en : d.uk; return (
+                <button type="button" key={d.id} aria-pressed={dir === d.id} onClick={() => pickDir(dir === d.id ? null : d.id)}
+                  aria-label={`${l}: ${g != null ? t.mpGs(g, "") : t.mpGsNone}; ${t.mpDirClaims(dirCnt[d.id] || 0)}`}>
+                  <span className="nm">{l}</span>
+                  <span className="bar" aria-hidden="true"><i style={{ width: g ? Math.max(3, (g / gsMax) * 100) + "%" : 0 }} /></span>
+                  <span className="at">{g ?? "—"}</span>
+                  <span className="cl">{dirCnt[d.id] || 0}</span>
+                </button>
+              ); })}
+            </div>
+            {dir && (() => { const d = DIRS.find((x) => x.id === dir)!, g = gsOf(d); return (
+              <div className="mp-dsum"><b>{lang === "en" ? d.en : d.uk}</b><span>{g != null ? t.mpGs(g, D.front?.period) : t.mpGsNone}</span><span>{t.mpDirClaims(dirCnt[dir] || 0)}</span></div>
+            ); })()}
+            {sect && <p className="mp-note">{t.mpSectNote}</p>}
+            <div className="mp-sub">{t.mpRef}</div>
+            <div className="seg" role="group" aria-label={t.mpRef}>{SegBtn("ds", "DeepState", ref, setRef)}{SegBtn("isw", "ISW", ref, setRef)}</div>
+            <div className="mp-sub">{t.mpVerd}</div>
+            <div className="mp-verd">{VG.map((g) => (
+              <label key={g} className="mp-chk"><input type="checkbox" checked={vf[g]} disabled={!ev} onChange={() => toggleV(g)} /><MarkIco g={g} /><span>{t.evLg[g]}</span><span className="n">{cnt[g]}</span></label>
+            ))}</div>
+            {dirty && <button type="button" className="linkbtn" onClick={() => { setPer(30); setOff(0); setVf(ALL_V); pickDir(null); }}>{t.mpReset}</button>}
+          </fieldset>
+        </aside>
+        <div className="mp-main">
+          <div className="mp-bar-top">
+            <div className="map-legend">{legend}</div>
+            {M && ev && <span className="map-src">{t.mpShown(shown.length, inPer.length)}</span>}
+          </div>
+          <div className="map-wrap" ref={wrapRef}>
+            {err ? <p className="map-src" style={{ padding: 16 }}>{t.mErr}</p> : !M || !geo ? <p className="map-src" style={{ padding: 16 }}>{t.mLoading}</p> : <>
+              <svg className="map-svg" viewBox={`0 0 ${W} ${H}`} tabIndex={0} role="img" aria-label={t.map} ref={z.svgRef} onKeyDown={onKey}>
+                <g transform={z.t.toString()}>
+                  <Layers M={M} geo={geo} mode={mode} pair={pair} />
+                  {sect && cells && M.layers.ds_occ && <>
+                    <mask id="mp-band" maskUnits="userSpaceOnUse" x={-W} y={-H} width={W * 3} height={H * 3}>
+                      <path d={geo.d(M.layers.ds_occ)} fill="none" stroke="#fff" strokeWidth={26} strokeLinejoin="round" />
+                      {/* the occupied outline also runs along the state border and the coast: cut those out, keep the front */}
+                      <path d={geo.d(M.base.find((bb) => bb.ua)?.c)} fill="none" stroke="#000" strokeWidth={30} strokeLinejoin="round" />
+                    </mask>
+                    <g className="mp-sect" mask="url(#mp-band)">{cells.map((c, i) => (
+                      <path key={DIRS[i].id} d={c} className={dir === DIRS[i].id ? "on" : undefined} style={{ fillOpacity: dir === DIRS[i].id ? 0.5 : 0.06 + 0.6 * ((gsOf(DIRS[i]) ?? 0) / gsMax) }} />
+                    ))}</g>
+                  </>}
+                  <Cities M={M} geo={geo} k={k} />
+                  {(ev || sect) && <g className="mp-dlab">{dirShown.map((d, i) => {
+                    // labels east of the front, alternately above and below the anchor, so neighbours don't overlap
+                    const [x, y] = geo.proj([d.lng, d.lat])!, on = dir === d.id, l = lang === "en" ? d.en : d.uk, dy = i % 2 ? 16 : -16, g = gsOf(d), lw = l.length * 5.9 + 14 + (g != null ? String(g).length * 7 + 8 : 0);
+                    return (
+                      <g key={d.id} transform={`translate(${x},${y}) scale(${1 / k})`} className={on ? "on" : undefined} onClick={() => pickDir(on ? null : d.id)} role="button" tabIndex={0} aria-pressed={on} aria-label={`${t.mpDir}: ${l}`}
+                        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pickDir(on ? null : d.id); } }}>
+                        <line x1={0} y1={0} x2={22} y2={dy} />
+                        {on && <rect className="halo" x={19} y={dy - 13} width={lw + 6} height={26} rx={4} />}
+                        <rect x={22} y={dy - 10} width={lw} height={20} rx={2} />
+                        <text x={29} y={dy + 4}>{l}{g != null && <tspan className="n" dx={6}>{g}</tspan>}</text>
+                      </g>
+                    );
+                  })}</g>}
+                  <g className="evs">{[...shown].sort((a, b) => +(a === selOn || a.id === hl) - +(b === selOn || b.id === hl)).map((e) => {
+                    const [x, y] = geo.proj([e.lng, e.lat])!;
+                    return <g key={e.id + "" + e.d} transform={`translate(${x},${y}) scale(${1 / k})`} style={{ cursor: "pointer" }} onClick={() => setSel(e)} {...tipHandlers(setTip, evTip(e))}><Mark g={vgOf(e[ref])} hl={e === selOn || e.id === hl} /></g>;
+                  })}</g>
+                  {selOn && (() => { const [x, y] = geo.proj([selOn.lng, selOn.lat])!; return (
+                    <g className="mp-focus" transform={`translate(${x},${y}) scale(${1 / k})`} aria-hidden="true">
+                      <circle className="pulse" r={12} />
+                      <circle r={17} fill="none" stroke="var(--accent)" strokeWidth={2.5} />
+                      <path d="M-30,0H-21M21,0H30M0,-30V-21M0,21V30" stroke="var(--accent)" strokeWidth={2.5} />
+                    </g>
+                  ); })()}
+                </g>
+              </svg>
+              <div className="map-zoom">
+                <button type="button" aria-label={t.mZoomIn} title={t.mZoomIn} onClick={() => z.by(1.6)}>+</button>
+                <button type="button" aria-label={t.mZoomOut} title={t.mZoomOut} onClick={() => z.by(1 / 1.6)}>−</button>
+                <button type="button" aria-label={t.mFront} title={t.mFront} onClick={() => z.to(fitFront(M, geo, W, H), 400)}>◎</button>
+                <button type="button" aria-label={t.mReset} title={t.mReset} onClick={() => z.to(zoomIdentity)}>⟲</button>
+              </div>
+              {selOn && <div className="mp-sel" role="status">
+                <button type="button" aria-label={t.art.close} title={t.art.close} onClick={() => setSel(null)}>×</button>
+                <div className="d">{dmy(selOn.d)} · DIVGEN #{selOn.id}</div>
+                <div className="tx">{flags(hs(selOn.t))}</div>
+                <div className="v"><MarkIco g={vgOf(selOn.ds)} /> DeepState: {t.evSt.ds[selOn.ds as "occ"]}</div>
+                <div className="v"><MarkIco g={vgOf(selOn.isw)} /> ISW: {t.evSt.isw[selOn.isw as "occ"]}</div>
+              </div>}
+              <MapTip tip={tip} wrap={wrapRef} />
+            </>}
+          </div>
+          {M && ev && <VerdictBar t={t} head={t.mpBar(inPer.length, per, t.src[ref])} cnt={cnt} on={vf} pick={pickV} />}
+          {M && ev && <div className="mp-list">
+            <div className="mp-list-h"><b>{t.mpList}</b></div>
+            {shown.length ? <div className="mp-list-sc"><table>
+              <thead><tr><th>{t.mpDate}</th><th>{t.mpClaim}</th><th>DeepState</th><th>ISW</th></tr></thead>
+              <tbody>{shown.map((e) => (
+                <tr key={e.id + "" + e.d} className={e === selOn ? "sel" : e.id === hl ? "hl" : undefined} onPointerEnter={() => setHl(e.id)} onPointerLeave={() => setHl(null)}>
+                  <td className="d">{dmy(e.d).slice(0, 5)}</td>
+                  <td><button type="button" className="linkbtn" onFocus={() => setHl(e.id)} onBlur={() => setHl(null)} aria-current={e === selOn || undefined} onClick={() => focusEv(e)}>{flags(hs(e.t))}</button></td>
+                  <td><MarkIco g={vgOf(e.ds)} /> {t.evSt.ds[e.ds as "occ"]}</td>
+                  <td><MarkIco g={vgOf(e.isw)} /> {t.evSt.isw[e.isw as "occ"]}</td>
+                </tr>
+              ))}</tbody>
+            </table></div> : <p className="map-src" style={{ padding: "12px 16px" }}>{t.mpNone}</p>}
+          </div>}
+          <p className="map-src">{srcLine}</p>
+          <details className="method"><summary>{t.mMethod}</summary><p>{flags(method)}</p></details>
+        </div>
       </div>
-      <div className="map-legend">{legend}</div>
-      <div className="map-wrap" ref={wrapRef}>
-        {err ? <p className="map-src" style={{ padding: 16 }}>{t.mErr}</p> : !M || !geo ? <p className="map-src" style={{ padding: 16 }}>{t.mLoading}</p> : <>
-          <svg className="map-svg" viewBox={`0 0 ${W} ${H}`} tabIndex={0} role="img" aria-label={t.map} ref={z.svgRef} onKeyDown={onKey}>
-            <g transform={z.t.toString()}>
-              {layers}
-              <g className="city">{M.cities.map((c) => { const [x, y] = geo.proj([c.lng, c.lat])!; return [
-                <circle key={c.n + "c"} cx={x} cy={y} r={2.6 / k} fill="var(--m-city)" />,
-                <text key={c.n + "t"} x={x + 5 / k} y={y + 4 / k} fontSize={11 / k} style={{ strokeWidth: 3 / k + "px" }}>{c.n}</text>,
-              ]; })}</g>
-              {ev && <g className="evs">{M.events.map((e) => {
-                const [x, y] = geo.proj([e.lng, e.lat])!;
-                return <circle key={e.id + "" + e.d} cx={x} cy={y} r={4.5 / Math.sqrt(k)} fill={EVF[e[ref] as string] || "var(--m-dg)"} stroke="var(--surface)" strokeWidth={1.5} style={{ cursor: "pointer" }}
-                  {...tipHandlers(setTip, () => <>
-                    <div className="d">{e.d.split("-").reverse().join(".")}</div><div>{flags(hs(e.t))}</div>
-                    <div className="s">{"DeepState: " + t.evSt.ds[e.ds as "occ"] + " (" + t.evAsOf(M.sources.deepstate.asOfLabel) + ")"}</div>
-                    <div className="s">{"ISW: " + t.evSt.isw[e.isw as "occ"] + " (" + t.evAsOf(M.sources.isw.asOfLabel) + ")"}</div>
-                    <div className="s">{"DIVGEN #" + e.id}</div>
-                  </>)} />;
-              })}</g>}
-            </g>
-          </svg>
-          <ZoomButtons z={z} />
-          <MapTip tip={tip} wrap={wrapRef} />
-        </>}
-      </div>
-      <p className="map-src">{flags(evc)}</p>
-      <p className="map-src">{srcLine}</p>
-      <details className="method"><summary>{t.mMethod}</summary><p>{flags(method)}</p></details>
     </section>
   );
 }

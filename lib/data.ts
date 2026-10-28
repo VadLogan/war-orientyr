@@ -39,6 +39,12 @@ export const getDates = cache(async () => {
   return [...new Set([...ds, latest.date])].filter((d) => d <= latest.date).sort();
 });
 
+/** A map snapshot (`url` from getMapsUrl) with its text in `lang` when fully translated (as the client's useJson does). */
+export const getMaps = cache(async <T,>(url: string, lang: Lang): Promise<T> => {
+  const data = await read<T>(url.replace(/^\//, ""));
+  return (lang !== "uk" && (translate(data, await getTexts(lang)) as T)) || data;
+});
+
 /** Map snapshot for a dashboard date: the newest public/maps/archive/<date>.json on or before it (else the oldest), or maps.json. */
 export const getMapsUrl = cache(async (date: string) => {
   let ds: string[] = [];
