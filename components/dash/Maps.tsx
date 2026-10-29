@@ -1,6 +1,6 @@
 "use client";
 import { Fragment, useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
-import { geoConicConformal, geoPath, select, zoom, zoomIdentity, type GeoPermissibleObjects, type ZoomBehavior, type ZoomTransform } from "d3";
+import { geoMercator, geoPath, select, zoom, zoomIdentity, type GeoPermissibleObjects, type ZoomBehavior, type ZoomTransform } from "d3";
 import { dayN, fmt, houseStyle as hsBase } from "@/lib/text";
 import { distLabel, kmBetween, type Strike, type StrikesBase, type StrikesData } from "@/lib/strikes";
 import { useApp } from "../ctx";
@@ -80,6 +80,26 @@ const PAIR_SRC: Record<string, [string, string]> = { dg_ds: ["dg", "ds"], dg_isw
 const LY: Record<string, string> = { ds: "ds_occ", isw: "isw", dg: "dg_ru" };
 const EVC: Record<string, string> = { occ: "--m-occ", grey: "--m-grey", edge: "--muted", ua: "--m-dg", far: "--m-onlydg" };
 const EVF: Record<string, string> = { occ: "var(--m-occ)", grey: "var(--m-grey)", adv: "var(--m-grey)", edge: "var(--muted)", ua: "var(--m-dg)", far: "var(--m-onlydg)", out: "var(--muted)" };
+/** Web-mercator raster basemaps drawn over the (then unfilled) vector land. */
+const BASEMAPS: Record<string, { url: (z: number, x: number, y: number) => string; max: number; attr: string }> = {
+  r: { url: (z, x, y) => `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${y}/${x}`, max: 18, attr: "Imagery © Esri, Maxar, Earthstar Geographics" },
+  t: { url: (z, x, y) => `https://${"abc"[(x + y) % 3]}.tile.opentopomap.org/${z}/${x}/${y}.png`, max: 17, attr: "© OpenStreetMap contributors, SRTM · OpenTopoMap (CC-BY-SA)" },
+};
+/** Tiles covering the W×H view of a d3.geoMercator `proj` under zoom `t`, in screen coordinates.
+ *  A coarse level (z−3) goes underneath so zooming never shows gaps while the sharp tiles load. */
+function Tiles256({ id, proj, t, W, H }: { id: string; proj: ReturnType<typeof geoMercator>; t: ZoomTransform; W: number; H: number }) {
+  const bm = BASEMAPS[id], [tx, ty] = proj.translate(), S = t.k * proj.scale() * 2 * Math.PI;
+  const ox = t.x + t.k * tx - S / 2, oy = t.y + t.k * ty - S / 2;
+  const zz = Math.max(0, Math.min(bm.max, Math.round(Math.log2(S / 256) + (typeof devicePixelRatio === "number" && devicePixelRatio > 1.5 ? 0.5 : 0))));
+  const out: ReactNode[] = [];
+  for (const z of [Math.max(0, zz - 3), zz]) {
+    const n = 2 ** z, ts = S / n;
+    for (let i = Math.max(0, Math.floor(-ox / ts)); i <= Math.min(n - 1, Math.floor((W - ox) / ts)); i++)
+      for (let j = Math.max(0, Math.floor(-oy / ts)); j <= Math.min(n - 1, Math.floor((H - oy) / ts)); j++)
+        out.push(<image key={`${z}/${i}/${j}`} href={bm.url(z, i, j)} x={ox + i * ts} y={oy + j * ts} width={ts + 0.5} height={ts + 0.5} preserveAspectRatio="none" />);
+  }
+  return <g className={"map-tiles-" + id}>{out}</g>;
+}
 const Sw = ({ c, l, cls = "" }: { c: string; l: string; cls?: string }) => <span><i className={cls} style={cls === "line" ? { borderColor: `var(${c})` } : { background: `var(${c})` }} />{flags(l)}</span>;
 
 export function MapsCompare() {
@@ -88,6 +108,7 @@ export function MapsCompare() {
   const [mode, setMode] = useSticky("mapMode", "cmp");
   const [pair, setPair] = useSticky("mapPair", "isw_ds");
   const [ev, setEv] = useSticky("mapEv", true);
+  const [bm, setBm] = useSticky("mapBase", "t");
   const [tip, setTip] = useState<Tip>(null);
   const { data: M, err } = useJson<MapsData>(MAPS);
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -97,7 +118,8 @@ export function MapsCompare() {
   const geo = useMemo(() => {
     if (!M) return null;
     const ua = M.base.find((b) => b.ua)!;
-    const proj = geoConicConformal().parallels([45, 52]).rotate([-31.5, 0]).fitExtent([[12, 12], [W - 12, H - 12]], mp(ua.c));
+    // mercator so web tiles line up (≈17% north–south scale change across 🇺🇦 Ukraine; areas are computed upstream)
+    const proj = geoMercator().fitExtent([[12, 12], [W - 12, H - 12]], mp(ua.c));
     const path = geoPath(proj);
     return { proj, d: (c?: Rings) => (c && c.length ? path(mp(c)) || "" : "") };
   }, [M, W, H]);
@@ -156,14 +178,14 @@ export function MapsCompare() {
     e.preventDefault();
   };
 
-  let layers: ReactNode = null;
+  let layers: ReactNode = null, base: ReactNode = null;
   if (M && geo) {
     const L = M.layers;
     const P = (c: Rings | undefined, fill: string, op: number, stroke?: string, sw?: number, key?: string) =>
       c && c.length ? <path key={key} d={geo.d(c)} fill={fill} fillOpacity={op} stroke={stroke || "none"} strokeWidth={sw || 0} fillRule="evenodd" /> : null;
     const [a, b] = PAIR_SRC[pair];
+    base = <>{M.base.map((bb, i) => P(bb.c, bb.ua ? "var(--m-ua)" : "var(--m-land)", bm === "s" ? 1 : 0, "var(--m-border)", bb.ua ? 1.4 : 0.8, "b" + i))}</>;
     layers = <>
-      {M.base.map((bb, i) => P(bb.c, bb.ua ? "var(--m-ua)" : "var(--m-land)", 1, "var(--m-border)", bb.ua ? 1.4 : 0.8, "b" + i))}
       {mode === "ds" ? <>{P(L.ds_occ, "var(--m-occ)", 0.38, "var(--m-occ)", 1)}{P(L.ds_grey, "var(--m-grey)", 0.45, "var(--m-grey)", 0.6)}</>
         : mode === "isw" ? <>{P(L.isw, "var(--m-isw)", 0.35, "var(--m-isw)", 1)}{P(L.isw_adv, "var(--m-iswadv)", 0.55, "var(--m-iswadv)", 0.6)}</>
         : mode === "dg" ? P(L.dg_ru, "var(--m-dg)", 0.33, "var(--m-dg)", 1)
@@ -183,16 +205,18 @@ export function MapsCompare() {
         <div className="seg" role="group" aria-label={t.map}>{SegBtn("ds", t.src.ds, mode, setMode)}{SegBtn("isw", t.src.isw, mode, setMode)}{SegBtn("dg", t.src.dg, mode, setMode)}{SegBtn("cmp", t.mCmp, mode, setMode)}</div>
         <div className="seg" role="group" hidden={mode !== "cmp"}>{(["dg_ds", "dg_isw", "isw_ds"] as const).map((p) => SegBtn(p, t.pairs[p], pair, setPair))}</div>
         <span className="spacer" />
+        <div className="seg" role="group">{(["s", "t", "r"] as const).map((k) => SegBtn(k, t.mBase[k], bm, setBm))}</div>
         <div className="seg"><button type="button" aria-pressed={ev} onClick={() => setEv(!ev)}>{t.mEv}</button></div>
         <div className="seg"><button type="button" onClick={front}>{t.mFront}</button></div>
       </div>
       <div className="map-legend">{legend}</div>
       <div className="map-wrap" ref={wrapRef}>
         {err ? <p className="map-src" style={{ padding: 16 }}>{t.mErr}</p> : !M || !geo ? <p className="map-src" style={{ padding: 16 }}>{t.mLoading}</p> : <>
-          <svg className="map-svg" viewBox={`0 0 ${W} ${H}`} tabIndex={0} role="img" aria-label={t.map} ref={z.svgRef} onKeyDown={onKey}>
+          <svg className={"map-svg bm-" + bm} viewBox={`0 0 ${W} ${H}`} tabIndex={0} role="img" aria-label={t.map} ref={z.svgRef} onKeyDown={onKey}>
+            {BASEMAPS[bm] && <Tiles256 id={bm} proj={geo.proj} t={z.t} W={W} H={H} />}
             <g transform={z.t.toString()}>
-              {layers}
-              <g className="city">{M.cities.map((c) => { const [x, y] = geo.proj([c.lng, c.lat])!; return [
+              {base}{layers}
+              <g className="city" display={bm === "t" ? "none" : undefined}>{M.cities.map((c) => { const [x, y] = geo.proj([c.lng, c.lat])!; return [
                 <circle key={c.n + "c"} cx={x} cy={y} r={2.6 / k} fill="var(--m-city)" />,
                 <text key={c.n + "t"} x={x + 5 / k} y={y + 4 / k} fontSize={11 / k} style={{ strokeWidth: 3 / k + "px" }}>{c.n}</text>,
               ]; })}</g>
@@ -209,6 +233,7 @@ export function MapsCompare() {
             </g>
           </svg>
           <ZoomButtons z={z} />
+          {BASEMAPS[bm] && <span className="map-attr">{BASEMAPS[bm].attr}</span>}
           <MapTip tip={tip} wrap={wrapRef} />
         </>}
       </div>
@@ -241,6 +266,7 @@ export function StrikesMap() {
   const [more, setMore] = useSticky("stkMore", 40);
   const [open, setOpen] = useSticky("stkOpen", false);
   const [tgOn, setTgOn] = useSticky("tgOn", false);
+  const [bm, setBm] = useSticky("stkBase", "t");
   const [tgCat, setTgCat] = useSticky<Record<string, boolean>>("tgCat", { fuel: true, en: true, air: true, mil: true, dc: true });
   const [tip, setTip] = useState<Tip>(null);
   const maps = useJson<MapsData>("/maps/maps.json");
@@ -271,7 +297,7 @@ export function StrikesMap() {
     if (!S) return null;
     const ua = S.base.base.find((b) => b.ua)!;
     const fitF = { type: "FeatureCollection", features: [mp(ua.c)].concat(items.filter((x) => x.lng <= 61).map((x) => ({ type: "Feature", properties: {}, geometry: { type: "Point", coordinates: [x.lng, x.lat] } }) as GeoPermissibleObjects)) } as GeoPermissibleObjects;
-    const proj = geoConicConformal().parallels([45, 55]).rotate([-38, 0]).fitExtent([[28, 28], [W - 64, H - 28]], fitF);
+    const proj = geoMercator().fitExtent([[28, 28], [W - 64, H - 28]], fitF);
     const path = geoPath(proj);
     return { proj, d: (c?: Rings) => (c && c.length ? path(mp(c)) || "" : "") };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -301,6 +327,7 @@ export function StrikesMap() {
         ))}</div>
       </div>
       <div className="tl-controls">
+        <div className="seg" role="group">{(["s", "t", "r"] as const).map((kk) => <button type="button" key={kk} aria-pressed={bm === kk} onClick={() => setBm(kk)}>{TT.mBase[kk]}</button>)}</div>
         <div className="seg"><button type="button" aria-pressed={tgOn} onClick={() => setTgOn(!tgOn)}>◆ {t.tgLbl}</button></div>
         <div className="seg" role="group" aria-label={t.tgLbl} hidden={!tgOn}>{["fuel", "en", "air", "mil", "dc"].map((c) => (
           <button type="button" key={c} aria-pressed={tgCat[c]} onClick={() => pickTg(c)}>
@@ -324,9 +351,10 @@ export function StrikesMap() {
       </>}</div>
       <div className="map-wrap" ref={wrapRef}>
         {stkErr ? <p className="map-src" style={{ padding: 16 }}>{t.err}</p> : !S || !geo ? <p className="map-src" style={{ padding: 16 }}>{t.loading}</p> : <>
-          <svg className="map-svg" viewBox={`0 0 ${W} ${H}`} tabIndex={0} role="img" aria-label={t.title} ref={z.svgRef}>
+          <svg className={"map-svg bm-" + bm} viewBox={`0 0 ${W} ${H}`} tabIndex={0} role="img" aria-label={t.title} ref={z.svgRef}>
+            {BASEMAPS[bm] && <Tiles256 id={bm} proj={geo.proj} t={z.t} W={W} H={H} />}
             <g transform={z.t.toString()}>
-              {S.base.base.map((b, i) => <path key={i} d={geo.d(b.c)} fill={b.ua ? "var(--m-ua)" : "var(--m-land)"} fillOpacity={1} stroke="var(--m-border)" strokeWidth={b.ua ? 1.4 : 0.8} fillRule="evenodd" />)}
+              {S.base.base.map((b, i) => <path key={i} d={geo.d(b.c)} fill={b.ua ? "var(--m-ua)" : "var(--m-land)"} fillOpacity={bm === "s" ? 1 : 0} stroke="var(--m-border)" strokeWidth={b.ua ? 1.4 : 0.8} fillRule="evenodd" />)}
               {maps.data?.layers?.ds_occ && <path d={geo.d(maps.data.layers.ds_occ)} fill="var(--m-occ)" fillOpacity={0.3} stroke="var(--m-occ)" strokeWidth={0.6} fillRule="evenodd" />}
               {tgOn && tg.data && <g className="tgt">{tg.data.items.filter((x) => tgCat[x.cat]).map((x, i) => {
                 const pp = geo.proj([x.lng, x.lat]);
@@ -366,6 +394,7 @@ export function StrikesMap() {
             </g>
           </svg>
           <ZoomButtons z={z} />
+          {BASEMAPS[bm] && <span className="map-attr">{BASEMAPS[bm].attr}</span>}
           <MapTip tip={tip} wrap={wrapRef} />
         </>}
       </div>

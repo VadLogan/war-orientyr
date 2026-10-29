@@ -286,6 +286,13 @@ button.dchip{font:inherit;background:transparent;color:var(--ink);border:1px sol
 .map-tip .s{color:var(--muted);font-size:12px;margin-top:4px}
 .map-svg .city text{font-family:var(--ui);fill:var(--m-city);paint-order:stroke;stroke:var(--m-ua);stroke-width:3px;stroke-linejoin:round}
 .map-svg path,.map-svg circle{vector-effect:non-scaling-stroke}
+.map-tiles-r,.map-tiles-t{pointer-events:none}
+.map-tiles-t{opacity:.85;filter:saturate(.7)}
+.map-tiles-r{filter:brightness(.9) saturate(.8)}
+.map-svg.bm-r .city text{fill:#fff;stroke:rgba(0,0,0,.65)}.map-svg.bm-r .city circle{fill:#fff}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .map-tiles-t{filter:saturate(.6) brightness(.7)}}
+:root[data-theme="dark"] .map-tiles-t{filter:saturate(.6) brightness(.7)}
+.map-attr{position:absolute;right:0;bottom:0;padding:1px 6px;font:11px var(--ui);color:var(--muted);background:color-mix(in srgb,var(--surface) 75%,transparent);pointer-events:none}
 .map-tiles .tile b{font-size:26px}
 .stk-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
 .stk-list li{display:grid;grid-template-columns:28px minmax(0,1fr);gap:4px 10px;padding:10px 0;border-top:1px solid var(--rule);font-family:var(--ui);font-size:14px;line-height:1.45;min-width:0}
