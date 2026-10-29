@@ -5,11 +5,12 @@ import type { SourceMatrix } from "@/lib/data";
 import { href } from "@/lib/routes";
 import { AppCtx, strings, type Ctx, type DashIssue, type DashLang } from "../ctx";
 import Tooltip from "../Tooltip";
-import Dashboard, { MapsView } from "./Dashboard";
+import Dashboard, { MapsView, StrikesView } from "./Dashboard";
 
 /** Client root of the dashboard page; data comes from the server, navigation goes through the router. */
-/** `mapsCard`: the dashboard's map block, rendered on the server (MapsCard). */
-export default function DashProvider({ view, lang, D, LATEST, DATES, MAPS, smx, mapsCard }: { view: "dashboard" | "maps"; lang: DashLang; D: DashIssue; LATEST: DashIssue; DATES: string[]; MAPS: string; smx: SourceMatrix | null; mapsCard?: ReactNode }) {
+/** `mapsCard`, `strikesCard`: the dashboard's map blocks, rendered on the server (MapsCard, StrikesCard).
+ *  `strikesSeo`: the /strikes page as plain server HTML (StrikesSeo), shown until the interactive page has loaded. */
+export default function DashProvider({ view, lang, D, LATEST, DATES, MAPS, smx, mapsCard, strikesCard, strikesSeo }: { view: "dashboard" | "maps" | "strikes"; lang: DashLang; D: DashIssue; LATEST: DashIssue; DATES: string[]; MAPS: string; smx: SourceMatrix | null; mapsCard?: ReactNode; strikesCard?: ReactNode; strikesSeo?: ReactNode }) {
   const router = useRouter();
   const ctx: Ctx = useMemo(() => ({
     lang, t: strings(lang), D, LATEST, DATES, MAPS, smx,
@@ -19,7 +20,7 @@ export default function DashProvider({ view, lang, D, LATEST, DATES, MAPS, smx, 
   }), [view, lang, D, LATEST, DATES, MAPS, smx, router]);
   return (
     <AppCtx.Provider value={ctx}>
-      {view === "maps" ? <MapsView /> : <Dashboard mapsCard={mapsCard} />}
+      {view === "maps" ? <MapsView /> : view === "strikes" ? <StrikesView seo={strikesSeo} /> : <Dashboard mapsCard={mapsCard} strikesCard={strikesCard} />}
       <Tooltip />
     </AppCtx.Provider>
   );

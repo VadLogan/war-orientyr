@@ -8,6 +8,8 @@ import Shell from "../Shell";
 import Mast from "../Mast";
 import DashProvider from "./DashProvider";
 import MapsCard from "./MapsCard";
+import StrikesCard from "./StrikesCard";
+import StrikesSeo from "./StrikesSeo";
 
 /** The dashboard only needs these fields; full issues stay on the server. */
 const slim = (d: Digest): DashIssue => ({
@@ -16,13 +18,13 @@ const slim = (d: Digest): DashIssue => ({
 });
 
 /** `from`: "de" on /de/dashboard — the dashboard has no German version, so it is shown in English with a notice. */
-export default async function DashPage({ lang, params, from, view = "dashboard" }: { lang: DashLang; params: DateParams; from?: "de"; view?: "dashboard" | "maps" }) {
+export default async function DashPage({ lang, params, from, view = "dashboard" }: { lang: DashLang; params: DateParams; from?: "de"; view?: "dashboard" | "maps" | "strikes" }) {
   const { latest, dates, D } = await resolve(params, lang);
   const t = UI[lang] as UIStrings;
   const MAPS = await getMapsUrl(D.date);
-  // the maps page reads no issue series: ship the date, language and the General Staff directions, not the timelines and losses
+  // the maps and strikes pages read no issue series: ship the date, language and the General Staff directions, not the timelines and losses
   const bare = (d: Digest) => ({ date: d.date, contentLang: d.contentLang, front: { directions: d.front?.directions, period: d.front?.period, source: d.front?.source } }) as DashIssue;
-  const maps = view === "maps";
+  const maps = view !== "dashboard";
   return (
     <div className="shell">
       <Shell lang={lang} t={t} view={view} date={D.date} latest={latest.date} dates={dates} from={from} />
@@ -30,7 +32,9 @@ export default async function DashPage({ lang, params, from, view = "dashboard" 
       <main id="main"><div className="view">
         <DashProvider view={view} lang={lang} D={(maps ? bare : slim)(D)} LATEST={(maps ? bare : slim)(latest)} DATES={dates} MAPS={MAPS}
           smx={!maps && SHOW_SOURCE_MATRIX ? await getSourceMatrix() : null}
-          mapsCard={maps ? null : <MapsCard lang={lang} date={D.date} latest={latest.date} url={MAPS} />} />
+          mapsCard={maps ? null : <MapsCard lang={lang} date={D.date} latest={latest.date} url={MAPS} />}
+          strikesCard={maps ? null : <StrikesCard lang={lang} date={D.date} latest={latest.date} />}
+          strikesSeo={view === "strikes" ? <StrikesSeo lang={lang} date={D.date} latest={latest.date} /> : null} />
       </div></main>
     </div>
   );
