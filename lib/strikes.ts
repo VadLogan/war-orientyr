@@ -7,7 +7,8 @@ export type Strike = {
   lat: number; lng: number; approx?: boolean; confirmed?: { by: string; when: string } | null;
   local?: string; item?: string; issue?: string; url?: string;
 };
-export type StrikesData = { items: Strike[]; coverage?: { uk: string; en: string } };
+/** coverage.de: German note (falls back to English). */
+export type StrikesData = { items: Strike[]; coverage?: { uk: string; en: string; de?: string } };
 export type StrikesBase = { base: { ua?: boolean; c: number[][][][] }[]; ctrl?: [number, number][]; ctrlAsOf?: string };
 export type Strikes = { stk: StrikesData; base: StrikesBase };
 

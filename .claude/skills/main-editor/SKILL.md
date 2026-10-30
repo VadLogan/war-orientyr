@@ -28,6 +28,13 @@ Do the four desks on the article alone, but deeper — there is no string-for-st
 4. Keep identical in all languages: `id`, `date`, `asOf`, image (except a `cover.en.*` with translated text)/`embed.src`, chart `rows` data, `sources` URLs, file names, `h2` `section` ids. Leave `index.html`, media and other non-JSON files alone — say in the report if they hold untranslated text.
 5. Check: valid JSON, `npm run validate`, then open `/articles/<date>/<name>`, `/en/articles/<date>/<name>` and `/de/articles/<date>/<name>` on the dev server (`preview_start` “dev”, or the running server on :5001) and read the page text. Report the memo, before → after for title and lead in every language, and what you didn't change.
 
+### What the editor owns (digest)
+`digest.json` mixes text written for this issue with fixed text copied into every issue (checked across 26 issues: one value each). Edit only the first kind.
+
+- **Yours — new each issue:** `headline.title`, `headline.text`, `lede`; `sections[].items[]` `text` and `quote.uk/en` (and `local.said/who/when` in `deepstrikes`); `divergences.items[]` `title`, `a/b.claim`, `why`, `note`; `front.period`, `airDefense.period`, `airDefense.note`; `losses.gsTotal.source`; `sources[].title/note`; `unavailable`, `assumption`; and the issue's articles.
+- **Not yours — fixed:** `headline.kicker` («Головне»), `sections[].title`, `sbs.title/note/period/source/url`, `civilianStats.title/source/url`, `losses.caveat`, `losses.method.ru`, `divergences.intro`, `footer`, `since[].label/note`; the fixed word lists `front.directions[].name`, `sbs.categories[].label` and item `emoji`; date-derived `weekday`, `dateLabel`, `timeline[].night`; all UI strings (`lib/ui.ts`). Changing one changes it for every issue and breaks its stored translation, so leave it. If one reads wrong, mention it in the report instead.
+- **Rarely changed:** `losses.method.ua`, `civilianStats.lead`, `civilianStats.note`. Edit them only when this issue's data changed what they say (a new UN month, a new method), not for style.
+
 ## 1. Chief desk — read everything, pick the angle
 
 1. Load the issue: `public/digest.json` (all sections, `divergences`, `assumption`, `unavailable`), the previous 1–7 issues from `public/issues/` (dates in `issues/index.json`), and every folder in `public/articles/<date>/` for the digest's date.
@@ -52,7 +59,7 @@ Edit in place in `public/digest.json` (and `article.uk.json` / `preview.uk.json`
 - `headline.title` ≤ ~90 characters, `lede` = 2–3 sentences: what happened, why it matters today, the one contrast.
 - Keep house style already in the data: flags before countries, lowercase “росія/рф/кремль” as it stands, quotes «».
 
-Don't touch: numbers in data fields, `id`, `url`, dates, `geo`, `emoji`, `source` names, `links`, `sources`. A `deepstrikes` item without `id` is matched to `strikes.json` by its text — leave that text alone (validate will catch it).
+Don't touch: the fixed text listed in “What the editor owns”, numbers in data fields, `id`, `url`, dates, `geo`, `emoji`, `source` names, `links`, `sources`. A `deepstrikes` item without `id` is matched to `strikes.json` by its text — leave that text alone (validate will catch it).
 
 ## 3. English desk — for a reader outside Ukraine
 
@@ -79,7 +86,7 @@ Who reads: a German-speaking public that follows the war through its own media (
 - Digest German is stored in `i18n/de.json` exactly like English (`{ "<Ukrainian string>": "<Deutsch>" }`, `JSON.stringify(o, null, 1) + "\n"`), but only the **current issue** needs it: `npm run i18n:missing:de` writes `i18n/missing.de.json` with every untranslated string of `digest.json` — the page is German only when **all** of them are filled (otherwise `/de/…` shows the English page with the notice). Fill them in (a scratchpad script, or edit the file and run `npm run i18n:merge:de`). Recurring strings (section labels, method notes) are shared memory — translate them once, carefully.
 - Articles: `preview.de.json`, `article.de.json` / `presentation.de.json` — free structure, as for English; same fields kept identical. A cover with text in it gets a `cover.de.<ext>` copy, like `cover.en.<ext>`.
 - An `h2` that repeats a digest section title carries `section` in German too. The German section titles are in `UI.de.sec` (`lib/ui.ts`).
-- No German dashboard: `/de/dashboard` always shows the English one with the notice. Nothing to do for it.
+- The German dashboard, maps and strikes pages (`/de/dashboard`, `/de/maps`, `/de/strikes`) read the same `i18n/de.json`. `npm run i18n:missing:de` splits its count: **daily data** (new strikes in `strikes.json`, map events in `maps/maps.json` and `maps/archive/<date>.json`, prices, recruitment) — yours every issue; **static data** (`landcost.json`, `maps/strikes-base.json`, `maps/targets.json`) — translated once, normally 0. Fill both — a file with any German string missing is shown in English. Static UI text (`lib/ui.ts` `UI.de`, map labels `DIRS`/`STK_CITIES`) is not in `de.json`; a new UI key there needs its German value in code. For russian claims from DIVGEN keep their own wording (“befreit”, as English keeps “liberated”); Ukrainian place names in German transliteration (Nowopawliwka, Kupjansk), russian ones in their German form (Rjasan, Woronesch, Nischni Nowgorod).
 
 ## 5. Check and report
 

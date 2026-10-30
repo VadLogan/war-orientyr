@@ -1,7 +1,7 @@
 // Pieces of the source-comparison map shared by the client map (Maps.tsx) and the server-rendered dashboard card
 // (MapsCard.tsx): projection helpers, layers, claim marks, tiles and the verdict bar. No hooks, no "use client".
 import type { ReactNode } from "react";
-import { geoConicConformal, geoPath, zoomIdentity, type GeoPermissibleObjects, type GeoProjection } from "d3";
+import { geoMercator, geoPath, zoomIdentity, type GeoPermissibleObjects, type GeoProjection } from "d3";
 import type { UIStrings } from "@/lib/ui";
 import { dayN } from "@/lib/text";
 import { kmBetween } from "@/lib/strikes";
@@ -45,13 +45,14 @@ export function fitFront(M: MapsData, geo: Geo, W: number, H: number) {
   const k = Math.min(40, 0.9 / Math.max((x1 - x0) / W, (y1 - y0) / H));
   return zoomIdentity.translate(W / 2, H / 2).scale(k).translate(-(x0 + x1) / 2, -(y0 + y1) / 2);
 }
-export function Layers({ M, geo, mode, pair }: { M: MapsData; geo: Geo; mode: string; pair: string }) {
+/** `plain`: fill the land (no raster basemap underneath). */
+export function Layers({ M, geo, mode, pair, plain = true }: { M: MapsData; geo: Geo; mode: string; pair: string; plain?: boolean }) {
   const L = M.layers;
   const P = (c: Rings | undefined, fill: string, op: number, stroke?: string, sw?: number, key?: string) =>
     c && c.length ? <path key={key} d={geo.d(c)} fill={fill} fillOpacity={op} stroke={stroke || "none"} strokeWidth={sw || 0} fillRule="evenodd" /> : null;
   const [a, b] = PAIR_SRC[pair];
   return <>
-    {M.base.map((bb, i) => P(bb.c, bb.ua ? "var(--m-ua)" : "var(--m-land)", 1, "var(--m-border)", bb.ua ? 1.4 : 0.8, "b" + i))}
+    {M.base.map((bb, i) => P(bb.c, bb.ua ? "var(--m-ua)" : "var(--m-land)", plain ? 1 : 0, "var(--m-border)", bb.ua ? 1.4 : 0.8, "b" + i))}
     {mode === "ds" ? <>{P(L.ds_occ, "var(--m-occ)", 0.38, "var(--m-occ)", 1)}{P(L.ds_grey, "var(--m-grey)", 0.45, "var(--m-grey)", 0.6)}</>
       : mode === "isw" ? <>{P(L.isw, "var(--m-isw)", 0.35, "var(--m-isw)", 1)}{P(L.isw_adv, "var(--m-iswadv)", 0.55, "var(--m-iswadv)", 0.6)}</>
       : mode === "dg" ? P(L.dg_ru, "var(--m-dg)", 0.33, "var(--m-dg)", 1)
@@ -61,8 +62,8 @@ export function Layers({ M, geo, mode, pair }: { M: MapsData; geo: Geo; mode: st
       </>}
   </>;
 }
-export const Cities = ({ M, geo, k }: { M: MapsData; geo: Geo; k: number }) => (
-  <g className="city">{M.cities.map((c) => { const [x, y] = geo.proj([c.lng, c.lat])!; return [
+export const Cities = ({ M, geo, k, hidden }: { M: MapsData; geo: Geo; k: number; hidden?: boolean }) => (
+  <g className="city" display={hidden ? "none" : undefined}>{M.cities.map((c) => { const [x, y] = geo.proj([c.lng, c.lat])!; return [
     <circle key={c.n + "c"} cx={x} cy={y} r={2.6 / k} fill="var(--m-city)" />,
     <text key={c.n + "t"} x={x + 5 / k} y={y + 4 / k} fontSize={11 / k} style={{ strokeWidth: 3 / k + "px" }}>{c.n}</text>,
   ]; })}</g>
@@ -98,7 +99,8 @@ export const lastDay = (M: MapsData) => Math.max(...M.events.map((e) => dayN(e.d
 /** Projection fitted to Ukraine in a W×H box, with a path builder for MultiPolygon rings. */
 export function makeGeo(M: MapsData, W: number, H: number): Geo {
   const ua = M.base.find((b) => b.ua)!;
-  const proj = geoConicConformal().parallels([45, 52]).rotate([-31.5, 0]).fitExtent([[12, 12], [W - 12, H - 12]], mp(ua.c));
+  // mercator so web tiles line up (≈17% north–south scale change across 🇺🇦 Ukraine; areas are computed upstream)
+  const proj = geoMercator().fitExtent([[12, 12], [W - 12, H - 12]], mp(ua.c));
   const path = geoPath(proj);
   return { proj, d: (c?: Rings) => (c && c.length ? path(mp(c)) || "" : "") };
 }
@@ -106,19 +108,19 @@ export function makeGeo(M: MapsData, W: number, H: number): Geo {
 /** Front directions (General Staff names, as in the digest) with an anchor point on the front line. A claim belongs to
  *  the nearest anchor within DIR_KM; farther claims belong to none.
  *  ponytail: anchors are hand-placed approximations; replace with sector polygons if the scraper ever provides them. */
-export const DIRS: { id: string; uk: string; en: string; lat: number; lng: number }[] = [
-  { id: "nsl", uk: "Північно-Слобожанський", en: "North Slobozhanskyi", lat: 51.17, lng: 35.05 },
-  { id: "ssl", uk: "Південно-Слобожанський", en: "South Slobozhanskyi", lat: 50.3, lng: 36.95 },
-  { id: "kup", uk: "Куп’янський", en: "Kupiansk", lat: 49.72, lng: 37.62 },
-  { id: "lym", uk: "Лиманський", en: "Lyman", lat: 49.05, lng: 37.92 },
-  { id: "slo", uk: "Слов’янський", en: "Sloviansk", lat: 48.87, lng: 38.12 },
-  { id: "kra", uk: "Краматорський", en: "Kramatorsk", lat: 48.6, lng: 37.88 },
-  { id: "kos", uk: "Костянтинівський", en: "Kostiantynivka", lat: 48.42, lng: 37.75 },
-  { id: "pok", uk: "Покровський", en: "Pokrovsk", lat: 48.3, lng: 37.2 },
-  { id: "olk", uk: "Олександрівський", en: "Oleksandrivka", lat: 48.0, lng: 36.75 },
-  { id: "hul", uk: "Гуляйпільський", en: "Huliaipole", lat: 47.67, lng: 36.27 },
-  { id: "ori", uk: "Оріхівський", en: "Orikhiv", lat: 47.56, lng: 35.8 },
-  { id: "prd", uk: "Придніпровський", en: "Prydniprovskyi", lat: 46.68, lng: 32.75 },
+export const DIRS: { id: string; uk: string; en: string; de: string; lat: number; lng: number }[] = [
+  { id: "nsl", uk: "Північно-Слобожанський", en: "North Slobozhanskyi", de: "Nord-Sloboschanskyj", lat: 51.17, lng: 35.05 },
+  { id: "ssl", uk: "Південно-Слобожанський", en: "South Slobozhanskyi", de: "Süd-Sloboschanskyj", lat: 50.3, lng: 36.95 },
+  { id: "kup", uk: "Куп’янський", en: "Kupiansk", de: "Kupjansk", lat: 49.72, lng: 37.62 },
+  { id: "lym", uk: "Лиманський", en: "Lyman", de: "Lyman", lat: 49.05, lng: 37.92 },
+  { id: "slo", uk: "Слов’янський", en: "Sloviansk", de: "Slowjansk", lat: 48.87, lng: 38.12 },
+  { id: "kra", uk: "Краматорський", en: "Kramatorsk", de: "Kramatorsk", lat: 48.6, lng: 37.88 },
+  { id: "kos", uk: "Костянтинівський", en: "Kostiantynivka", de: "Kostjantyniwka", lat: 48.42, lng: 37.75 },
+  { id: "pok", uk: "Покровський", en: "Pokrovsk", de: "Pokrowsk", lat: 48.3, lng: 37.2 },
+  { id: "olk", uk: "Олександрівський", en: "Oleksandrivka", de: "Oleksandriwka", lat: 48.0, lng: 36.75 },
+  { id: "hul", uk: "Гуляйпільський", en: "Huliaipole", de: "Huljajpole", lat: 47.67, lng: 36.27 },
+  { id: "ori", uk: "Оріхівський", en: "Orikhiv", de: "Orichiw", lat: 47.56, lng: 35.8 },
+  { id: "prd", uk: "Придніпровський", en: "Prydniprovskyi", de: "Prydniprowskyj", lat: 46.68, lng: 32.75 },
 ];
 const DIR_KM = 80;
 export const dirOf = (e: { lat: number; lng: number }) => {

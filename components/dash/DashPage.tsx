@@ -17,8 +17,7 @@ const slim = (d: Digest): DashIssue => ({
   timeline: d.timeline, airDefenseHistory: d.airDefenseHistory, losses: d.losses,
 });
 
-/** `from`: "de" on /de/dashboard — the dashboard has no German version, so it is shown in English with a notice. */
-export default async function DashPage({ lang, params, from, view = "dashboard" }: { lang: DashLang; params: DateParams; from?: "de"; view?: "dashboard" | "maps" | "strikes" }) {
+export default async function DashPage({ lang, params, view = "dashboard" }: { lang: DashLang; params: DateParams; view?: "dashboard" | "maps" | "strikes" }) {
   const { latest, dates, D } = await resolve(params, lang);
   const t = UI[lang] as UIStrings;
   const MAPS = await getMapsUrl(D.date);
@@ -27,7 +26,7 @@ export default async function DashPage({ lang, params, from, view = "dashboard" 
   const maps = view !== "dashboard";
   return (
     <div className="shell">
-      <Shell lang={lang} t={t} view={view} date={D.date} latest={latest.date} dates={dates} from={from} />
+      <Shell lang={lang} t={t} view={view} date={D.date} latest={latest.date} dates={dates} />
       <Mast D={D} lang={lang} dashboard />
       <main id="main"><div className="view">
         <DashProvider view={view} lang={lang} D={(maps ? bare : slim)(D)} LATEST={(maps ? bare : slim)(latest)} DATES={dates} MAPS={MAPS}

@@ -26,8 +26,10 @@ export function useJson<T>(url: string | null): { data: T | null; err: boolean }
     if (!url) return;
     let live = true;
     const data = fetchJson<T>(url);
-    const get = lang !== "en" ? data : Promise.all([data, fetchJson<Record<string, string>>("/i18n/en" + url).catch(() => null)])
-      .then(([d, text]) => (text && (translate(d, text) as T)) || d);
+    // text subset in the page language; German falls back to English (a file not yet fully in German has no /i18n/de subset)
+    const text = (l: string) => fetchJson<Record<string, string>>("/i18n/" + l + url);
+    const get = lang === "uk" ? data : Promise.all([data, text(lang).catch(() => (lang === "de" ? text("en").catch(() => null) : null))])
+      .then(([d, tm]) => (tm && (translate(d, tm) as T)) || d);
     get.then((data) => live && setS({ data, err: false }), () => live && setS({ data: null, err: true }));
     return () => { live = false; };
   }, [url, lang]);
@@ -50,7 +52,8 @@ export function useChartW() {
 }
 
 /** Content width of an element, tracked with ResizeObserver (0 until measured). */
-export function useElWidth(ref: RefObject<HTMLElement | null>) {
+/** `dep`: re-attach when it changes (for an element that mounts after the first render). */
+export function useElWidth(ref: RefObject<HTMLElement | null>, dep?: unknown) {
   const [w, setW] = useState(0);
   useEffect(() => {
     const el = ref.current;
@@ -59,6 +62,6 @@ export function useElWidth(ref: RefObject<HTMLElement | null>) {
     const ro = new ResizeObserver(() => setW(el.clientWidth));
     ro.observe(el);
     return () => ro.disconnect();
-  }, [ref]);
+  }, [ref, dep]);
   return w;
 }

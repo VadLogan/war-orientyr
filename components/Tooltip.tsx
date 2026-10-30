@@ -7,7 +7,9 @@ export default function Tooltip() {
   useEffect(() => {
     const tip = ref.current!;
     const show = (el: HTMLElement, x: number, y: number) => {
-      tip.textContent = el.dataset.tip || "";
+      const rich = el.querySelector(":scope > .tipc"); // optional rich content (icons), data-tip stays the plain-text version
+      if (rich) tip.replaceChildren(...[...rich.childNodes].map((n) => n.cloneNode(true)));
+      else tip.textContent = el.dataset.tip || "";
       tip.hidden = false;
       const r = tip.getBoundingClientRect();
       tip.style.left = Math.max(8, Math.min(innerWidth - r.width - 8, x + 12)) + "px";

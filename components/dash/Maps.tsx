@@ -1,6 +1,6 @@
 "use client";
 import { Fragment, useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
-import { Delaunay, geoConicConformal, geoPath, select, zoom, zoomIdentity, type GeoPermissibleObjects, type GeoProjection, type ZoomBehavior, type ZoomTransform } from "d3";
+import { Delaunay, geoMercator, geoPath, select, zoom, zoomIdentity, type GeoPermissibleObjects, type GeoProjection, type ZoomBehavior, type ZoomTransform } from "d3";
 import type { UIStrings } from "@/lib/ui";
 import { dayN, fmt, houseStyle as hsBase, nDay, shortD } from "@/lib/text";
 import { distLabel, kmBetween, stkDist, type Strike, type StrikesBase, type StrikesData } from "@/lib/strikes";
@@ -47,6 +47,30 @@ function ZoomButtons({ z, children }: { z: ReturnType<typeof useZoom>; children?
       {children}
     </div>
   );
+}
+/** The filter rail toggled resizes the box and the projection refits to it: call the returned function before toggling,
+ *  and the map keeps its centre and scale (px per degree) instead of jumping. */
+function useKeepView(z: ReturnType<typeof useZoom>, geo: Geo | null, W: number, H: number, ext: [number, number]) {
+  const keep = useRef<{ c: [number, number]; s: number; W: number; H: number } | null>(null);
+  useEffect(() => {
+    const v = keep.current;
+    if (!v || !geo) return;
+    keep.current = null;
+    if (v.W === W && v.H === H) return; // geo changed for another reason (data, filters): the toggle didn't resize
+    const k = Math.min(ext[1], Math.max(ext[0], v.s / geo.proj.scale())), [x, y] = geo.proj(v.c)!;
+    z.to(zoomIdentity.translate(W / 2, H / 2).scale(k).translate(-x, -y), 0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [geo]);
+  return () => { if (geo) keep.current = { c: geo.proj.invert!([(W / 2 - z.t.x) / z.t.k, (H / 2 - z.t.y) / z.t.k])!, s: z.t.k * geo.proj.scale(), W, H }; };
+}
+/** Entering or leaving full screen (button or Esc) shows the whole map. */
+function useWholeOnFs(fs: boolean, z: ReturnType<typeof useZoom>) {
+  const was = useRef(fs);
+  useEffect(() => {
+    if (was.current !== fs) z.to(zoomIdentity, 0);
+    was.current = fs;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fs]);
 }
 /** Full screen as a fixed overlay (the Fullscreen API is missing on iPhone): Esc leaves it, the page behind stops
  *  scrolling, and `vh` gives the map the window height. Pair with `.mp-grid.fs` and FsButton. */
@@ -107,6 +131,34 @@ function useMapGeo(M: MapsData | null, W: number, H: number): Geo | null {
   return useMemo(() => (M ? makeGeo(M, W, H) : null), [M, W, H]);
 }
 
+/** Web-mercator raster basemaps drawn over the (then unfilled) vector land. */
+const BASEMAPS: Record<string, { url: (z: number, x: number, y: number) => string; max: number; attr: string }> = {
+  r: { url: (z, x, y) => `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${y}/${x}`, max: 18, attr: "Imagery © Esri, Maxar, Earthstar Geographics" },
+  t: { url: (z, x, y) => `https://${"abc"[(x + y) % 3]}.tile.opentopomap.org/${z}/${x}/${y}.png`, max: 17, attr: "© OpenStreetMap contributors, SRTM · OpenTopoMap (CC-BY-SA)" },
+};
+/** Tiles covering the W×H view of a d3.geoMercator `proj` under zoom `t`, in screen coordinates.
+ *  A coarse level (z−3) goes underneath so zooming never shows gaps while the sharp tiles load. */
+function Tiles256({ id, proj, t, W, H }: { id: string; proj: GeoProjection; t: ZoomTransform; W: number; H: number }) {
+  const bm = BASEMAPS[id], [tx, ty] = proj.translate(), S = t.k * proj.scale() * 2 * Math.PI;
+  const ox = t.x + t.k * tx - S / 2, oy = t.y + t.k * ty - S / 2;
+  const zz = Math.max(0, Math.min(bm.max, Math.round(Math.log2(S / 256) + (typeof devicePixelRatio === "number" && devicePixelRatio > 1.5 ? 0.5 : 0))));
+  const out: ReactNode[] = [];
+  for (const z of [Math.max(0, zz - 3), zz]) {
+    const n = 2 ** z, ts = S / n;
+    for (let i = Math.max(0, Math.floor(-ox / ts)); i <= Math.min(n - 1, Math.floor((W - ox) / ts)); i++)
+      for (let j = Math.max(0, Math.floor(-oy / ts)); j <= Math.min(n - 1, Math.floor((H - oy) / ts)); j++)
+        out.push(<image key={`${z}/${i}/${j}`} href={bm.url(z, i, j)} x={ox + i * ts} y={oy + j * ts} width={ts + 0.5} height={ts + 0.5} preserveAspectRatio="none" />);
+  }
+  return <g className={"map-tiles-" + id}>{out}</g>;
+}
+const BaseSeg = ({ bm, set, label }: { bm: string; set: (v: string) => void; label: Record<"s" | "t" | "r", string> }) => (
+  <div className="seg" role="group">{(["s", "t", "r"] as const).map((k) => <button type="button" key={k} aria-pressed={bm === k} onClick={() => set(k)}>{label[k]}</button>)}</div>
+);
+/** Shows/hides the filter rail (kept per map for the session). */
+const RailBtn = ({ on, set, label }: { on: boolean; set: (v: boolean) => void; label: string }) => (
+  <div className="seg"><button type="button" className="mp-railbtn" aria-expanded={on} aria-pressed={on} onClick={() => set(!on)}>☰ {label}</button></div>
+);
+const Attr = ({ bm }: { bm: string }) => (BASEMAPS[bm] ? <span className="map-attr">{BASEMAPS[bm].attr}</span> : null);
 
 export function MapsCompare() {
   const { t, lang, MAPS, D } = useApp();
@@ -115,9 +167,10 @@ export function MapsCompare() {
   const [sect, setSect] = useSticky("mapSect", true);
   // General Staff: russian attacks per direction in the issue's day (names come translated on English pages)
   const gsBy = new Map((D.front?.directions || []).map((x) => [x.name, x.attacks]));
-  const gsOf = (d: (typeof DIRS)[number]) => gsBy.get(d.uk) ?? gsBy.get(d.en);
+  const gsOf = (d: (typeof DIRS)[number]) => gsBy.get(d.uk) ?? gsBy.get(d[lang]);
   const [pair, setPair] = useSticky("mapPair", "dg_ds");
   const [ev, setEv] = useSticky("mapEv", true);
+  const [bm, setBm] = useSticky("mapBase", "t");
   const [per, setPer] = useSticky("mapPer", 30);
   const [vf, setVf] = useSticky("mapVf", ALL_V);
   const [ref, setRef] = useSticky<"ds" | "isw">("mapRef", "ds");
@@ -136,6 +189,8 @@ export function MapsCompare() {
   const wrapRef = useRef<HTMLDivElement>(null);
   const w = useElWidth(wrapRef);
   const { fs, setFs, vh } = useFullscreen();
+  const [rail, setRail] = useSticky("mapRail", true);
+  const [flOpen, setFlOpen] = useSticky("mapFlOpen", true); // claims panel on the full-screen map
   const W = Math.max(300, w || 800), H = fs ? Math.max(340, vh - 96) : Math.round(Math.min(640, Math.max(340, W * 0.66)));
   const z = useZoom("mapZ", !!M, [1, 40], [[-W * 0.2, -H * 0.2], [W * 1.2, H * 1.2]]);
   const geo = useMapGeo(M, W, H);
@@ -148,17 +203,21 @@ export function MapsCompare() {
   const inPer = M ? M.events.filter((e) => { const n = dayN(e.d); return n > end - per && n <= end; }) : [];
   const dayStr = (n: number) => dmy(new Date(n * 864e5).toISOString().slice(0, 10)).slice(0, 5);
   const pickPer = (n: number) => { setPer(n); setOff(0); };
-  const pickDir = (d: string | null) => {
-    setDir(d); setSel(null);
-    if (!M || !geo) return;
-    if (!d) { z.to(fitFront(M, geo, W, H), 400); return; }
-    const pts = inPer.filter((e) => evDir.get(e) === d).map((e) => geo.proj([e.lng, e.lat])!);
-    const a = DIRS.find((x) => x.id === d)!;
-    pts.push(geo.proj([a.lng, a.lat])!);
+  /** Zoom to the box around these points ([lng, lat]). */
+  const frame = (ll: [number, number][]) => {
+    if (!geo || !ll.length) return;
+    const pts = ll.map((p) => geo.proj(p)!);
     const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]);
     const x0 = Math.min(...xs) - 30, x1 = Math.max(...xs) + 30, y0 = Math.min(...ys) - 30, y1 = Math.max(...ys) + 30;
     const kk = Math.min(40, 0.85 / Math.max((x1 - x0) / W, (y1 - y0) / H));
     z.to(zoomIdentity.translate(W / 2, H / 2).scale(kk).translate(-(x0 + x1) / 2, -(y0 + y1) / 2), 500);
+  };
+  const pickDir = (d: string | null) => {
+    setDir(d); setSel(null);
+    if (!M || !geo) return;
+    if (!d) { z.to(fitFront(M, geo, W, H), 400); return; }
+    const a = DIRS.find((x) => x.id === d)!;
+    frame([...inPer.filter((e) => evDir.get(e) === d).map((e) => [e.lng, e.lat] as [number, number]), [a.lng, a.lat]]);
   };
   const evDir = useMemo(() => new Map((M?.events || []).map((e) => [e, dirOf(e)])), [M]);
   const dirCnt: Record<string, number> = {};
@@ -179,7 +238,13 @@ export function MapsCompare() {
   const shown = ev ? inDir.filter((e) => vf[vgOf(e[ref])]).sort((a, b) => (a.d < b.d ? 1 : a.d > b.d ? -1 : 0)) : [];
   const selOn = sel && shown.some((e) => e.id === sel.id && e.d === sel.d) ? sel : null;
   const dirty = per !== 30 || o > 0 || !!dir || VG.some((g) => !vf[g]);
-  const pickV = (g: VG) => setVf(VG.every((x) => vf[x] === (x === g)) ? ALL_V : (Object.fromEntries(VG.map((x) => [x, x === g])) as Record<VG, boolean>));
+  // a bar segment shows only that verdict and brings its claims into view; clicking it again shows all
+  const pickV = (g: VG) => {
+    if (VG.every((x) => vf[x] === (x === g))) { setVf(ALL_V); return; }
+    setVf(Object.fromEntries(VG.map((x) => [x, x === g])) as Record<VG, boolean>); setSel(null);
+    frame(inDir.filter((e) => vgOf(e[ref]) === g).map((e) => [e.lng, e.lat]));
+    wrapRef.current?.scrollIntoView({ block: "center", behavior: "smooth" });
+  };
   const toggleV = (g: VG) => setVf({ ...vf, [g]: !vf[g] });
 
   let legend: ReactNode[] = [], srcLine: ReactNode = null, method = "";
@@ -206,16 +271,17 @@ export function MapsCompare() {
     else return;
     e.preventDefault();
   };
-  const focusEv = (e: Ev) => {
+  const focusEv = (e: Ev, scroll = true) => {
     if (!geo) return;
     setSel(e);
     const [x, y] = geo.proj([e.lng, e.lat])!;
     // the point lands right of centre, clear of the claim card in the top-left corner
     z.to(zoomIdentity.translate(W * 0.62, H * 0.55).scale(Math.max(z.t.k, 12)).translate(-x, -y), 500);
-    wrapRef.current?.scrollIntoView({ block: "center", behavior: "smooth" });
+    if (scroll) wrapRef.current?.scrollIntoView({ block: "center", behavior: "smooth" });
   };
+  const selI = selOn ? shown.indexOf(selOn) : -1; // shown is newest first
   // first open: frame the front instead of the whole country (a zoom kept from earlier in the session stays)
-  // after entering or leaving full screen the box changes size: re-frame the selected direction or the front
+  // hiding/showing the filter rail resizes the box: re-frame the selected direction or the front
   const refit = useRef(false);
   useEffect(() => {
     if (!refit.current || !M || !geo) return;
@@ -223,7 +289,8 @@ export function MapsCompare() {
     if (dir) pickDir(dir); else z.to(fitFront(M, geo, W, H), 0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [geo]);
-  const toggleFs = () => { refit.current = true; setFs(!fs); };
+  const toggleFs = () => setFs(!fs);
+  useWholeOnFs(fs, z);
   const framed = useRef(false);
   useEffect(() => {
     if (framed.current || !M || !geo) return;
@@ -244,7 +311,7 @@ export function MapsCompare() {
       <div className="mp-head"><h2>{t.mpH}</h2><p>{flags(t.mpLede)}</p></div>
       <div className="tiles map-tiles">{M && <Tiles items={areaTiles(M, t, F, mode, pair)} />}</div>
       <div className={"mp-grid" + (fs ? " fs" : "")} role={fs ? "dialog" : undefined} aria-modal={fs || undefined} aria-label={fs ? t.map : undefined}>
-        <aside className="mp-rail">
+        <aside className="mp-rail" hidden={!rail}>
           <fieldset>
             <legend>{t.mpSnapH}</legend>
             <div className="mp-step">
@@ -281,7 +348,7 @@ export function MapsCompare() {
             </div>
             <div className="mp-dirlist" role="group" aria-label={t.mpDir}>
               <div className="mp-dirlist-h"><span>{t.mpDirAtt}</span><span>{t.mpDirCl}</span></div>
-              {dirRank.map((d) => { const g = gsOf(d), l = lang === "en" ? d.en : d.uk; return (
+              {dirRank.map((d) => { const g = gsOf(d), l = d[lang]; return (
                 <button type="button" key={d.id} aria-pressed={dir === d.id} onClick={() => pickDir(dir === d.id ? null : d.id)}
                   aria-label={`${l}: ${g != null ? t.mpGs(g, "") : t.mpGsNone}; ${t.mpDirClaims(dirCnt[d.id] || 0)}`}>
                   <span className="nm">{l}</span>
@@ -292,7 +359,7 @@ export function MapsCompare() {
               ); })}
             </div>
             {dir && (() => { const d = DIRS.find((x) => x.id === dir)!, g = gsOf(d); return (
-              <div className="mp-dsum"><b>{lang === "en" ? d.en : d.uk}</b><span>{g != null ? t.mpGs(g, D.front?.period) : t.mpGsNone}</span><span>{t.mpDirClaims(dirCnt[dir] || 0)}</span></div>
+              <div className="mp-dsum"><b>{d[lang]}</b><span>{g != null ? t.mpGs(g, D.front?.period) : t.mpGsNone}</span><span>{t.mpDirClaims(dirCnt[dir] || 0)}</span></div>
             ); })()}
             {sect && <p className="mp-note">{t.mpSectNote}</p>}
             <div className="mp-sub">{t.mpRef}</div>
@@ -306,14 +373,17 @@ export function MapsCompare() {
         </aside>
         <div className="mp-main">
           <div className="mp-bar-top">
+            <RailBtn on={rail} set={(v) => { refit.current = true; setRail(v); }} label={t.mpFilters} />
             <div className="map-legend">{legend}</div>
+            <BaseSeg bm={bm} set={setBm} label={t.mBase} />
             {M && ev && <span className="map-src">{t.mpShown(shown.length, inPer.length)}</span>}
           </div>
           <div className="map-wrap" ref={wrapRef}>
             {err ? <p className="map-src" style={{ padding: 16 }}>{t.mErr}</p> : !M || !geo ? <p className="map-src" style={{ padding: 16 }}>{t.mLoading}</p> : <>
-              <svg className="map-svg" viewBox={`0 0 ${W} ${H}`} tabIndex={0} role="img" aria-label={t.map} ref={z.svgRef} onKeyDown={onKey}>
+              <svg className={"map-svg bm-" + bm} viewBox={`0 0 ${W} ${H}`} tabIndex={0} role="img" aria-label={t.map} ref={z.svgRef} onKeyDown={onKey}>
+                {BASEMAPS[bm] && <Tiles256 id={bm} proj={geo.proj} t={z.t} W={W} H={H} />}
                 <g transform={z.t.toString()}>
-                  <Layers M={M} geo={geo} mode={mode} pair={pair} />
+                  <Layers M={M} geo={geo} mode={mode} pair={pair} plain={bm === "s"} />
                   {sect && cells && M.layers.ds_occ && <>
                     <mask id="mp-band" maskUnits="userSpaceOnUse" x={-W} y={-H} width={W * 3} height={H * 3}>
                       <path d={geo.d(M.layers.ds_occ)} fill="none" stroke="#fff" strokeWidth={26} strokeLinejoin="round" />
@@ -324,10 +394,10 @@ export function MapsCompare() {
                       <path key={DIRS[i].id} d={c} className={dir === DIRS[i].id ? "on" : undefined} style={{ fillOpacity: dir === DIRS[i].id ? 0.5 : 0.06 + 0.6 * ((gsOf(DIRS[i]) ?? 0) / gsMax) }} />
                     ))}</g>
                   </>}
-                  <Cities M={M} geo={geo} k={k} />
+                  <Cities M={M} geo={geo} k={k} hidden={bm === "t"} />
                   {(ev || sect) && <g className="mp-dlab">{dirShown.map((d, i) => {
                     // labels east of the front, alternately above and below the anchor, so neighbours don't overlap
-                    const [x, y] = geo.proj([d.lng, d.lat])!, on = dir === d.id, l = lang === "en" ? d.en : d.uk, dy = i % 2 ? 16 : -16, g = gsOf(d), lw = l.length * 5.9 + 14 + (g != null ? String(g).length * 7 + 8 : 0);
+                    const [x, y] = geo.proj([d.lng, d.lat])!, on = dir === d.id, l = d[lang], dy = i % 2 ? 16 : -16, g = gsOf(d), lw = l.length * 5.9 + 14 + (g != null ? String(g).length * 7 + 8 : 0);
                     return (
                       <g key={d.id} transform={`translate(${x},${y}) scale(${1 / k})`} className={on ? "on" : undefined} onClick={() => pickDir(on ? null : d.id)} role="button" tabIndex={0} aria-pressed={on} aria-label={`${t.mpDir}: ${l}`}
                         onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pickDir(on ? null : d.id); } }}>
@@ -358,13 +428,29 @@ export function MapsCompare() {
                 <button type="button" aria-label={t.mReset} title={t.mReset} onClick={() => z.to(zoomIdentity)}>⟲</button>
                 <FsButton fs={fs} onClick={toggleFs} />
               </div>
+              <div className="mp-ov">{/* top-left: claims list (full screen), the picked claim's card right under it */}
+              {fs && ev && <div className={"mp-fl" + (flOpen ? " open" : "")}>
+                <button type="button" className="mp-fl-h" aria-expanded={flOpen} onClick={() => setFlOpen(!flOpen)}><b>{t.mpList}</b> <span>{shown.length}</span><i aria-hidden="true">{flOpen ? "▾" : "▸"}</i></button>
+                {flOpen && <ol>{shown.map((e) => (
+                  <li key={e.id + "" + e.d}><button type="button" aria-current={e === selOn || undefined} onPointerEnter={() => setHl(e.id)} onPointerLeave={() => setHl(null)} onClick={() => focusEv(e, false)}>
+                    <MarkIco g={vgOf(e[ref])} /><span className="d">{dmy(e.d).slice(0, 5)}</span><span>{flags(hs(e.t))}</span>
+                  </button></li>
+                ))}</ol>}
+              </div>}
               {selOn && <div className="mp-sel" role="status">
                 <button type="button" aria-label={t.art.close} title={t.art.close} onClick={() => setSel(null)}>×</button>
                 <div className="d">{dmy(selOn.d)} · DIVGEN #{selOn.id}</div>
                 <div className="tx">{flags(hs(selOn.t))}</div>
                 <div className="v"><MarkIco g={vgOf(selOn.ds)} /> DeepState: {t.evSt.ds[selOn.ds as "occ"]}</div>
                 <div className="v"><MarkIco g={vgOf(selOn.isw)} /> ISW: {t.evSt.isw[selOn.isw as "occ"]}</div>
+                <div className="nav">
+                  <button type="button" aria-label={t.mpNextEv} title={t.mpNextEv} disabled={selI <= 0} onClick={() => focusEv(shown[selI - 1], false)}>‹</button>
+                  <span>{selI + 1} / {shown.length}</span>
+                  <button type="button" aria-label={t.mpPrevEv} title={t.mpPrevEv} disabled={selI >= shown.length - 1} onClick={() => focusEv(shown[selI + 1], false)}>›</button>
+                </div>
               </div>}
+              </div>
+              <Attr bm={bm} />
               <MapTip tip={tip} wrap={wrapRef} />
             </>}
           </div>
@@ -407,22 +493,24 @@ export function StrikesMap({ onReady }: { onReady?: () => void }) {
   const sd = useJson<StrikesData>("/strikes.json"), sb = useJson<StrikesBase>("/maps/strikes-base.json");
   const S = useMemo(() => (sd.data && sb.data ? { stk: sd.data, base: sb.data } : null), [sd.data, sb.data]);
   const stkErr = sd.err || sb.err;
-  const t = TT.stk, en = lang === "en";
+  const t = TT.stk;
   const [per, setPer] = useSticky("stkPer", "30");
   const [grp, setGrp] = useSticky<Record<Grp, boolean>>("stkGrps", ALL_G);
   const [st, setSt] = useSticky<"all" | "conf" | "unconf">("stkSt", "all");
   const [lc, setLc] = useSticky("stkLoc", "all");
-  const [q, setQ] = useSticky("stkQ", "");
   const [sel, setSel] = useState<string | null>(null);
   const [more, setMore] = useSticky("stkMore", 40);
   const [tgOn, setTgOn] = useSticky("tgOn", false);
+  const [bm, setBm] = useSticky("stkBase", "t");
   const [tgCat, setTgCat] = useSticky<Record<string, boolean>>("tgCat", { fuel: true, en: true, air: true, mil: true, dc: true });
   const [tip, setTip] = useState<Tip>(null);
   const maps = useJson<MapsData>("/maps/maps.json");
   const tg = useJson<{ items: Target[]; note?: string }>(tgOn ? "/maps/targets.json" : null);
   const wrapRef = useRef<HTMLDivElement>(null);
-  const w = useElWidth(wrapRef);
+  const w = useElWidth(wrapRef, !!S); // nothing renders before the data on /strikes: attach once the map is there
   const { fs, setFs, vh } = useFullscreen();
+  const [rail, setRail] = useSticky("stkRail", true);
+  const [flOpen, setFlOpen] = useSticky("stkFlOpen", true); // strikes panel on the full-screen map
   const W = Math.max(300, w || 800), H = fs ? Math.max(340, vh - 96) : Math.round(Math.min(620, Math.max(340, W * 0.7)));
   const z = useZoom("stkPageZ", !!S, [0.4, 12], [[-W * 1.5, -H * 0.8], [W * 2.5, H * 1.6]]);
 
@@ -432,9 +520,7 @@ export function StrikesMap({ onReady }: { onReady?: () => void }) {
   const pers: [string, string][] = [["7", t.p7], ["30", t.p30], ...years.map((y) => [y, y] as [string, string]), ["all", t.pAll]];
   const p = pers.some((x) => x[0] === per) ? per : "30";
   const inPer = (x: Strike) => (p === "all" ? true : p === "30" || p === "7" ? dayN(x.date) > end - +p : x.date.startsWith(p));
-  const ql = q.trim().toLowerCase();
-  const pass = (x: Strike) => (st === "all" || (st === "conf") === !!x.confirmed) && (lc === "all" || (x.local || "none") === lc)
-    && (!ql || (hs(x.object) + " " + hs(x.place)).toLowerCase().includes(ql));
+  const pass = (x: Strike) => (st === "all" || (st === "conf") === !!x.confirmed) && (lc === "all" || (x.local || "none") === lc);
   const pool = all.filter((x) => inPer(x) && pass(x));
   const gc = Object.fromEntries(GRPS.map((g) => [g, 0])) as Record<Grp, number>;
   pool.forEach((x) => gc[grpOf(x)]++);
@@ -445,17 +531,19 @@ export function StrikesMap({ onReady }: { onReady?: () => void }) {
   const farX = items.filter((x) => x.lng > FAR_LNG);
   const dl = (x: { lat: number; lng: number }) => (S ? distLabel(S.base, x, lang) : "");
   const farthest = S ? items.reduce<{ x: Strike; d: number } | null>((a, x) => { const d = stkDist(S.base, x) ?? 0; return !a || d > a.d ? { x, d } : a; }, null) : null;
-  const dirty = p !== "30" || st !== "all" || lc !== "all" || !!q || GRPS.some((g) => !grp[g]);
+  const dirty = p !== "30" || st !== "all" || lc !== "all" || GRPS.some((g) => !grp[g]);
 
   const geo = useMemo(() => {
     if (!S) return null;
     const ua = S.base.base.find((b) => b.ua)!;
     const fitF = { type: "FeatureCollection", features: [mp(ua.c)].concat(items.filter((x) => x.lng <= FAR_LNG).map((x) => ({ type: "Feature", properties: {}, geometry: { type: "Point", coordinates: [x.lng, x.lat] } }) as GeoPermissibleObjects)) } as GeoPermissibleObjects;
-    const proj = geoConicConformal().parallels([45, 55]).rotate([-38, 0]).fitExtent([[28, 28], [W - 64, H - 28]], fitF);
+    const proj = geoMercator().fitExtent([[28, 28], [W - 64, H - 28]], fitF);
     const path = geoPath(proj);
     return { proj, d: (c?: Rings) => (c && c.length ? path(mp(c)) || "" : "") };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [S, W, H, items.map((x) => x.id || x.date + x.object).join()]);
+  const keepView = useKeepView(z, geo, W, H, [0.4, 12]);
+  useWholeOnFs(fs, z);
 
   /** Select a place and bring it into view (from the list or the off-map buttons). */
   const focus = (x: Strike) => {
@@ -466,7 +554,7 @@ export function StrikesMap({ onReady }: { onReady?: () => void }) {
     z.to(zoomIdentity.translate(W / 2, H / 2).scale(s).translate(-px, -py), 400);
     wrapRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
   };
-  const reset = () => { setPer("30"); setGrp(ALL_G); setSt("all"); setLc("all"); setQ(""); setSel(null); setMore(40); z.to(zoomIdentity, 0); };
+  const reset = () => { setPer("30"); setGrp(ALL_G); setSt("all"); setLc("all"); setSel(null); setMore(40); z.to(zoomIdentity, 0); };
   const pickPer = (kk: string) => { setPer(kk); setMore(40); setSel(null); z.to(zoomIdentity, 0); };
   const pickGrp = (g: Grp) => { const n = { ...grp, [g]: !grp[g] }; if (!GRPS.some((x) => n[x])) n[g] = true; setGrp(n); setMore(40); };
   const pickTg = (c: string) => { const n = { ...tgCat, [c]: !tgCat[c] }; if (!Object.values(n).some(Boolean)) n[c] = true; setTgCat(n); };
@@ -488,6 +576,17 @@ export function StrikesMap({ onReady }: { onReady?: () => void }) {
   const bins = Array.from({ length: nb }, (_, i) => ({ d0: from + i * unit, xs: [] as Strike[] }));
   items.forEach((x) => { const i = Math.floor((dayN(x.date) - from) / unit); if (bins[i]) bins[i].xs.push(x); });
   const bMax = Math.max(1, ...bins.map((b) => b.xs.length)), lblEvery = Math.ceil(nb / 7);
+  // tooltip: full date (or date range) + total, then every target group in the bin
+  const binTip = (b: { d0: number; xs: Strike[] }) => {
+    const iso = nDay(b.d0), d1 = Math.min(to, b.d0 + unit - 1);
+    const when = unit === 1 ? dmy(iso) : unit === 30 ? binLbl(b.d0) : shortD(iso) + "–" + dmy(nDay(d1));
+    const rows = GRPS.flatMap((g) => {
+      const xs = b.xs.filter((x) => grpOf(x) === g), cf = xs.filter((x) => x.confirmed).length;
+      return xs.length ? [{ g, s: `${t.g[g]}: ${xs.length}` + (cf ? ` · ${t.conf} ${cf}` : "") }] : [];
+    });
+    const head = `${when} · ${t.nStrikes(b.xs.length)}`;
+    return { text: [head, ...rows.map((r) => r.s)].join("\n"), rich: <div className="tipc" hidden><b>{head}</b>{rows.map((r) => <span key={r.g}><StkIco g={r.g} size={12} />{r.s}</span>)}</div> };
+  };
   const binLbl = (d0: number) => { const iso = nDay(d0); return unit === 30 ? iso.slice(5, 7) + "." + iso.slice(0, 4) : shortD(iso); };
 
   useEffect(() => { if (S) onReady?.(); }, [S, onReady]);
@@ -506,7 +605,7 @@ export function StrikesMap({ onReady }: { onReady?: () => void }) {
         [t.tFar, farthest && farthest.d ? <>{fmt(farthest.d, lang)}<sub>{t.km}</sub></> : "—", farthest ? hs(farthest.x.place).split(",")[0] + " · " + dmy(farthest.x.date).slice(0, 5) : ""],
       ]} />}</div>
       <div className={"mp-grid" + (fs ? " fs" : "")} role={fs ? "dialog" : undefined} aria-modal={fs || undefined} aria-label={fs ? t.title : undefined}>
-        <aside className="mp-rail">
+        <aside className="mp-rail" hidden={!rail}>
           <fieldset>
             <legend>{t.period}</legend>
             <div className="mp-dirs" role="group" aria-label={t.period}>{pers.map(([kk, l]) => <button type="button" key={kk} aria-pressed={p === kk} onClick={() => pickPer(kk)}>{l}</button>)}</div>
@@ -527,10 +626,6 @@ export function StrikesMap({ onReady }: { onReady?: () => void }) {
             </div>
           </fieldset>
           <fieldset>
-            <legend><label htmlFor="stk-q">{t.search}</label></legend>
-            <input id="stk-q" className="stk-q" type="search" value={q} placeholder={t.searchPh} onChange={(e) => { setQ(e.target.value); setSel(null); }} />
-          </fieldset>
-          <fieldset>
             <legend><label className="mp-chk"><input type="checkbox" checked={tgOn} onChange={() => setTgOn(!tgOn)} />{t.tgLbl}</label></legend>
             {tgOn && <div className="mp-verd">{["fuel", "en", "air", "mil", "dc"].map((c) => (
               <label key={c} className="mp-chk"><input type="checkbox" checked={tgCat[c]} onChange={() => pickTg(c)} /><Diamond r={6} fill={`var(${TG_COL[c]})`} stroke={`var(${TG_COL[c]})`} /><span>{t.tg[c as "fuel"]}</span><span className="n">{tg.data ? tc[c] : ""}</span></label>
@@ -541,10 +636,11 @@ export function StrikesMap({ onReady }: { onReady?: () => void }) {
         </aside>
 
         <div className="mp-main">
-          <div className="mp-bar-top"><b className="stk-h3">{t.byUnit[unit === 1 ? "d" : unit === 7 ? "w" : "m"]}</b><span className="map-src">{t.shown(items.length, all.filter(inPer).length)}</span></div>
+          <div className="mp-bar-top"><RailBtn on={rail} set={(v) => { keepView(); setRail(v); }} label={TT.mpFilters} /><b className="stk-h3">{t.byUnit[unit === 1 ? "d" : unit === 7 ? "w" : "m"]}</b><BaseSeg bm={bm} set={setBm} label={TT.mBase} /><span className="map-src">{t.shown(items.length, all.filter(inPer).length)}</span></div>
           <div className="stk-tl" role="img" aria-label={t.tlAria(items.length)}>
             <div className="bars" style={{ gridTemplateColumns: `repeat(${nb}, minmax(0, 1fr))` }}>{bins.map((b) => (
-              <div key={b.d0} title={`${binLbl(b.d0)}: ${b.xs.length}`} style={{ height: (b.xs.length / bMax) * 100 + "%" }}>
+              <div key={b.d0} data-tip={binTip(b).text} style={{ height: (b.xs.length / bMax) * 100 + "%" }}>
+                {binTip(b).rich}
                 {GRPS.flatMap((g) => [true, false].map((c) => { const n = b.xs.filter((x) => grpOf(x) === g && !!x.confirmed === c).length;
                   return n ? <span key={g + c} style={c ? { flex: n, background: GCOL[g] } : { flex: n, boxShadow: `inset 0 0 0 1.5px ${GCOL[g]}`, background: "var(--surface)" }} /> : null; }))}
               </div>
@@ -555,14 +651,15 @@ export function StrikesMap({ onReady }: { onReady?: () => void }) {
 
           <div className="map-wrap" ref={wrapRef}>
             {stkErr ? <p className="map-src" style={{ padding: 16 }}>{t.err}</p> : !S || !geo ? <p className="map-src" style={{ padding: 16 }}>{t.loading}</p> : <>
-              <svg className="map-svg" viewBox={`0 0 ${W} ${H}`} tabIndex={0} role="img" aria-label={t.title} ref={z.svgRef}>
+              <svg className={"map-svg bm-" + bm} viewBox={`0 0 ${W} ${H}`} tabIndex={0} role="img" aria-label={t.title} ref={z.svgRef}>
+                {BASEMAPS[bm] && <Tiles256 id={bm} proj={geo.proj} t={z.t} W={W} H={H} />}
                 <g transform={z.t.toString()}>
-                  {S.base.base.map((b, i) => <path key={i} d={geo.d(b.c)} fill={b.ua ? "var(--m-ua)" : "var(--m-land)"} fillOpacity={1} stroke="var(--m-border)" strokeWidth={b.ua ? 1.4 : 0.8} fillRule="evenodd" />)}
+                  {S.base.base.map((b, i) => <path key={i} d={geo.d(b.c)} fill={b.ua ? "var(--m-ua)" : "var(--m-land)"} fillOpacity={bm === "s" ? 1 : 0} stroke="var(--m-border)" strokeWidth={b.ua ? 1.4 : 0.8} fillRule="evenodd" />)}
                   {maps.data?.layers?.ds_occ && <path d={geo.d(maps.data.layers.ds_occ)} fill="var(--m-occ)" fillOpacity={0.3} stroke="var(--m-occ)" strokeWidth={0.6} fillRule="evenodd" />}
                   <g className="city stk-city" aria-hidden="true">{STK_CITIES.filter((c) => c.t === 1 || k >= 2).map((c) => { const [x, y] = geo.proj([c.lng, c.lat])!; return (
                     <g key={c.en} transform={`translate(${x},${y}) scale(${1 / k})`}>
                       {c.cap ? <rect x={-3.5} y={-3.5} width={7} height={7} fill="var(--surface)" stroke="var(--m-city)" strokeWidth={1.8} /> : <circle r={2.6} fill="var(--m-city)" />}
-                      <text x={6} y={4} fontSize={c.cap ? 13 : 11} fontWeight={c.cap ? 700 : 500}>{en ? c.en : c.uk}</text>
+                      <text x={6} y={4} fontSize={c.cap ? 13 : 11} fontWeight={c.cap ? 700 : 500}>{c[lang]}</text>
                     </g>
                   ); })}</g>
                   {tgOn && tg.data && <g className="tgt">{tg.data.items.filter((x) => tgCat[x.cat]).map((x, i) => {
@@ -598,11 +695,19 @@ export function StrikesMap({ onReady }: { onReady?: () => void }) {
                   })}</g>
                 </g>
               </svg>
-              {/* the box changes size: the map refits (geo depends on W×H), so start from the whole view */}
-              <ZoomButtons z={z}><FsButton fs={fs} onClick={() => { setFs(!fs); z.to(zoomIdentity, 0); }} /></ZoomButtons>
-              {farX.length > 0 && !sel && <div className="stk-far"><span>{t.offMap}</span>{byPlace(farX).map(({ k: fk, xs }) => (
+              <ZoomButtons z={z}><FsButton fs={fs} onClick={() => setFs(!fs)} /></ZoomButtons>
+              {farX.length > 0 && !sel && !fs && <div className="stk-far"><span>{t.offMap}</span>{byPlace(farX).map(({ k: fk, xs }) => (
                 <button type="button" key={fk} onClick={() => focus(xs[0])}><StkIco g={grpOf(xs[0])} conf={!!xs[0].confirmed} size={14} />{hs(xs[0].place).split(",")[0]} · {xs.length > 1 ? t.nStrikes(xs.length) : dmy(xs[0].date).slice(0, 5)}</button>
               ))}</div>}
+              <div className="mp-ov">{/* top-left: strikes list (full screen), the picked place's card right under it */}
+              {fs && <div className={"mp-fl" + (flOpen ? " open" : "")}>
+                <button type="button" className="mp-fl-h" aria-expanded={flOpen} onClick={() => setFlOpen(!flOpen)}><b>{t.list}</b> <span>{items.length}</span><i aria-hidden="true">{flOpen ? "▾" : "▸"}</i></button>
+                {flOpen && <ol>{items.map((x, i) => (
+                  <li key={i}><button type="button" aria-current={placeKey(x) === sel || undefined} onClick={() => focus(x)}>
+                    <StkIco g={grpOf(x)} conf={!!x.confirmed} size={14} /><span className="d">{dmy(x.date).slice(0, 5)}</span><span>{flags(hs(x.object))}, {flags(hs(x.place))}</span>
+                  </button></li>
+                ))}</ol>}
+              </div>}
               {selXs.length > 0 && <div className="mp-sel stk-sel" role="status">
                 <button type="button" aria-label={TT.art.close} title={TT.art.close} onClick={() => setSel(null)}>×</button>
                 <span className="d">{t.nStrikesHere(selXs.length)}</span>
@@ -613,6 +718,8 @@ export function StrikesMap({ onReady }: { onReady?: () => void }) {
                     {x.item && <> · <a href="#" onClick={(e) => { e.preventDefault(); goItem(x.issue || "", x.item!); }}>{t.toFeed}</a></>}</span></span>
                 ))}
               </div>}
+              </div>
+              <Attr bm={bm} />
               <MapTip tip={tip} wrap={wrapRef} />
             </>}
           </div>
@@ -667,7 +774,7 @@ export function StrikesMap({ onReady }: { onReady?: () => void }) {
             {items.length > shown.length && <li><span /><div><button type="button" className="linkbtn" onClick={() => setMore(more + 60)}>{t.more(items.length - shown.length)}</button></div></li>}
           </ol>
           <details className="method"><summary>{t.about}</summary>
-            <p className="map-src">{flags(S ? t.distNote(S.base.ctrlAsOf || "") + " " + (S.stk.coverage ? (en ? S.stk.coverage.en : S.stk.coverage.uk) + " " : "") + (tgOn && tg.data && tg.data.note ? " ◆ " + tg.data.note : "") : "")}</p>
+            <p className="map-src">{flags(S ? t.distNote(S.base.ctrlAsOf || "") + " " + (S.stk.coverage ? (S.stk.coverage[lang] ?? S.stk.coverage.en) + " " : "") + (tgOn && tg.data && tg.data.note ? " ◆ " + tg.data.note : "") : "")}</p>
           </details>
         </div>
       </div>

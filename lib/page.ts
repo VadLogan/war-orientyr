@@ -24,8 +24,8 @@ export async function resolve(params: DateParams, lang: Lang): Promise<{ latest:
 
 export async function pageMeta(lang: Lang, view: View, params: DateParams): Promise<Metadata> {
   const { D } = await resolve(params, lang);
-  // German: only issues with German text; others (and the dashboard) are the English page, canonical included
-  const de = view === "digest" && (lang === "de" ? D : (await resolve(params, "de")).D).contentLang === "de";
+  // German: the dashboard, maps and strikes always; a digest only with German text — otherwise it is the English page, canonical included
+  const de = view !== "digest" || (lang === "de" ? D : (await resolve(params, "de")).D).contentLang === "de";
   if (lang === "de" && !de) return pageMeta("en", view, params);
   const root = !(await params).date?.length;
   let meta: Metadata;
