@@ -28,6 +28,13 @@ Do the four desks on the article alone, but deeper — there is no string-for-st
 4. Keep identical in all languages: `id`, `date`, `asOf`, image (except a `cover.en.*` with translated text)/`embed.src`, chart `rows` data, `sources` URLs, file names, `h2` `section` ids. Leave `index.html`, media and other non-JSON files alone — say in the report if they hold untranslated text.
 5. Check: valid JSON, `npm run validate`, then open `/articles/<date>/<name>`, `/en/articles/<date>/<name>` and `/de/articles/<date>/<name>` on the dev server (`preview_start` “dev”, or the running server on :5001) and read the page text. Report the memo, before → after for title and lead in every language, and what you didn't change.
 
+### What the editor owns (digest)
+`digest.json` mixes text written for this issue with fixed text copied into every issue (checked across 26 issues: one value each). Edit only the first kind.
+
+- **Yours — new each issue:** `headline.title`, `headline.text`, `lede`; `sections[].items[]` `text` and `quote.uk/en` (and `local.said/who/when` in `deepstrikes`); `divergences.items[]` `title`, `a/b.claim`, `why`, `note`; `front.period`, `airDefense.period`, `airDefense.note`; `losses.gsTotal.source`; `sources[].title/note`; `unavailable`, `assumption`; and the issue's articles.
+- **Not yours — fixed:** `headline.kicker` («Головне»), `sections[].title`, `sbs.title/note/period/source/url`, `civilianStats.title/source/url`, `losses.caveat`, `losses.method.ru`, `divergences.intro`, `footer`, `since[].label/note`; the fixed word lists `front.directions[].name`, `sbs.categories[].label` and item `emoji`; date-derived `weekday`, `dateLabel`, `timeline[].night`; all UI strings (`lib/ui.ts`). Changing one changes it for every issue and breaks its stored translation, so leave it. If one reads wrong, mention it in the report instead.
+- **Rarely changed:** `losses.method.ua`, `civilianStats.lead`, `civilianStats.note`. Edit them only when this issue's data changed what they say (a new UN month, a new method), not for style.
+
 ## 1. Chief desk — read everything, pick the angle
 
 1. Load the issue: `public/digest.json` (all sections, `divergences`, `assumption`, `unavailable`), the previous 1–7 issues from `public/issues/` (dates in `issues/index.json`), and every folder in `public/articles/<date>/` for the digest's date.
@@ -52,7 +59,7 @@ Edit in place in `public/digest.json` (and `article.uk.json` / `preview.uk.json`
 - `headline.title` ≤ ~90 characters, `lede` = 2–3 sentences: what happened, why it matters today, the one contrast.
 - Keep house style already in the data: flags before countries, lowercase “росія/рф/кремль” as it stands, quotes «».
 
-Don't touch: numbers in data fields, `id`, `url`, dates, `geo`, `emoji`, `source` names, `links`, `sources`. A `deepstrikes` item without `id` is matched to `strikes.json` by its text — leave that text alone (validate will catch it).
+Don't touch: the fixed text listed in “What the editor owns”, numbers in data fields, `id`, `url`, dates, `geo`, `emoji`, `source` names, `links`, `sources`. A `deepstrikes` item without `id` is matched to `strikes.json` by its text — leave that text alone (validate will catch it).
 
 ## 3. English desk — for a reader outside Ukraine
 
