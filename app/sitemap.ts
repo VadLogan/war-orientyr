@@ -17,7 +17,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const deArt = await Promise.all(articles.map(async ({ date, name }) => (await getArticle(date, name, "de"))?.contentLang === "de"));
   return [
     // roots ("/", "/dashboard") + every issue at its dated URL, the latest included
-    ...(["digest", "dashboard"] as View[]).flatMap((v) => [null, ...dates].map((d, k) => entry((l) => href(l, v, d, ""), d ?? latest, v === "digest" && deDigest[k])).flat()),
+    ...(["digest", "dashboard"] as View[]).flatMap((v) => [null, ...dates].map((d, k) => entry((l) => href(l, v, d, ""), d ?? latest, v === "dashboard" || deDigest[k])).flat()),
     ...articles.flatMap(({ date, name }, k) => entry((l) => articleHref(l, date, name), date, deArt[k])),
   ];
 }

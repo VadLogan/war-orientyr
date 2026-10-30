@@ -16,14 +16,17 @@ const getTexts = cache(async (lang: Lang): Promise<Record<string, string>> => {
   try { return JSON.parse(await fs.readFile(path.join(process.cwd(), `i18n/${lang}.json`), "utf8")); } catch { return {}; }
 });
 
-/** An issue in the requested language: its text applied when every string is translated, else the Ukrainian text
- *  (a German page without German text shows the English page instead — see DigestPage).
+/** An issue in the requested language: its text applied when every string is translated; German falls back to English,
+ *  then to Ukrainian (a German digest page without German text shows the English page instead — see DigestPage).
  *  Sources that could not be opened (`status: "unavailable"`) are dropped — readers see only what was read. */
 async function readIssue(p: string, lang: Lang): Promise<Digest> {
   const data = await read<Digest>(p);
   if (data.sources) data.sources = data.sources.filter((s) => s.status !== "unavailable");
-  const tr = lang !== "uk" ? translate(data, await getTexts(lang)) : null;
-  return tr ? { ...styleData(tr, "", lang), contentLang: lang } : { ...styleData(data, ""), contentLang: "uk" };
+  for (const l of lang === "de" ? (["de", "en"] as const) : lang === "en" ? (["en"] as const) : []) {
+    const tr = translate(data, await getTexts(l));
+    if (tr) return { ...styleData(tr, "", l), contentLang: l };
+  }
+  return { ...styleData(data, ""), contentLang: "uk" };
 }
 
 export const getLatest = cache(async (lang: Lang = "uk") => readIssue("digest.json", lang));

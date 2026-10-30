@@ -5,12 +5,12 @@ import type { SourceMatrix } from "@/lib/data";
 import { UI, type Lang, type UIStrings } from "@/lib/ui";
 
 /** The parts of an issue the dashboard reads (kept small: it is serialized into every dashboard page). */
-/** Dashboard languages. */
-export type DashLang = Exclude<Lang, "de">;
+/** Dashboard languages (all of them). */
+export type DashLang = Lang;
 export type DashIssue = Pick<Digest, "contentLang" | "date" | "airDefense" | "front" | "civilianStats" | "timeline" | "airDefenseHistory" | "losses">;
 
 export type Ctx = {
-  lang: DashLang; // no German dashboard (/de/dashboard shows the English one)
+  lang: DashLang;
   t: UIStrings;
   D: DashIssue; // the issue on screen
   LATEST: DashIssue; // the newest issue (owns timeline/losses series)

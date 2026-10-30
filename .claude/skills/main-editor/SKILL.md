@@ -79,7 +79,7 @@ Who reads: a German-speaking public that follows the war through its own media (
 - Digest German is stored in `i18n/de.json` exactly like English (`{ "<Ukrainian string>": "<Deutsch>" }`, `JSON.stringify(o, null, 1) + "\n"`), but only the **current issue** needs it: `npm run i18n:missing:de` writes `i18n/missing.de.json` with every untranslated string of `digest.json` — the page is German only when **all** of them are filled (otherwise `/de/…` shows the English page with the notice). Fill them in (a scratchpad script, or edit the file and run `npm run i18n:merge:de`). Recurring strings (section labels, method notes) are shared memory — translate them once, carefully.
 - Articles: `preview.de.json`, `article.de.json` / `presentation.de.json` — free structure, as for English; same fields kept identical. A cover with text in it gets a `cover.de.<ext>` copy, like `cover.en.<ext>`.
 - An `h2` that repeats a digest section title carries `section` in German too. The German section titles are in `UI.de.sec` (`lib/ui.ts`).
-- No German dashboard: `/de/dashboard` always shows the English one with the notice. Nothing to do for it.
+- The German dashboard (`/de/dashboard`) reads the same `i18n/de.json`: `npm run i18n:missing:de` also lists new strings of the dashboard data files (new strikes in `strikes.json`, map events in `maps/maps.json` and `maps/archive/<date>.json`, prices, recruitment). Fill those too — a file with any German string missing is shown in English. For russian claims from DIVGEN keep their own wording (“befreit”, as English keeps “liberated”); Ukrainian place names in German transliteration (Nowopawliwka, Kupjansk), russian ones in their German form (Rjasan, Woronesch, Nischni Nowgorod).
 
 ## 5. Check and report
 

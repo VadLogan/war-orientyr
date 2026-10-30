@@ -260,7 +260,7 @@ export function StrikesMap() {
   const sd = useJson<StrikesData>("/strikes.json"), sb = useJson<StrikesBase>("/maps/strikes-base.json");
   const strikes = useMemo(() => (sd.data && sb.data ? { stk: sd.data, base: sb.data } : null), [sd.data, sb.data]);
   const stkErr = sd.err || sb.err;
-  const t = TT.stk, en = lang === "en";
+  const t = TT.stk;
   const [per, setPer] = useSticky("stkPer", "30");
   const [grp, setGrp] = useSticky<Record<string, boolean>>("stkGrp", { oil: true, mil: true, log: true, en: true });
   const [more, setMore] = useSticky("stkMore", 40);
@@ -428,7 +428,7 @@ export function StrikesMap() {
         )}
       </ol>
       <details className="method"><summary>{t.about}</summary>
-        <p className="map-src">{flags(S ? t.distNote(S.base.ctrlAsOf || "") + " " + (S.stk.coverage ? (en ? S.stk.coverage.en : S.stk.coverage.uk) + " " : "") + (items.some((x) => x.approx) && !S.stk.coverage ? t.approx + "." : "") + (tgOn && tg.data && tg.data.note ? " ◆ " + tg.data.note : "") : "")}</p>
+        <p className="map-src">{flags(S ? t.distNote(S.base.ctrlAsOf || "") + " " + (S.stk.coverage ? (S.stk.coverage[lang] ?? S.stk.coverage.en) + " " : "") + (items.some((x) => x.approx) && !S.stk.coverage ? t.approx + "." : "") + (tgOn && tg.data && tg.data.note ? " ◆ " + tg.data.note : "") : "")}</p>
       </details>
     </section>
   );

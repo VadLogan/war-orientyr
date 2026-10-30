@@ -17,7 +17,7 @@ export default function Losses() {
   const [table, setTable] = useSticky("lsTable", false);
   const B = LATEST;
   if (!B.losses) return null;
-  const en = lang === "en";
+  const tr = (uk: string, en: string, de: string) => ({ uk, en, de }[lang]);
   const all = ((B.losses.series || []) as LossRow[]).filter((e) => e && /^\d{4}-\d{2}-\d{2}$/.test(e.date)).sort((a, b) => (a.date < b.date ? -1 : 1));
   const row = all.find((e) => e.date === D.date) || null;
   // russia's MoD publishes around midday, after the morning issue — show its latest claim up to this date
@@ -29,12 +29,12 @@ export default function Losses() {
     { name: t.lsRuName, color: "var(--s1)", get: (e) => num(e.ru && e.ru[cat]), src: "ru" },
     { name: t.lsUaName, color: "var(--s2)", get: (e) => num(e.ua && e.ua[cat]), src: "ua" },
   ];
-  if (cat === "personnel") ser.push({ name: en ? "of which USF (killed)" : "у т.ч. СБС (знищено особового складу)", color: "var(--c3)", get: (e) => num(e.sbs && e.sbs.killed), src: "sbs" });
+  if (cat === "personnel") ser.push({ name: tr("у т.ч. СБС (знищено особового складу)", "of which USF (killed)", "davon USF (getötet)"), color: "var(--c3)", get: (e) => num(e.sbs && e.sbs.killed), src: "sbs" });
   const end = dayN(B.date), start = rangeStart(all, range, end);
   const rows = all.filter((e) => { const n = dayN(e.date); return n >= start && n <= end && ser.some((s) => s.get(e) != null); });
   const uaNone = !all.some((e) => num(e.ua && e.ua[cat]) != null);
   const note = (uaNone ? t.lsNoUa + " " : "") + t.lsGaps + (cat === "personnel"
-    ? en ? " USF is part of the General Staff total; shown only for days with USF board data." : " Втрати від СБС — частина загальних втрат за Генштабом; показано лише дні, для яких є дані табло СБС."
+    ? tr(" Втрати від СБС — частина загальних втрат за Генштабом; показано лише дні, для яких є дані табло СБС.", " USF is part of the General Staff total; shown only for days with USF board data.", " Die USF-Verluste sind Teil der Gesamtzahl des Generalstabs; gezeigt nur an Tagen mit Daten der USF-Anzeigetafel.")
     : "");
 
   return (

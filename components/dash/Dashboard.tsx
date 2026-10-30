@@ -16,7 +16,7 @@ export default function Dashboard() {
   const [dirSel, setDirSel] = useSticky<DirSel>("dirSel", null);
   return (
     <div className="dash">
-      {lang === "en" && D.contentLang !== "en" && <p className="lang-note">{t.langNote}</p>}
+      {lang !== "uk" && D.contentLang !== lang && <p className="lang-note">{D.contentLang === "en" ? t.langNoteEn : t.langNote}</p>}
       <Civ />
       <Tiles />
       <Attack />

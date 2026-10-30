@@ -14,13 +14,12 @@ const slim = (d: Digest): DashIssue => ({
   timeline: d.timeline, airDefenseHistory: d.airDefenseHistory, losses: d.losses,
 });
 
-/** `from`: "de" on /de/dashboard — the dashboard has no German version, so it is shown in English with a notice. */
-export default async function DashPage({ lang, params, from }: { lang: DashLang; params: DateParams; from?: "de" }) {
+export default async function DashPage({ lang, params }: { lang: DashLang; params: DateParams }) {
   const { latest, dates, D } = await resolve(params, lang);
   const t = UI[lang] as UIStrings;
   return (
     <div className="shell">
-      <Shell lang={lang} t={t} view="dashboard" date={D.date} latest={latest.date} dates={dates} from={from} />
+      <Shell lang={lang} t={t} view="dashboard" date={D.date} latest={latest.date} dates={dates} />
       <Mast D={D} lang={lang} dashboard />
       <main id="main"><div className="view">
         <DashProvider lang={lang} D={slim(D)} LATEST={slim(latest)} DATES={dates} MAPS={await getMapsUrl(D.date)} smx={SHOW_SOURCE_MATRIX ? await getSourceMatrix() : null} />

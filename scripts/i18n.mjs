@@ -8,10 +8,11 @@
 //
 //   node scripts/i18n.mjs missing   → i18n/missing.json: { "<uk>": "" } for every untranslated string (newest data first)
 //   node scripts/i18n.mjs merge     → moves filled-in entries of i18n/missing.json into i18n/en.json
-//   node scripts/i18n.mjs build     → regenerates public/i18n/** (runs before `dev` and `build`)
+//   node scripts/i18n.mjs build     → regenerates public/i18n/{en,de}/** (runs before `dev` and `build`)
 //
-//   German (i18n/de.json, i18n/missing.de.json): `missing de` / `merge de` — only the current issue (digest.json); a German
-//   digest page without full German text shows the English page instead, and there is no German dashboard (no build step).
+//   German (i18n/de.json, i18n/missing.de.json): `missing de` / `merge de` — the current issue (digest.json) and the files the
+//   dashboard fetches (strikes, maps, prices…), not the archived issues. A German digest page without full German text shows
+//   the English page instead; a dashboard file without full German text is shown in English. `build` writes both languages.
 //
 // Translate the raw strings: house style (lowercase "russia", country flags) is applied at render time.
 // Not translated: `url`, and `en` / `uk` fields (already in both languages). Rules: lib/i18n.mjs.
@@ -43,7 +44,8 @@ const isIssue = (f) => f === "digest.json" || f.startsWith("issues/");
 
 const cmd = process.argv[2];
 const tm = readJson(TM_FILE, {});
-const files = LANG === "en" ? dataFiles() : ["digest.json"];
+const filesOf = (lang) => (lang === "en" ? dataFiles() : dataFiles().filter((f) => f === "digest.json" || !isIssue(f)));
+const files = filesOf(LANG);
 
 if (cmd === "missing") {
   const miss = {};
@@ -57,16 +59,18 @@ if (cmd === "missing") {
   writeJson(TM_FILE, tm);
   writeJson(MISSING, miss);
   console.log(`merged ${n}; ${Object.keys(miss).length} still missing`);
-} else if (cmd === "build" && LANG === "en") {
+} else if (cmd === "build") {
   fs.rmSync(OUT, { recursive: true, force: true });
   fs.rmSync(path.join(PUB, "en"), { recursive: true, force: true }); // old full-copy mirrors, no longer used
-  const partial = [];
-  for (const f of files) {
-    const ss = [...new Set(texts(readJson(path.join(PUB, f))))], left = ss.filter((s) => !tm[s]).length;
-    if (left) { partial.push(`${f} (${left})`); continue; }
-    if (!isIssue(f)) writeJson(path.join(OUT, "en", f), Object.fromEntries(ss.map((s) => [s, tm[s]])));
+  for (const [lang, name, suffix] of [["en", "English", ""], ["de", "German", ":de"]]) {
+    const tl = readJson(path.join(ROOT, `i18n/${lang}.json`), {}), fl = filesOf(lang), partial = [];
+    for (const f of fl) {
+      const ss = [...new Set(texts(readJson(path.join(PUB, f))))], left = ss.filter((s) => !tl[s]).length;
+      if (left) { partial.push(`${f} (${left})`); continue; }
+      if (!isIssue(f)) writeJson(path.join(OUT, lang, f), Object.fromEntries(ss.map((s) => [s, tl[s]])));
+    }
+    console.log(`i18n: ${fl.length - partial.length}/${fl.length} files in ${name}` + (partial.length ? `; untranslated strings in ${partial.join(", ")} — run \`npm run i18n:missing${suffix}\`` : ""));
   }
-  console.log(`i18n: ${files.length - partial.length}/${files.length} files in English` + (partial.length ? `; untranslated strings in ${partial.join(", ")} — run \`npm run i18n:missing\`` : ""));
 } else {
   console.error("usage: node scripts/i18n.mjs missing|merge [de] | build");
   process.exit(1);
