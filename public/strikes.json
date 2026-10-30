@@ -3391,7 +3391,7 @@
    "kind": "military",
    "territory": "occupied",
    "lat": 48.6,
-   "lng": 38.0,
+   "lng": 38,
    "approx": true,
    "result": "Генштаб: уражено",
    "confirmed": {
@@ -3435,7 +3435,7 @@
    "kind": "defence-industry",
    "territory": "russia",
    "lat": 53.44,
-   "lng": 36.0,
+   "lng": 36,
    "approx": true,
    "result": "Генштаб: 10 БпЛА досягли цілі, пожежа",
    "confirmed": {
@@ -4293,7 +4293,7 @@
    "kind": "defence-industry",
    "territory": "russia",
    "lat": 53.2,
-   "lng": 45.0,
+   "lng": 45,
    "approx": true,
    "result": "Генштаб: вибухи та пожежа",
    "confirmed": {
@@ -6207,7 +6207,7 @@
    "kind": "military",
    "territory": "occupied",
    "lat": 47.79,
-   "lng": 38.0,
+   "lng": 38,
    "approx": true,
    "result": "Генштаб: ураження й вибухи",
    "confirmed": {
@@ -7065,7 +7065,7 @@
    "kind": "oil",
    "territory": "russia",
    "lat": 50.8,
-   "lng": 42.0,
+   "lng": 42,
    "approx": true,
    "result": "Генштаб: вибухи та пожежа",
    "confirmed": {
@@ -11574,6 +11574,65 @@
    "issue": "2026-10-28",
    "item": "lipetsk-2810",
    "url": "https://www.obozrevatel.com/ukr/section-novosti-rossii/news-reaktyvni-drony-atakuvaly-rosiyskyy-lypetsk-povidomlyayut-pro-vybukhy-i-pozhezhu-v-rayoni-aerodromu-foto-i-video-28-10-2026.html"
+  },
+  {
+   "id": "marinivka-2910",
+   "date": "2026-10-29",
+   "night": "29.10",
+   "object": "Аеродром «Маріновка» (Су-34)",
+   "place": "Маріновка, Волгоградська область",
+   "kind": "airfield",
+   "territory": "russia",
+   "lat": 48.64,
+   "lng": 43.79,
+   "approx": true,
+   "result": "за ВМС ЗСУ — удар комплексом «Нептун», знищено два Су-34; підтвердили ВМС і Генштаб ЗСУ; незалежних знімків немає; заяв місцевої влади не знайдено",
+   "confirmed": {
+    "by": "ВМС ЗСУ, Генштаб ЗСУ",
+    "when": "29.10 20:38"
+   },
+   "local": "silent",
+   "issue": "2026-10-30",
+   "item": "marinivka-2910",
+   "url": "https://lb.ua/society/2026/10/29/777134_vms_zsu_znischili_dva_rosiyskih.html"
+  },
+  {
+   "id": "navlya-2810",
+   "date": "2026-10-29",
+   "night": "28–29.10",
+   "object": "Склад дронів «Герань», дронопорт і склад пального; також РЛС біля Стародуба й Медведова, пункти управління БпЛА біля Савлукова й Вітівки",
+   "place": "біля Навлі, Брянська область",
+   "kind": "military",
+   "territory": "russia",
+   "lat": 52.83,
+   "lng": 34.5,
+   "approx": true,
+   "result": "за Генштабом — уражено; ураження РЛС «створює прогалини в радіолокаційному полі противника»; заяв місцевої влади не знайдено",
+   "confirmed": {
+    "by": "Генштаб ЗСУ",
+    "when": "29.10 (Гордон 13:18)"
+   },
+   "local": "silent",
+   "issue": "2026-10-30",
+   "item": "navlya-2810",
+   "url": "https://gordonua.com/ukr/section-war/news-syly-oborony-urazyly-sklad-heraney-dronoport-i-palne-v-rf-shcho-vidomo-29-10-2026.html"
+  },
+  {
+   "id": "novokuibyshevsk-3010",
+   "date": "2026-10-30",
+   "night": "29–30.10",
+   "object": "Новокуйбишевський НПЗ",
+   "place": "Новокуйбишевськ, Самарська область",
+   "kind": "oil",
+   "territory": "russia",
+   "lat": 53.1,
+   "lng": 49.97,
+   "approx": true,
+   "result": "за телеграм-каналом Exilenova+ (через Остров) — масштабна пожежа після атаки; офіційного підтвердження немає; заяви губернатора не знайдено",
+   "confirmed": null,
+   "local": "silent",
+   "issue": "2026-10-30",
+   "item": "novokuibyshevsk-3010"
   }
  ],
  "coverage": {
