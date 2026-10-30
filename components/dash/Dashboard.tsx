@@ -1,5 +1,6 @@
 "use client";
 import dynamic from "next/dynamic";
+import { useState, type ReactNode } from "react";
 import { useApp } from "../ctx";
 import { useSticky } from "./hooks";
 import { Attack, Civ, Fire, LandCost, Recruit, Tiles } from "./Panels";
@@ -11,7 +12,7 @@ import SourceMatrix from "./SourceMatrix";
 const MapsCompare = dynamic(() => import("./Maps").then((m) => m.MapsCompare), { ssr: false });
 const StrikesMap = dynamic(() => import("./Maps").then((m) => m.StrikesMap), { ssr: false });
 
-export default function Dashboard() {
+export default function Dashboard({ mapsCard, strikesCard }: { mapsCard: ReactNode; strikesCard: ReactNode }) {
   const { t, lang, D, smx } = useApp();
   const [dirSel, setDirSel] = useSticky<DirSel>("dirSel", null);
   return (
@@ -24,11 +25,35 @@ export default function Dashboard() {
       <Losses />
       <LandCost />
       <Recruit />
-      <MapsCompare />
-      <StrikesMap />
+      {mapsCard}
+      {strikesCard}
       <Directions sel={dirSel} setSel={setDirSel} />
       <Fire />
       {smx && <SourceMatrix />}
+    </div>
+  );
+}
+
+/** The /maps page: the full source comparison with its filters. */
+export function MapsView() {
+  const { t, lang, D } = useApp();
+  return (
+    <div className="dash">
+      {lang === "en" && D.contentLang !== "en" && <p className="lang-note">{t.langNote}</p>}
+      <MapsCompare />
+    </div>
+  );
+}
+
+/** The /strikes page: the server HTML (`seo`) until the interactive map with its filters, legend and list has its data. */
+export function StrikesView({ seo }: { seo: ReactNode }) {
+  const { t, lang, D } = useApp();
+  const [ready, setReady] = useState(false);
+  return (
+    <div className="dash">
+      {lang === "en" && D.contentLang !== "en" && <p className="lang-note">{t.langNote}</p>}
+      {!ready && seo}
+      <StrikesMap onReady={() => setReady(true)} />
     </div>
   );
 }

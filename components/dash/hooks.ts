@@ -52,7 +52,8 @@ export function useChartW() {
 }
 
 /** Content width of an element, tracked with ResizeObserver (0 until measured). */
-export function useElWidth(ref: RefObject<HTMLElement | null>) {
+/** `dep`: re-attach when it changes (for an element that mounts after the first render). */
+export function useElWidth(ref: RefObject<HTMLElement | null>, dep?: unknown) {
   const [w, setW] = useState(0);
   useEffect(() => {
     const el = ref.current;
@@ -61,6 +62,6 @@ export function useElWidth(ref: RefObject<HTMLElement | null>) {
     const ro = new ResizeObserver(() => setW(el.clientWidth));
     ro.observe(el);
     return () => ro.disconnect();
-  }, [ref]);
+  }, [ref, dep]);
   return w;
 }

@@ -6,7 +6,8 @@
 //                                  string of that file is translated. Digest pages are translated on the server from en.json.
 //   Anything not fully translated is shown in Ukrainian (digest pages add the "written in Ukrainian" note).
 //
-//   node scripts/i18n.mjs missing   → i18n/missing.json: { "<uk>": "" } for every untranslated string (newest data first)
+//   node scripts/i18n.mjs missing   → i18n/missing.json: { "<uk>": "" } for every untranslated string (newest data first),
+//                                      counted as issues / daily data (strikes, maps, prices…) / static data (STATIC)
 //   node scripts/i18n.mjs merge     → moves filled-in entries of i18n/missing.json into i18n/en.json
 //   node scripts/i18n.mjs build     → regenerates public/i18n/{en,de}/** (runs before `dev` and `build`)
 //
@@ -41,6 +42,8 @@ function dataFiles() {
   return out.sort((a, b) => (rank(a) < rank(b) ? -1 : 1));
 }
 const isIssue = (f) => f === "digest.json" || f.startsWith("issues/");
+/** Static data: changes rarely, translated once (with the UI strings in lib/ui.ts). Everything else not an issue is daily data. */
+const STATIC = ["landcost.json", "maps/strikes-base.json", "maps/targets.json"];
 
 const cmd = process.argv[2];
 const tm = readJson(TM_FILE, {});
@@ -48,10 +51,10 @@ const filesOf = (lang) => (lang === "en" ? dataFiles() : dataFiles().filter((f) 
 const files = filesOf(LANG);
 
 if (cmd === "missing") {
-  const miss = {};
-  for (const f of files) for (const s of texts(readJson(path.join(PUB, f)))) if (!tm[s] && !(s in miss)) miss[s] = "";
+  const miss = {}, n = { digest: 0, daily: 0, static: 0 };
+  for (const f of files) for (const s of texts(readJson(path.join(PUB, f)))) if (!tm[s] && !(s in miss)) { miss[s] = ""; n[isIssue(f) ? "digest" : STATIC.includes(f) ? "static" : "daily"]++; }
   writeJson(MISSING, miss);
-  console.log(`${Object.keys(miss).length} untranslated strings → ${path.relative(ROOT, MISSING)}`);
+  console.log(`${Object.keys(miss).length} untranslated strings → ${path.relative(ROOT, MISSING)} (issues ${n.digest} · daily data ${n.daily} · static data ${n.static})`);
 } else if (cmd === "merge") {
   const miss = readJson(MISSING, {});
   let n = 0;

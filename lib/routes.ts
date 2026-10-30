@@ -1,11 +1,11 @@
-// URL scheme: [/en|/de][/dashboard][/YYYY-MM-DD]; no date = latest issue (routes in app/(uk), app/(en), app/(de)).
+// URL scheme: [/en|/de][/dashboard|/maps|/strikes][/YYYY-MM-DD]; no date = latest issue (routes in app/(uk), app/(en), app/(de)).
 import type { Lang } from "./ui";
 
-export type View = "digest" | "dashboard";
+export type View = "digest" | "dashboard" | "maps" | "strikes";
 const pre = (lang: Lang) => (lang === "uk" ? "" : "/" + lang);
 /** Path for a page; `latest` is omitted from the URL. */
 export function href(lang: Lang, view: View, date: string | null, latest: string) {
-  const p = pre(lang) + (view === "dashboard" ? "/dashboard" : "") + (date && date !== latest ? "/" + date : "");
+  const p = pre(lang) + (view === "digest" ? "" : "/" + view) + (date && date !== latest ? "/" + date : "");
   return p || "/";
 }
 export const articleHref = (lang: Lang, date: string, name: string) => pre(lang) + `/articles/${date}/${name}`;
