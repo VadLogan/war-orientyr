@@ -11633,6 +11633,45 @@
    "local": "silent",
    "issue": "2026-10-30",
    "item": "novokuibyshevsk-3010"
+  },
+  {
+   "id": "ufa-npz-3110",
+   "date": "2026-10-31",
+   "night": "30–31.10",
+   "object": "Промзона з трьома НПЗ «Башнефть» (УНПЗ, Новойл, Уфанефтехім)",
+   "place": "Уфа, Башкортостан",
+   "kind": "oil",
+   "territory": "russia",
+   "lat": 54.74,
+   "lng": 55.97,
+   "approx": true,
+   "result": "за моніторинговим каналом Exilenova+ (через LB.ua) — атака дронів на промзону, очевидці бачили дрон і дим; влада оголосила загрозу БпЛА й обмежила роботу аеропорту, про наслідки не заявила; пошкодження невідомі, офіційного підтвердження немає",
+   "confirmed": null,
+   "local": "silent",
+   "issue": "2026-10-31",
+   "item": "ufa-npz-3110",
+   "url": "https://lb.ua/society/2026/10/31/777496_bezpilotniki_atakuvali_promzonu.html"
+  },
+  {
+   "id": "fatezh-iskander-2910",
+   "date": "2026-10-29",
+   "night": "29–30.10",
+   "object": "Пускова установка ОТРК «Іскандер-М» біля пункту перевантаження балістичних ракет",
+   "place": "поблизу Фатежа, Курська область",
+   "kind": "military",
+   "territory": "russia",
+   "lat": 52.09,
+   "lng": 35.86,
+   "approx": true,
+   "result": "за Генштабом — пускову установку уражено; заяв влади Курської області не знайдено",
+   "confirmed": {
+    "by": "Генштаб ЗСУ",
+    "when": "30.10.2026"
+   },
+   "local": "silent",
+   "issue": "2026-10-31",
+   "item": "fatezh-iskander-2910",
+   "url": "https://lb.ua/society/2026/10/30/777284_zsu_potsilili_puskoviy.html"
   }
  ],
  "coverage": {
