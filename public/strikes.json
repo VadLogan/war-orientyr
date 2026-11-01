@@ -11672,6 +11672,26 @@
    "issue": "2026-10-31",
    "item": "fatezh-iskander-2910",
    "url": "https://lb.ua/society/2026/10/30/777284_zsu_potsilili_puskoviy.html"
+  },
+  {
+   "id": "kamensk-rocketfuel-3110",
+   "date": "2026-10-31",
+   "night": "30–31.10",
+   "object": "Комбінат «Каменський» (тверде ракетне паливо)",
+   "place": "Кам’янськ-Шахтинський, Ростовська область",
+   "kind": "defence-industry",
+   "territory": "russia",
+   "lat": 48.3167,
+   "lng": 40.2667,
+   "approx": true,
+   "result": "за Генштабом — удар дронами й «Нептунами» ВМС; займання складу готової продукції, пошкоджено чотири виробничі цехи; заяв місцевої влади не знайдено",
+   "confirmed": {
+    "by": "Генштаб ЗСУ",
+    "when": "31.10.2026, 12:51 (Укрінформ)"
+   },
+   "local": "silent",
+   "issue": "2026-11-01",
+   "item": "kamensk-rocketfuel-3110"
   }
  ],
  "coverage": {
