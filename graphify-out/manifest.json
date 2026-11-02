@@ -18,9 +18,9 @@
     "semantic_hash": ""
   },
   "tools/maps/build.py": {
-    "mtime": 1791985351.0,
-    "seen": 1793624173.2881432,
-    "ast_hash": "4fc285910d2c93755f5c0661d1930e72",
+    "mtime": 1793624794.7579942,
+    "seen": 1793625104.317842,
+    "ast_hash": "3900432493640cf7b3b8271536d1b8c2",
     "semantic_hash": ""
   },
   "tsconfig.json": {
@@ -204,15 +204,15 @@
     "semantic_hash": ""
   },
   "components/dash/Maps.tsx": {
-    "mtime": 1793368474.5770206,
-    "seen": 1793624173.2881238,
-    "ast_hash": "c015d275468d89f3c8c4c71416ec38e5",
+    "mtime": 1793625045.5050724,
+    "seen": 1793625104.3172638,
+    "ast_hash": "3060b7c61fd6be13114536122f995e79",
     "semantic_hash": ""
   },
   "components/dash/Panels.tsx": {
-    "mtime": 1793358940.8416183,
-    "seen": 1793624173.288125,
-    "ast_hash": "4cfa88f35e6ff9beb8ccebd187157da3",
+    "mtime": 1793624928.3106158,
+    "seen": 1793625104.3172858,
+    "ast_hash": "2d131661b2ae2ad5d725368ef4805514",
     "semantic_hash": ""
   },
   "components/dash/SourceMatrix.tsx": {
@@ -306,9 +306,9 @@
     "semantic_hash": ""
   },
   "lib/ui.ts": {
-    "mtime": 1793611163.6156733,
-    "seen": 1793624173.288137,
-    "ast_hash": "ba2a32e2dbaf559d2a0e7bd2638b1768",
+    "mtime": 1793624929.6145864,
+    "seen": 1793625104.317682,
+    "ast_hash": "e4f66de44ca09b075fd8de2973216bc3",
     "semantic_hash": ""
   },
   "proxy.ts": {
@@ -348,9 +348,9 @@
     "semantic_hash": ""
   },
   "CLAUDE.md": {
-    "mtime": 1793616589.0921156,
-    "seen": 1793624173.288147,
-    "ast_hash": "c2ec4efacec506be569145cdbbcfadf3",
+    "mtime": 1793625063.7162035,
+    "seen": 1793625104.317973,
+    "ast_hash": "beb60b8b76e276a849cf4b71ab5fd5e9",
     "semantic_hash": ""
   },
   "app/apple-icon.png": {
@@ -834,9 +834,9 @@
     "semantic_hash": ""
   },
   "i18n/de.json": {
-    "mtime": 1793610074.9333858,
-    "seen": 1793624173.2881322,
-    "ast_hash": "ea7f41df12765bcd132328441e69e237",
+    "mtime": 1793624985.2835884,
+    "seen": 1793625104.317535,
+    "ast_hash": "dd0b763fd27ee46e01934c1bbb132844",
     "semantic_hash": ""
   },
   "public/articles/2026-10-21/operation-vivaldi/cover-map.jpg": {

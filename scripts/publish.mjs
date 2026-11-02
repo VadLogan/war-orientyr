@@ -6,7 +6,8 @@
 //                the new file → public/digest.json, its date added to public/issues/index.json
 //                (days of timeline / losses.series that the new file lacks are copied over from the current digest)
 // - same date:   replaces today's digest (a correction); nothing is archived
-// - any date:    a losses.series day the new file has emptier (ru or ua) keeps the current digest's values
+// - any date:    a losses.series day the new file has emptier (ru or ua), or a timeline day without front counts,
+//                keeps the current digest's values
 // - older date:  refused
 // An existing, different archive file for the current date is never overwritten without --force.
 import fs from "node:fs";
@@ -44,7 +45,16 @@ for (const row of next.losses?.series || []) {
     kept.push(`${row.date} ${side}`);
   }
 }
-if (kept.length) console.warn(`kept loss claims the new file had emptier (from the ${cur.date} digest): ${kept.join(", ")}`);
+// Same for the General Staff front counts of a timeline day (clashes + directions): the export has dropped them before.
+for (const row of next.timeline || []) {
+  const old = (cur.timeline || []).find((x) => x.date === row.date);
+  if (!old || old.clashes == null || row.clashes != null) continue;
+  row.clashes = old.clashes;
+  if (old.directions) row.directions = old.directions;
+  row.src = { ...row.src, front: old.src?.front };
+  kept.push(`${row.date} front`);
+}
+if (kept.length) console.warn(`kept loss claims / front counts the new file had emptier (from the ${cur.date} digest): ${kept.join(", ")}`);
 
 if (next.date === cur.date) {
   fs.writeFileSync(at("digest.json"), kept.length ? JSON.stringify(next, null, 2) : raw);

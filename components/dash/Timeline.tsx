@@ -29,10 +29,10 @@ const RANGES = ["7", "30", "90", "all"] as const;
 export function rangeStart(all: { date: string }[], range: string, end: number) {
   return range === "all" ? Math.min(end, all.length ? dayN(all[0].date) : end) : end - +range + 1;
 }
-export function RangeSeg({ value, set }: { value: string; set: (v: string) => void }) {
+export function RangeSeg({ value, set, ranges = RANGES }: { value: string; set: (v: string) => void; ranges?: readonly string[] }) {
   const { t } = useApp();
   const L: Record<string, string> = { "7": t.r7, "30": t.r30, "90": t.r90, all: t.rAll };
-  return <div className="seg" role="group" aria-label={t.range}>{RANGES.map((k) => <button type="button" key={k} aria-pressed={value === k} onClick={() => set(k)}>{L[k]}</button>)}</div>;
+  return <div className="seg" role="group" aria-label={t.range}>{ranges.map((k) => <button type="button" key={k} aria-pressed={value === k} onClick={() => set(k)}>{L[k]}</button>)}</div>;
 }
 
 type Metric = "drones" | "pct" | "clashes" | "dirs";

@@ -7,13 +7,15 @@ import LineChart, { Legend, type Ser } from "./LineChart";
 import { RangeSeg, rangeStart } from "./Timeline";
 import { flags } from "@/components/Flag";
 
+const LRANGES = ["7", "30", "all"];
 const LCATS = ["personnel", "tanks", "armoured", "artillery", "mlrs", "auto", "uav", "aa"] as const;
 
 /** Losses: each side's claims about the other, per day. */
 export default function Losses() {
   const { t, lang, D, LATEST } = useApp();
   const [cat, setCat] = useSticky<string>("lsCat", "personnel");
-  const [range, setRange] = useSticky("lsRange", "30");
+  const [range0, setRange] = useSticky("lsRange", "30");
+  const range = LRANGES.includes(range0) ? range0 : "30";
   const [table, setTable] = useSticky("lsTable", false);
   const B = LATEST;
   if (!B.losses) return null;
@@ -32,6 +34,9 @@ export default function Losses() {
   if (cat === "personnel") ser.push({ name: tr("у т.ч. СБС (знищено особового складу)", "of which USF (killed)", "davon USF (getötet)"), color: "var(--c3)", get: (e) => num(e.sbs && e.sbs.killed), src: "sbs" });
   const end = dayN(B.date), start = rangeStart(all, range, end);
   const rows = all.filter((e) => { const n = dayN(e.date); return n >= start && n <= end && ser.some((s) => s.get(e) != null); });
+  // period totals per series: a day with no data adds nothing, so say how many days are counted
+  const span = end - start + 1;
+  const sums = ser.filter((s) => s.src !== "sbs").map((s) => { const v = rows.map(s.get).filter((x): x is number => x != null); return { s, sum: v.reduce((a, b) => a + b, 0), n: v.length }; }).filter((x) => x.n);
   const uaNone = !all.some((e) => num(e.ua && e.ua[cat]) != null);
   const note = (uaNone ? t.lsNoUa + " " : "") + t.lsGaps + (cat === "personnel"
     ? tr(" Втрати від СБС — частина загальних втрат за Генштабом; показано лише дні, для яких є дані табло СБС.", " USF is part of the General Staff total; shown only for days with USF board data.", " Die USF-Verluste sind Teil der Gesamtzahl des Generalstabs; gezeigt nur an Tagen mit Daten der USF-Anzeigetafel.")
@@ -48,12 +53,16 @@ export default function Losses() {
       </div>
       <div className="tl-controls">
         <div className="seg" role="group" aria-label={t.lsCatL}>{LCATS.map((k) => <button type="button" key={k} aria-pressed={cat === k} onClick={() => setCat(k)}>{t.lc[k]}</button>)}</div>
-        <RangeSeg value={range} set={setRange} />
+        <RangeSeg value={range} set={setRange} ranges={LRANGES} />
         <span className="spacer" />
         <div className="seg"><button type="button" aria-pressed={table} onClick={() => setTable(!table)}>{t.table}</button></div>
       </div>
       <div className="panel tl-panel">
         <Legend ser={ser} bars />
+        {sums.length > 0 && <div className="ls-sum">
+          <small>{tr("Разом за ", "Total over ", "Summe über ")}{range === "all" ? tr("увесь період", "the whole period", "den gesamten Zeitraum") : tr(`${range} днів`, `${range} days`, `${range} Tage`)}</small>
+          {sums.map(({ s, sum, n }) => <span key={s.src}><i style={{ background: s.color }} />{s.name}: <b>{(s.src === "ua" && cat === "personnel" ? "≈ " : "") + fmt(sum, lang)}</b>{n < span && range !== "all" ? tr(` (${n} дн. з даними)`, ` (${n} days with data)`, ` (${n} Tage mit Daten)`) : ""}</span>)}
+        </div>}
         <LineChart key={cat + range + D.date} rows={rows} ser={ser} start={start} end={end} table={table} aria={t.ls} bars label={(e) => shortD(e.date)}
           srcOf={(e, s) => (e.src && e.src[s.src]) || ""}
           fmtV={(s, v) => (v == null ? "—" : (s.src === "ua" && cat === "personnel" ? "≈ " : "") + fmt(v, lang))} />

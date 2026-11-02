@@ -542,7 +542,7 @@ svg.mk{flex:none;overflow:visible;vertical-align:-2px}
 .tl-controls .seg{max-width:100%;overflow-x:auto;scrollbar-width:thin}
 .tl-panel{gap:10px}
 .tl-plot{position:relative;min-width:0}
-.tl-plot svg{display:block;width:100%;height:auto;overflow:visible;touch-action:pan-y}
+.tl-plot svg:not(.flag){display:block;width:100%;height:auto;overflow:visible;touch-action:pan-y}
 .tl-plot svg:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
 .tl-plot .grid line{stroke:var(--rule);stroke-width:1}
 .tl-plot .axis text{fill:var(--muted);font-family:var(--mono);font-size:11px}
@@ -944,3 +944,7 @@ button.stile{cursor:pointer}button.stile:hover{outline:2px solid var(--ink);outl
 .drec-links{grid-area:links;display:flex;flex-direction:column;align-items:stretch;gap:10px;margin-top:14px}
 .drec.has-img .drec-links{flex-direction:row;flex-wrap:wrap;align-self:end}
 @media (max-width:600px){.drec,.drec.has-img{grid-template-columns:minmax(0,1fr);grid-template-areas:"top" "grid" "links"}.drec.has-img{grid-template-areas:"top" "grid" "img" "links"}.drec-links{flex-direction:row;flex-wrap:wrap}}
+.ls-sum{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 16px;font-family:var(--ui);font-size:13px;color:var(--ink)}
+.ls-sum small{color:var(--muted);text-transform:uppercase;letter-spacing:.04em;font-size:11px}
+.ls-sum i{display:inline-block;width:10px;height:10px;margin-right:6px;border-radius:2px;vertical-align:-1px}
+.ls-sum b{font-variant-numeric:tabular-nums}

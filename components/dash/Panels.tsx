@@ -77,10 +77,11 @@ export function Fire() {
   const day = (d: string) => { const x = new Date(d + "T00:00:00Z"); x.setUTCDate(x.getUTCDate() - 1); return x.toISOString().slice(0, 10); };
   const TT = { air: tr("Авіаудари", "Airstrikes", "Luftangriffe"), kab: tr("КАБи", "Guided bombs (KAB)", "Gleitbomben (KAB)"), kamikaze: tr("Дрони-камікадзе", "Kamikaze drones", "Kamikaze-Drohnen"), shell: tr("Обстріли", "Shelling", "Beschuss") };
   const f = (n: number) => fmt(n, lang);
+  const [sel, setSel] = useState<{ k: string; n: number } | null>(null);
   return (
     <section className="panel" id="fireP">
       <h2>{tr("Вогонь рф за добу", "russian fire per day", "russisches Feuer pro Tag")}</h2>
-      <p className="sub">{tr("За зведенням Генштабу ЗСУ: авіаудари, КАБи, дрони-камікадзе та обстріли. Кожен стовпчик — доба; виділено останню.", "General Staff daily report: airstrikes, guided bombs, kamikaze drones and shelling. Each bar is one day; the highlighted bar is the latest.", "Tagesbericht des Generalstabs: Luftangriffe, Gleitbomben, Kamikaze-Drohnen und Beschuss. Jeder Balken ist ein Tag; hervorgehoben ist der neueste.")}</p>
+      <p className="sub">{tr("За зведенням Генштабу ЗСУ: авіаудари, КАБи, дрони-камікадзе та обстріли. Кожен стовпчик — доба; виділено останню. Наведіть або торкніться стовпчика, щоб побачити дані за ту добу.", "General Staff daily report: airstrikes, guided bombs, kamikaze drones and shelling. Each bar is one day; the highlighted bar is the latest. Hover over or tap a bar to see that day.", "Tagesbericht des Generalstabs: Luftangriffe, Gleitbomben, Kamikaze-Drohnen und Beschuss. Jeder Balken ist ein Tag; hervorgehoben ist der neueste. Fahren Sie über einen Balken oder tippen Sie ihn an, um diesen Tag zu sehen.")}</p>
       <div className="fire-grid">
         {!rows.length ? <p className="sub">{tr("Даних поки немає.", "No data yet.", "Noch keine Daten.")}</p> : (["air", "kab", "kamikaze", "shell"] as const).map((k) => {
           const pts = rows.filter((e) => e.fire![k] != null);
@@ -94,14 +95,30 @@ export function Fire() {
               <div className="fire-h"><Ico html={fireIco(k)} />{TT[k]}</div>
               <div className="fire-v"><b>{f(v)}</b>{dlt != null && <span className={"fire-d " + (dlt > 0 ? "up" : dlt < 0 ? "dn" : "")}>{dlt > 0 ? "▲ +" : dlt < 0 ? "▼ −" : "= "}{f(Math.abs(dlt))}</span>}</div>
               <div className="sub" style={{ margin: 0 }}>{tr("доба", "day", "Tag")} {shortD(day(last.date))}{k === "shell" && mlrs(last) != null ? tr(" · з РСЗВ ", " · MLRS ", " · Mehrfachraketenwerfer ") + f(mlrs(last)!) : ""} · {tr("середнє", "avg", "Ø")} {f(avg)}</div>
-              <svg className="fire-bars" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" role="img" aria-label={TT[k]}>
-                {pts.map((e, n) => { const h = Math.max(1.5, (val(e) / mx) * H), isL = n === pts.length - 1; return (
-                  <rect key={e.date} x={n * 10 + 1.5} y={H - h} width={7} height={h} rx={1} fill={isL ? "var(--accent)" : "var(--muted)"} fillOpacity={isL ? 1 : 0.35}>
-                    <title>{`${shortD(day(e.date))}: ${f(val(e))}${k === "shell" && mlrs(e) != null ? tr(" (РСЗВ ", " (MLRS ", " (Mehrfachraketenwerfer ") + f(mlrs(e)!) + ")" : ""}`}</title>
-                  </rect>
-                ); })}
-                <line x1={0} x2={W} y1={ay} y2={ay} stroke="var(--ink)" strokeOpacity=".35" strokeDasharray="3 3" vectorEffect="non-scaling-stroke" />
-              </svg>
+              <div style={{ position: "relative" }} onPointerLeave={(ev) => { if (ev.pointerType === "mouse") setSel(null); }}>
+                <svg className="fire-bars" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" role="img" aria-label={TT[k]}>
+                  {pts.map((e, n) => { const h = Math.max(1.5, (val(e) / mx) * H), isL = n === pts.length - 1, on = sel?.k === k && sel.n === n; return (
+                    <g key={e.date} tabIndex={0} style={{ cursor: "pointer", outline: "none" }} onPointerEnter={(ev) => { if (ev.pointerType === "mouse") setSel({ k, n }); }} onClick={() => setSel(on ? null : { k, n })} onFocus={() => setSel({ k, n })} onBlur={() => setSel(null)}>
+                      <rect x={n * 10} y={0} width={10} height={H} fill="transparent" />
+                      <rect x={n * 10 + 1.5} y={H - h} width={7} height={h} rx={1} fill={isL || on ? "var(--accent)" : "var(--muted)"} fillOpacity={isL ? 1 : on ? 0.7 : 0.35} />
+                    </g>
+                  ); })}
+                  <line x1={0} x2={W} y1={ay} y2={ay} stroke="var(--ink)" strokeOpacity=".35" strokeDasharray="3 3" vectorEffect="non-scaling-stroke" pointerEvents="none" />
+                </svg>
+                {sel?.k === k && pts[sel.n] && (() => {
+                  const e = pts[sel.n], x = ((sel.n + 0.5) / pts.length) * 100, pv = sel.n ? val(pts[sel.n - 1]) : null, d = pv != null ? val(e) - pv : null, va = val(e) - avg;
+                  const sg = (n: number) => (n > 0 ? "+" : n < 0 ? "−" : "±") + f(Math.abs(n));
+                  return (
+                    <div className="ctip" style={{ bottom: "100%", marginBottom: 6, ...(x < 50 ? { left: x + "%" } : { right: 100 - x + "%" }) }}>
+                      <div className="d">{tr("доба ", "day ", "Tag ") + shortD(day(e.date)) + (sel.n === pts.length - 1 ? tr(" · остання", " · latest", " · neuester") : "")}</div>
+                      <div className="r"><b>{f(val(e))}</b><span>{TT[k]}</span></div>
+                      {k === "shell" && mlrs(e) != null && <div className="r"><b>{f(mlrs(e)!)}</b><span>{tr("з РСЗВ", "MLRS", "Mehrfachraketenwerfer")}</span></div>}
+                      {d != null && <div className="s">{sg(d) + tr(" до попередньої доби", " vs the day before", " zum Vortag")}</div>}
+                      <div className="s">{sg(va) + tr(" до середнього ", " vs the average ", " zum Durchschnitt ") + f(avg)}</div>
+                    </div>
+                  );
+                })()}
+              </div>
               <div className="fire-x"><span>{shortD(day(pts[0].date))}</span><span>{shortD(day(last.date))}</span></div>
             </div>
           );
