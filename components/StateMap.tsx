@@ -62,7 +62,7 @@ export default function StateMap({ races, map, base, lang, locale }: { races: Ra
         {Object.entries(S).map(([c, s]) => {
           const race = by.get(c), pos = { gridColumn: s.x + 1, gridRow: s.y + 1 }, l = race?.lead ?? 0;
           return (
-            <button key={c} type="button" className={"tile " + (race ? tone(race.lead) : "off " + s.s)} style={pos} aria-pressed={sel === c}
+            <button key={c} type="button" className={"stile " + (race ? tone(race.lead) : "off " + s.s)} style={pos} aria-pressed={sel === c}
               aria-label={`${name(c)}: ${race ? m(race) : seats(s.s)}`} onClick={() => setSel(c)}>
               <b>{c}</b>{race && <small>{l === 0 ? "=" : (l > 0 ? "+" : "−") + Math.abs(l).toLocaleString(locale)}</small>}
             </button>
@@ -70,7 +70,7 @@ export default function StateMap({ races, map, base, lang, locale }: { races: Ra
         })}
       </div>
       <ul className="smap-key">
-        {(["d", "dl", "tu", "rl", "r", "off dd", "off rr", "off dr"] as const).map((k, i) => <li key={k}><i className={"tile " + k} />{flags(map.keys[i])}</li>)}
+        {(["d", "dl", "tu", "rl", "r", "off dd", "off rr", "off dr"] as const).map((k, i) => <li key={k}><i className={"stile " + k} />{flags(map.keys[i])}</li>)}
       </ul>
       <div className="smap-card" aria-live="polite">
         <p className="dn-st"><b>{r?.state ?? name(sel)}</b><small>{flags(seats(st.s))}</small>{r && <span className={"mono dn-n " + ((r.lead ?? 0) > 0 ? r.cands[0].party : (r.lead ?? 0) < 0 ? r.cands[1].party : "")}>{m(r)}</span>}</p>
