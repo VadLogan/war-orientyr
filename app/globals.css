@@ -793,3 +793,11 @@ svg.mk{flex:none;overflow:visible;vertical-align:-2px}
 .nw-txt p{margin:0;font-size:15.5px;line-height:1.5;color:var(--muted)}
 .nw-btn{display:inline-flex;align-items:center;min-height:44px;margin-top:4px;padding:0 16px;border:1px solid var(--rule-strong);border-radius:2px;font-family:var(--ui);font-size:15px;font-weight:600;color:var(--ink);text-decoration:none}.nw-btn:hover{background:var(--ink);color:var(--bg)}
 @media (max-width:600px){.nw-art{height:110px}}
+.drec{margin-top:22px;padding:16px 20px 18px;background:var(--surface);border:1px solid var(--accent);box-shadow:inset 0 3px 0 var(--accent)}.drec .art-kicker{color:var(--accent)}
+.drec-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:14px 24px;margin-top:12px;padding-top:12px;border-top:1px solid var(--rule)}
+.drec-it{display:flex;flex-direction:column;gap:4px;min-width:0}
+.drec-k{font-family:var(--ui);font-size:14px;color:var(--muted)}
+.drec-v{font-family:var(--mono);font-size:18px}.drec-v b{font-size:38px;font-weight:600;line-height:1.05;letter-spacing:-.02em}
+.drec-d{margin-left:10px;font-size:15px;font-weight:600;color:var(--ok)}
+.drec-p{font-size:16px;line-height:1.4}.drec-n{font-family:var(--ui);font-size:13.5px;color:var(--muted)}
+.drec-links{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}

@@ -1,6 +1,7 @@
 // Server component: day counters and the headline/lede.
 import type { Article, Digest } from "@/types/digest";
-import { dateTitle, dayLabel, sinceList } from "@/lib/text";
+import { dateTitle, dayLabel, fmt, midDate, shortD, sinceList } from "@/lib/text";
+import type { DayRecords } from "@/lib/records";
 import { UI, type Lang, type UIStrings } from "@/lib/ui";
 import ImgZoom from "./ImgZoom";
 import { flags } from "@/components/Flag";
@@ -67,7 +68,39 @@ function NewPages({ lang }: { lang: Lang }) {
   );
 }
 
-export default function Mast({ D, lang, dashboard, articles = [] }: { D: Digest; lang: Lang; dashboard: boolean; articles?: Article[] }) {
+/** Records set on this issue's day; rendered only when there is one (lib/records.ts). */
+function Records({ R, lang, date, latest }: { R: DayRecords; lang: Lang; date: string; latest: string }) {
+  const T = UI[lang] as UIStrings, t = T.rec, n = R.losses.length + (R.strike ? 1 : 0), f = (v: number) => fmt(v, lang), S = R.strike;
+  return (
+    <section className="drec" aria-labelledby="drec-h">
+      <div className="nw-top"><h2 id="drec-h" className="art-kicker">{n > 1 ? t.hN(n) : t.h}</h2>
+        {R.losses.length > 0 && <span>{t.loss} · {t.since(shortD(R.losses[0].since))}</span>}</div>
+      <div className="drec-grid">
+        {R.losses.map((x) => (
+          <div className="drec-it" key={x.key}>
+            <span className="drec-k">{T.lc[x.key]}</span>
+            <span className="drec-v"><b>{f(x.v)}</b><span className="drec-d">+{f(x.v - x.prev)}</span></span>
+            <span className="drec-n">{t.prev(f(x.prev), shortD(x.prevDate))}</span>
+          </div>
+        ))}
+        {S && (
+          <div className="drec-it">
+            <span className="drec-k">{t.strike}</span>
+            <span className="drec-v"><b>{f(S.km)}</b> {t.km}<span className="drec-d">+{f(S.km - S.prev)}</span></span>
+            <span className="drec-p">{flags(S.place)}</span>
+            <span className="drec-n">{t.prevStrike(f(S.prev), S.prevPlace, midDate(S.prevDate, lang))}</span>
+          </div>
+        )}
+      </div>
+      <div className="drec-links">
+        {R.losses.length > 0 && <a className="nw-btn" href={href(lang, "dashboard", date, latest) + "#losses"}>{t.toLoss}</a>}
+        {S && <a className="nw-btn" href={href(lang, "strikes", date, latest)}>{t.toStrikes}</a>}
+      </div>
+    </section>
+  );
+}
+
+export default function Mast({ D, lang, dashboard, articles = [], records, latest = "" }: { D: Digest; lang: Lang; dashboard: boolean; articles?: Article[]; records?: DayRecords | null; latest?: string }) {
   const dt = dateTitle(D, lang);
   const H = D.headline && D.headline.title ? D.headline : null;
   const more = (item: string) => <a className="lede-more" href={"#it-" + item}>{{ uk: "Детальніше ↓", en: "Read more ↓", de: "Mehr dazu ↓" }[lang]}</a>;
@@ -91,6 +124,7 @@ export default function Mast({ D, lang, dashboard, articles = [] }: { D: Digest;
         <div style={{ minWidth: 0 }}>
           {!dashboard && <div className="dateline">{dt.line}</div>}
           {body}
+          {records && <Records R={records} lang={lang} date={D.date} latest={latest} />}
           {!dashboard && <NewPages lang={lang} />}
           {cards}
         </div>

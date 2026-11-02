@@ -5,6 +5,7 @@ import { cache } from "react";
 import type { Article, Digest } from "@/types/digest";
 import { articleHref } from "./routes";
 import type { StrikesBase, StrikesData, Strikes } from "./strikes";
+import { dayRecords } from "./records";
 import { styleData } from "./text";
 import { translate } from "./i18n.mjs";
 import type { Lang } from "./ui";
@@ -110,6 +111,14 @@ export const getStrikes = cache(async (): Promise<Strikes> => ({
   stk: await read<StrikesData>("strikes.json"),
   base: await read<StrikesBase>("maps/strikes-base.json"),
 }));
+
+/** Records set on the issue's day (lib/records.ts), place names in `lang` where translated; null on most days. */
+export const getRecords = cache(async (D: Digest, lang: Lang) => {
+  const R = dayRecords(D, await getStrikes());
+  if (!R?.strike || lang === "uk") return R;
+  const tm = { ...(lang === "de" ? await getTexts("en") : {}), ...(await getTexts(lang)) }, tr = (s: string) => tm[s] ?? s;
+  return { ...R, strike: { ...R.strike, place: tr(R.strike.place), prevPlace: tr(R.strike.prevPlace) } };
+});
 
 /* ---------- source status per domain per issue (dashboard "Sources by day") ---------- */
 /** The panel is hidden for now; flip to true to bring it back (data and component are kept). */
