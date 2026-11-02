@@ -128,9 +128,10 @@ export default function Mast({ D, lang, dashboard, articles = [], records, lates
         <div style={{ minWidth: 0 }}>
           {!dashboard && <div className="dateline">{dt.line}</div>}
           {body}
+          {/* order under the lede: feature (the issue's articles) first, then records, then "new on the site" */}
+          {cards}
           {records && <Records R={records} lang={lang} date={D.date} latest={latest} />}
           {SHOW_NEW_PAGES && !dashboard && <NewPages lang={lang} />}
-          {cards}
         </div>
       </section>
     </div>

@@ -144,9 +144,9 @@
     "semantic_hash": ""
   },
   "components/Mast.tsx": {
-    "mtime": 1793611690.317744,
-    "seen": 1793612970.427558,
-    "ast_hash": "3118e7d72dda796624e0c77fa30f17e1",
+    "mtime": 1793615950.878246,
+    "seen": 1793616506.054972,
+    "ast_hash": "0273312e9915c06be8f1ff054d576468",
     "semantic_hash": ""
   },
   "components/NotFound.tsx": {
@@ -348,9 +348,9 @@
     "semantic_hash": ""
   },
   "CLAUDE.md": {
-    "mtime": 1793611690.087074,
-    "seen": 1793612970.4275892,
-    "ast_hash": "af1aa62f9285ca89bb3c7f9ac0c99bb0",
+    "mtime": 1793615962.0390503,
+    "seen": 1793616506.0560892,
+    "ast_hash": "c2ec4efacec506be569145cdbbcfadf3",
     "semantic_hash": ""
   },
   "app/apple-icon.png": {
