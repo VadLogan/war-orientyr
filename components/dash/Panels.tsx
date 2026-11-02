@@ -309,6 +309,8 @@ export type MapsData = {
   base: { ua?: boolean; c: number[][][][] }[];
   cities: { n: string; lat: number; lng: number }[];
   events: { id: string | number; d: string; t: string; lat: number; lng: number; ds: string; isw: string; [k: string]: unknown }[];
+  /** DeepState day events: one per place linked in an update note, `k` = who moved (fix = map refined); `ru` = the earliest DIVGEN claim naming it (lag in days, > 0 = earlier) */
+  dsEvents?: { id: number; d: string; lat: number; lng: number; k: "ru" | "ua" | "fix"; t: string; ru: { id: number; d: string; t: string; km: number; lag: number } | null }[];
   method?: string;
 };
 export function LandCost() {

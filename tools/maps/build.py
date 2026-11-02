@@ -1,4 +1,5 @@
-import json,sys,argparse
+# -*- coding: utf-8 -*-
+import json,sys,argparse,os
 ap=argparse.ArgumentParser();ap.add_argument('--generated');ap.add_argument('--ds');ap.add_argument('--isw');ap.add_argument('--dg-date');ap.add_argument('--dg-id');A=ap.parse_args()
 def lbl(d):return d[8:10]+'.'+d[5:7]
 
@@ -116,6 +117,7 @@ out={
  'layers':{'ds_occ':coords(ds_occ_ua.simplify(0.002,preserve_topology=True)),'ds_grey':coords(clean(ds_grey_ua,0.002,0.2)),'dg_ru':coords(dg_ua.simplify(0.002,preserve_topology=True)),
    'isw':coords(isw_ua.simplify(0.002,preserve_topology=True)),'isw_adv':coords(clean(isw_adv_ua,0.002,0.2)),'only_dg_grey':coords(clean(only_dg_grey,0.002,0.5)),
    **{k+'_a':coords(clean(x,0.002,0.5)) for k,(x,y) in only.items()},**{k+'_b':coords(clean(y,0.002,0.5)) for k,(x,y) in only.items()}},
- 'events':ev}
+ 'events':ev,
+ 'dsEvents':json.load(open('ds_events.json')) if os.path.exists('ds_events.json') else []}
 json.dump(out,open('maps.json','w'),ensure_ascii=False,separators=(',',':'))
 import os;print('size',os.path.getsize('maps.json'))

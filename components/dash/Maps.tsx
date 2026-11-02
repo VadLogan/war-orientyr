@@ -160,6 +160,14 @@ const RailBtn = ({ on, set, label }: { on: boolean; set: (v: boolean) => void; l
 );
 const Attr = ({ bm }: { bm: string }) => (BASEMAPS[bm] ? <span className="map-attr">{BASEMAPS[bm].attr}</span> : null);
 
+/** DeepState change: russian advance = red triangle up, Ukrainian = blue triangle down, map refined = grey dot. */
+const DsMark = ({ k, hl }: { k: "ru" | "ua" | "fix"; hl?: boolean }) => {
+  const r = hl ? 9 : 5.5, y = k === "ua" ? -1 : 1;
+  if (k === "fix") return <circle r={r * 0.7} fill="var(--m-grey)" stroke="var(--surface)" strokeWidth={1.5} />;
+  return <path d={`M0,${-r * y}L${r},${r * 0.8 * y}L-${r},${r * 0.8 * y}Z`} fill={k === "ua" ? "var(--m-onlyds)" : "var(--m-occ)"} stroke="var(--surface)" strokeWidth={1.5} />;
+};
+const DsIco = ({ k }: { k: "ru" | "ua" | "fix" }) => <svg className="mk" width="14" height="14" viewBox="-7 -7 14 14" aria-hidden="true"><DsMark k={k} /></svg>;
+
 export function MapsCompare() {
   const { t, lang, MAPS, D } = useApp();
   const hs = (x: string) => hsBase(x, lang);
@@ -170,6 +178,7 @@ export function MapsCompare() {
   const gsOf = (d: (typeof DIRS)[number]) => gsBy.get(d.uk) ?? gsBy.get(d[lang]);
   const [pair, setPair] = useSticky("mapPair", "dg_ds");
   const [ev, setEv] = useSticky("mapEv", true);
+  const [dse, setDse] = useSticky("mapDsEv", true); // DeepState advances + when russia claimed them
   const [bm, setBm] = useSticky("mapBase", "t");
   const [per, setPer] = useSticky("mapPer", 30);
   const [vf, setVf] = useSticky("mapVf", ALL_V);
@@ -234,6 +243,9 @@ export function MapsCompare() {
     return DIRS.map((_, i) => v.renderCell(i));
   }, [geo]);
   const inDir = dir ? inPer.filter((e) => evDir.get(e) === dir) : inPer;
+  const dsShown = M && dse ? (M.dsEvents || []).filter((e) => { const n = dayN(e.d); return n > end - per && n <= end && (!dir || dirOf(e) === dir); }).sort((a, b) => (a.d < b.d ? 1 : a.d > b.d ? -1 : 0)) : [];
+  const dsKey = (e: { id: number; lat: number; lng: number }) => `${e.id}/${e.lat}/${e.lng}`;
+  const [dsHl, setDsHl] = useState<string | null>(null);
   const cnt = countV(inDir, ref);
   const shown = ev ? inDir.filter((e) => vf[vgOf(e[ref])]).sort((a, b) => (a.d < b.d ? 1 : a.d > b.d ? -1 : 0)) : [];
   const selOn = sel && shown.some((e) => e.id === sel.id && e.d === sel.d) ? sel : null;
@@ -261,6 +273,7 @@ export function MapsCompare() {
       if (pair === "dg_ds") legend.push(<Sw key="d" c="--m-onlydgg" l={t.lg.onlyGrey} />);
       legend.push(<Sw key="e" c="--m-onlyds" l={t.lg.onlyB(t.src[b as "ds"])} />);
     }
+    if (dse) (["ru", "ua", "fix"] as const).filter((x) => M.dsEvents?.some((e) => e.k === x)).forEach((x) => legend.push(<span key={"ds" + x}><DsIco k={x} />{t.dsK[x]}</span>));
   }
   const onKey = (e: KeyboardEvent) => {
     const st = 60 / z.t.k;
@@ -279,6 +292,13 @@ export function MapsCompare() {
     z.to(zoomIdentity.translate(W * 0.62, H * 0.55).scale(Math.max(z.t.k, 12)).translate(-x, -y), 500);
     if (scroll) wrapRef.current?.scrollIntoView({ block: "center", behavior: "smooth" });
   };
+  const focusDs = (e: { lat: number; lng: number }) => {
+    if (!geo) return;
+    const [x, y] = geo.proj([e.lng, e.lat])!;
+    z.to(zoomIdentity.translate(W / 2, H / 2).scale(Math.max(z.t.k, 12)).translate(-x, -y), 500);
+    wrapRef.current?.scrollIntoView({ block: "center", behavior: "smooth" });
+  };
+  const dsLine = (e: NonNullable<MapsData["dsEvents"]>[number]) => e.ru ? `DIVGEN #${e.ru.id}, ${dmy(e.ru.d).slice(0, 5)}: ${hs(e.ru.t)} — ${t.dsLagT(e.ru.lag)}` : t.dsNoRu;
   const selI = selOn ? shown.indexOf(selOn) : -1; // shown is newest first
   // first open: frame the front instead of the whole country (a zoom kept from earlier in the session stays)
   // hiding/showing the filter rail resizes the box: re-frame the selected direction or the front
@@ -370,6 +390,10 @@ export function MapsCompare() {
             ))}</div>
             {dirty && <button type="button" className="linkbtn" onClick={() => { setPer(30); setOff(0); setVf(ALL_V); pickDir(null); }}>{t.mpReset}</button>}
           </fieldset>
+          {M?.dsEvents && <fieldset>
+            <legend><label className="mp-chk"><input type="checkbox" checked={dse} onChange={() => setDse(!dse)} /><DsIco k="ru" />{t.dsAdv}</label></legend>
+            {dse && <p className="mp-note">{t.dsCnt(dsShown.length, dsShown.filter((e) => e.ru).length)}</p>}
+          </fieldset>}
         </aside>
         <div className="mp-main">
           <div className="mp-bar-top">
@@ -411,6 +435,12 @@ export function MapsCompare() {
                   <g className="evs">{[...shown].sort((a, b) => +(a === selOn || a.id === hl) - +(b === selOn || b.id === hl)).map((e) => {
                     const [x, y] = geo.proj([e.lng, e.lat])!;
                     return <g key={e.id + "" + e.d} transform={`translate(${x},${y}) scale(${1 / k})`} style={{ cursor: "pointer" }} onClick={() => setSel(e)} {...tipHandlers(setTip, evTip(e))}><Mark g={vgOf(e[ref])} hl={e === selOn || e.id === hl} /></g>;
+                  })}</g>
+                  <g className="evs">{dsShown.map((e) => {
+                    const [x, y] = geo.proj([e.lng, e.lat])!;
+                    return <g key={dsKey(e)} transform={`translate(${x},${y}) scale(${1 / k})`} {...tipHandlers(setTip, () => <>
+                      <div className="d">{dmy(e.d)} · DeepState · {t.dsK[e.k]}</div><div>{hs(e.t)}</div><div className="s">{dsLine(e)}</div>
+                    </>)}><DsMark k={e.k} hl={dsHl === dsKey(e)} /></g>;
                   })}</g>
                   {selOn && (() => { const [x, y] = geo.proj([selOn.lng, selOn.lat])!; return (
                     <g className="mp-focus" transform={`translate(${x},${y}) scale(${1 / k})`} aria-hidden="true">
@@ -468,6 +498,21 @@ export function MapsCompare() {
                 </tr>
               ))}</tbody>
             </table></div> : <p className="map-src" style={{ padding: "12px 16px" }}>{t.mpNone}</p>}
+          </div>}
+          {M?.dsEvents && dse && <div className="mp-list">
+            <div className="mp-list-h"><b>{t.dsAdvH}</b></div>
+            {dsShown.length ? <div className="mp-list-sc"><table>
+              <thead><tr><th>{t.mpDate}</th><th>DeepState</th><th>{t.dsRu}</th><th>{t.dsLag}</th></tr></thead>
+              <tbody>{dsShown.map((e) => (
+                <tr key={dsKey(e)} className={dsHl === dsKey(e) ? "hl" : undefined} onPointerEnter={() => setDsHl(dsKey(e))} onPointerLeave={() => setDsHl(null)}>
+                  <td className="d">{dmy(e.d).slice(0, 5)}</td>
+                  <td><button type="button" className="linkbtn" onFocus={() => setDsHl(dsKey(e))} onBlur={() => setDsHl(null)} onClick={() => focusDs(e)}><DsIco k={e.k} /> {hs(e.t)}</button></td>
+                  <td>{e.ru ? <>{dmy(e.ru.d).slice(0, 5)} · {flags(hs(e.ru.t))}</> : <span className="map-src">{t.dsNoRu}</span>}</td>
+                  <td style={{ whiteSpace: "nowrap" }}>{e.ru ? t.dsLagT(e.ru.lag) : "—"}</td>
+                </tr>
+              ))}</tbody>
+            </table></div> : <p className="map-src" style={{ padding: "12px 16px" }}>{t.dsNone}</p>}
+            <p className="map-src" style={{ padding: "8px 16px" }}>{t.dsNote}</p>
           </div>}
           <p className="map-src">{srcLine}</p>
           <details className="method"><summary>{t.mMethod}</summary><p>{flags(method)}</p></details>
