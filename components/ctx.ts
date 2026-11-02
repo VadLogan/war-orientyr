@@ -7,7 +7,9 @@ import { UI, type Lang, type UIStrings } from "@/lib/ui";
 /** The parts of an issue the dashboard reads (kept small: it is serialized into every dashboard page). */
 /** Dashboard languages (all of them). */
 export type DashLang = Lang;
-export type DashIssue = Pick<Digest, "contentLang" | "date" | "airDefense" | "front" | "civilianStats" | "timeline" | "airDefenseHistory" | "losses">;
+export type DashIssue = Pick<Digest, "contentLang" | "date" | "airDefense" | "front" | "civilianStats" | "timeline" | "airDefenseHistory" | "losses"> & {
+  dirOrder?: string[]; // maps/strikes pages: the directions in dashboard colour order, instead of the whole timeline
+};
 
 export type Ctx = {
   lang: DashLang;

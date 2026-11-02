@@ -20,6 +20,15 @@
         "5055"
       ],
       "port": 5055
+    },
+    {
+      "name": "dev-worktree",
+      "runtimeExecutable": "sh",
+      "runtimeArgs": [
+        "-c",
+        "node scripts/i18n.mjs build && npx next dev --port 5013"
+      ],
+      "port": 5013
     }
   ]
 }

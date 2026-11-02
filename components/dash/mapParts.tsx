@@ -95,6 +95,18 @@ export function VerdictBar({ t, head, cnt, on, pick }: { t: UIStrings; head: str
     </div>
   );
 }
+/** Where DeepState's occupied outline differs between two snapshots: vertices only one of them has (both are rounded
+ *  to 0.005°, so an unchanged stretch keeps its vertices), grouped within 12 km; the biggest change first. */
+export function lineChanges(a: MapsData, b: MapsData): [number, number][][] {
+  const pts = (M: MapsData) => new Set((M.layers.ds_occ || []).flat(2).map((p) => p[0] + "," + p[1]));
+  const A = pts(a), B = pts(b), out: [number, number][][] = [];
+  for (const k of [...A].filter((x) => !B.has(x)).concat([...B].filter((x) => !A.has(x)))) {
+    const [lng, lat] = k.split(",").map(Number);
+    const g = out.find((c) => kmBetween({ lng: c[0][0], lat: c[0][1] }, { lng, lat }) < 12);
+    if (g) g.push([lng, lat]); else out.push([[lng, lat]]);
+  }
+  return out.sort((x, y) => y.length - x.length);
+}
 export const lastDay = (M: MapsData) => Math.max(...M.events.map((e) => dayN(e.d)));
 /** Projection fitted to Ukraine in a W×H box, with a path builder for MultiPolygon rings. */
 export function makeGeo(M: MapsData, W: number, H: number): Geo {

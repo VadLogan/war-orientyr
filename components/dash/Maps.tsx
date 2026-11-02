@@ -2,14 +2,15 @@
 import { Fragment, useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { Delaunay, geoMercator, geoPath, select, zoom, zoomIdentity, type GeoPermissibleObjects, type GeoProjection, type ZoomBehavior, type ZoomTransform } from "d3";
 import type { UIStrings } from "@/lib/ui";
-import { dayN, fmt, houseStyle as hsBase, nDay, shortD } from "@/lib/text";
+import { dayN, dirCol, dirOrder, fmt, houseStyle as hsBase, nDay, shortD, TL } from "@/lib/text";
 import { distLabel, kmBetween, stkDist, type Strike, type StrikesBase, type StrikesData } from "@/lib/strikes";
 import { useApp } from "../ctx";
 import { LOCK } from "../digest/Item";
-import { useElWidth, useJson, useSticky } from "./hooks";
+import { fetchJson, useElWidth, useJson, useSticky } from "./hooks";
 import type { MapsData } from "./Panels";
-import { DIRS, dirOf, areaTiles, Cities, countV, fitFront, lastDay, Layers, makeGeo, Mark, MarkIco, mp, PAIR_SRC, Sw, SRC_COL, Tiles, VerdictBar, VG, vgOf, type Ev, type Geo, type Rings } from "./mapParts";
+import { DIRS, dirOf, areaTiles, Cities, countV, fitFront, lastDay, Layers, lineChanges, makeGeo, Mark, MarkIco, mp, PAIR_SRC, Sw, SRC_COL, Tiles, VerdictBar, VG, vgOf, type Ev, type Geo, type Rings } from "./mapParts";
 import { flags } from "@/components/Flag";
+import { href } from "@/lib/routes";
 import { byPlace, GCOL, GRPS, grpOf, placeKey, STK_CITIES, StkIco, StkMark, type Grp } from "./strikeParts";
 
 
@@ -127,6 +128,14 @@ const tipHandlers = (setTip: (t: Tip) => void, body: () => ReactNode) => ({
 /* ---------- Maps: how DeepState / ISW / DIVGEN draw the front ---------- */
 const ALL_V: Record<VG, boolean> = { occ: true, grey: true, edge: true, ua: true, far: true, out: true };
 const PERS = [7, 14, 30];
+const PRESETS: { id: string; mode: string; pair?: string; ev: boolean; dse: boolean; per: number }[] = [
+  { id: "new", mode: "ds", ev: false, dse: true, per: 7 },
+  { id: "claims", mode: "cmp", pair: "dg_ds", ev: true, dse: true, per: 30 },
+  { id: "cmp", mode: "cmp", ev: false, dse: false, per: 30 },
+];
+const dsKey = (e: { id: number; lat: number; lng: number }) => `${e.id}/${e.lat}/${e.lng}`;
+type Stop = { pts: [number, number][]; ll: [number, number]; d0: string; d: string; j: number; n: number };
+let railInit = false; // the rail starts hidden on phones once per page load; after that it's the reader's choice
 function useMapGeo(M: MapsData | null, W: number, H: number): Geo | null {
   return useMemo(() => (M ? makeGeo(M, W, H) : null), [M, W, H]);
 }
@@ -166,16 +175,26 @@ const DsMark = ({ k, hl }: { k: "ru" | "ua" | "fix"; hl?: boolean }) => {
   if (k === "fix") return <circle r={r * 0.7} fill="var(--m-grey)" stroke="var(--surface)" strokeWidth={1.5} />;
   return <path d={`M0,${-r * y}L${r},${r * 0.8 * y}L-${r},${r * 0.8 * y}Z`} fill={k === "ua" ? "var(--m-onlyds)" : "var(--m-occ)"} stroke="var(--surface)" strokeWidth={1.5} />;
 };
+/** A UI string with its values in bold: call it with "{0}", "{1}"… and pass the values. */
+const Bold = ({ s, v }: { s: string; v: ReactNode[] }) => <>{s.split(/\{(\d)\}/).map((x, i) => (i % 2 ? <b key={i}>{v[+x]}</b> : x))}</>;
+/** How far russia's claim ran ahead of (or behind) DeepState: the finding of a matched change, so a badge. */
+const Lag = ({ n, t }: { n: number; t: UIStrings }) => <b className={"mp-lag" + (n > 0 ? " ahead" : n < 0 ? " behind" : "")}>{t.dsLagT(n)}</b>;
 const DsIco = ({ k }: { k: "ru" | "ua" | "fix" }) => <svg className="mk" width="14" height="14" viewBox="-7 -7 14 14" aria-hidden="true"><DsMark k={k} /></svg>;
 
 export function MapsCompare() {
-  const { t, lang, MAPS, D } = useApp();
+  const { t, lang, MAPS, D, LATEST } = useApp();
   const hs = (x: string) => hsBase(x, lang);
   const [mode, setMode] = useSticky("mapMode", "cmp");
   const [sect, setSect] = useSticky("mapSect", true);
+  const [dOff, setDOff] = useSticky<string[]>("mapDirOff", []); // directions switched off on the map
+  const dVis = (id: string) => sect && !dOff.includes(id);
+  const toggleD = (id: string) => setDOff(dOff.includes(id) ? dOff.filter((x) => x !== id) : [...dOff, id]);
   // General Staff: russian attacks per direction in the issue's day (names come translated on English pages)
   const gsBy = new Map((D.front?.directions || []).map((x) => [x.name, x.attacks]));
   const gsOf = (d: (typeof DIRS)[number]) => gsBy.get(d.uk) ?? gsBy.get(d[lang]);
+  // each direction keeps its dashboard colour (timeline names come translated on English/German pages)
+  const dOrder = useMemo(() => LATEST.dirOrder ?? dirOrder(TL(LATEST)), [LATEST]);
+  const dcol = (d: (typeof DIRS)[number]) => dirCol(dOrder, dOrder.includes(d.uk) ? d.uk : d[lang]);
   const [pair, setPair] = useSticky("mapPair", "dg_ds");
   const [ev, setEv] = useSticky("mapEv", true);
   const [dse, setDse] = useSticky("mapDsEv", true); // DeepState advances + when russia claimed them
@@ -191,10 +210,33 @@ export function MapsCompare() {
   // snapshot shown: starts at the page date's one, then steps through the archive here, without leaving the page
   const pageSnap = MAPS.match(/(\d{4}-\d{2}-\d{2})\.json$/)?.[1] ?? null;
   const [snap, setSnap] = useState(pageSnap);
-  useEffect(() => setSnap(pageSnap), [pageSnap]);
+  const ps0 = useRef(pageSnap); // another issue picked: its snapshot (not on mount, where a shared link's snapshot may be set)
+  useEffect(() => { if (ps0.current !== pageSnap) { ps0.current = pageSnap; setSnap(pageSnap); } }, [pageSnap]);
   const arch = useJson<{ dates: string[] }>(pageSnap ? "/maps/archive/index.json" : null);
   const snaps = (arch.data?.dates || []).slice().sort(), si = snap ? snaps.indexOf(snap) : -1;
   const { data: M, err } = useJson<MapsData>(snap ? `/maps/archive/${snap}.json` : MAPS);
+  // the week on the front: DeepState's changes in the 7 days up to the snapshot, its area against the snapshot a week before
+  const wkEnd = snap ? dayN(snap) : 0;
+  const prevSnap = snap ? snaps.filter((d) => dayN(d) <= wkEnd - 7).at(-1) ?? null : null;
+  const PM = useJson<MapsData>(prevSnap ? `/maps/archive/${prevSnap}.json` : null).data;
+  const [play, setPlay] = useState(false);
+  const [tour, setTour] = useState(false); // started and not stopped (a paused tour still hides the direction labels)
+  // the tour's stops: every change of DeepState's line between neighbouring snapshots (up to 4 per pair); `at` = the one in view
+  const [stops, setStops] = useState<Stop[] | null>(null);
+  const [at, setAt] = useState(-1);
+  const piece = tour && stops ? stops[at] ?? null : null;
+  // a new snapshot: the previous one's areas stay on top and fade out, so the line visibly moves instead of jumping
+  const [fade, setFade] = useState<{ M: MapsData; n: number } | null>(null);
+  const lastM = useRef<MapsData | null>(null);
+  useEffect(() => {
+    const was = lastM.current;
+    lastM.current = M;
+    if (!was || !M || was === M) return;
+    setFade({ M: was, n: Date.now() });
+    const tm = setTimeout(() => setFade(null), 1200);
+    return () => clearTimeout(tm);
+  }, [M]);
+  const [copied, setCopied] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
   const w = useElWidth(wrapRef);
   const { fs, setFs, vh } = useFullscreen();
@@ -221,6 +263,94 @@ export function MapsCompare() {
     const kk = Math.min(40, 0.85 / Math.max((x1 - x0) / W, (y1 - y0) / H));
     z.to(zoomIdentity.translate(W / 2, H / 2).scale(kk).translate(-(x0 + x1) / 2, -(y0 + y1) / 2), 500);
   };
+  /** ▶ the archive as a tour, run like a player (⏮ ▶/❚❚ ⏭ ■): each stop flies to a change of DeepState's line (zoom out,
+   *  across, in), shows the snapshot before it, then swaps to the one after, so the cross-fade shows the line move. */
+  const playRun = useRef(0), view = useRef({ geo, W, H });
+  view.current = { geo, W, H };
+  useEffect(() => () => { playRun.current++; }, []);
+  const fly = (ll: [number, number][], ms = 1400) => {
+    const { geo: g, W: w, H: h } = view.current;
+    if (!g) return;
+    const pts = ll.map((p) => g.proj(p)!), xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]);
+    const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
+    // the change fills half the view at most, and the view stays ≥ ~100 km wide so the place reads in context
+    z.to(zoomIdentity.translate(w / 2, h / 2).scale(Math.min(12, 0.5 / Math.max((x1 - x0) / w, (y1 - y0) / h, 0.02))).translate(-(x0 + x1) / 2, -(y0 + y1) / 2), ms);
+  };
+  const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+  const show = async (k: number, list: Stop[], live: () => boolean) => {
+    const st = list[k];
+    setAt(k); setSnap(st.d0); fly(st.pts);
+    await sleep(1500);
+    if (live()) setSnap(st.d);
+  };
+  /** Plays from stop k on; a new call (or pause/stop) ends the previous run. */
+  const runFrom = async (k: number, list: Stop[]) => {
+    const id = ++playRun.current, live = () => playRun.current === id;
+    setPlay(true);
+    for (; k < list.length && live(); k++) { await show(k, list, live); await sleep(2800); }
+    if (!live()) return;
+    setPlay(false);
+    if (M && view.current.geo) z.to(fitFront(M, view.current.geo, view.current.W, view.current.H), 1400);
+  };
+  /** Prev/next stop: keeps playing from there if playing, else shows it and waits. */
+  const goStop = (k: number) => {
+    if (!stops || k < 0 || k >= stops.length) return;
+    if (play) { runFrom(k, stops); return; }
+    const id = ++playRun.current;
+    show(k, stops, () => playRun.current === id);
+  };
+  const startTour = async () => {
+    setTour(true); setPlay(true);
+    const id = playRun.current;
+    // ponytail: loads every archived snapshot (~190 KB each) up front; build the stops in build.py if the archive grows long
+    const all = await Promise.all(snaps.map((d) => fetchJson<MapsData>(`/maps/archive/${d}.json`).catch(() => null)));
+    if (playRun.current !== id) return;
+    const list: Stop[] = [];
+    for (let i = 1; i < snaps.length; i++) {
+      const a = all[i - 1], b = all[i];
+      if (!a || !b) continue;
+      const ps = lineChanges(a, b).slice(0, 4);
+      ps.forEach((pts, j) => list.push({ pts, ll: [pts.reduce((x, p) => x + p[0], 0) / pts.length, pts.reduce((x, p) => x + p[1], 0) / pts.length], d0: snaps[i - 1], d: snaps[i], j: j + 1, n: ps.length }));
+    }
+    setStops(list);
+    runFrom(0, list);
+  };
+  // the caption of the change in view: DeepState's own note on a place near it (its update notes are in the newest
+  // snapshot only), else the nearest town; plus the latest DIVGEN claim near it in the two weeks before
+  const DSE = useJson<MapsData>(tour && snaps.length ? `/maps/archive/${snaps[snaps.length - 1]}.json` : null).data?.dsEvents;
+  const cap = piece && M ? (() => {
+    const c = { lng: piece.ll[0], lat: piece.ll[1] }, n0 = dayN(piece.d0) - 1, n1 = dayN(piece.d);
+    const near = <T extends { lat: number; lng: number }>(xs: T[], km: number) => xs.map((x) => [x, kmBetween(x, c)] as const).filter(([, k]) => k < km).sort((a, b) => a[1] - b[1]).map(([x]) => x);
+    // one DeepState note can link several places: keep it once, at the place nearest the change
+    const ds = near((DSE || []).filter((e) => { const n = dayN(e.d); return n >= n0 && n <= n1; }), 20).filter((e, i, xs) => xs.findIndex((x) => x.id === e.id) === i);
+    const cl = near(M.events.filter((e) => { const n = dayN(e.d); return n > n1 - 14 && n <= n1; }), 20).sort((a, b) => (a.d < b.d ? 1 : -1));
+    const city = near(M.cities, 1e4)[0];
+    return { ds, cl, city };
+  })() : null;
+  // the caption's items, numbered: each is also a point on the map; hover links the two, click flies to the point
+  type CapItem = { key: string; lat: number; lng: number; ds?: NonNullable<MapsData["dsEvents"]>[number]; cl?: Ev };
+  const capItems: CapItem[] = cap ? [
+    ...(play ? cap.ds.slice(0, 1) : cap.ds).map((e) => ({ key: "d" + dsKey(e), lat: e.lat, lng: e.lng, ds: e })),
+    ...(play ? cap.cl.slice(0, 1) : cap.cl.slice(0, 6)).filter((c) => !cap.ds.some((e) => e.ru?.id === c.id)).map((c) => ({ key: "c" + c.id + c.d, lat: c.lat, lng: c.lng, cl: c })),
+  ] : [];
+  const [capHl, setCapHl] = useState<string | null>(null);
+  const capRef = useRef<HTMLDivElement>(null);
+  useEffect(() => setCapHl(null), [at]);
+  const capPick = (it: CapItem, fromMap = false) => {
+    if (play) pausePlay();
+    setCapHl(it.key);
+    if (fromMap) capRef.current?.querySelector(`[data-k="${CSS.escape(it.key)}"]`)?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    else if (geo) { const [x, y] = geo.proj([it.lng, it.lat])!; z.to(zoomIdentity.translate(W * 0.66, H * 0.55).scale(Math.max(z.t.k, 10)).translate(-x, -y), 900); }
+  };
+  const pausePlay = () => { playRun.current++; setPlay(false); if (piece) setSnap(piece.d); }; // paused mid-stop: show the change done
+  const endTour = () => { pausePlay(); setTour(false); setAt(-1); };
+  /** ■: the tour ends and the map goes back to the issue's snapshot and the whole front. */
+  const stopTour = () => { endTour(); setSnap(pageSnap); if (M && geo) z.to(fitFront(M, geo, W, H), 900); };
+  const togglePlay = () => {
+    if (play) return pausePlay();
+    if (tour && stops?.length) return runFrom(at + 1 < stops.length ? at + 1 : 0, stops);
+    startTour();
+  };
   const pickDir = (d: string | null) => {
     setDir(d); setSel(null);
     if (!M || !geo) return;
@@ -244,7 +374,6 @@ export function MapsCompare() {
   }, [geo]);
   const inDir = dir ? inPer.filter((e) => evDir.get(e) === dir) : inPer;
   const dsShown = M && dse ? (M.dsEvents || []).filter((e) => { const n = dayN(e.d); return n > end - per && n <= end && (!dir || dirOf(e) === dir); }).sort((a, b) => (a.d < b.d ? 1 : a.d > b.d ? -1 : 0)) : [];
-  const dsKey = (e: { id: number; lat: number; lng: number }) => `${e.id}/${e.lat}/${e.lng}`;
   const [dsHl, setDsHl] = useState<string | null>(null);
   const cnt = countV(inDir, ref);
   const shown = ev ? inDir.filter((e) => vf[vgOf(e[ref])]).sort((a, b) => (a.d < b.d ? 1 : a.d > b.d ? -1 : 0)) : [];
@@ -289,16 +418,16 @@ export function MapsCompare() {
     setSel(e);
     const [x, y] = geo.proj([e.lng, e.lat])!;
     // the point lands right of centre, clear of the claim card in the top-left corner
-    z.to(zoomIdentity.translate(W * 0.62, H * 0.55).scale(Math.max(z.t.k, 12)).translate(-x, -y), 500);
+    z.to(zoomIdentity.translate(W * 0.62, H * 0.55).scale(Math.max(z.t.k, 12)).translate(-x, -y), 1000);
     if (scroll) wrapRef.current?.scrollIntoView({ block: "center", behavior: "smooth" });
   };
   const focusDs = (e: { lat: number; lng: number }) => {
     if (!geo) return;
     const [x, y] = geo.proj([e.lng, e.lat])!;
-    z.to(zoomIdentity.translate(W / 2, H / 2).scale(Math.max(z.t.k, 12)).translate(-x, -y), 500);
+    z.to(zoomIdentity.translate(W / 2, H / 2).scale(Math.max(z.t.k, 12)).translate(-x, -y), 1000);
     wrapRef.current?.scrollIntoView({ block: "center", behavior: "smooth" });
   };
-  const dsLine = (e: NonNullable<MapsData["dsEvents"]>[number]) => e.ru ? `DIVGEN #${e.ru.id}, ${dmy(e.ru.d).slice(0, 5)}: ${hs(e.ru.t)} — ${t.dsLagT(e.ru.lag)}` : t.dsNoRu;
+  const dsLine = (e: NonNullable<MapsData["dsEvents"]>[number]) => e.ru ? <>DIVGEN #{e.ru.id}, {dmy(e.ru.d).slice(0, 5)}: {hs(e.ru.t)} <Lag n={e.ru.lag} t={t} /></> : t.dsNoRu;
   const selI = selOn ? shown.indexOf(selOn) : -1; // shown is newest first
   // first open: frame the front instead of the whole country (a zoom kept from earlier in the session stays)
   // hiding/showing the filter rail resizes the box: re-frame the selected direction or the front
@@ -318,6 +447,77 @@ export function MapsCompare() {
     if (z.t.k === 1 && z.t.x === 0 && z.t.y === 0) z.to(fitFront(M, geo, W, H), 0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [M, geo]);
+  // presets: three ready views instead of setting the rail by hand
+  const pr = PRESETS.find((p) => p.mode === mode && p.ev === ev && p.dse === dse && p.per === per && (!p.pair || p.pair === pair))?.id;
+  const preset = (id: string) => {
+    const p = PRESETS.find((x) => x.id === id)!;
+    setMode(p.mode); if (p.pair) setPair(p.pair); setEv(p.ev); setDse(p.dse); setPer(p.per); setOff(0); setVf(ALL_V); pickDir(null);
+  };
+  const wk = (M?.dsEvents || []).filter((e) => { const n = dayN(e.d); return n > wkEnd - 7 && n <= wkEnd; });
+  const wkN = (x: string) => wk.filter((e) => e.k === x).length, wkEarly = wk.filter((e) => e.ru && e.ru.lag > 0).length;
+  // a DeepState change opened from the week strip or the map: its card stays until closed; `xs` = the set it was opened from
+  const [dsSel, setDsSel] = useState<{ xs: NonNullable<MapsData["dsEvents"]>; i: number } | null>(null);
+  const openDs = (xs: NonNullable<MapsData["dsEvents"]>, i = 0) => { setSel(null); setDsSel({ xs, i }); setDse(true); setDsHl(dsKey(xs[i])); focusDs(xs[i]); };
+  const dArea = M && PM ? M.areas.ds_nc - PM.areas.ds_nc : null;
+  // fact-check: claims in the period that DeepState and ISW reject hardest (over 10 km > 2–10 km off the line), newest first
+  // the feed under the map: what each side said in the rail's period (and direction), newest first, as a slider —
+  // russian claims with what DeepState and ISW show there, DeepState's changes with whether and when russia claimed them
+  type DsEv = NonNullable<MapsData["dsEvents"]>[number];
+  const [fcF, setFcF] = useSticky<"all" | "ru" | "ds">("mapFcF", "all");
+  const fcRef = useRef<HTMLOListElement>(null);
+  const dsIn = (M?.dsEvents || []).filter((e) => { const n = dayN(e.d); return n > end - per && n <= end && (!dir || dirOf(e) === dir); });
+  const fcAll: ({ d: string; cl: Ev; ds?: undefined } | { d: string; ds: DsEv; cl?: undefined })[] = [
+    ...inDir.map((cl) => ({ d: cl.d, cl, ds: undefined })), ...dsIn.map((ds) => ({ d: ds.d, ds, cl: undefined })),
+  ].sort((a, b) => (a.d < b.d ? 1 : a.d > b.d ? -1 : a.ds ? -1 : 1));
+  const fc = fcAll.filter((x) => fcF === "all" || (fcF === "ds" ? x.ds : x.cl));
+  const fcScroll = (k: number) => fcRef.current?.scrollBy({ left: k * fcRef.current.clientWidth * 0.9, behavior: "smooth" });
+  useEffect(() => { fcRef.current?.scrollTo({ left: 0 }); }, [fcF, per, o, dir, snap]);
+  const showClaim = (e: Ev) => { setEv(true); setVf(ALL_V); focusEv(e); };
+  const showDs = (e: DsEv) => { setDse(true); focusDs(e); };
+  // shareable view: #v=ds&n=7&d=pok&s=2026-10-30&c=4338 (only what differs from the defaults)
+  const hashRead = useRef(false), pendC = useRef<string | null>(null);
+  useEffect(() => {
+    if (hashRead.current) return; // read once: by a second run (React dev) the hash is already our own rewrite
+    const h = new URLSearchParams(location.hash.slice(1)), g = (x: string) => h.get(x) || "";
+    if (["ds", "isw", "dg", "cmp"].includes(g("v"))) setMode(g("v"));
+    if (PAIR_SRC[g("p")]) setPair(g("p"));
+    if (PERS.includes(+g("n"))) setPer(+g("n"));
+    if (+g("o") > 0) setOff(+g("o"));
+    if (DIRS.some((x) => x.id === g("d"))) setDir(g("d"));
+    if (/^\d{4}-\d{2}-\d{2}$/.test(g("s"))) setSnap(g("s"));
+    if (h.has("e")) setEv(g("e") !== "0");
+    if (h.has("a")) setDse(g("a") !== "0");
+    pendC.current = g("c") || null;
+    hashRead.current = true;
+    if (!railInit && innerWidth <= 860) setRail(false); // phones: the map first, filters behind the button
+    railInit = true;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useEffect(() => { if (snaps.length && snap && !snaps.includes(snap)) setSnap(pageSnap); }, [snaps.length, snap]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    const c = pendC.current;
+    if (!c || !M || !geo) return;
+    pendC.current = null;
+    const e = M.events.find((x) => String(x.id) === c);
+    if (e) { setEv(true); setVf(ALL_V); focusEv(e, false); }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [M, geo]);
+  useEffect(() => {
+    if (!hashRead.current) return;
+    const h = new URLSearchParams();
+    if (mode !== "cmp") h.set("v", mode); else if (pair !== "dg_ds") h.set("p", pair);
+    if (per !== 30) h.set("n", String(per));
+    if (o) h.set("o", String(o));
+    if (dir) h.set("d", dir);
+    if (!ev) h.set("e", "0");
+    if (!dse) h.set("a", "0");
+    if (snap && snap !== pageSnap) h.set("s", snap);
+    if (selOn) h.set("c", String(selOn.id));
+    const s = h.toString();
+    history.replaceState(history.state, "", s ? "#" + s : location.pathname + location.search);
+    setCopied(false);
+  }, [mode, pair, per, o, dir, ev, dse, snap, pageSnap, selOn]);
+  const copyLink = () => navigator.clipboard?.writeText(location.href).then(() => setCopied(true), () => {});
   const k = z.t.k;
   const evTip = (e: Ev) => () => <>
     <div className="d">{dmy(e.d)}</div><div>{flags(hs(e.t))}</div>
@@ -329,17 +529,30 @@ export function MapsCompare() {
   return (
     <section className="tlwrap mp" id="maps">
       <div className="mp-head"><h2>{t.mpH}</h2><p>{flags(t.mpLede)}</p></div>
-      <div className="tiles map-tiles">{M && <Tiles items={areaTiles(M, t, F, mode, pair)} />}</div>
+      <div className="mp-pr" role="group" aria-label={t.prH}><span>{t.prH}</span>{PRESETS.map((p) => (
+        <button type="button" key={p.id} aria-pressed={pr === p.id} onClick={() => preset(p.id)}>{flags(t.pr[p.id as "new"])}</button>
+      ))}<a className="mp-pr-stk" href={href(lang, "strikes", D.date, LATEST.date)}>{flags(t.nw.strikes.k)} →</a></div>
+      {M?.dsEvents && snap && <div className="mp-wk">
+        <b>{t.wkH(dayStr(wkEnd - 6), dayStr(wkEnd))}</b>
+        <p>{wk.length ? <>{wkN("ru") > 0 && <span className="ru">{t.wkRu(wkN("ru"))}</span>}{wkN("ua") > 0 && <span className="ua">{t.wkUa(wkN("ua"))}</span>}</> : <span>{t.wkNone}</span>}
+          {dArea != null && prevSnap && <span><Bold s={t.wkArea("{0}", "{1}")} v={[(dArea > 0 ? "+" : dArea < 0 ? "−" : "±") + F(Math.abs(dArea)) + (lang === "uk" ? " км²" : " km²"), dmy(prevSnap).slice(0, 5)]} /></span>}
+          {wkEarly > 0 && <span><button type="button" className="linkbtn" onClick={() => openDs(wk.filter((e) => e.ru && e.ru.lag > 0).sort((a, b) => (a.d < b.d ? 1 : -1)))}>{flags(t.wkEarly(wkEarly))}</button></span>}</p>
+        {wk.length > 0 && pr !== "new" && <button type="button" className="linkbtn" onClick={() => preset("new")}>{t.wkShow}</button>}
+      </div>}
       <div className={"mp-grid" + (fs ? " fs" : "")} role={fs ? "dialog" : undefined} aria-modal={fs || undefined} aria-label={fs ? t.map : undefined}>
         <aside className="mp-rail" hidden={!rail}>
           <fieldset>
             <legend>{t.mpSnapH}</legend>
             <div className="mp-step">
-              <button type="button" aria-label={t.mpPrevD} title={t.mpPrevD} disabled={si <= 0} onClick={() => setSnap(snaps[si - 1])}>‹</button>
+              <button type="button" aria-label={t.mpPrevD} title={t.mpPrevD} disabled={si <= 0} onClick={() => { endTour(); setSnap(snaps[si - 1]); }}>‹</button>
               <span><b>{snap ? dmy(snap) : "—"}</b>{M && <small>{t.mpSnapSrc(M.sources.deepstate.asOfLabel)}</small>}</span>
-              <button type="button" aria-label={t.mpNextD} title={t.mpNextD} disabled={si < 0 || si >= snaps.length - 1} onClick={() => setSnap(snaps[si + 1])}>›</button>
+              <button type="button" aria-label={t.mpNextD} title={t.mpNextD} disabled={si < 0 || si >= snaps.length - 1} onClick={() => { endTour(); setSnap(snaps[si + 1]); }}>›</button>
             </div>
-            {snap !== pageSnap && pageSnap && <button type="button" className="linkbtn" onClick={() => setSnap(pageSnap)}>{t.mpSnapBack(dmy(pageSnap))}</button>}
+            {snaps.length > 1 && <div className="mp-playrow">
+              <button type="button" className="mp-play" aria-pressed={play} onClick={togglePlay}>{play ? "❚❚ " + t.mpPause : "▶ " + t.mpPlay}</button>
+              {tour && <button type="button" className="mp-play" onClick={stopTour}>■ {t.mpStop}</button>}
+            </div>}
+            {snap !== pageSnap && pageSnap && <button type="button" className="linkbtn" onClick={() => { endTour(); setSnap(pageSnap); }}>{t.mpSnapBack(dmy(pageSnap))}</button>}
           </fieldset>
           <fieldset>
             <legend>{t.mpView}</legend>
@@ -365,17 +578,22 @@ export function MapsCompare() {
             <label className="mp-chk"><input type="checkbox" checked={sect} onChange={() => setSect(!sect)} /><span>{t.mpSect}</span></label>
             <div className="mp-dirs" role="group" aria-label={t.mpDir}>
               <button type="button" aria-pressed={!dir} onClick={() => pickDir(null)}>{t.mpAllDir}</button>
+              {sect && <button type="button" onClick={() => setDOff(dOff.length ? [] : DIRS.map((x) => x.id))}>{dOff.length ? t.mpDirAllOn : t.mpDirAllOff}</button>}
             </div>
             <div className="mp-dirlist" role="group" aria-label={t.mpDir}>
               <div className="mp-dirlist-h"><span>{t.mpDirAtt}</span><span>{t.mpDirCl}</span></div>
-              {dirRank.map((d) => { const g = gsOf(d), l = d[lang]; return (
-                <button type="button" key={d.id} aria-pressed={dir === d.id} onClick={() => pickDir(dir === d.id ? null : d.id)}
-                  aria-label={`${l}: ${g != null ? t.mpGs(g, "") : t.mpGsNone}; ${t.mpDirClaims(dirCnt[d.id] || 0)}`}>
-                  <span className="nm">{l}</span>
-                  <span className="bar" aria-hidden="true"><i style={{ width: g ? Math.max(3, (g / gsMax) * 100) + "%" : 0 }} /></span>
-                  <span className="at">{g ?? "—"}</span>
-                  <span className="cl">{dirCnt[d.id] || 0}</span>
-                </button>
+              {dirRank.map((d) => { const g = gsOf(d), l = d[lang], c = dcol(d), vis = !dOff.includes(d.id); return (
+                <div className="mp-dirrow" key={d.id}>
+                  {sect && <button type="button" className="sw" aria-pressed={vis} aria-label={t.mpDirShow(l)} title={t.mpDirShow(l)} onClick={() => toggleD(d.id)}
+                    style={{ borderColor: c, background: vis ? c : "transparent" }} />}
+                  <button type="button" aria-pressed={dir === d.id} onClick={() => pickDir(dir === d.id ? null : d.id)}
+                    aria-label={`${l}: ${g != null ? t.mpGs(g, "") : t.mpGsNone}; ${t.mpDirClaims(dirCnt[d.id] || 0)}`}>
+                    <span className="nm">{l}</span>
+                    <span className="bar" aria-hidden="true"><i style={{ width: g ? Math.max(3, (g / gsMax) * 100) + "%" : 0, background: c }} /></span>
+                    <span className="at">{g ?? "—"}</span>
+                    <span className="cl">{dirCnt[d.id] || 0}</span>
+                  </button>
+                </div>
               ); })}
             </div>
             {dir && (() => { const d = DIRS.find((x) => x.id === dir)!, g = gsOf(d); return (
@@ -401,6 +619,7 @@ export function MapsCompare() {
             <div className="map-legend">{legend}</div>
             <BaseSeg bm={bm} set={setBm} label={t.mBase} />
             {M && ev && <span className="map-src">{t.mpShown(shown.length, inPer.length)}</span>}
+            <button type="button" className="linkbtn mp-copy" onClick={copyLink}>{copied ? "✓ " + t.mpCopied : "🔗 " + t.mpCopy}</button>
           </div>
           <div className="map-wrap" ref={wrapRef}>
             {err ? <p className="map-src" style={{ padding: 16 }}>{t.mErr}</p> : !M || !geo ? <p className="map-src" style={{ padding: 16 }}>{t.mLoading}</p> : <>
@@ -408,40 +627,50 @@ export function MapsCompare() {
                 {BASEMAPS[bm] && <Tiles256 id={bm} proj={geo.proj} t={z.t} W={W} H={H} />}
                 <g transform={z.t.toString()}>
                   <Layers M={M} geo={geo} mode={mode} pair={pair} plain={bm === "s"} />
-                  {sect && cells && M.layers.ds_occ && <>
+                  {fade && <g key={fade.n} className="mp-fade"><Layers M={fade.M} geo={geo} mode={mode} pair={pair} plain={false} /></g>}
+                  {sect && !tour && cells && M.layers.ds_occ && <>
                     <mask id="mp-band" maskUnits="userSpaceOnUse" x={-W} y={-H} width={W * 3} height={H * 3}>
                       <path d={geo.d(M.layers.ds_occ)} fill="none" stroke="#fff" strokeWidth={26} strokeLinejoin="round" />
                       {/* the occupied outline also runs along the state border and the coast: cut those out, keep the front */}
                       <path d={geo.d(M.base.find((bb) => bb.ua)?.c)} fill="none" stroke="#000" strokeWidth={30} strokeLinejoin="round" />
                     </mask>
                     <g className="mp-sect" mask="url(#mp-band)">{cells.map((c, i) => (
-                      <path key={DIRS[i].id} d={c} className={dir === DIRS[i].id ? "on" : undefined} style={{ fillOpacity: dir === DIRS[i].id ? 0.5 : 0.06 + 0.6 * ((gsOf(DIRS[i]) ?? 0) / gsMax) }} />
+                      dVis(DIRS[i].id) && <path key={DIRS[i].id} d={c} className={dir === DIRS[i].id ? "on" : undefined} style={{ fill: dcol(DIRS[i]), stroke: dcol(DIRS[i]), fillOpacity: !dir ? 0.32 : dir === DIRS[i].id ? 0.6 : 0.14 }} />
                     ))}</g>
                   </>}
                   <Cities M={M} geo={geo} k={k} hidden={bm === "t"} />
-                  {(ev || sect) && <g className="mp-dlab">{dirShown.map((d, i) => {
+                  {(ev || sect) && !tour && <g className="mp-dlab">{dirShown.filter((d) => !sect || dVis(d.id)).map((d, i) => {
                     // labels east of the front, alternately above and below the anchor, so neighbours don't overlap
-                    const [x, y] = geo.proj([d.lng, d.lat])!, on = dir === d.id, l = d[lang], dy = i % 2 ? 16 : -16, g = gsOf(d), lw = l.length * 5.9 + 14 + (g != null ? String(g).length * 7 + 8 : 0);
+                    const [x, y] = geo.proj([d.lng, d.lat])!, on = dir === d.id, l = d[lang], dy = i % 2 ? 16 : -16, g = gsOf(d), lw = l.length * 5.9 + 24 + (g != null ? String(g).length * 7 + 8 : 0), c = dcol(d);
                     return (
                       <g key={d.id} transform={`translate(${x},${y}) scale(${1 / k})`} className={on ? "on" : undefined} onClick={() => pickDir(on ? null : d.id)} role="button" tabIndex={0} aria-pressed={on} aria-label={`${t.mpDir}: ${l}`}
                         onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pickDir(on ? null : d.id); } }}>
                         <line x1={0} y1={0} x2={22} y2={dy} />
                         {on && <rect className="halo" x={19} y={dy - 13} width={lw + 6} height={26} rx={4} />}
-                        <rect x={22} y={dy - 10} width={lw} height={20} rx={2} />
-                        <text x={29} y={dy + 4}>{l}{g != null && <tspan className="n" dx={6}>{g}</tspan>}</text>
+                        <rect x={22} y={dy - 10} width={lw} height={20} rx={2} style={{ stroke: c }} />
+                        <rect className="sw" x={26} y={dy - 5} width={10} height={10} rx={2} style={{ fill: c }} />
+                        <text x={40} y={dy + 4}>{l}{g != null && <tspan className="n" dx={6}>{g}</tspan>}</text>
                       </g>
                     );
                   })}</g>}
-                  <g className="evs">{[...shown].sort((a, b) => +(a === selOn || a.id === hl) - +(b === selOn || b.id === hl)).map((e) => {
+                  {!tour && <g className="evs">{[...shown].sort((a, b) => +(a === selOn || a.id === hl) - +(b === selOn || b.id === hl)).map((e) => {
                     const [x, y] = geo.proj([e.lng, e.lat])!;
                     return <g key={e.id + "" + e.d} transform={`translate(${x},${y}) scale(${1 / k})`} style={{ cursor: "pointer" }} onClick={() => setSel(e)} {...tipHandlers(setTip, evTip(e))}><Mark g={vgOf(e[ref])} hl={e === selOn || e.id === hl} /></g>;
-                  })}</g>
-                  <g className="evs">{dsShown.map((e) => {
+                  })}</g>}
+                  {!tour && <g className="evs">{dsShown.map((e) => {
                     const [x, y] = geo.proj([e.lng, e.lat])!;
                     return <g key={dsKey(e)} transform={`translate(${x},${y}) scale(${1 / k})`} {...tipHandlers(setTip, () => <>
                       <div className="d">{dmy(e.d)} · DeepState · {t.dsK[e.k]}</div><div>{hs(e.t)}</div><div className="s">{dsLine(e)}</div>
-                    </>)}><DsMark k={e.k} hl={dsHl === dsKey(e)} /></g>;
-                  })}</g>
+                    </>)} style={{ cursor: "pointer" }} onClick={() => openDs([e])}><DsMark k={e.k} hl={dsHl === dsKey(e) || dsKey(e) === (dsSel && dsKey(dsSel.xs[dsSel.i]))} /></g>;
+                  })}</g>}
+                  {tour && <g className="evs mp-capp">{capItems.map((it, i) => ({ it, i })).sort((a, b) => +(a.it.key === capHl) - +(b.it.key === capHl)).map(({ it, i }) => {
+                    const [x, y] = geo.proj([it.lng, it.lat])!, on = it.key === capHl;
+                    return <g key={it.key} transform={`translate(${x},${y}) scale(${1 / k})`} className={on ? "on" : undefined} style={{ cursor: "pointer" }}
+                      onPointerEnter={() => setCapHl(it.key)} onClick={() => capPick(it, true)}>
+                      {it.ds ? <DsMark k={it.ds.k} hl={on} /> : <Mark g={vgOf(it.cl!.ds)} hl={on} />}
+                      <g transform={`translate(${on ? 13 : 9},${on ? -13 : -9})`}><circle r={7} /><text y={3.5}>{i + 1}</text></g>
+                    </g>;
+                  })}</g>}
                   {selOn && (() => { const [x, y] = geo.proj([selOn.lng, selOn.lat])!; return (
                     <g className="mp-focus" transform={`translate(${x},${y}) scale(${1 / k})`} aria-hidden="true">
                       <circle className="pulse" r={12} />
@@ -456,10 +685,12 @@ export function MapsCompare() {
                 <button type="button" aria-label={t.mZoomOut} title={t.mZoomOut} onClick={() => z.by(1 / 1.6)}>−</button>
                 <button type="button" aria-label={t.mFront} title={t.mFront} onClick={() => z.to(fitFront(M, geo, W, H), 400)}>◎</button>
                 <button type="button" aria-label={t.mReset} title={t.mReset} onClick={() => z.to(zoomIdentity)}>⟲</button>
+                {snaps.length > 1 && <button type="button" aria-label={play ? t.mpPause : t.mpPlay} title={play ? t.mpPause : t.mpPlay} aria-pressed={play} onClick={togglePlay}>{play ? "❚❚" : "▶"}</button>}
+                {tour && <button type="button" aria-label={t.mpStop} title={t.mpStop} onClick={stopTour}>■</button>}
                 <FsButton fs={fs} onClick={toggleFs} />
               </div>
               <div className="mp-ov">{/* top-left: claims list (full screen), the picked claim's card right under it */}
-              {fs && ev && <div className={"mp-fl" + (flOpen ? " open" : "")}>
+              {fs && ev && !tour && <div className={"mp-fl" + (flOpen ? " open" : "")}>
                 <button type="button" className="mp-fl-h" aria-expanded={flOpen} onClick={() => setFlOpen(!flOpen)}><b>{t.mpList}</b> <span>{shown.length}</span><i aria-hidden="true">{flOpen ? "▾" : "▸"}</i></button>
                 {flOpen && <ol>{shown.map((e) => (
                   <li key={e.id + "" + e.d}><button type="button" aria-current={e === selOn || undefined} onPointerEnter={() => setHl(e.id)} onPointerLeave={() => setHl(null)} onClick={() => focusEv(e, false)}>
@@ -467,6 +698,42 @@ export function MapsCompare() {
                   </button></li>
                 ))}</ol>}
               </div>}
+              {piece && cap && stops && <div className={"mp-sel mp-cap" + (play ? "" : " open")} role="status" ref={capRef}>
+                <div className="d">{dmy(piece.d0).slice(0, 5)} → {dmy(piece.d)} · {t.mpPiece(piece.j, piece.n)}</div>
+                {/* playing: the main line of each; paused: everything known about the place, to read at leisure */}
+                {!cap.ds.length && <div className="tx">{t.mpNear(cap.city?.n || "—")}</div>}
+                <div className="mp-capl">{capItems.map((it, i) => (
+                  <button type="button" key={it.key} data-k={it.key} className={"mp-capi" + (it.key === capHl ? " on" : "")}
+                    onPointerEnter={() => setCapHl(it.key)} onPointerLeave={() => setCapHl(null)} onFocus={() => setCapHl(it.key)} onClick={() => capPick(it)}>
+                    <i>{i + 1}</i>
+                    {it.ds ? <span>
+                      <span className="tx"><DsIco k={it.ds.k} /> {flags(hs(it.ds.t))} <span className="dd">{dmy(it.ds.d).slice(0, 5)}</span></span>
+                      {it.ds.ru && <span className="v">{flags(t.mpCapRu(dmy(it.ds.ru.d).slice(0, 5), hs(it.ds.ru.t)))} <Lag n={it.ds.ru.lag} t={t} /></span>}
+                    </span> : <span><span className="v"><MarkIco g={vgOf(it.cl!.ds)} /> <span>DIVGEN {dmy(it.cl!.d).slice(0, 5)}: {flags(hs(it.cl!.t))} — DeepState: {t.evSt.ds[it.cl!.ds as "occ"]}</span></span></span>}
+                  </button>
+                ))}</div>
+                <div className="nav">
+                  <button type="button" aria-label={t.mpPrevStop} title={t.mpPrevStop} disabled={at <= 0} onClick={() => goStop(at - 1)}>‹</button>
+                  <button type="button" aria-label={play ? t.mpPause : t.mpPlay} title={play ? t.mpPause : t.mpPlay} aria-pressed={play} onClick={togglePlay}>{play ? "❚❚" : "▶"}</button>
+                  <button type="button" aria-label={t.mpNextStop} title={t.mpNextStop} disabled={at >= stops.length - 1} onClick={() => goStop(at + 1)}>›</button>
+                  <span>{at + 1} / {stops.length}</span>
+                  <button type="button" aria-label={t.mpStop} title={t.mpStop} onClick={stopTour}>■</button>
+                </div>
+              </div>}
+              {dsSel && !tour && (() => { const e = dsSel.xs[dsSel.i]; return (
+                <div className="mp-sel mp-dsc" role="status">
+                  <button type="button" aria-label={t.art.close} title={t.art.close} onClick={() => { setDsSel(null); setDsHl(null); }}>×</button>
+                  <div className="d">{dmy(e.d)} · {t.fcDsL}</div>
+                  <div className="tx"><DsIco k={e.k} /> {flags(hs(e.t))}</div>
+                  <div className="v">{t.dsK[e.k]}</div>
+                  {e.ru ? <div className="v"><MarkIco g="occ" /> <span>{flags(t.mpCapRu(dmy(e.ru.d).slice(0, 5), hs(e.ru.t)))} <Lag n={e.ru.lag} t={t} /></span></div> : <div className="v map-src">{t.dsNoRu}</div>}
+                  {dsSel.xs.length > 1 && <div className="nav">
+                    <button type="button" aria-label={t.fcPrev} title={t.fcPrev} disabled={dsSel.i <= 0} onClick={() => openDs(dsSel.xs, dsSel.i - 1)}>‹</button>
+                    <span>{dsSel.i + 1} / {dsSel.xs.length}</span>
+                    <button type="button" aria-label={t.fcNext} title={t.fcNext} disabled={dsSel.i >= dsSel.xs.length - 1} onClick={() => openDs(dsSel.xs, dsSel.i + 1)}>›</button>
+                  </div>}
+                </div>
+              ); })()}
               {selOn && <div className="mp-sel" role="status">
                 <button type="button" aria-label={t.art.close} title={t.art.close} onClick={() => setSel(null)}>×</button>
                 <div className="d">{dmy(selOn.d)} · DIVGEN #{selOn.id}</div>
@@ -480,10 +747,39 @@ export function MapsCompare() {
                 </div>
               </div>}
               </div>
+              {play && snap && <div className="mp-playdate" aria-live="polite">{dmy(snap)}</div>}
               <Attr bm={bm} />
               <MapTip tip={tip} wrap={wrapRef} />
             </>}
           </div>
+          {M && <div className="mp-fc">
+            <div className="mp-fc-h">
+              <b>{t.fcH(dayStr(end - per + 1), dayStr(end))}{dir && <> · {DIRS.find((x) => x.id === dir)![lang]}</>}</b>
+              <div className="seg" role="group">{([["all", t.fcAll, fcAll.length], ["ru", t.fcRuF, inDir.length], ["ds", t.fcDsF, dsIn.length]] as const).map(([k, l, n]) =>
+                <button type="button" key={k} aria-pressed={fcF === k} onClick={() => setFcF(k)}>{flags(l)} <span>{n}</span></button>)}</div>
+              <div className="mp-fc-nav">
+                <button type="button" aria-label={t.fcPrev} title={t.fcPrev} onClick={() => fcScroll(-1)}>‹</button>
+                <button type="button" aria-label={t.fcNext} title={t.fcNext} onClick={() => fcScroll(1)}>›</button>
+              </div>
+            </div>
+            {fc.length ? <ol ref={fcRef}>{fc.map((x) => x.cl ? (
+              <li key={"c" + x.cl.id + x.cl.d} className={hl === x.cl.id ? "on" : undefined} onPointerEnter={() => setHl(x.cl!.id)} onPointerLeave={() => setHl(null)}>
+                <div className="d">{dmy(x.d)} · {flags(t.fcRu)}</div>
+                <q>{flags(hs(x.cl.t))}</q>
+                <div className="v"><MarkIco g={vgOf(x.cl.ds)} /> DeepState: {t.evSt.ds[x.cl.ds as "occ"]}</div>
+                <div className="v"><MarkIco g={vgOf(x.cl.isw)} /> ISW: {t.evSt.isw[x.cl.isw as "occ"]}</div>
+                <button type="button" className="linkbtn" onClick={() => showClaim(x.cl!)}>{t.fcMap}</button>
+              </li>
+            ) : (
+              <li key={"d" + dsKey(x.ds!)} className={"ds" + (dsHl === dsKey(x.ds!) ? " on" : "")} onPointerEnter={() => setDsHl(dsKey(x.ds!))} onPointerLeave={() => setDsHl(null)}>
+                <div className="d">{dmy(x.d)} · {t.fcDsL}</div>
+                <q>{flags(hs(x.ds!.t))}</q>
+                <div className="v"><DsIco k={x.ds!.k} /> {t.dsK[x.ds!.k]}</div>
+                <div className="v">{x.ds!.ru ? <><MarkIco g="occ" /> <span>{flags(t.mpCapRu(dmy(x.ds!.ru.d).slice(0, 5), hs(x.ds!.ru.t)))} <Lag n={x.ds!.ru.lag} t={t} /></span></> : <span className="map-src">{t.dsNoRu}</span>}</div>
+                <button type="button" className="linkbtn" onClick={() => showDs(x.ds!)}>{t.fcMap}</button>
+              </li>
+            ))}</ol> : <p className="map-src" style={{ padding: "12px 16px" }}>{t.mpNone}</p>}
+          </div>}
           {M && ev && <VerdictBar t={t} head={t.mpBar(inPer.length, per, t.src[ref])} cnt={cnt} on={vf} pick={pickV} />}
           {M && ev && <div className="mp-list">
             <div className="mp-list-h"><b>{t.mpList}</b></div>
@@ -508,7 +804,7 @@ export function MapsCompare() {
                   <td className="d">{dmy(e.d).slice(0, 5)}</td>
                   <td><button type="button" className="linkbtn" onFocus={() => setDsHl(dsKey(e))} onBlur={() => setDsHl(null)} onClick={() => focusDs(e)}><DsIco k={e.k} /> {hs(e.t)}</button></td>
                   <td>{e.ru ? <>{dmy(e.ru.d).slice(0, 5)} · {flags(hs(e.ru.t))}</> : <span className="map-src">{t.dsNoRu}</span>}</td>
-                  <td style={{ whiteSpace: "nowrap" }}>{e.ru ? t.dsLagT(e.ru.lag) : "—"}</td>
+                  <td style={{ whiteSpace: "nowrap" }}>{e.ru ? <Lag n={e.ru.lag} t={t} /> : "—"}</td>
                 </tr>
               ))}</tbody>
             </table></div> : <p className="map-src" style={{ padding: "12px 16px" }}>{t.dsNone}</p>}
@@ -518,6 +814,7 @@ export function MapsCompare() {
           <details className="method"><summary>{t.mMethod}</summary><p>{flags(method)}</p></details>
         </div>
       </div>
+      <div className="tiles map-tiles">{M && <Tiles items={areaTiles(M, t, F, mode, pair)} />}</div>
     </section>
   );
 }

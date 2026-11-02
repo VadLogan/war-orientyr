@@ -149,6 +149,14 @@ export function niceMax(v: number) {
   return Math.max(1, (f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10) * e) * 4;
 }
 /** Timeline of the latest issue (falls back to the older airDefenseHistory format). */
+/* direction colours: by total attacks over the timeline, the same on the dashboard and the maps */
+const DCOL = ["--c1", "--c2", "--c3", "--c4", "--c5", "--m-dg", "--m-isw", "--s2", "--unv", "--m-onlydgg", "--ok", "--muted"];
+export function dirOrder(all: TimelineEntry[]) {
+  const tot: Record<string, number> = {};
+  all.forEach((e) => { if (e.directions) for (const k in e.directions) { const v = num(e.directions[k]); if (v != null) tot[k] = (tot[k] || 0) + v; } });
+  return Object.keys(tot).sort((a, b) => tot[b] - tot[a] || a.localeCompare(b));
+}
+export const dirCol = (order: string[], n: string) => { let i = order.indexOf(n); if (i < 0) i = order.length; return `var(${DCOL[i % DCOL.length]})`; };
 export function TL(B: Pick<Digest, "timeline" | "airDefenseHistory">): TimelineEntry[] {
   const a: TimelineEntry[] = B.timeline || (B.airDefenseHistory || []).map((h) => ({
     date: h.date, night: (h.label || "").replace(/^ніч\s*/, ""), launched: h.launched, intercepted: h.intercepted, src: { air: h.source || "" },

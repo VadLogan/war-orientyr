@@ -1,5 +1,6 @@
 // Server component: a whole Dashboard page; the charts are a client tree fed with trimmed server data.
 import type { Digest } from "@/types/digest";
+import { dirOrder, TL } from "@/lib/text";
 import { getMapsUrl, getSourceMatrix, SHOW_SOURCE_MATRIX } from "@/lib/data";
 import { resolve, type DateParams } from "@/lib/page";
 import { UI, type UIStrings } from "@/lib/ui";
@@ -22,7 +23,7 @@ export default async function DashPage({ lang, params, view = "dashboard" }: { l
   const t = UI[lang] as UIStrings;
   const MAPS = await getMapsUrl(D.date);
   // the maps and strikes pages read no issue series: ship the date, language and the General Staff directions, not the timelines and losses
-  const bare = (d: Digest) => ({ date: d.date, contentLang: d.contentLang, front: { directions: d.front?.directions, period: d.front?.period, source: d.front?.source } }) as DashIssue;
+  const bare = (d: Digest) => ({ date: d.date, contentLang: d.contentLang, front: { directions: d.front?.directions, period: d.front?.period, source: d.front?.source }, dirOrder: dirOrder(TL(d)) }) as DashIssue;
   const maps = view !== "dashboard";
   return (
     <div className="shell">

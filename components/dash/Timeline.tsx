@@ -1,6 +1,6 @@
 "use client";
 import type { TimelineEntry } from "@/types/digest";
-import { dayN, fmt, num, shortD, TL } from "@/lib/text";
+import { dayN, dirCol, dirOrder, fmt, num, shortD, TL } from "@/lib/text";
 import { useApp } from "../ctx";
 import { useSticky } from "./hooks";
 import LineChart, { Legend, type Ser } from "./LineChart";
@@ -8,13 +8,6 @@ import { flags } from "@/components/Flag";
 
 /* ---------- direction toggles (shared by the directions panel and the timeline) ---------- */
 export type DirSel = Set<string> | null;
-const DCOL = ["--c1", "--c2", "--c3", "--c4", "--c5", "--m-dg", "--m-isw", "--s2", "--unv", "--m-onlydgg", "--ok", "--muted"];
-export function dirOrder(all: TimelineEntry[]) {
-  const tot: Record<string, number> = {};
-  all.forEach((e) => { if (e.directions) for (const k in e.directions) { const v = num(e.directions[k]); if (v != null) tot[k] = (tot[k] || 0) + v; } });
-  return Object.keys(tot).sort((a, b) => tot[b] - tot[a] || a.localeCompare(b));
-}
-const dirCol = (order: string[], n: string) => { let i = order.indexOf(n); if (i < 0) i = order.length; return `var(${DCOL[i % DCOL.length]})`; };
 const dirOn = (sel: DirSel, n: string, def: string[]) => (sel ? sel.has(n) : def.includes(n));
 
 function DirCtl({ names, sel, setSel }: { names: string[]; sel: DirSel; setSel: (s: DirSel) => void }) {
