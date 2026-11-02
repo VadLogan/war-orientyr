@@ -7,6 +7,7 @@ Daily war digest (UA/EN/DE), ported from a single-file Artifact to Next.js. See 
 - `npm run publish -- <new-digest.json> [--force]` — new issue: copies the current `public/digest.json` to `issues/<date>.json`, installs the new file as `digest.json`, adds its date to `issues/index.json`. Same date = correction (no archiving); older date refused. Either way, a `losses.series` day the new file has emptier (ru/ua, e.g. hand-backfilled russian MoD claims) keeps the current values.
 - `npm run validate` — parses all `public/` JSON, checks digest.json schema keys, that `issues/index.json` contains digest's date, and that every strike in digest.json's `deepstrikes` section is in `strikes.json` (by `id` or `item`; notes without emoji / ℹ️ and `geo: null` items exempt). Run after any data change; `prebuild` runs it too, so Vercel won't deploy a stale strikes map.
 - `npm run build` — no test suite; validate + build is the check.
+- `npx tsx scripts/stats.ts [date] [--month]` — numbers for the main editor: the day against yesterday, 7/30-day averages and “most since” for every timeline / losses / strikes series; on the 1st (or `--month`) last month against every earlier month. Self-check: `--test`.
 
 ## Architecture
 - Routes (all statically generated, `dynamicParams = false`): `/[date]`, `/dashboard/[date]`, `/maps/[date]`, `/strikes/[date]`, `/en/…`, `/de/…` the same; no date = latest issue. Files: `app/(uk)/…`, `app/(en)/en/…`, `app/(de)/de/…` — route groups, each with its own root layout so `<html lang>` is static.

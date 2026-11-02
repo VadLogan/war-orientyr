@@ -11692,6 +11692,24 @@
    "local": "silent",
    "issue": "2026-11-01",
    "item": "kamensk-rocketfuel-3110"
+  },
+  {
+   "id": "kstovo-0111",
+   "date": "2026-11-01",
+   "night": "31.10–1.11",
+   "object": "НПЗ «Лукойлу»",
+   "place": "Кстово, Нижньогородська область",
+   "kind": "oil",
+   "territory": "russia",
+   "lat": 56.15,
+   "lng": 44.2,
+   "approx": true,
+   "result": "за повідомленнями Telegram-каналів Exilenova+ і Supernova+ (через Kyiv Independent) — пожежа після атаки дронів; офіційного підтвердження немає; у регіоні запровадили ліміти на продаж бензину",
+   "confirmed": null,
+   "local": "silent",
+   "issue": "2026-11-02",
+   "item": "kstovo-0111",
+   "url": "https://kyivindependent.com/ukraine-war-latest-russian-oil-refinery-in-kstovo-ablaze-after-reported-overnight-drone-strike/"
   }
  ],
  "coverage": {

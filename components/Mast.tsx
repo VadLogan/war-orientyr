@@ -42,6 +42,9 @@ const NW_ART = {
   </svg>,
 };
 
+/** Show the "New on the site" block on digest pages; off until there is something new to promote. */
+const SHOW_NEW_PAGES = false;
+
 /** "New on the site": cards for the /maps and /strikes pages. */
 function NewPages({ lang }: { lang: Lang }) {
   const t = UI[lang].nw;
@@ -72,7 +75,7 @@ function NewPages({ lang }: { lang: Lang }) {
 function Records({ R, lang, date, latest }: { R: DayRecords; lang: Lang; date: string; latest: string }) {
   const T = UI[lang] as UIStrings, t = T.rec, n = R.losses.length + (R.strike ? 1 : 0), f = (v: number) => fmt(v, lang), S = R.strike;
   return (
-    <section className="drec" aria-labelledby="drec-h">
+    <section className={R.losses.length ? "drec has-img" : "drec"} aria-labelledby="drec-h">
       <div className="nw-top"><h2 id="drec-h" className="art-kicker">{n > 1 ? t.hN(n) : t.h}</h2>
         {R.losses.length > 0 && <span>{t.loss} · {t.since(shortD(R.losses[0].since))}</span>}</div>
       <div className="drec-grid">
@@ -92,6 +95,7 @@ function Records({ R, lang, date, latest }: { R: DayRecords; lang: Lang; date: s
           </div>
         )}
       </div>
+      {R.losses.length > 0 && <img className="drec-img" src="/img/rec-losses.webp" alt={t.img} width={1672} height={941} loading="lazy" decoding="async" />}
       <div className="drec-links">
         {R.losses.length > 0 && <a className="nw-btn" href={href(lang, "dashboard", date, latest) + "#losses"}>{t.toLoss}</a>}
         {S && <a className="nw-btn" href={href(lang, "strikes", date, latest)}>{t.toStrikes}</a>}
@@ -125,7 +129,7 @@ export default function Mast({ D, lang, dashboard, articles = [], records, lates
           {!dashboard && <div className="dateline">{dt.line}</div>}
           {body}
           {records && <Records R={records} lang={lang} date={D.date} latest={latest} />}
-          {!dashboard && <NewPages lang={lang} />}
+          {SHOW_NEW_PAGES && !dashboard && <NewPages lang={lang} />}
           {cards}
         </div>
       </section>
