@@ -73,13 +73,40 @@ export type ArticleBlock =
   /** claim vs fact, side by side */
   | { type: "vs"; a: { label: string; text: string }; b: { label: string; text: string; tone?: Tone } }
   /** "Resources: a, b, c" line under a section */
-  | { type: "links"; items: { title: string; url: string }[] };
+  | { type: "links"; items: { title: string; url: string }[] }
+  /** two-sided margins on one axis (e.g. R+12 … D+30): bar = `b`, ring = earlier `a`; >0 = `right` side */
+  | { type: "swing"; title?: string; subtitle?: string; left: Side; right: Side; a?: string; b?: string; note?: string; source?: string;
+      rows: { label: string; b: number; a?: number; note?: string; group?: string; highlight?: boolean }[] }
+  /** donut of seats in groups (`tone` d|dl|tu|rl|r), `mark` = majority tick; groups' races form the legend.
+   *  Candidate `img`: a file in the article folder, else initials */
+  /** `map`: races with a postal `code` are drawn on a US tile map (keys: D strong, D lean, tie, R lean, R strong; other states held DD, RR, split — `seats` names them; `up`/`notUp`: their 2026 note) */
+  | { type: "donut"; title?: string; subtitle?: string; mark?: number; map?: { hint: string; keys: string[]; seats: [string, string, string]; up: string; notUp: string }; center?: { value: string; label: string }; note?: string; source?: string;
+      groups: { label: string; n: number; tone: "d" | "dl" | "tu" | "rl" | "r";
+        /** `lead`: poll margin of the first candidate (midpoint of the reported range; <0 = the second leads) — drawn as that race's pie */
+        races?: { state: string; code?: string; held: string; poll: string; lead?: number; cands: { name: string; party: "d" | "r" | "i"; img?: string }[] }[] }[] }
+  /** clickable scenarios (client island `Scenarios`): seats, Congress's tools and an impact meter per area */
+  | ScenariosBlock;
+export type Side = { label: string; tag: string };
+export type ScenariosBlock = {
+  type: "scenarios"; title?: string; hint?: string; note?: string;
+  /** impact areas, in order; `scores` label the meter -2…2 */
+  areas: { id: string; label: string }[]; scores: [string, string, string, string, string];
+  items: {
+    key: string; label: string; tag: string; text: string;
+    /** Democratic seats in this scenario (House of 435, Senate of 100) */
+    seats: { house: number; senate: number; note?: string };
+    powers: { text: string; on: boolean | "part" }[];
+    impacts: { area: string; score: -2 | -1 | 0 | 1 | 2; title: string; text: string }[];
+  }[];
+};
 export type Tone = "unv" | "accent" | "muted";
 /** public/articles/<YYYY-MM-DD>/<name>/article.<lang>.json — the full article at /articles/<date>/<name>. */
 export type ArticleBody = {
   title?: string; lead?: string; image?: string | { src: string; alt?: string; caption?: string };
   /** kicker above the title; `toc`: contents rail of the h2 blocks (wide screens) */
   kicker?: string; toc?: boolean;
+  /** search/share title (≤60 chars) and description (≤160) when the headline and lead are longer */
+  seo?: { title?: string; description?: string };
   blocks: ArticleBlock[]; sources?: { title: string; url: string; note?: string }[];
 };
 /** public/articles/<YYYY-MM-DD>/<name>/presentation.<lang>.json — an interactive page (`embed.src`, an HTML file in the folder)

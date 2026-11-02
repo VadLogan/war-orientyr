@@ -13,6 +13,8 @@ import ImgZoom from "./ImgZoom";
 import { flags } from "@/components/Flag";
 import PresentationPage from "./PresentationPage";
 import { SecIco } from "./digest/Digest";
+import Scenarios from "./Scenarios";
+import StateMap from "./StateMap";
 
 const num = (v: number, lang: Lang) => v.toLocaleString(loc(lang), { maximumFractionDigits: 1 });
 const IN_ART: Record<Lang, string> = { uk: "У матеріалі", en: "In this article", de: "In diesem Artikel" };
@@ -39,6 +41,69 @@ function Bars({ b, lang }: { b: Extract<ArticleBlock, { type: "chart" }>; lang: 
           ])}
         </ul>
       )}
+      {(b.note || b.source) && <p className="note">{flags([b.note, b.source].filter(Boolean).join(" "))}</p>}
+    </figure>
+  );
+}
+
+/** Margins on one axis from the centre: bar = `b` (now), ring = `a` (before); left side < 0 < right side. */
+function Swing({ b, lang }: { b: Extract<ArticleBlock, { type: "swing" }>; lang: Lang }) {
+  const max = Math.ceil(Math.max(...b.rows.flatMap((r) => [Math.abs(r.b), Math.abs(r.a ?? 0)]), 1) / 10) * 10;
+  const x = (v: number) => 50 + (v / max) * 50 + "%";
+  const m = (v: number) => (v > 0 ? b.right.tag + "+" + num(v, lang) : v < 0 ? b.left.tag + "+" + num(-v, lang) : "0");
+  return (
+    <figure className="art-chart art-swing">
+      {b.title && <figcaption><b>{flags(b.title)}</b>{b.subtitle && <span>{flags(b.subtitle)}</span>}</figcaption>}
+      <div className="sw-axis"><span className="l">← {b.left.label}</span><span className="r">{b.right.label} →</span></div>
+      <ul>
+        {b.rows.map((r, k) => [
+          r.group && <li key={"g" + k} className="grp">{flags(r.group)}</li>,
+          <li key={k} className={r.highlight ? "hi" : undefined}>
+            <div className="lbl"><span>{flags(r.label)}</span>{r.note && <small>{flags(r.note)}</small>}</div>
+            <div className="sw-track">
+              <i className={r.b < 0 ? "l" : "r"} style={{ left: r.b < 0 ? x(r.b) : "50%", width: (Math.abs(r.b) / max) * 50 + "%" }} />
+              {r.a != null && <u style={{ left: x(r.a) }} />}
+            </div>
+            <div className="sw-v"><b>{m(r.b)}</b>{r.a != null && <small>{b.a && b.a + ": "}{m(r.a)}</small>}</div>
+          </li>,
+        ])}
+      </ul>
+      {(b.a || b.b) && <p className="sw-key">{b.b && <span><i />{flags(b.b)}</span>}{b.a && <span><u />{flags(b.a)}</span>}</p>}
+      {(b.note || b.source) && <p className="note">{flags([b.note, b.source].filter(Boolean).join(" "))}</p>}
+    </figure>
+  );
+}
+
+/** Seats as a donut (r = 100/2π, so dash lengths are seat counts), legend = groups; races with `map` → `StateMap`. */
+function Donut({ b, base, lang }: { b: Extract<ArticleBlock, { type: "donut" }>; base: string; lang: Lang }) {
+  const total = b.groups.reduce((s, g) => s + g.n, 0), R = 100 / (2 * Math.PI);
+  let at = 0;
+  const markA = b.mark != null ? (b.mark / total) * 2 * Math.PI - Math.PI / 2 : 0;
+  return (
+    <figure className="art-chart art-donut">
+      {b.title && <figcaption><b>{flags(b.title)}</b>{b.subtitle && <span>{flags(b.subtitle)}</span>}</figcaption>}
+      <div className="dn-wrap">
+        <div className="dn-pie">
+          <svg viewBox="-20 -20 40 40" role="img" aria-label={b.groups.map((g) => `${g.label}: ${g.n}`).join("; ")}>
+            {b.groups.map((g, k) => {
+              const len = (g.n / total) * 100, off = at;
+              at += len;
+              return <circle key={k} r={R} className={g.tone} strokeDasharray={`${len} ${100 - len}`} strokeDashoffset={25 - off} />;
+            })}
+            {b.mark != null && <line x1={Math.cos(markA) * 11.5} y1={Math.sin(markA) * 11.5} x2={Math.cos(markA) * 20} y2={Math.sin(markA) * 20} />}
+          </svg>
+          {b.center && <p className="dn-c"><b>{flags(b.center.value)}</b><span>{flags(b.center.label)}</span></p>}
+        </div>
+        <ol className="dn-leg">
+          {b.groups.map((g, k) => (
+            <li key={k}>
+              <p className="dn-g"><i className={g.tone} /><span>{flags(g.label)}</span><b>{g.n}</b></p>
+              {g.races && <p className="dn-sts">{g.races.map((r) => r.state).join(" · ")}</p>/* state names: no flags (Georgia) */}
+            </li>
+          ))}
+        </ol>
+      </div>
+      {b.map && <StateMap races={b.groups.flatMap((g) => g.races ?? [])} map={b.map} base={base} lang={lang} locale={loc(lang)} />}
       {(b.note || b.source) && <p className="note">{flags([b.note, b.source].filter(Boolean).join(" "))}</p>}
     </figure>
   );
@@ -77,6 +142,9 @@ export function Block({ b, lang, base, id }: { b: ArticleBlock; lang: Lang; base
       );
     }
     case "chart": return b.kind === "bar" || b.kind === "col" ? <Bars b={b} lang={lang} /> : null;
+    case "swing": return <Swing b={b} lang={lang} />;
+    case "donut": return <Donut b={b} base={base} lang={lang} />;
+    case "scenarios": return <Scenarios b={b} lang={lang} />;
     case "stats": return (
       <dl className={"art-stats" + (b.kind ? " " + b.kind : "")}>
         {b.items.map((x, k) => <div key={k}>{x.label && <dt>{flags(x.label)}</dt>}<dd className={x.tone}>{flags(x.value)}</dd>{x.note && <dd className="nt">{flags(x.note)}</dd>}</div>)}
@@ -142,15 +210,16 @@ export async function articleMeta(lang: Lang, params: ArticleParams): Promise<Me
   const a = await load(params, lang), url = (l: Lang) => articleHref(l, a.date, a.name), h = heading(a);
   const de = lang === "de" ? a.contentLang === "de" : (await load(params, "de")).contentLang === "de";
   if (lang === "de" && !de) return articleMeta("en", params);
-  return seoMeta(lang, url, clip(h.title, 60), clip(h.lead, 160), a.img || undefined, de);
+  const s = (a.article || a.presentation)?.seo;
+  return seoMeta(lang, url, clip(s?.title || h.title, 60), clip(s?.description || h.lead, 160), a.img || undefined, de);
 }
 
 /** schema.org NewsArticle for search engines (title, date, image, language, publisher). */
 export function LdJson({ a, lang }: { a: Article; lang: Lang }) {
   const h = heading(a), url = SITE + articleHref(lang, a.date, a.name);
   const ld = {
-    "@context": "https://schema.org", "@type": "NewsArticle", headline: h.title, description: h.lead,
-    datePublished: a.date, inLanguage: a.contentLang, mainEntityOfPage: url, url,
+    "@context": "https://schema.org", "@type": "NewsArticle", headline: noFlag(h.title), description: noFlag(h.lead),
+    datePublished: a.date, dateModified: a.date, author: { "@type": "Organization", name: SITE_NAME[lang], url: SITE }, inLanguage: a.contentLang, mainEntityOfPage: url, url,
     ...(a.img && { image: [SITE + a.img] }),
     publisher: { "@type": "Organization", name: SITE_NAME[lang], url: SITE },
   };

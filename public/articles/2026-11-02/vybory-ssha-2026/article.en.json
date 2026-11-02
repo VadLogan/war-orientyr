@@ -1,0 +1,931 @@
+{
+  "kicker": "Analysis · United States",
+  "title": "Democrats lead by nine points: what Ukraine stands to gain if Trump loses Congress",
+  "lead": "On 3 November Americans elect the whole House of Representatives and a third of the Senate. Democrats lead the national generic ballot by 8–9 points — more than on the eve of 2018, when they gained 41 seats — and forecasters give them an 84–95% chance of winning the House but only 49–64% for the Senate. For Ukraine, the size of the win matters more than who wins: only two-thirds majorities can override a Trump veto.",
+  "seo": {
+    "title": "US midterms 2026: what a Democratic win means for Ukraine",
+    "description": "Democrats lead by 9 points before the 3 November midterms. Polls, a Senate map and three scenarios for Trump’s powers, US aid to Ukraine and russia sanctions."
+  },
+  "toc": true,
+  "image": {
+    "src": "cover.jpg",
+    "alt": "Illustration: waves of ribbons in the colours of the US and Ukrainian flags at dawn. A central sign reads “What if Democrats win? Changes to Ukraine?”, surrounded by smaller signs: “Sanctions”, “Impeachment?”, “Overriding a veto?”, “What Congress controls”, “Most Senate legislation”, “The budget and the debt ceiling”, “Subpoenas, hearings, investigations”",
+    "caption": "Illustration: WAR·Orientyr."
+  },
+  "blocks": [
+    {
+      "type": "p",
+      "text": "Seen from Kyiv, this is not a distant domestic vote. In October alone the White House licensed russian diesel for the world market (the Treasury licence runs until 7 April 2027), waived sanctions on russian energy that Congress had written into law, and — according to the Washington Post — warned Ukraine that further strikes on russian refineries could cost it US intelligence sharing. Direct American aid has largely stopped; Ukraine is still drawing on packages passed under Joe Biden (Reuters, via Euromaidan Press). A new Congress cannot reverse a president’s decisions, but it controls the money — and can make him bargain."
+    },
+    {
+      "type": "stats",
+      "items": [
+        {
+          "value": "≈ +9",
+          "label": "Democratic lead",
+          "note": "national generic ballot, Silver Bulletin average; other aggregators +7.8 to +9",
+          "tone": "accent"
+        },
+        {
+          "value": "37%",
+          "label": "Trump approval",
+          "note": "59.9% disapprove; only Truman went into a midterm less popular since 1946",
+          "tone": "unv"
+        },
+        {
+          "value": "84–95%",
+          "label": "Democrats’ House odds",
+          "note": "Decision Desk HQ to Silver Bulletin"
+        },
+        {
+          "value": "49–64%",
+          "label": "Democrats’ Senate odds",
+          "note": "Wolfe Research to Decision Desk HQ and Kalshi"
+        }
+      ]
+    },
+    {
+      "type": "h2",
+      "text": "What is on the ballot, and what each chamber is worth"
+    },
+    {
+      "type": "p",
+      "text": "All 435 House seats (two-year terms) and a third of the Senate (six-year terms) are up. The House currently has 218 Republicans plus one independent who votes with them, against 214 Democrats, so Democrats need a net gain of just three seats. In the Senate they hold 47 of 100 and must flip four: at 50–50, Vice-President JD Vance casts the deciding vote. The new Congress is sworn in on 3 January."
+    },
+    {
+      "type": "table",
+      "columns": [
+        "What Congress controls",
+        "What it takes",
+        "What it means for Trump"
+      ],
+      "rows": [
+        [
+          "Subpoenas, hearings, investigations",
+          "a majority in either chamber",
+          "committees can summon officials and demand documents"
+        ],
+        [
+          "The budget and the debt ceiling",
+          "a House majority — no budget passes without it",
+          "the government cannot be funded without the opposition; the US hits its debt limit between late winter and mid-summer 2027"
+        ],
+        [
+          "Confirmations",
+          "a Senate majority",
+          "cabinet members, judges, Federal Reserve governors and ambassadors can be blocked"
+        ],
+        [
+          "Impeachment",
+          "a simple House majority to impeach; 67 senators to remove",
+          "impeachment is possible; no forecast comes close to the votes to remove"
+        ],
+        [
+          "Overriding a veto",
+          "two-thirds of both chambers: 290 and 67",
+          "only with a share of Republicans"
+        ],
+        [
+          "Most Senate legislation",
+          "60 votes (the filibuster)",
+          "a Senate majority alone does not pass laws"
+        ]
+      ]
+    },
+    {
+      "type": "h2",
+      "text": "The polls: the widest lead since 2018"
+    },
+    {
+      "type": "p",
+      "text": "Days before the vote, Democrats lead the generic congressional ballot by close to 9 points (Silver Bulletin), and, as Yahoo News notes, the lead has held for a month. Before 2018, when Democrats took 41 seats from the Republicans, the RealClearPolitics average stood at +7.2."
+    },
+    {
+      "type": "swing",
+      "title": "The generic-ballot lead going into each midterm",
+      "subtitle": "Margin in percentage points, and the House seats the party then gained",
+      "left": {
+        "label": "Republicans",
+        "tag": "R"
+      },
+      "right": {
+        "label": "Democrats",
+        "tag": "D"
+      },
+      "rows": [
+        {
+          "label": "2010",
+          "b": -6.5,
+          "note": "Republicans +63 seats"
+        },
+        {
+          "label": "2014",
+          "b": -2.5,
+          "note": "Republicans +13"
+        },
+        {
+          "label": "2018",
+          "b": 7.2,
+          "note": "Democrats +41"
+        },
+        {
+          "label": "2022",
+          "b": -2.7,
+          "note": "Republicans +9"
+        },
+        {
+          "label": "2026",
+          "b": 9,
+          "note": "results due overnight, 3–4 November",
+          "highlight": true
+        }
+      ],
+      "note": "2010–2022: RealClearPolitics average three days before the vote (via Yahoo News); 2026: about 9 points, Silver Bulletin average."
+    },
+    {
+      "type": "p",
+      "text": "The president’s own numbers are worse. 37.3% of Americans approve of Donald Trump and 59.9% disapprove (Silver Bulletin), a net rating of −22.6; in late October 2018, before that year’s “blue wave”, he stood at about −10. Since 1946, only Harry Truman went into a midterm with lower approval. His weakest point is the cost of living: 25% approve of his handling of inflation, 70% disapprove."
+    },
+    {
+      "type": "p",
+      "text": "Voters blame higher fuel prices on the US war with Iran and the blockade of the Strait of Hormuz, not on Ukraine’s strikes on russian refineries, which Trump has tried to blame, European Pravda reports. The analysts it cites expect a “red retreat” rather than a “blue wave”: a vote against Trump’s record more than for the Democrats."
+    },
+    {
+      "type": "links",
+      "items": [
+        {
+          "title": "Peace in 24 hours, cheaper fuel: Trump’s promises against his record",
+          "url": "/en/articles/2026-10-27/tramp-slova-i-dila"
+        }
+      ]
+    },
+    {
+      "type": "h2",
+      "text": "Who is moving: the 2024 exit poll against 2026 polling"
+    },
+    {
+      "type": "p",
+      "text": "Exit polls arrive only as the polls close, on the evening of 3 November US time — the small hours of 4 November in Kyiv. Until then the best guide is pre-election polling broken down by group. Set against the 2024 exit poll, the biggest moves come from the voters who handed Trump his comeback: the young, Latinos and independents."
+    },
+    {
+      "type": "swing",
+      "title": "How voter groups have moved",
+      "subtitle": "Margin in percentage points. 2024: presidential vote (CBS News exit poll); 2026: House voting intention (FiftyPlusOne polling average, 30 October)",
+      "left": {
+        "label": "Republicans",
+        "tag": "R"
+      },
+      "right": {
+        "label": "Democrats",
+        "tag": "D"
+      },
+      "a": "2024",
+      "b": "2026",
+      "rows": [
+        {
+          "group": "Age",
+          "label": "18–29",
+          "a": 11,
+          "b": 30
+        },
+        {
+          "label": "30–44",
+          "a": 4,
+          "b": 16
+        },
+        {
+          "group": "Gender",
+          "label": "Women",
+          "a": 8,
+          "b": 16
+        },
+        {
+          "label": "Men",
+          "a": -12,
+          "b": 0
+        },
+        {
+          "group": "Ethnicity and party",
+          "label": "Latinos",
+          "a": 5,
+          "b": 24
+        },
+        {
+          "label": "Independents",
+          "a": 3,
+          "b": 19
+        }
+      ],
+      "note": "Two different measures: actual presidential votes in 2024, polling on Congress in 2026. The comparison shows direction, not an exact swing.",
+      "source": "Sources: CBS News via the Roper Center; FiftyPlusOne."
+    },
+    {
+      "type": "p",
+      "text": "Other FiftyPlusOne cross-tabs: college graduates D+19, non-graduates D+2 (R+2 at the start of the year); the suburbs D+12. Rural America still leans Republican at R+12, but that is 20 points narrower than in the 2024 House vote. Men are split evenly. Even among Republicans, 73% approve of Trump and only 30% “strongly” (down from 91% and 70%; Ipsos/Reuters, early October)."
+    },
+    {
+      "type": "h2",
+      "text": "The Senate: twelve races decide it"
+    },
+    {
+      "type": "p",
+      "text": "The House looks settled: Wolfe Research says Republicans would need a polling error “unprecedented in modern history” to keep it. The Senate is not. Democrats must hold their three seats in play — Michigan, New Hampshire and Jon Ossoff’s — and flip four Republican seats. Of the nine Republican seats in play, they lead in six — some within the margin of error."
+    },
+    {
+      "type": "donut",
+      "title": "The Senate: 100 seats, 12 races",
+      "subtitle": "Who holds each seat now and who leads in the latest polling. Democrats need 51 for a majority (tick on the ring)",
+      "mark": 51,
+      "center": {
+        "value": "47 → 53",
+        "label": "Democratic seats if every current poll leader wins"
+      },
+      "groups": [
+        {
+          "label": "Other Democratic seats",
+          "n": 44,
+          "tone": "d"
+        },
+        {
+          "label": "Held by Democrats — leading in all three",
+          "n": 3,
+          "tone": "dl",
+          "races": [
+            {
+              "state": "Michigan",
+              "held": "D",
+              "poll": "El-Sayed ahead in 11 of 12 October polls, by 1–7 points",
+              "cands": [
+                {
+                  "name": "Abdul El-Sayed",
+                  "party": "d",
+                  "img": "cand/abdul-el-sayed.jpg"
+                },
+                {
+                  "name": "Mike Rogers",
+                  "party": "r",
+                  "img": "cand/mike-rogers.jpg"
+                }
+              ],
+              "lead": 4,
+              "code": "MI"
+            },
+            {
+              "state": "Georgia",
+              "held": "D",
+              "poll": "Ossoff +9, October average",
+              "cands": [
+                {
+                  "name": "Jon Ossoff",
+                  "party": "d",
+                  "img": "cand/jon-ossoff.jpg"
+                },
+                {
+                  "name": "Mike Collins",
+                  "party": "r",
+                  "img": "cand/mike-collins.jpg"
+                }
+              ],
+              "lead": 9,
+              "code": "GA"
+            },
+            {
+              "state": "New Hampshire",
+              "held": "D",
+              "poll": "Pappas +7, last month’s average",
+              "cands": [
+                {
+                  "name": "Chris Pappas",
+                  "party": "d"
+                },
+                {
+                  "name": "John E. Sununu",
+                  "party": "r",
+                  "img": "cand/john-e-sununu.jpg"
+                }
+              ],
+              "lead": 7,
+              "code": "NH"
+            }
+          ]
+        },
+        {
+          "label": "Republican seats where Democrats lead",
+          "n": 6,
+          "tone": "dl",
+          "races": [
+            {
+              "state": "North Carolina",
+              "held": "R",
+              "poll": "Cooper about +11 on average",
+              "cands": [
+                {
+                  "name": "Roy Cooper",
+                  "party": "d",
+                  "img": "cand/roy-cooper.jpg"
+                },
+                {
+                  "name": "Michael Whatley",
+                  "party": "r",
+                  "img": "cand/michael-whatley.jpg"
+                }
+              ],
+              "lead": 11,
+              "code": "NC"
+            },
+            {
+              "state": "Maine",
+              "held": "R",
+              "poll": "Jackson +2 to +7",
+              "cands": [
+                {
+                  "name": "Troy Jackson",
+                  "party": "d",
+                  "img": "cand/troy-jackson.jpg"
+                },
+                {
+                  "name": "Susan Collins",
+                  "party": "r",
+                  "img": "cand/susan-collins.jpg"
+                }
+              ],
+              "lead": 4.5,
+              "code": "ME"
+            },
+            {
+              "state": "Ohio",
+              "held": "R",
+              "poll": "Brown +2 to +6 in almost every poll since early October; ActiVote tied",
+              "cands": [
+                {
+                  "name": "Sherrod Brown",
+                  "party": "d",
+                  "img": "cand/sherrod-brown.jpg"
+                },
+                {
+                  "name": "Jon Husted",
+                  "party": "r",
+                  "img": "cand/jon-husted.jpg"
+                }
+              ],
+              "lead": 4,
+              "code": "OH"
+            },
+            {
+              "state": "Alaska",
+              "held": "R",
+              "poll": "Peltola +2 to +7",
+              "cands": [
+                {
+                  "name": "Mary Peltola",
+                  "party": "d",
+                  "img": "cand/mary-peltola.jpg"
+                },
+                {
+                  "name": "Dan Sullivan",
+                  "party": "r",
+                  "img": "cand/dan-sullivan.jpg"
+                }
+              ],
+              "lead": 4.5,
+              "code": "AK"
+            },
+            {
+              "state": "Texas",
+              "held": "R",
+              "poll": "Talarico +2 to +6 in almost all autumn polls; Quantus Paxton +1",
+              "cands": [
+                {
+                  "name": "James Talarico",
+                  "party": "d",
+                  "img": "cand/james-talarico.jpg"
+                },
+                {
+                  "name": "Ken Paxton",
+                  "party": "r",
+                  "img": "cand/ken-paxton.jpg"
+                }
+              ],
+              "lead": 4,
+              "code": "TX"
+            },
+            {
+              "state": "Kansas",
+              "held": "R",
+              "poll": "Hamilton +1 to +5 in most polls",
+              "cands": [
+                {
+                  "name": "Adam Hamilton",
+                  "party": "d"
+                },
+                {
+                  "name": "Roger Marshall",
+                  "party": "r",
+                  "img": "cand/roger-marshall.jpg"
+                }
+              ],
+              "lead": 3,
+              "code": "KS"
+            }
+          ]
+        },
+        {
+          "label": "Republican seats: tied or Republican lead",
+          "n": 3,
+          "tone": "rl",
+          "races": [
+            {
+              "state": "Iowa",
+              "held": "R",
+              "poll": "lead trading hands, ±2",
+              "cands": [
+                {
+                  "name": "Josh Turek",
+                  "party": "d",
+                  "img": "cand/josh-turek.jpg"
+                },
+                {
+                  "name": "Ashley Hinson",
+                  "party": "r",
+                  "img": "cand/ashley-hinson.jpg"
+                }
+              ],
+              "lead": 0,
+              "code": "IA"
+            },
+            {
+              "state": "Nebraska",
+              "held": "R",
+              "poll": "Ricketts +1 to +6",
+              "cands": [
+                {
+                  "name": "Dan Osborn",
+                  "party": "i",
+                  "img": "cand/dan-osborn.jpg"
+                },
+                {
+                  "name": "Pete Ricketts",
+                  "party": "r",
+                  "img": "cand/pete-ricketts.jpg"
+                }
+              ],
+              "lead": -3.5,
+              "code": "NE"
+            },
+            {
+              "state": "South Carolina",
+              "held": "R",
+              "poll": "Graham +1 to +3 in most; NYT/Siena tied",
+              "cands": [
+                {
+                  "name": "Annie Andrews",
+                  "party": "d"
+                },
+                {
+                  "name": "Lindsey Graham",
+                  "party": "r",
+                  "img": "cand/lindsey-graham.jpg"
+                }
+              ],
+              "lead": -2,
+              "code": "SC"
+            }
+          ]
+        },
+        {
+          "label": "Other Republican seats",
+          "n": 44,
+          "tone": "r"
+        }
+      ],
+      "note": "Most races are within the margin of error; a poll lead is not a result. “Other seats” are not up this year or not considered competitive. Figures on the states are the midpoint of the reported polling range; exact figures are in each state’s card.",
+      "source": "Polling as of 31 October, compiled by Yahoo News.",
+      "map": {
+        "hint": "Bright states are the key races, coloured by who leads in the polls. Pale states show who holds both of the state’s Senate seats now. Tap a state.",
+        "keys": [
+          "D leads by 7+",
+          "D leads",
+          "tied",
+          "R leads",
+          "R leads by 7+",
+          "both seats D",
+          "both seats R",
+          "split"
+        ],
+        "seats": [
+          "2 D",
+          "2 R",
+          "1 D · 1 R"
+        ],
+        "up": "One seat is on the 2026 ballot, but it is not among the key races (per Yahoo News).",
+        "notUp": "No Senate race in this state this year."
+      }
+    },
+    {
+      "type": "p",
+      "text": "Several of these races touch Ukraine directly. Lindsey Graham wrote the russia sanctions bill that Volodymyr Zelensky invoked on 14 October. Dan Sullivan and Mike Rogers, Axios reports, both criticised Trump’s diesel deal with Putin. In the House, Florida’s 13th district pits Anna Paulina Luna — a Trump loyalist who, according to European Pravda, organised visits by russian officials to Congress — against retired Army Brigadier General Leila Grey; polls have put each of them ahead."
+    },
+    {
+      "type": "h2",
+      "text": "Three scenarios"
+    },
+    {
+      "type": "p",
+      "text": "What changes depends not just on who wins but on the margin. Switch between the scenarios to see the seat count, the tools Congress gains and the likely effect in four areas."
+    },
+    {
+      "type": "scenarios",
+      "title": "If Democrats take Congress: three scenarios",
+      "hint": "Scale: change compared with the current Congress — for Ukraine and for checks on Trump.",
+      "areas": [
+        {
+          "id": "wh",
+          "label": "White House agenda"
+        },
+        {
+          "id": "power",
+          "label": "Limits on Trump’s power"
+        },
+        {
+          "id": "war",
+          "label": "Ukraine: weapons and sanctions"
+        },
+        {
+          "id": "people",
+          "label": "Ukraine: money and people"
+        }
+      ],
+      "scores": [
+        "Much worse",
+        "Worse",
+        "No change",
+        "Better",
+        "Much better"
+      ],
+      "items": [
+        {
+          "key": "opt",
+          "label": "Optimistic",
+          "tag": "Blue wave: both chambers, comfortably",
+          "text": "Democrats win the House by a wide margin and the Senate with seats to spare. Republicans who already attacked Trump over the diesel deal and the sanctions waiver vote with them, and a two-thirds majority for Ukraine aid becomes possible.",
+          "seats": {
+            "house": 241,
+            "senate": 52,
+            "note": "Decision Desk HQ projection, 2 November. Even this is short of two-thirds — Republican votes are still needed."
+          },
+          "powers": [
+            {
+              "text": "Subpoenas and investigations in both chambers",
+              "on": true
+            },
+            {
+              "text": "Control of the budget and the debt ceiling",
+              "on": true
+            },
+            {
+              "text": "Blocking Trump’s nominees in the Senate",
+              "on": true
+            },
+            {
+              "text": "Impeachment: yes; removal: no",
+              "on": "part"
+            },
+            {
+              "text": "Veto overrides — with Republicans",
+              "on": "part"
+            }
+          ],
+          "impacts": [
+            {
+              "area": "wh",
+              "score": 2,
+              "title": "The opposition writes the budget.",
+              "text": "With both chambers and the purse, Democrats could force Trump to negotiate, says Representative Jim Himes. House Democratic leader Hakeem Jeffries promises a first 100 days on the cost of living and oversight of the administration."
+            },
+            {
+              "area": "power",
+              "score": 2,
+              "title": "Subpoenas, hearings, appointments.",
+              "text": "Committees in both chambers investigate the administration; the Senate can refuse Trump’s nominees, including to the Federal Reserve (TD Securities). The veto stays, but every one has to be defended."
+            },
+            {
+              "area": "war",
+              "score": 2,
+              "title": "Aid in weeks, not months.",
+              "text": "A new package could clear two-thirds, Reuters reports, given aid’s past bipartisan support. Gregory Meeks’s bill against russian diesel and Graham’s sanctions get a real chance. Deliveries, though, are still in the administration’s hands."
+            },
+            {
+              "area": "people",
+              "score": 1,
+              "title": "More pressure, few guarantees.",
+              "text": "Democrats want to restore withheld or cancelled foreign aid (Euromaidan Press). On protected status for some 101,000 Ukrainians, Congress can press — but the Department of Homeland Security decides."
+            }
+          ]
+        },
+        {
+          "key": "real",
+          "label": "Realistic",
+          "tag": "Split power: House yes, Senate on a knife-edge",
+          "text": "Democrats win the House; the Senate comes down to one or two seats, and at 50–50 Vice-President Vance breaks ties. Trump becomes the “Mr Veto” he has promised to be, so laws pass only inside bills he cannot afford to veto — the budget and the annual defence bill.",
+          "seats": {
+            "house": 230,
+            "senate": 50,
+            "note": "In line with several models: 230–231 House seats (PollCheck; Quinlan and Lewis-Beck), 50 in the Senate (Quinlan and Lewis-Beck; Rametta and Hare). At 50–50, Republicans run the Senate through Vance’s vote."
+          },
+          "powers": [
+            {
+              "text": "Subpoenas and investigations in the House",
+              "on": true
+            },
+            {
+              "text": "Budget leverage through the House",
+              "on": true
+            },
+            {
+              "text": "Blocking Trump’s nominees in the Senate",
+              "on": false
+            },
+            {
+              "text": "Impeachment: yes; removal: no",
+              "on": "part"
+            },
+            {
+              "text": "Veto overrides",
+              "on": false
+            }
+          ],
+          "impacts": [
+            {
+              "area": "wh",
+              "score": 1,
+              "title": "Gridlock.",
+              "text": "Wall Street analysts, CNBC reports, expect legislative stalemate, with Trump’s veto blocking major Democratic bills. The real fights are over the budget and the 2027 debt ceiling."
+            },
+            {
+              "area": "power",
+              "score": 1,
+              "title": "Hearings, but no brakes.",
+              "text": "The House summons officials and demands documents. But Trump governs by executive order and waiver, as with russia sanctions in October, and without two-thirds Congress cannot undo it."
+            },
+            {
+              "area": "war",
+              "score": 1,
+              "title": "Slowly, via the budget.",
+              "text": "Aid rides on must-pass bills, and not quickly: a divided Congress and unfinished spending business slow everything (Breaking Defense). The main channel — PURL, under which allies pay for US weapons — depends on the administration releasing them."
+            },
+            {
+              "area": "people",
+              "score": 0,
+              "title": "No change.",
+              "text": "Hearings on protected status and aid are possible, but decisions stay with the executive. Status for 101,000 Ukrainians is extended with no end date."
+            }
+          ]
+        },
+        {
+          "key": "pess",
+          "label": "Pessimistic",
+          "tag": "Red wall: thin House, Republican Senate",
+          "text": "The polls overstated Democrats: they scrape the House, and Republicans keep the Senate without losses. With a razor-thin majority a handful of votes decide everything, and the White House can split the opposition.",
+          "seats": {
+            "house": 219,
+            "senate": 47,
+            "note": "Illustrative: 218 is the bare House majority; in the Senate, Democrats flip nothing. A historic polling miss would let Republicans hold the House too — and with it, the subpoenas."
+          },
+          "powers": [
+            {
+              "text": "Subpoenas and investigations in the House",
+              "on": true
+            },
+            {
+              "text": "Budget leverage — a thin majority",
+              "on": "part"
+            },
+            {
+              "text": "Blocking Trump’s nominees in the Senate",
+              "on": false
+            },
+            {
+              "text": "Impeachment: yes; removal: no",
+              "on": "part"
+            },
+            {
+              "text": "Veto overrides",
+              "on": false
+            }
+          ],
+          "impacts": [
+            {
+              "area": "wh",
+              "score": 0,
+              "title": "Same course.",
+              "text": "The Senate keeps confirming Trump’s nominees, and the tariffs the Supreme Court did not strike down stay. The House can slow the budget, but a thin majority splinters easily."
+            },
+            {
+              "area": "power",
+              "score": 0,
+              "title": "Hearings without consequences.",
+              "text": "The House holds hearings while the Senate shields the White House. As with the Iran war-powers resolution the administration ignored, according to Euromaidan Press, Congress’s votes stay on paper."
+            },
+            {
+              "area": "war",
+              "score": -1,
+              "title": "Republican pressure fades.",
+              "text": "Axios wrote of a “Putin problem” for Republican candidates over the diesel deal. Once the vote is over, that incentive is gone; Brian Fitzpatrick’s petition to ban purchases of russian oil dies with the current Congress on 3 January, and the diesel licence runs to April 2027."
+            },
+            {
+              "area": "people",
+              "score": -1,
+              "title": "Protection without guarantees.",
+              "text": "Status for 101,000 Ukrainians was extended with no end date; “It’s simply going to be an extension until it is a termination,” says Andrew Arthur of the Center for Immigration Studies. Without pressure from Congress, that risk grows."
+            }
+          ]
+        }
+      ],
+      "note": "Scenarios and impact ratings are our editorial estimate, based on the forecasts and statements cited in this article. Seat counts are a guide, not a forecast."
+    },
+    {
+      "type": "h2",
+      "text": "How far Congress can rein Trump in"
+    },
+    {
+      "type": "p",
+      "text": "Even the best Democratic result falls short of two-thirds — 290 House votes and 67 in the Senate — needed to override a veto, and Trump knows it. On 1 November, Bloomberg reported, he joked that he could become “Mr Veto”: Democrats would send him bills, he would veto them, and within a month or two they would “come back to negotiate”."
+    },
+    {
+      "type": "p",
+      "text": "What the opposition gains above all is the agenda and the subpoena. Hakeem Jeffries, who would become Speaker on 3 January, promises a first 100 days on living costs and on oversight, to “hold the crooks accountable” (AP). Wall Street, according to CNBC, expects investigations of companies that have done business with the administration — and legislative gridlock."
+    },
+    {
+      "type": "p",
+      "text": "The second lever is money. The US will hit its debt ceiling between late winter and mid-summer 2027 (Bipartisan Policy Center), and only Congress can raise it. Senate Democrats have already blocked Trump’s request for a 67% rise in military spending, to $1.5 trillion (Euromaidan Press)."
+    },
+    {
+      "type": "p",
+      "text": "The third is war. Trump launched the war on Iran on 28 February without congressional approval. On 3 June the House passed a war-powers resolution by 215 votes to 208, with four Republicans in favour; the administration ignored it, according to Euromaidan Press. A Democratic House can force such votes more often, but without two-thirds a veto stops them."
+    },
+    {
+      "type": "h2",
+      "text": "Ukraine: weapons, sanctions, people"
+    },
+    {
+      "type": "p",
+      "text": "Democrats are promising Europe speed. After a change of control, aid packages would move “in nine days or nine weeks on the outside”, not “in nine months”, Jim Himes, the top Democrat on the House Intelligence Committee, told the Warsaw Security Forum (Breaking Defense, 13 October). Democrats would then “demand” a “much more affirmative and consistent policy in support of Ukraine”, he said."
+    },
+    {
+      "type": "p",
+      "text": "Some of it is already on the table. Gregory Meeks, the likely chair of the House Foreign Affairs Committee, has introduced a bipartisan bill to block russian diesel’s return to world markets. Republican Brian Fitzpatrick is collecting the 218 signatures needed to force a vote on banning purchases of russian oil. A new aid package, Reuters’ analysis suggests, could win two-thirds, given aid’s bipartisan backing in the past."
+    },
+    {
+      "type": "p",
+      "text": "The limits are real too. The president runs foreign policy, and the new Congress sits only from January (European Pravda). The main weapons channel today is PURL, NATO’s Prioritised Ukraine Requirements List, under which European allies buy American arms for Ukraine. But the administration can restrict access to that equipment, Breaking Defense notes, and according to the Financial Times it has already threatened to choke procurement to make Kyiv stop striking russian energy. A divided Congress and unfinished spending business could slow everything, warns Breaking Defense’s editor-in-chief, Aaron Mehta."
+    },
+    {
+      "type": "h3",
+      "text": "Ukrainians in the US"
+    },
+    {
+      "type": "p",
+      "text": "For about 101,000 Ukrainians in the United States the stakes are personal. Their Temporary Protected Status was due to expire on 19 October. That day the Department of Homeland Security said they “retain protection” but gave no end date: a final announcement “will be made at the appropriate time” (AP). “It’s simply going to be an extension until it is a termination,” said Andrew Arthur of the Center for Immigration Studies, which favours lower immigration."
+    },
+    {
+      "type": "h2",
+      "text": "Where sources disagree"
+    },
+    {
+      "type": "diverge",
+      "items": [
+        {
+          "title": "Senate: from coin-toss to confidence",
+          "text": "Wolfe Research puts Democrats’ Senate chances at 49%, Decision Desk HQ and the Kalshi prediction market at 64%, Poliwave at 78%. The spread reflects several races — Iowa, Nebraska, South Carolina, Texas — within the margin of error."
+        },
+        {
+          "title": "Trump’s approval",
+          "text": "Averages range from 34.7% (PollCheck, 27 October) to 37.3% (Silver Bulletin) and 39.1% (Decision Desk HQ, 30 October). Individual polls put his net rating between −26 (NYT/Siena) and −35 (CNN/SSRS, Reuters/Ipsos), or −38 (ARG)."
+        },
+        {
+          "title": "The Democratic lead",
+          "text": "From +7.8 (Call the Map) to about +9 (Silver Bulletin; CNN Poll of Polls 52% to 43%). The NYT/Siena poll of likely voters, 12–19 October, has +11."
+        }
+      ]
+    },
+    {
+      "type": "h2",
+      "text": "Bottom line"
+    },
+    {
+      "type": "p",
+      "text": "The polls point to a Democratic House, while the Senate turns on a few races inside the margin of error. For Ukraine the size of the majority matters more than its colour: short of two-thirds, Congress cannot reverse any Trump decision, so aid passes only where Republicans back it too — or inside a budget the president cannot afford to veto."
+    },
+    {
+      "type": "p",
+      "text": "The likeliest outcome is not a U-turn but a shift in the balance. From January Trump would have to defend his russia policy at hearings and bargain for money. That will not end the war, but it would make diesel deals and sanctions waivers costlier for the White House."
+    },
+    {
+      "type": "p",
+      "kind": "meta",
+      "text": "Analysis as of 2 November 2026, the eve of the vote. Polls and forecasts are not results; exit polls arrive on the evening of 3 November, US time. Scenarios and impact ratings are our editorial estimate."
+    }
+  ],
+  "sources": [
+    {
+      "title": "Yahoo News — The 2026 midterms are just 3 days away. Which party has a better chance of winning?",
+      "url": "https://www.yahoo.com/news/politics/article/the-2026-midterms-are-next-week-which-party-has-a-better-chance-of-winning-heres-what-the-latest-polls-say-155319308.html",
+      "note": "Andrew Romano, 31 Oct: polls, Trump approval, Senate races, 2010–2022 averages"
+    },
+    {
+      "title": "Silver Bulletin — 2026 Midterm Election Forecast",
+      "url": "https://www.natesilver.net/p/nate-silver-2026-midterm-election-polls-model",
+      "note": "updated 1 Nov: House about 95%"
+    },
+    {
+      "title": "Decision Desk HQ — 2026 Midterm Election Forecast",
+      "url": "https://votes.decisiondeskhq.com/forecast/2026",
+      "note": "2 Nov: House 84% (241 seats), Senate 64% (52)"
+    },
+    {
+      "title": "CNBC — Wall Street braces for Democratic gains as 2026 midterm election nears",
+      "url": "https://www.cnbc.com/2026/10/30/2026-midterm-election-wall-street-prepares-for-democratic-gains.html",
+      "note": "30 Oct: Wolfe Research, TD Securities, debt ceiling"
+    },
+    {
+      "title": "Cambridge University Press — Forecasters predict Democrats to take House but race for Senate hard to call",
+      "url": "https://www.eurekalert.org/news-releases/1147571",
+      "note": "15 Oct: 12 models in PS: Political Science & Politics"
+    },
+    {
+      "title": "FiftyPlusOne — How different demographic groups have shifted this cycle",
+      "url": "https://blog.fiftyplusone.news/p/how-different-demographic-groups",
+      "note": "30 Oct: polling averages by voter group"
+    },
+    {
+      "title": "Roper Center — How Groups Voted 2024",
+      "url": "https://ropercenter.cornell.edu/how-groups-voted-2024",
+      "note": "CBS News exit poll"
+    },
+    {
+      "title": "Breaking Defense — Democratic midterm gains could speed US military aid to Ukraine, lawmaker says",
+      "url": "https://breakingdefense.com/2026/10/democratic-midterm-gains-could-speed-us-military-aid-to-ukraine-lawmaker-says/",
+      "note": "13 Oct: Jim Himes, PURL"
+    },
+    {
+      "title": "Breaking Defense — Why the midterms could matter for Ukraine aid",
+      "url": "https://breakingdefense.com/2026/10/why-the-midterms-could-matter-for-ukraine-aid/",
+      "note": "15 Oct: Aaron Mehta"
+    },
+    {
+      "title": "Euromaidan Press — US midterms could restore Ukraine’s American aid and curb Trump’s Russia deals",
+      "url": "https://euromaidanpress.com/2026/10/25/us-midterms-could-restore-ukraines-american-aid-and-curb-trumps-russia-deals-if-democrats-win-congress/",
+      "note": "25 Oct, citing Reuters"
+    },
+    {
+      "title": "European Pravda — How could the midterm elections hurt Trump and do they matter for Ukraine?",
+      "url": "https://www.eurointegration.com.ua/eng/news/2026/10/15/7247800/",
+      "note": "15 Oct"
+    },
+    {
+      "title": "AP — Jeffries says Democrats ‘on the verge’ of winning the House",
+      "url": "https://www.news4jax.com/news/politics/2026/10/22/jeffries-says-democrats-on-the-verge-of-winning-the-house-it-puts-speakers-gavel-in-reach/",
+      "note": "Lisa Mascaro, 22 Oct"
+    },
+    {
+      "title": "AP — Homeland Security grants temporary deportation reprieve for more than 100K Ukrainians and Sudanese",
+      "url": "https://www.opb.org/article/2026/10/19/homeland-security-grants-temporary-deportation-reprieve-for-more-than-100k-ukrainians-and-sudanese/",
+      "note": "19 Oct"
+    },
+    {
+      "title": "Michigan Public — House passes war powers resolution directing Trump to end hostilities with Iran",
+      "url": "https://www.michiganpublic.org/2026-06-03/house-passes-war-powers-resolution-directing-trump-to-end-hostilities-with-iran",
+      "note": "3 Jun"
+    },
+    {
+      "title": "Ukrinform — Trump says he could become “Mr Veto” if Democrats win Congress",
+      "url": "https://www.ukrinform.ua/rubric-world/4180301-tramp-skazav-so-moze-stati-misterom-veto-akso-demokrati-zdobudut-bilsist-u-kongresi.html",
+      "note": "1 Nov, citing Bloomberg; in Ukrainian"
+    },
+    {
+      "title": "Axios — Five things to watch",
+      "url": "https://www.axios.com/2026/10/13/trump-russia-diesel-deal",
+      "note": "13 Oct: the diesel deal and Republican candidates"
+    },
+    {
+      "title": "Axios — on Trump’s sanctions waiver",
+      "url": "https://www.axios.com/2026/10/17/trump-russia-sanctions",
+      "note": "17 Oct"
+    },
+    {
+      "title": "MY.UA — Washington’s ultimatum to Ukraine over strikes on russian refineries (citing the Washington Post)",
+      "url": "https://my.ua/uk/news/cluster/2026-10-14-vashington-visunuv-ukrayini-ultimatum-cherez-novi-ataki-na-rosiiski-npz-wp",
+      "note": "14 Oct; in Ukrainian"
+    },
+    {
+      "title": "Kyiv Independent — “Ostentatious disrespect”: Zelensky says russia defied Trump’s energy ceasefire with massive missile strike",
+      "url": "https://kyivindependent.com/ostentatious-disrespect-zelensky-says-russia-defied-trumps-energy-ceasefire-with-massive-missile-strike/",
+      "note": "14 Oct: call for sanctions based on Graham’s bill"
+    },
+    {
+      "title": "Wikimedia Commons — candidate photos",
+      "note": "CC BY-SA 4.0: Gage Skidmore (Ken Paxton, Michael Whatley), Antonioaesparza (James Talarico), Conlan Houston (Abdul El-Sayed), NetwonsBucket (Roy Cooper); CC BY 4.0: Ramseywill (Dan Osborn); the rest are public domain, CC0 or free use",
+      "url": "https://commons.wikimedia.org/wiki/Main_Page"
+    }
+  ]
+}

@@ -1,0 +1,931 @@
+{
+  "kicker": "Analyse · USA",
+  "title": "Demokraten führen mit neun Punkten: Was die Ukraine gewinnt, wenn Trump den Kongress verliert",
+  "lead": "Am 3. November wählen die USA das gesamte Repräsentantenhaus und ein Drittel des Senats neu. Die Demokraten führen in landesweiten Umfragen mit 8 bis 9 Punkten – mehr als vor der Wahl 2018, als sie 41 Sitze hinzugewannen. Prognosen sehen ihre Chance auf das Repräsentantenhaus bei 84 bis 95 %, auf den Senat nur bei 49 bis 64 %. Für die Ukraine zählt vor allem, wie hoch der Sieg ausfällt: Nur mit Zweidrittelmehrheiten lässt sich ein Veto Trumps überstimmen.",
+  "seo": {
+    "title": "US-Zwischenwahlen 2026: Was sie für die Ukraine bedeuten",
+    "description": "Demokraten führen vor der Wahl am 3. November mit 9 Punkten. Umfragen, Senatskarte und drei Szenarien: Trumps Macht, US-Hilfe für die Ukraine, Sanktionen."
+  },
+  "toc": true,
+  "image": {
+    "src": "cover.jpg",
+    "alt": "Illustration: Wellen aus Bändern in den Farben der US- und der ukrainischen Flagge im Morgenlicht. Ein großes Schild in der Mitte trägt die englische Aufschrift „What if Democrats win? Changes to Ukraine?“, ringsum kleinere Schilder: „Sanctions“, „Impeachment?“, „Overriding a veto?“, „What Congress controls“, „Most Senate legislation“, „The budget and the debt ceiling“, „Subpoenas, hearings, investigations“",
+    "caption": "Illustration: WAR·Orientyr."
+  },
+  "blocks": [
+    {
+      "type": "p",
+      "text": "Aus Kyjiwer Sicht ist das keine ferne Innenpolitik. Allein im Oktober hat das Weiße Haus russischen Diesel für den Weltmarkt freigegeben (die Lizenz des US-Finanzministeriums gilt bis zum 7. April 2027), vom Kongress gesetzlich verankerte Sanktionen gegen russlands Energiesektor ausgesetzt und Kyjiw laut Washington Post gewarnt, weitere Angriffe auf russische Raffinerien könnten den Austausch von Geheimdienstinformationen kosten. Direkte US-Hilfe hat Trump weitgehend gestoppt; die Ukraine zehrt noch von Paketen aus der Amtszeit Joe Bidens (Reuters, über Euromaidan Press). Ein neuer Kongress kann Entscheidungen des Präsidenten nicht aufheben – aber er bewilligt das Geld und kann Trump so zu Verhandlungen zwingen."
+    },
+    {
+      "type": "stats",
+      "items": [
+        {
+          "value": "≈ +9",
+          "label": "Vorsprung der Demokraten",
+          "note": "landesweite Umfragen, Durchschnitt Silver Bulletin; andere Aggregatoren +7,8 bis +9",
+          "tone": "accent"
+        },
+        {
+          "value": "37 %",
+          "label": "Zustimmung zu Trump",
+          "note": "59,9 % Ablehnung; seit 1946 ging nur Truman unbeliebter in eine Zwischenwahl",
+          "tone": "unv"
+        },
+        {
+          "value": "84–95 %",
+          "label": "Chance der Demokraten aufs Repräsentantenhaus",
+          "note": "Decision Desk HQ bis Silver Bulletin"
+        },
+        {
+          "value": "49–64 %",
+          "label": "Chance der Demokraten auf den Senat",
+          "note": "Wolfe Research bis Decision Desk HQ und Kalshi"
+        }
+      ]
+    },
+    {
+      "type": "h2",
+      "text": "Was gewählt wird – und was jede Kammer wert ist"
+    },
+    {
+      "type": "p",
+      "text": "Zur Wahl stehen alle 435 Sitze im Repräsentantenhaus (Amtszeit zwei Jahre) und ein Drittel des Senats (sechs Jahre). Derzeit sitzen im Repräsentantenhaus 218 Republikaner und ein Unabhängiger, der mit ihnen stimmt, gegen 214 Demokraten: Den Demokraten reicht ein Nettogewinn von drei Sitzen. Im Senat halten sie 47 von 100 Sitzen und müssen vier hinzugewinnen – bei 50 zu 50 entscheidet Vizepräsident JD Vance. Der neue Kongress tritt am 3. Januar zusammen."
+    },
+    {
+      "type": "table",
+      "columns": [
+        "Was der Kongress kontrolliert",
+        "Was dafür nötig ist",
+        "Was das für Trump bedeutet"
+      ],
+      "rows": [
+        [
+          "Vorladungen, Anhörungen, Untersuchungen",
+          "Mehrheit in einer der beiden Kammern",
+          "Ausschüsse können Regierungsvertreter vorladen und Dokumente anfordern"
+        ],
+        [
+          "Haushalt und Schuldenobergrenze",
+          "Mehrheit im Repräsentantenhaus – ohne sie kein Haushalt",
+          "ohne die Opposition ist die Regierung nicht zu finanzieren; die Schuldenobergrenze erreichen die USA zwischen Spätwinter und Mitte Sommer 2027"
+        ],
+        [
+          "Bestätigung von Ernennungen",
+          "Mehrheit im Senat",
+          "Minister, Richter, Mitglieder der Notenbank Fed und Botschafter können blockiert werden"
+        ],
+        [
+          "Amtsenthebung",
+          "einfache Mehrheit im Repräsentantenhaus für die Anklage; 67 Senatoren für die Absetzung",
+          "eine Anklage ist möglich, für eine Absetzung reicht keine Prognose"
+        ],
+        [
+          "Überstimmen eines Vetos",
+          "Zweidrittelmehrheit in beiden Kammern: 290 und 67",
+          "nur mit einem Teil der Republikaner"
+        ],
+        [
+          "Die meisten Gesetze im Senat",
+          "60 Stimmen (Filibuster)",
+          "eine Senatsmehrheit allein bringt keine Gesetze durch"
+        ]
+      ]
+    },
+    {
+      "type": "h2",
+      "text": "Umfragen: der größte Vorsprung seit 2018"
+    },
+    {
+      "type": "p",
+      "text": "Wenige Tage vor der Wahl liegen die Demokraten in der landesweiten Sonntagsfrage zum Kongress knapp 9 Punkte vorn (Silver Bulletin), und dieser Vorsprung hält laut Yahoo News seit einem Monat. Vor der Wahl 2018, als die Demokraten den Republikanern 41 Sitze abnahmen, lag der Durchschnitt von RealClearPolitics bei +7,2."
+    },
+    {
+      "type": "swing",
+      "title": "Vorsprung einer Partei in den Umfragen vor Zwischenwahlen",
+      "subtitle": "Abstand in Prozentpunkten und wie viele Sitze im Repräsentantenhaus die Partei danach gewann",
+      "left": {
+        "label": "Republikaner",
+        "tag": "R"
+      },
+      "right": {
+        "label": "Demokraten",
+        "tag": "D"
+      },
+      "rows": [
+        {
+          "label": "2010",
+          "b": -6.5,
+          "note": "Republikaner +63 Sitze"
+        },
+        {
+          "label": "2014",
+          "b": -2.5,
+          "note": "Republikaner +13"
+        },
+        {
+          "label": "2018",
+          "b": 7.2,
+          "note": "Demokraten +41"
+        },
+        {
+          "label": "2022",
+          "b": -2.7,
+          "note": "Republikaner +9"
+        },
+        {
+          "label": "2026",
+          "b": 9,
+          "note": "Ergebnis in der Nacht zum 4. November (MEZ)",
+          "highlight": true
+        }
+      ],
+      "note": "2010–2022: Durchschnitt von RealClearPolitics drei Tage vor der Wahl (nach Yahoo News); 2026: etwa 9 Punkte, Durchschnitt von Silver Bulletin."
+    },
+    {
+      "type": "p",
+      "text": "Für den Präsidenten selbst sehen die Zahlen noch schlechter aus. 37,3 % der Amerikaner sind mit Donald Trump zufrieden, 59,9 % nicht (Silver Bulletin) – netto −22,6. Ende Oktober 2018, vor der damaligen „blauen Welle“, lag er bei etwa −10. Seit 1946 ging nur Harry Truman mit schlechteren Werten in eine Zwischenwahl. Am schwächsten ist Trump bei den Lebenshaltungskosten: 25 % billigen seinen Umgang mit der Inflation, 70 % nicht."
+    },
+    {
+      "type": "p",
+      "text": "Die höheren Spritpreise lasten die Wähler laut Europäischer Prawda dem US-Krieg gegen Iran und der Blockade der Straße von Hormus an – nicht den ukrainischen Angriffen auf russische Raffinerien, denen Trump die Schuld zu geben versuchte. Die vom Blatt zitierten Analysten erwarten eher einen „roten Rückzug“ als eine „blaue Welle“: eine Abstimmung gegen Trumps Bilanz, weniger für die Demokraten."
+    },
+    {
+      "type": "links",
+      "items": [
+        {
+          "title": "Frieden in 24 Stunden, billiger Sprit: Trumps Versprechen und seine Bilanz",
+          "url": "/de/articles/2026-10-27/tramp-slova-i-dila"
+        }
+      ]
+    },
+    {
+      "type": "h2",
+      "text": "Wer sich bewegt: Nachwahlbefragung 2024 gegen Umfragen 2026"
+    },
+    {
+      "type": "p",
+      "text": "Echte Nachwahlbefragungen gibt es erst, wenn die Wahllokale schließen – am Abend des 3. November US-Zeit, in der Nacht zum 4. November nach mitteleuropäischer Zeit. Bis dahin sind Umfragen nach Wählergruppen der beste Anhaltspunkt. Im Vergleich mit der Nachwahlbefragung von 2024 bewegen sich gerade jene Gruppen am stärksten, die Trump damals zum Comeback verhalfen: junge Wähler, Latinos und Unabhängige."
+    },
+    {
+      "type": "swing",
+      "title": "Wie sich Wählergruppen verschoben haben",
+      "subtitle": "Abstand in Prozentpunkten. 2024: Präsidentschaftswahl (Nachwahlbefragung von CBS News); 2026: Wahlabsicht fürs Repräsentantenhaus (Umfragedurchschnitt FiftyPlusOne, 30. Oktober)",
+      "left": {
+        "label": "Republikaner",
+        "tag": "R"
+      },
+      "right": {
+        "label": "Demokraten",
+        "tag": "D"
+      },
+      "a": "2024",
+      "b": "2026",
+      "rows": [
+        {
+          "group": "Alter",
+          "label": "18–29 Jahre",
+          "a": 11,
+          "b": 30
+        },
+        {
+          "label": "30–44 Jahre",
+          "a": 4,
+          "b": 16
+        },
+        {
+          "group": "Geschlecht",
+          "label": "Frauen",
+          "a": 8,
+          "b": 16
+        },
+        {
+          "label": "Männer",
+          "a": -12,
+          "b": 0
+        },
+        {
+          "group": "Herkunft und Partei",
+          "label": "Latinos",
+          "a": 5,
+          "b": 24
+        },
+        {
+          "label": "Unabhängige",
+          "a": 3,
+          "b": 19
+        }
+      ],
+      "note": "Zwei verschiedene Messgrößen: 2024 tatsächliche Stimmen für den Präsidenten, 2026 Umfragen zum Kongress. Der Vergleich zeigt die Richtung, keine exakte Verschiebung.",
+      "source": "Quellen: CBS News über das Roper Center; FiftyPlusOne."
+    },
+    {
+      "type": "p",
+      "text": "Weitere Werte von FiftyPlusOne: Wähler mit Hochschulabschluss D+19, ohne D+2 (zu Jahresbeginn noch R+2); die Vorstädte D+12. Das ländliche Amerika neigt weiter den Republikanern zu (R+12), aber 20 Punkte weniger als bei der Wahl zum Repräsentantenhaus 2024. Männer sind gespalten. Selbst unter Republikanern sind nur noch 73 % mit Trump zufrieden und nur 30 % „sehr“ (zuvor 91 und 70 %; Ipsos/Reuters, Anfang Oktober)."
+    },
+    {
+      "type": "h2",
+      "text": "Der Senat: zwölf Rennen entscheiden"
+    },
+    {
+      "type": "p",
+      "text": "Das Repräsentantenhaus scheint entschieden: Um es zu halten, bräuchten die Republikaner laut Wolfe Research einen Umfragefehler, der „in der jüngeren Geschichte beispiellos“ wäre. Im Senat ist es anders. Die Demokraten müssen ihre drei umkämpften Sitze halten – Michigan, New Hampshire und den von Jon Ossoff – und vier republikanische Sitze gewinnen. Von neun umkämpften republikanischen Sitzen führen sie in sechs – teils innerhalb der Fehlermarge."
+    },
+    {
+      "type": "donut",
+      "title": "Der Senat: 100 Sitze, 12 Rennen",
+      "subtitle": "Wer die Sitze derzeit hält und wer in den letzten Umfragen führt. Für die Mehrheit brauchen die Demokraten 51 (Markierung am Ring)",
+      "mark": 51,
+      "center": {
+        "value": "47 → 53",
+        "label": "Sitze der Demokraten, wenn überall die heutigen Umfrageführer gewinnen"
+      },
+      "groups": [
+        {
+          "label": "Übrige Sitze der Demokraten",
+          "n": 44,
+          "tone": "d"
+        },
+        {
+          "label": "Von Demokraten gehalten – vorn in allen drei",
+          "n": 3,
+          "tone": "dl",
+          "races": [
+            {
+              "state": "Michigan",
+              "held": "D",
+              "poll": "El-Sayed in 11 von 12 Oktober-Umfragen vorn, mit 1–7 Punkten",
+              "cands": [
+                {
+                  "name": "Abdul El-Sayed",
+                  "party": "d",
+                  "img": "cand/abdul-el-sayed.jpg"
+                },
+                {
+                  "name": "Mike Rogers",
+                  "party": "r",
+                  "img": "cand/mike-rogers.jpg"
+                }
+              ],
+              "lead": 4,
+              "code": "MI"
+            },
+            {
+              "state": "Georgia",
+              "held": "D",
+              "poll": "Ossoff +9 im Oktober-Durchschnitt",
+              "cands": [
+                {
+                  "name": "Jon Ossoff",
+                  "party": "d",
+                  "img": "cand/jon-ossoff.jpg"
+                },
+                {
+                  "name": "Mike Collins",
+                  "party": "r",
+                  "img": "cand/mike-collins.jpg"
+                }
+              ],
+              "lead": 9,
+              "code": "GA"
+            },
+            {
+              "state": "New Hampshire",
+              "held": "D",
+              "poll": "Pappas +7 im Monatsdurchschnitt",
+              "cands": [
+                {
+                  "name": "Chris Pappas",
+                  "party": "d"
+                },
+                {
+                  "name": "John E. Sununu",
+                  "party": "r",
+                  "img": "cand/john-e-sununu.jpg"
+                }
+              ],
+              "lead": 7,
+              "code": "NH"
+            }
+          ]
+        },
+        {
+          "label": "Republikanische Sitze, in denen Demokraten führen",
+          "n": 6,
+          "tone": "dl",
+          "races": [
+            {
+              "state": "North Carolina",
+              "held": "R",
+              "poll": "Cooper im Schnitt etwa +11",
+              "cands": [
+                {
+                  "name": "Roy Cooper",
+                  "party": "d",
+                  "img": "cand/roy-cooper.jpg"
+                },
+                {
+                  "name": "Michael Whatley",
+                  "party": "r",
+                  "img": "cand/michael-whatley.jpg"
+                }
+              ],
+              "lead": 11,
+              "code": "NC"
+            },
+            {
+              "state": "Maine",
+              "held": "R",
+              "poll": "Jackson +2 bis +7",
+              "cands": [
+                {
+                  "name": "Troy Jackson",
+                  "party": "d",
+                  "img": "cand/troy-jackson.jpg"
+                },
+                {
+                  "name": "Susan Collins",
+                  "party": "r",
+                  "img": "cand/susan-collins.jpg"
+                }
+              ],
+              "lead": 4.5,
+              "code": "ME"
+            },
+            {
+              "state": "Ohio",
+              "held": "R",
+              "poll": "Brown +2 bis +6 in fast allen Umfragen seit Anfang Oktober; ActiVote: Gleichstand",
+              "cands": [
+                {
+                  "name": "Sherrod Brown",
+                  "party": "d",
+                  "img": "cand/sherrod-brown.jpg"
+                },
+                {
+                  "name": "Jon Husted",
+                  "party": "r",
+                  "img": "cand/jon-husted.jpg"
+                }
+              ],
+              "lead": 4,
+              "code": "OH"
+            },
+            {
+              "state": "Alaska",
+              "held": "R",
+              "poll": "Peltola +2 bis +7",
+              "cands": [
+                {
+                  "name": "Mary Peltola",
+                  "party": "d",
+                  "img": "cand/mary-peltola.jpg"
+                },
+                {
+                  "name": "Dan Sullivan",
+                  "party": "r",
+                  "img": "cand/dan-sullivan.jpg"
+                }
+              ],
+              "lead": 4.5,
+              "code": "AK"
+            },
+            {
+              "state": "Texas",
+              "held": "R",
+              "poll": "Talarico +2 bis +6 in fast allen Herbst-Umfragen; Quantus: Paxton +1",
+              "cands": [
+                {
+                  "name": "James Talarico",
+                  "party": "d",
+                  "img": "cand/james-talarico.jpg"
+                },
+                {
+                  "name": "Ken Paxton",
+                  "party": "r",
+                  "img": "cand/ken-paxton.jpg"
+                }
+              ],
+              "lead": 4,
+              "code": "TX"
+            },
+            {
+              "state": "Kansas",
+              "held": "R",
+              "poll": "Hamilton +1 bis +5 in den meisten Umfragen",
+              "cands": [
+                {
+                  "name": "Adam Hamilton",
+                  "party": "d"
+                },
+                {
+                  "name": "Roger Marshall",
+                  "party": "r",
+                  "img": "cand/roger-marshall.jpg"
+                }
+              ],
+              "lead": 3,
+              "code": "KS"
+            }
+          ]
+        },
+        {
+          "label": "Republikanisch: Gleichstand oder R vorn",
+          "n": 3,
+          "tone": "rl",
+          "races": [
+            {
+              "state": "Iowa",
+              "held": "R",
+              "poll": "Führung wechselt, ±2",
+              "cands": [
+                {
+                  "name": "Josh Turek",
+                  "party": "d",
+                  "img": "cand/josh-turek.jpg"
+                },
+                {
+                  "name": "Ashley Hinson",
+                  "party": "r",
+                  "img": "cand/ashley-hinson.jpg"
+                }
+              ],
+              "lead": 0,
+              "code": "IA"
+            },
+            {
+              "state": "Nebraska",
+              "held": "R",
+              "poll": "Ricketts +1 bis +6",
+              "cands": [
+                {
+                  "name": "Dan Osborn",
+                  "party": "i",
+                  "img": "cand/dan-osborn.jpg"
+                },
+                {
+                  "name": "Pete Ricketts",
+                  "party": "r",
+                  "img": "cand/pete-ricketts.jpg"
+                }
+              ],
+              "lead": -3.5,
+              "code": "NE"
+            },
+            {
+              "state": "South Carolina",
+              "held": "R",
+              "poll": "Graham +1 bis +3 in den meisten; NYT/Siena: Gleichstand",
+              "cands": [
+                {
+                  "name": "Annie Andrews",
+                  "party": "d"
+                },
+                {
+                  "name": "Lindsey Graham",
+                  "party": "r",
+                  "img": "cand/lindsey-graham.jpg"
+                }
+              ],
+              "lead": -2,
+              "code": "SC"
+            }
+          ]
+        },
+        {
+          "label": "Übrige Sitze der Republikaner",
+          "n": 44,
+          "tone": "r"
+        }
+      ],
+      "note": "Die meisten Rennen liegen innerhalb der Fehlermarge; eine Führung in Umfragen ist kein Ergebnis. „Übrige Sitze“ stehen nicht zur Wahl oder gelten nicht als umkämpft. Die Zahlen auf den Bundesstaaten sind die Mitte der gemeldeten Umfragespanne; genaue Werte in der Karte des Staates.",
+      "source": "Umfragestand 31. Oktober, nach Yahoo News.",
+      "map": {
+        "hint": "Kräftig gefärbte Staaten sind die Schlüsselrennen, die Farbe zeigt, wer in den Umfragen führt. Blasse Staaten zeigen, wer derzeit beide Senatssitze hält. Tippen Sie auf einen Staat.",
+        "keys": [
+          "D vorn mit 7+",
+          "D vorn",
+          "Gleichstand",
+          "R vorn",
+          "R vorn mit 7+",
+          "beide Sitze D",
+          "beide Sitze R",
+          "geteilt"
+        ],
+        "seats": [
+          "2 D",
+          "2 R",
+          "1 D · 1 R"
+        ],
+        "up": "Ein Sitz steht 2026 zur Wahl, gehört aber nicht zu den Schlüsselrennen (laut Yahoo News).",
+        "notUp": "In diesem Staat gibt es dieses Jahr keine Senatswahl."
+      }
+    },
+    {
+      "type": "p",
+      "text": "Mehrere dieser Rennen betreffen die Ukraine direkt. Lindsey Graham ist Autor des Gesetzentwurfs für Sanktionen gegen russland, auf den sich Wolodymyr Selenskyj am 14. Oktober berief. Dan Sullivan und Mike Rogers kritisierten laut Axios Trumps Diesel-Deal mit Putin. Im Repräsentantenhaus tritt im 13. Bezirk Floridas die Trump-Loyalistin Anna Paulina Luna, die laut Europäischer Prawda Besuche russischer Funktionäre im Kongress organisierte, gegen die pensionierte Brigadegenerälin Leila Grey an; die Umfragen sehen mal die eine, mal die andere vorn."
+    },
+    {
+      "type": "h2",
+      "text": "Drei Szenarien"
+    },
+    {
+      "type": "p",
+      "text": "Was sich ändert, hängt nicht nur davon ab, wer gewinnt, sondern auch wie deutlich. Wechseln Sie zwischen den Szenarien: Sitzverteilung, Instrumente des Kongresses und mögliche Folgen in vier Bereichen."
+    },
+    {
+      "type": "scenarios",
+      "title": "Wenn die Demokraten den Kongress gewinnen: drei Szenarien",
+      "hint": "Skala: Veränderung gegenüber dem heutigen Kongress – für die Ukraine und für die Kontrolle Trumps.",
+      "areas": [
+        {
+          "id": "wh",
+          "label": "Kurs des Weißen Hauses"
+        },
+        {
+          "id": "power",
+          "label": "Grenzen für Trumps Macht"
+        },
+        {
+          "id": "war",
+          "label": "Ukraine: Waffen und Sanktionen"
+        },
+        {
+          "id": "people",
+          "label": "Ukraine: Geld und Menschen"
+        }
+      ],
+      "scores": [
+        "Deutlich schlechter",
+        "Schlechter",
+        "Unverändert",
+        "Besser",
+        "Deutlich besser"
+      ],
+      "items": [
+        {
+          "key": "opt",
+          "label": "Optimistisch",
+          "tag": "Blaue Welle: beide Kammern, klar",
+          "text": "Die Demokraten gewinnen das Repräsentantenhaus deutlich und den Senat mit einigen Sitzen Vorsprung. Republikaner, die Trump bereits wegen des Diesel-Deals und der ausgesetzten Sanktionen kritisiert haben, stimmen mit ihnen – eine Zweidrittelmehrheit für Ukraine-Hilfe wird möglich.",
+          "seats": {
+            "house": 241,
+            "senate": 52,
+            "note": "Projektion von Decision Desk HQ vom 2. November. Selbst hier fehlt die Zweidrittelmehrheit – es braucht republikanische Stimmen."
+          },
+          "powers": [
+            {
+              "text": "Vorladungen und Untersuchungen in beiden Kammern",
+              "on": true
+            },
+            {
+              "text": "Kontrolle über Haushalt und Schuldenobergrenze",
+              "on": true
+            },
+            {
+              "text": "Blockade von Trumps Kandidaten im Senat",
+              "on": true
+            },
+            {
+              "text": "Amtsenthebung: Anklage ja, Absetzung nein",
+              "on": "part"
+            },
+            {
+              "text": "Veto überstimmen – mit Republikanern",
+              "on": "part"
+            }
+          ],
+          "impacts": [
+            {
+              "area": "wh",
+              "score": 2,
+              "title": "Die Opposition schreibt den Haushalt.",
+              "text": "Mit beiden Kammern und dem Budgetrecht könnten die Demokraten Trump zum Verhandeln zwingen, sagt der Abgeordnete Jim Himes. Fraktionschef Hakeem Jeffries verspricht für die ersten 100 Tage Lebenshaltungskosten und Kontrolle der Regierung."
+            },
+            {
+              "area": "power",
+              "score": 2,
+              "title": "Vorladungen, Anhörungen, Personal.",
+              "text": "Ausschüsse beider Kammern untersuchen die Regierung; der Senat kann Trumps Kandidaten ablehnen, auch für die Notenbank Fed (TD Securities). Das Veto bleibt, muss aber jedes Mal verteidigt werden."
+            },
+            {
+              "area": "war",
+              "score": 2,
+              "title": "Hilfe in Wochen statt Monaten.",
+              "text": "Ein neues Paket könnte laut Reuters zwei Drittel erreichen, weil Ukraine-Hilfe bisher von beiden Parteien getragen wurde. Gregory Meeks’ Gesetz gegen russischen Diesel und Grahams Sanktionen bekommen eine echte Chance. Die Lieferungen bleiben aber Sache der Regierung."
+            },
+            {
+              "area": "people",
+              "score": 1,
+              "title": "Mehr Druck, kaum Garantien.",
+              "text": "Die Demokraten wollen eingefrorene oder gestrichene Auslandshilfe wiederherstellen (Euromaidan Press). Beim Schutzstatus für rund 101.000 Ukrainer kann der Kongress Druck machen – entscheiden aber muss das Heimatschutzministerium."
+            }
+          ]
+        },
+        {
+          "key": "real",
+          "label": "Realistisch",
+          "tag": "Geteilte Macht: Repräsentantenhaus ja, Senat auf der Kippe",
+          "text": "Die Demokraten gewinnen das Repräsentantenhaus, im Senat entscheiden ein oder zwei Sitze; bei 50 zu 50 gibt Vizepräsident Vance den Ausschlag. Trump wird zum angekündigten „Mister Veto“ – Gesetze kommen nur noch in Paketen durch, die er sich nicht zu blockieren leisten kann: Haushalt und jährliches Verteidigungsgesetz.",
+          "seats": {
+            "house": 230,
+            "senate": 50,
+            "note": "Wie in mehreren Modellen: 230–231 Sitze im Repräsentantenhaus (PollCheck; Quinlan und Lewis-Beck), 50 im Senat (Quinlan und Lewis-Beck; Rametta und Hare). Bei 50 zu 50 kontrollieren die Republikaner den Senat über Vances Stimme."
+          },
+          "powers": [
+            {
+              "text": "Vorladungen und Untersuchungen im Repräsentantenhaus",
+              "on": true
+            },
+            {
+              "text": "Haushaltshebel über das Repräsentantenhaus",
+              "on": true
+            },
+            {
+              "text": "Blockade von Trumps Kandidaten im Senat",
+              "on": false
+            },
+            {
+              "text": "Amtsenthebung: Anklage ja, Absetzung nein",
+              "on": "part"
+            },
+            {
+              "text": "Veto überstimmen",
+              "on": false
+            }
+          ],
+          "impacts": [
+            {
+              "area": "wh",
+              "score": 1,
+              "title": "Stillstand.",
+              "text": "Analysten der Wall Street erwarten laut CNBC eine gesetzgeberische Blockade: Trumps Veto stoppt große Vorhaben der Demokraten. Die eigentlichen Kämpfe gehen um den Haushalt und die Schuldenobergrenze 2027."
+            },
+            {
+              "area": "power",
+              "score": 1,
+              "title": "Anhörungen ja, Bremsen nein.",
+              "text": "Das Repräsentantenhaus lädt Regierungsvertreter vor und fordert Dokumente an. Doch Trump regiert per Dekret und Ausnahmegenehmigung, wie im Oktober bei den Sanktionen gegen russland – ohne Zweidrittelmehrheit kann der Kongress das nicht rückgängig machen."
+            },
+            {
+              "area": "war",
+              "score": 1,
+              "title": "Langsam, über den Haushalt.",
+              "text": "Hilfe kommt über Pflichtgesetze, und nicht schnell: Ein geteilter Kongress und ein unfertiger Haushalt bremsen alles (Breaking Defense). Der Hauptkanal PURL, über den Verbündete US-Waffen bezahlen, hängt davon ab, ob die Regierung sie freigibt."
+            },
+            {
+              "area": "people",
+              "score": 0,
+              "title": "Unverändert.",
+              "text": "Anhörungen zu Schutzstatus und Hilfe sind möglich, die Entscheidungen bleiben bei der Regierung. Der Status von 101.000 Ukrainern wird ohne Enddatum verlängert."
+            }
+          ]
+        },
+        {
+          "key": "pess",
+          "label": "Pessimistisch",
+          "tag": "Rote Mauer: knappes Haus, republikanischer Senat",
+          "text": "Die Umfragen haben die Demokraten überschätzt: Sie gewinnen das Repräsentantenhaus nur knapp, der Senat bleibt ohne Verluste republikanisch. Bei einer hauchdünnen Mehrheit entscheiden wenige Stimmen alles, und das Weiße Haus kann die Opposition spalten.",
+          "seats": {
+            "house": 219,
+            "senate": 47,
+            "note": "Zur Veranschaulichung: 218 ist die knappste Mehrheit im Repräsentantenhaus; im Senat gewinnen die Demokraten nichts hinzu. Bei einem historischen Umfragefehler behielten die Republikaner auch das Repräsentantenhaus – und mit ihm die Vorladungen."
+          },
+          "powers": [
+            {
+              "text": "Vorladungen und Untersuchungen im Repräsentantenhaus",
+              "on": true
+            },
+            {
+              "text": "Haushaltshebel – knappe Mehrheit",
+              "on": "part"
+            },
+            {
+              "text": "Blockade von Trumps Kandidaten im Senat",
+              "on": false
+            },
+            {
+              "text": "Amtsenthebung: Anklage ja, Absetzung nein",
+              "on": "part"
+            },
+            {
+              "text": "Veto überstimmen",
+              "on": false
+            }
+          ],
+          "impacts": [
+            {
+              "area": "wh",
+              "score": 0,
+              "title": "Kurs unverändert.",
+              "text": "Der Senat bestätigt weiter Trumps Kandidaten, die Zölle, die der Supreme Court nicht gekippt hat, bleiben. Das Repräsentantenhaus kann den Haushalt bremsen, aber eine knappe Mehrheit zerfällt leicht."
+            },
+            {
+              "area": "power",
+              "score": 0,
+              "title": "Anhörungen ohne Folgen.",
+              "text": "Das Repräsentantenhaus hält Anhörungen ab, der Senat schützt das Weiße Haus. Wie bei der Iran-Kriegsresolution, die die Regierung laut Euromaidan Press ignorierte, bleiben Beschlüsse des Kongresses auf dem Papier."
+            },
+            {
+              "area": "war",
+              "score": -1,
+              "title": "Der Druck der Republikaner lässt nach.",
+              "text": "Axios schrieb von einem „Putin-Problem“ republikanischer Kandidaten wegen des Diesel-Deals. Nach der Wahl entfällt dieser Anreiz; Brian Fitzpatricks Petition für ein Verbot russischer Ölkäufe verfällt mit dem jetzigen Kongress am 3. Januar, und die Diesel-Lizenz gilt bis April 2027."
+            },
+            {
+              "area": "people",
+              "score": -1,
+              "title": "Schutz ohne Garantie.",
+              "text": "Der Status von 101.000 Ukrainern wurde ohne Enddatum verlängert; „Das ist einfach eine Verlängerung, bis es eine Beendigung wird“, sagt Andrew Arthur vom Center for Immigration Studies. Ohne Druck aus dem Kongress wächst dieses Risiko."
+            }
+          ]
+        }
+      ],
+      "note": "Szenarien und Bewertungen sind eine Einschätzung der Redaktion auf Grundlage der im Artikel zitierten Prognosen und Aussagen. Die Sitzzahlen sind eine Orientierung, keine Prognose."
+    },
+    {
+      "type": "h2",
+      "text": "Wie weit der Kongress Trump bremsen kann"
+    },
+    {
+      "type": "p",
+      "text": "Selbst das beste Ergebnis bringt den Demokraten keine Zweidrittelmehrheit – 290 Stimmen im Repräsentantenhaus und 67 im Senat –, um ein Veto zu überstimmen. Trump weiß das. Am 1. November scherzte er laut Bloomberg, er könne „Mister Veto“ werden: Die Demokraten würden Gesetze schicken, er lege sein Veto ein, und nach ein, zwei Monaten würden sie „zum Verhandeln zurückkommen“."
+    },
+    {
+      "type": "p",
+      "text": "Was die Opposition vor allem gewinnt, sind die Tagesordnung und das Recht auf Vorladungen. Hakeem Jeffries, der am 3. Januar Sprecher des Repräsentantenhauses würde, verspricht 100 Tage zu Lebenshaltungskosten und Regierungskontrolle, um „die Gauner zur Rechenschaft zu ziehen“ (AP). Die Wall Street rechnet laut CNBC mit Untersuchungen gegen Firmen, die mit der Regierung Geschäfte gemacht haben – und mit gesetzgeberischem Stillstand."
+    },
+    {
+      "type": "p",
+      "text": "Der zweite Hebel ist das Geld. Die Schuldenobergrenze erreichen die USA zwischen Spätwinter und Mitte Sommer 2027 (Bipartisan Policy Center), anheben kann sie nur der Kongress. Die Demokraten im Senat haben Trumps Antrag, den Militärhaushalt um 67 % auf 1,5 Billionen Dollar zu erhöhen, bereits blockiert (Euromaidan Press)."
+    },
+    {
+      "type": "p",
+      "text": "Der dritte ist Krieg. Den Krieg gegen Iran begann Trump am 28. Februar ohne Zustimmung des Kongresses. Am 3. Juni verabschiedete das Repräsentantenhaus mit 215 zu 208 Stimmen, darunter vier Republikaner, eine Resolution zu den Kriegsbefugnissen; die Regierung ignorierte sie laut Euromaidan Press. Ein demokratisches Repräsentantenhaus kann solche Abstimmungen häufiger erzwingen – ohne Zweidrittelmehrheit stoppt sie das Veto."
+    },
+    {
+      "type": "h2",
+      "text": "Ukraine: Waffen, Sanktionen, Menschen"
+    },
+    {
+      "type": "p",
+      "text": "Den Europäern versprechen die Demokraten Tempo. Nach einem Machtwechsel würden Hilfspakete „in neun Tagen oder höchstens neun Wochen“ statt „in neun Monaten“ vorankommen, sagte Jim Himes, ranghöchster Demokrat im Geheimdienstausschuss des Repräsentantenhauses, auf dem Warschauer Sicherheitsforum (Breaking Defense, 13. Oktober). Dann würden die Demokraten eine „viel entschiedenere und beständigere“ Ukraine-Politik „verlangen“."
+    },
+    {
+      "type": "p",
+      "text": "Einiges liegt schon auf dem Tisch. Gregory Meeks, voraussichtlich künftiger Vorsitzender des Auswärtigen Ausschusses im Repräsentantenhaus, hat einen überparteilichen Gesetzentwurf eingebracht, der die Rückkehr russischen Diesels auf den Weltmarkt verhindern soll. Der Republikaner Brian Fitzpatrick sammelt die 218 Unterschriften, um eine Abstimmung über ein Verbot russischer Ölkäufe zu erzwingen. Ein neues Hilfspaket könnte laut einer Reuters-Analyse zwei Drittel erreichen, weil die Ukraine-Hilfe bisher von beiden Parteien getragen wurde."
+    },
+    {
+      "type": "p",
+      "text": "Die Grenzen sind ebenso real. Außenpolitik macht der Präsident, und der neue Kongress tritt erst im Januar zusammen (Europäische Prawda). Der wichtigste Waffenkanal ist derzeit PURL, die Prioritätenliste der NATO für den Bedarf der Ukraine: Europäische Verbündete kaufen damit amerikanische Waffen für Kyjiw. Doch die Regierung kann den Zugang dazu beschränken, schreibt Breaking Defense, und hat laut Financial Times bereits gedroht, die Beschaffung zu bremsen, damit Kyjiw die Angriffe auf russlands Energiesektor einstellt. Ein geteilter Kongress und ein unfertiger Haushalt könnten alles verlangsamen, warnt Breaking-Defense-Chefredakteur Aaron Mehta."
+    },
+    {
+      "type": "h3",
+      "text": "Ukrainer in den USA"
+    },
+    {
+      "type": "p",
+      "text": "Für rund 101.000 Ukrainer in den USA geht es um mehr als Politik. Ihr vorübergehender Schutzstatus (TPS) sollte am 19. Oktober auslaufen. An diesem Tag teilte das Heimatschutzministerium mit, sie „behalten ihren Schutz“, nannte aber kein Enddatum: Eine endgültige Entscheidung werde „zu gegebener Zeit“ verkündet (AP). „Das ist einfach eine Verlängerung, bis es eine Beendigung wird“, sagt Andrew Arthur vom Center for Immigration Studies, das für weniger Zuwanderung eintritt."
+    },
+    {
+      "type": "h2",
+      "text": "Wo die Quellen auseinandergehen"
+    },
+    {
+      "type": "diverge",
+      "items": [
+        {
+          "title": "Senat: zwischen Münzwurf und Zuversicht",
+          "text": "Wolfe Research sieht die Chance der Demokraten auf den Senat bei 49 %, Decision Desk HQ und der Prognosemarkt Kalshi bei 64 %, Poliwave bei 78 %. Die Spanne erklärt sich aus mehreren Rennen innerhalb der Fehlermarge – Iowa, Nebraska, South Carolina, Texas."
+        },
+        {
+          "title": "Trumps Zustimmungswerte",
+          "text": "Durchschnitte reichen von 34,7 % (PollCheck, 27. Oktober) über 37,3 % (Silver Bulletin) bis 39,1 % (Decision Desk HQ, 30. Oktober). Einzelne Umfragen sehen den Saldo zwischen −26 (NYT/Siena) und −35 (CNN/SSRS, Reuters/Ipsos) oder −38 (ARG)."
+        },
+        {
+          "title": "Der Vorsprung der Demokraten",
+          "text": "Von +7,8 (Call the Map) bis etwa +9 (Silver Bulletin; CNN Poll of Polls 52 zu 43 %). Die Umfrage von NYT/Siena unter wahrscheinlichen Wählern vom 12. bis 19. Oktober kommt auf +11."
+        }
+      ]
+    },
+    {
+      "type": "h2",
+      "text": "Fazit"
+    },
+    {
+      "type": "p",
+      "text": "Die Umfragen sprechen für ein demokratisches Repräsentantenhaus, der Senat hängt an einigen Rennen innerhalb der Fehlermarge. Für die Ukraine zählt die Größe der Mehrheit mehr als ihre Farbe: Ohne Zweidrittelmehrheit kann der Kongress keine Entscheidung Trumps rückgängig machen. Hilfe kommt dann nur durch, wo auch Republikaner sie tragen – oder in einem Haushalt, den der Präsident nicht blockieren kann."
+    },
+    {
+      "type": "p",
+      "text": "Am wahrscheinlichsten ist keine Kehrtwende, sondern eine Verschiebung der Gewichte. Ab Januar müsste Trump seine russland-Politik in Anhörungen rechtfertigen und ums Geld verhandeln. Den Krieg beendet das nicht – aber Diesel-Deals und ausgesetzte Sanktionen würden für das Weiße Haus teurer."
+    },
+    {
+      "type": "p",
+      "kind": "meta",
+      "text": "Analyse mit Stand vom 2. November 2026, dem Vorabend der Wahl. Umfragen und Prognosen sind keine Ergebnisse; Nachwahlbefragungen kommen in der Nacht zum 4. November (MEZ). Szenarien und Bewertungen sind eine Einschätzung der Redaktion. Zitate in eigener Übersetzung."
+    }
+  ],
+  "sources": [
+    {
+      "title": "Yahoo News — The 2026 midterms are just 3 days away. Which party has a better chance of winning?",
+      "url": "https://www.yahoo.com/news/politics/article/the-2026-midterms-are-next-week-which-party-has-a-better-chance-of-winning-heres-what-the-latest-polls-say-155319308.html",
+      "note": "Andrew Romano, 31.10.: Umfragen, Zustimmung zu Trump, Senatsrennen, Durchschnitte 2010–2022"
+    },
+    {
+      "title": "Silver Bulletin — 2026 Midterm Election Forecast",
+      "url": "https://www.natesilver.net/p/nate-silver-2026-midterm-election-polls-model",
+      "note": "aktualisiert 1.11.: Repräsentantenhaus etwa 95 %"
+    },
+    {
+      "title": "Decision Desk HQ — 2026 Midterm Election Forecast",
+      "url": "https://votes.decisiondeskhq.com/forecast/2026",
+      "note": "2.11.: Repräsentantenhaus 84 % (241 Sitze), Senat 64 % (52)"
+    },
+    {
+      "title": "CNBC — Wall Street braces for Democratic gains as 2026 midterm election nears",
+      "url": "https://www.cnbc.com/2026/10/30/2026-midterm-election-wall-street-prepares-for-democratic-gains.html",
+      "note": "30.10.: Wolfe Research, TD Securities, Schuldenobergrenze"
+    },
+    {
+      "title": "Cambridge University Press — Forecasters predict Democrats to take House but race for Senate hard to call",
+      "url": "https://www.eurekalert.org/news-releases/1147571",
+      "note": "15.10.: 12 Modelle in PS: Political Science & Politics"
+    },
+    {
+      "title": "FiftyPlusOne — How different demographic groups have shifted this cycle",
+      "url": "https://blog.fiftyplusone.news/p/how-different-demographic-groups",
+      "note": "30.10.: Umfragedurchschnitte nach Wählergruppen"
+    },
+    {
+      "title": "Roper Center — How Groups Voted 2024",
+      "url": "https://ropercenter.cornell.edu/how-groups-voted-2024",
+      "note": "Nachwahlbefragung von CBS News"
+    },
+    {
+      "title": "Breaking Defense — Democratic midterm gains could speed US military aid to Ukraine, lawmaker says",
+      "url": "https://breakingdefense.com/2026/10/democratic-midterm-gains-could-speed-us-military-aid-to-ukraine-lawmaker-says/",
+      "note": "13.10.: Jim Himes, PURL"
+    },
+    {
+      "title": "Breaking Defense — Why the midterms could matter for Ukraine aid",
+      "url": "https://breakingdefense.com/2026/10/why-the-midterms-could-matter-for-ukraine-aid/",
+      "note": "15.10.: Aaron Mehta"
+    },
+    {
+      "title": "Euromaidan Press — US midterms could restore Ukraine’s American aid and curb Trump’s Russia deals",
+      "url": "https://euromaidanpress.com/2026/10/25/us-midterms-could-restore-ukraines-american-aid-and-curb-trumps-russia-deals-if-democrats-win-congress/",
+      "note": "25.10., nach Reuters"
+    },
+    {
+      "title": "Europäische Prawda — How could the midterm elections hurt Trump and do they matter for Ukraine?",
+      "url": "https://www.eurointegration.com.ua/eng/news/2026/10/15/7247800/",
+      "note": "15.10., englische Ausgabe"
+    },
+    {
+      "title": "AP — Jeffries says Democrats ‘on the verge’ of winning the House",
+      "url": "https://www.news4jax.com/news/politics/2026/10/22/jeffries-says-democrats-on-the-verge-of-winning-the-house-it-puts-speakers-gavel-in-reach/",
+      "note": "Lisa Mascaro, 22.10."
+    },
+    {
+      "title": "AP — Homeland Security grants temporary deportation reprieve for more than 100K Ukrainians and Sudanese",
+      "url": "https://www.opb.org/article/2026/10/19/homeland-security-grants-temporary-deportation-reprieve-for-more-than-100k-ukrainians-and-sudanese/",
+      "note": "19.10."
+    },
+    {
+      "title": "Michigan Public — House passes war powers resolution directing Trump to end hostilities with Iran",
+      "url": "https://www.michiganpublic.org/2026-06-03/house-passes-war-powers-resolution-directing-trump-to-end-hostilities-with-iran",
+      "note": "3.6."
+    },
+    {
+      "title": "Ukrinform — Trump: „Mister Veto“, falls die Demokraten den Kongress gewinnen",
+      "url": "https://www.ukrinform.ua/rubric-world/4180301-tramp-skazav-so-moze-stati-misterom-veto-akso-demokrati-zdobudut-bilsist-u-kongresi.html",
+      "note": "1.11., nach Bloomberg; auf Ukrainisch"
+    },
+    {
+      "title": "Axios — Five things to watch",
+      "url": "https://www.axios.com/2026/10/13/trump-russia-diesel-deal",
+      "note": "13.10.: Diesel-Deal und republikanische Kandidaten"
+    },
+    {
+      "title": "Axios — zu Trumps Sanktionsausnahme",
+      "url": "https://www.axios.com/2026/10/17/trump-russia-sanctions",
+      "note": "17.10."
+    },
+    {
+      "title": "MY.UA — Washingtons Ultimatum an die Ukraine wegen Angriffen auf russische Raffinerien (nach Washington Post)",
+      "url": "https://my.ua/uk/news/cluster/2026-10-14-vashington-visunuv-ukrayini-ultimatum-cherez-novi-ataki-na-rosiiski-npz-wp",
+      "note": "14.10.; auf Ukrainisch"
+    },
+    {
+      "title": "Kyiv Independent — „Ostentatious disrespect“: Zelensky says russia defied Trump’s energy ceasefire with massive missile strike",
+      "url": "https://kyivindependent.com/ostentatious-disrespect-zelensky-says-russia-defied-trumps-energy-ceasefire-with-massive-missile-strike/",
+      "note": "14.10.: Aufruf zu Sanktionen nach Grahams Entwurf"
+    },
+    {
+      "title": "Wikimedia Commons — Fotos der Kandidaten",
+      "note": "CC BY-SA 4.0: Gage Skidmore (Ken Paxton, Michael Whatley), Antonioaesparza (James Talarico), Conlan Houston (Abdul El-Sayed), NetwonsBucket (Roy Cooper); CC BY 4.0: Ramseywill (Dan Osborn); übrige gemeinfrei, CC0 oder frei nutzbar",
+      "url": "https://commons.wikimedia.org/wiki/Main_Page"
+    }
+  ]
+}

@@ -45,7 +45,7 @@ export function houseStyle<T>(str: T, lang: Lang = "uk"): T {
   return s as T;
 }
 export function styleData(o: any, key: string, lang: Lang = "uk"): any {
-  if (typeof o === "string") return key === "url" || key === "en" ? o : houseStyle(o, lang);
+  if (typeof o === "string") return key === "url" || key === "en" || key === "state" ? o : houseStyle(o, lang);
   if (Array.isArray(o)) return o.map((v) => styleData(v, key, lang));
   if (o && typeof o === "object") { const r: any = {}; for (const k in o) r[k] = styleData(o[k], k, lang); return r; }
   return o;
