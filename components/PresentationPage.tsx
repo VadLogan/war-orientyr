@@ -69,7 +69,7 @@ export default function PresentationPage({ a, lang, latest, dates, from }: P) {
   const phases = S.phases?.length ? S.phases : null;
   return (
     <div className="shell">
-      <Shell lang={lang} t={t} view="digest" date={latest} latest={latest} dates={dates} langHrefs={artHrefs(a)} from={from} />
+      <Shell lang={lang} t={t} view="articles" date={latest} latest={latest} dates={dates} langHrefs={artHrefs(a)} from={from} />
       <LdJson a={a} lang={lang} />
       <main id="main">
         <article className="article pres">

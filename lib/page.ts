@@ -22,7 +22,7 @@ export async function resolve(params: DateParams, lang: Lang): Promise<{ latest:
   return { latest, dates, D: await getIssue(date, lang) };
 }
 
-export async function pageMeta(lang: Lang, view: View, params: DateParams): Promise<Metadata> {
+export async function pageMeta(lang: Lang, view: Exclude<View, "articles">, params: DateParams): Promise<Metadata> {
   const { D } = await resolve(params, lang);
   // German: the dashboard, maps and strikes always; a digest only with German text — otherwise it is the English page, canonical included
   const de = view !== "digest" || (lang === "de" ? D : (await resolve(params, "de")).D).contentLang === "de";
@@ -49,15 +49,15 @@ export async function pageMeta(lang: Lang, view: View, params: DateParams): Prom
 }
 
 /** metadataBase, canonical + hreflang (x-default = the Ukrainian URL, which redirects by Accept-Language), Open Graph, Twitter.
- *  `de`: the page has a German version (hreflang de). */
-export function seoMeta(lang: Lang, url: (l: Lang) => string, title: string, description: string, image = "/og.png", de = false): Metadata {
+ *  `de`: the page has a German version (hreflang de). `type`: og:type — "website" for a listing. */
+export function seoMeta(lang: Lang, url: (l: Lang) => string, title: string, description: string, image = "/og.png", de = false, type: "article" | "website" = "article"): Metadata {
   const images = [image === "/og.png" ? { url: image, width: 1200, height: 630, alt: SITE_NAME[lang] } : { url: image }];
   return {
     metadataBase: new URL(SITE),
     title,
     description,
     alternates: { canonical: url(lang), languages: { uk: url("uk"), en: url("en"), ...(de && { de: url("de") }), "x-default": url("uk") } },
-    openGraph: { type: "article", siteName: SITE_NAME[lang], locale: { uk: "uk_UA", en: "en_GB", de: "de_DE" }[lang], url: url(lang), title, description, images },
+    openGraph: { type, siteName: SITE_NAME[lang], locale: { uk: "uk_UA", en: "en_GB", de: "de_DE" }[lang], url: url(lang), title, description, images },
     twitter: { card: "summary_large_image", title, description, images },
   };
 }

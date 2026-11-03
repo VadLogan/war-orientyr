@@ -2,11 +2,11 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { cache } from "react";
-import type { Article, Digest } from "@/types/digest";
+import type { Article, ArticleItem, Digest } from "@/types/digest";
 import { articleHref } from "./routes";
 import type { StrikesBase, StrikesData, Strikes } from "./strikes";
 import { dayRecords } from "./records";
-import { styleData } from "./text";
+import { noFlag, styleData } from "./text";
 import { translate } from "./i18n.mjs";
 import type { Lang } from "./ui";
 
@@ -106,6 +106,27 @@ export const getArticle = cache(async (date: string, name: string, lang: Lang = 
 /** Previews shown on the issue of `date`, in folder-name order. */
 export const getPreviews = cache(async (date: string, lang: Lang = "uk") =>
   (await Promise.all((await getArticleDirs()).filter((x) => x.date === date).map((x) => getArticle(x.date, x.name, lang)))).filter((a): a is Article => !!a));
+
+/** Every article for the /articles index in `lang`, newest first; topic from preview.uk.json, length from the text (≈200 words a minute). */
+export const getArticleList = cache(async (lang: Lang = "uk"): Promise<ArticleItem[]> => {
+  const words = (v: unknown): number => typeof v === "string" ? v.split(/\s+/).filter(Boolean).length
+    : Array.isArray(v) ? v.reduce((s: number, x) => s + words(x), 0) : v && typeof v === "object" ? words(Object.values(v)) : 0;
+  const dirs = (await getArticleDirs()).slice().reverse();
+  const rows = await Promise.all(dirs.map(async (d): Promise<ArticleItem | null> => {
+    const [a, uk] = await Promise.all([getArticle(d.date, d.name, lang), getArticle(d.date, d.name, "uk")]);
+    if (!a || !uk) return null;
+    const b = a.presentation || a.article, img = typeof a.article?.image === "object" ? a.article.image : null;
+    const has = (l: Lang) => ["article", "presentation"].some((f) => d.files.includes(`${f}.${l}.json`));
+    return {
+      date: a.date, name: a.name, href: a.href, img: a.img, imgAlt: noFlag(img?.alt || a.preview.imageAlt || ""),
+      title: b?.title || a.preview.title, lead: a.preview.lead || b?.lead || "", kicker: b?.kicker, button: a.preview.button,
+      topic: uk.preview.topic, fmt: a.presentation ? "live" : a.article?.blocks.some((x) => x.type === "scenarios") ? "scen" : "an",
+      mins: Math.max(1, Math.round(words(b?.blocks ?? []) / 200)), sources: a.article?.sources?.length ?? 0,
+      langs: (["uk", "en", "de"] as Lang[]).filter(has), contentLang: a.contentLang,
+    };
+  }));
+  return rows.filter((x): x is ArticleItem => !!x);
+});
 
 export const getStrikes = cache(async (): Promise<Strikes> => ({
   stk: await read<StrikesData>("strikes.json"),

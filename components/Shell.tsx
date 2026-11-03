@@ -1,12 +1,12 @@
 // Server component: top bar (tabs, language), issue picker and archive note. All switches are plain links.
 import Link from "next/link";
 import { longDate, midDate } from "@/lib/text";
-import { href, type View } from "@/lib/routes";
+import { articlesHref, href, type View } from "@/lib/routes";
 import { DE_MISSING, LANGS, type Lang, type UIStrings } from "@/lib/ui";
 import IssueSelect from "./IssueSelect";
 import LangPicker from "./LangPicker";
 
-/** `langHrefs`: a page outside the issue views (an article) — tabs link to the latest issue, no date bar.
+/** `langHrefs`: a page outside the issue views (an article, the article list: view "articles") — tabs link to the latest issue, no date bar.
  *  `from`: the language the reader asked for (a /de URL) when this page has no version in it and is shown in `lang`. */
 type P = { lang: Lang; t: UIStrings; view: View; date: string; latest: string; dates: string[]; langHrefs?: Record<Lang, string>; from?: "de" };
 
@@ -15,7 +15,7 @@ export default function Shell({ lang, t, view, date, latest, dates, langHrefs, f
   const i = dates.indexOf(date), isLatest = date === latest;
   const to = (o: Partial<{ lang: Lang; view: View; date: string }>) => href(o.lang ?? lang, o.view ?? view, o.date ?? date, latest);
   const Tab = ({ on, to: h, children }: { on: boolean; to: string; children: React.ReactNode }) =>
-    <Link href={h} aria-current={on && !bare ? "page" : undefined}>{children}</Link>;
+    <Link href={h} aria-current={on ? "page" : undefined}>{children}</Link>;
   return (
     <>
       <header className="topbar">
@@ -30,6 +30,8 @@ export default function Shell({ lang, t, view, date, latest, dates, langHrefs, f
               <svg className="ico" viewBox="0 0 24 24" aria-hidden="true"><path className="fl" d="M3.75 6.5l5.5-2.25 5.5 2.25 5.5-2.25v13.25l-5.5 2.25-5.5-2.25-5.5 2.25z" /><path d="M9.25 4.25v13.25M14.75 6.5v13.25" /></svg>{t.maps}</Tab>
             <Tab on={view === "strikes"} to={to({ view: "strikes" })}>
               <svg className="ico" viewBox="0 0 24 24" aria-hidden="true"><circle className="fl" cx="12" cy="12" r="7.25" /><path d="M12 2.75v4.5M12 16.75v4.5M2.75 12h4.5M16.75 12h4.5" /><circle cx="12" cy="12" r="1.25" /></svg>{t.strikes}</Tab>
+            <Tab on={view === "articles"} to={articlesHref(lang)}>
+              <svg className="ico" viewBox="0 0 24 24" aria-hidden="true"><path className="fl" d="M6 3.75h8.5l3.5 3.5v13H6z" /><path d="M14.5 3.75v3.5h3.5M9 11.5h6M9 15h6" /></svg>{t.arts.h}</Tab>
           </div>
           <LangPicker lang={lang} hrefs={langHrefs ?? Object.fromEntries(LANGS.map((l) => [l.code, to({ lang: l.code })])) as Record<Lang, string>} />
         </div>

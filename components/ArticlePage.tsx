@@ -255,7 +255,7 @@ export default async function ArticlePage({ lang, params, from }: { lang: Lang; 
   );
   return (
     <div className="shell">
-      <Shell lang={lang} t={t} view="digest" date={latest.date} latest={latest.date} dates={dates} langHrefs={artHrefs(a)} from={from} />
+      <Shell lang={lang} t={t} view="articles" date={latest.date} latest={latest.date} dates={dates} langHrefs={artHrefs(a)} from={from} />
       <LdJson a={a} lang={lang} />
       <main id="main">
         {toc.length ? (

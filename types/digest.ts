@@ -48,7 +48,8 @@ export type LossRow = {
 };
 
 /** public/articles/<YYYY-MM-DD>/<name>/preview.<lang>.json — a card on that date's issue. */
-export type ArticlePreview = { title: string; lead?: string; button?: string; url?: string; image?: string; imageAlt?: string };
+/** `topic` (preview.uk.json only, shared by all languages): filter on /articles — a key of `UI.*.arts.topics` */
+export type ArticlePreview = { title: string; lead?: string; button?: string; url?: string; image?: string; imageAlt?: string; topic?: string };
 /** Content blocks of an article, in reading order; unknown types are skipped. */
 export type ArticleBlock =
   /** `section`: digest section id (`kremlin`…) — an h2 that repeats a digest section title shows that section's icon */
@@ -132,6 +133,13 @@ export type PresPhase = {
   places?: { name: string; status: "lib" | "ctl" }[];
 };
 /** As read by lib/data.ts: `href` = the preview's `url` or the article page; `img` = public path of the image. */
+/** One row of the /articles index (serialisable: goes to the client filter). `fmt`: presentation = "live", article with scenarios = "scen". */
+export type ArticleItem = {
+  date: string; name: string; href: string; img?: string; imgAlt: string; title: string; lead: string; kicker?: string; button?: string;
+  topic?: string; fmt: "an" | "live" | "scen"; mins: number; sources: number; langs: Lang[]; contentLang: Lang;
+  /** link to the issue of `date` (set by the page when that issue exists) */
+  issue?: string;
+};
 export type Article = {
   date: string; name: string; href: string; img?: string; preview: ArticlePreview;
   article: ArticleBody | null; presentation: PresentationBody | null; contentLang: Lang;

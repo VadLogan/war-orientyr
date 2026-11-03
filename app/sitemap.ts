@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { articleParams } from "@/components/ArticlePage";
 import { getArticle, getDates, getIssue, getLatest } from "@/lib/data";
-import { articleHref, href, SITE, type View } from "@/lib/routes";
+import { articleHref, articlesHref, href, SITE, type View } from "@/lib/routes";
 import type { Lang } from "@/lib/ui";
 
 /** Every statically generated page, each with its uk/en (and de, where German text exists) twins as hreflang alternates. */
@@ -18,6 +18,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     // roots ("/", "/dashboard") + every issue at its dated URL, the latest included
     ...(["digest", "dashboard", "maps", "strikes"] as View[]).flatMap((v) => [null, ...dates].map((d, k) => entry((l) => href(l, v, d, ""), d ?? latest, v !== "digest" || deDigest[k])).flat()),
+    ...entry(articlesHref, articles.at(-1)?.date ?? latest, true),
     ...articles.flatMap(({ date, name }, k) => entry((l) => articleHref(l, date, name), date, deArt[k])),
   ];
 }

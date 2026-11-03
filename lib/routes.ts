@@ -1,13 +1,15 @@
 // URL scheme: [/en|/de][/dashboard|/maps|/strikes][/YYYY-MM-DD]; no date = latest issue (routes in app/(uk), app/(en), app/(de)).
 import type { Lang } from "./ui";
 
-export type View = "digest" | "dashboard" | "maps" | "strikes";
+/** "articles": the article pages (no dated twin; their Shell gets `langHrefs`) */
+export type View = "digest" | "dashboard" | "maps" | "strikes" | "articles";
 const pre = (lang: Lang) => (lang === "uk" ? "" : "/" + lang);
 /** Path for a page; `latest` is omitted from the URL. */
 export function href(lang: Lang, view: View, date: string | null, latest: string) {
   const p = pre(lang) + (view === "digest" ? "" : "/" + view) + (date && date !== latest ? "/" + date : "");
   return p || "/";
 }
+export const articlesHref = (lang: Lang) => pre(lang) + "/articles";
 export const articleHref = (lang: Lang, date: string, name: string) => pre(lang) + `/articles/${date}/${name}`;
 /** Absolute site origin (production domain on Vercel, else localhost). */
 export const SITE = process.env.VERCEL_PROJECT_PRODUCTION_URL ? "https://" + process.env.VERCEL_PROJECT_PRODUCTION_URL : "http://localhost:3000";
