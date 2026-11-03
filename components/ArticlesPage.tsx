@@ -6,6 +6,7 @@ import { seoMeta } from "@/lib/page";
 import { midDate, noFlag } from "@/lib/text";
 import type { ArticleItem } from "@/types/digest";
 import { LANGS, UI, type Lang, type UIStrings } from "@/lib/ui";
+import Ld from "./Ld";
 import Shell from "./Shell";
 import ArticleList from "./ArticleList";
 
@@ -30,7 +31,7 @@ function LdList({ items, lang }: { items: ArticleItem[]; lang: Lang }) {
       })),
     },
   };
-  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld).replace(/</g, "\\u003c") }} />;
+  return <Ld ld={ld} />;
 }
 
 export default async function ArticlesPage({ lang }: { lang: Lang }) {

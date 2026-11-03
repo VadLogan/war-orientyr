@@ -8,6 +8,7 @@ import { seoMeta } from "@/lib/page";
 import { clip, loc, longDate, noFlag } from "@/lib/text";
 import type { Article, ArticleBlock } from "@/types/digest";
 import { LANGS, UI, type Lang, type UIStrings } from "@/lib/ui";
+import Ld from "./Ld";
 import Shell from "./Shell";
 import ImgZoom from "./ImgZoom";
 import { flags } from "@/components/Flag";
@@ -223,7 +224,7 @@ export function LdJson({ a, lang }: { a: Article; lang: Lang }) {
     ...(a.img && { image: [SITE + a.img] }),
     publisher: { "@type": "Organization", name: SITE_NAME[lang], url: SITE },
   };
-  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld).replace(/</g, "\\u003c") }} />;
+  return <Ld ld={ld} />;
 }
 
 /** Article hrefs of the language picker. */

@@ -22,6 +22,14 @@ export async function resolve(params: DateParams, lang: Lang): Promise<{ latest:
   return { latest, dates, D: await getIssue(date, lang) };
 }
 
+/** Search/share description of the dashboard, maps and strikes pages (maps/strikes reuse their "new on the site" cards). */
+const DASH_DESC: Record<Lang, string> = {
+  uk: "Війна в цифрах: втрати сторін, удари й ППО, ціна кілометра фронту, ціни й вербування в рф — графіки за кожен день.",
+  en: "The war in numbers: losses on both sides, strikes and air defence, the price of a kilometre of front, russian prices and recruitment — charted day by day.",
+  de: "Der Krieg in Zahlen: Verluste beider Seiten, Angriffe und Luftabwehr, der Preis eines Frontkilometers, Preise und Rekrutierung in russland – Tag für Tag.",
+};
+const viewDesc = (lang: Lang, view: "dashboard" | "maps" | "strikes") => view === "dashboard" ? DASH_DESC[lang] : UI[lang].nw[view].p;
+
 export async function pageMeta(lang: Lang, view: Exclude<View, "articles">, params: DateParams): Promise<Metadata> {
   const { D } = await resolve(params, lang);
   // German: the dashboard, maps and strikes always; a digest only with German text — otherwise it is the English page, canonical included
@@ -32,12 +40,13 @@ export async function pageMeta(lang: Lang, view: Exclude<View, "articles">, para
   if (root) {
     // "/" and "/dashboard" change daily: generic title/description, so a search result doesn't promise a past issue's story.
     const title = view === "digest" ? SITE_NAME[lang] : UI[lang][view === "dashboard" ? "dash" : view];
-    meta = seoMeta(lang, (l) => href(l, view, null, ""), title, SITE_DESC[lang], undefined, de);
+    meta = seoMeta(lang, (l) => href(l, view, null, ""), title, clip(view === "digest" ? SITE_DESC[lang] : viewDesc(lang, view), 160), undefined, de, "website");
     if (view === "digest") meta.title = { absolute: title };
   } else {
     // digest: the issue's headline (old issues have none → date); dashboard: date. Site name added by the layout template.
     const title = view === "digest" && D.headline?.title ? clip(D.headline.title, 60) : dateTitle(D, lang).h + (view === "digest" ? "" : " · " + UI[lang][view === "dashboard" ? "dash" : view]);
-    const description = clip((D.headline?.title ? D.headline.text : D.lede) || D.lede || "", 160);
+    // digest: the headline's text (else the lede); the other views: the date + what the view shows, so the four URLs of a day differ
+    const description = clip(view === "digest" ? (D.headline?.title ? D.headline.text : D.lede) || D.lede || "" : dateTitle(D, lang).h + ". " + viewDesc(lang, view), 160);
     meta = seoMeta(lang, (l) => href(l, view, D.date, ""), title, description, undefined, de); // always the dated URL, the latest issue too
   }
   return {
