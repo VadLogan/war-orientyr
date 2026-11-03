@@ -3,9 +3,11 @@ import type { Article, Digest } from "@/types/digest";
 import { dateTitle, dayLabel, fmt, midDate, shortD, sinceList } from "@/lib/text";
 import type { DayRecords } from "@/lib/records";
 import { UI, type Lang, type UIStrings } from "@/lib/ui";
+import Image from "next/image";
 import ImgZoom from "./ImgZoom";
 import { flags } from "@/components/Flag";
-import { href } from "@/lib/routes";
+import { articlesHref, href } from "@/lib/routes";
+import { getArticleList } from "@/lib/data";
 
 /** Compact card for an article of this issue (public/articles/<date>/<name>/). */
 function ArtCard({ a, t }: { a: Article; t: UIStrings }) {
@@ -42,21 +44,23 @@ const NW_ART = {
   </svg>,
 };
 
-/** Show the "New on the site" block on digest pages; off until there is something new to promote. */
-const SHOW_NEW_PAGES = false;
+/** Pages promoted in the "New on the site" block on digest pages; empty = no block. */
+const NEW_PAGES: ("maps" | "strikes" | "articles")[] = ["articles"];
 
-/** "New on the site": cards for the /maps and /strikes pages. */
-function NewPages({ lang }: { lang: Lang }) {
+/** "New on the site": a card per page in NEW_PAGES; the articles card shows the three newest covers. */
+async function NewPages({ lang }: { lang: Lang }) {
   const t = UI[lang].nw;
+  const covers = NEW_PAGES.includes("articles") ? (await getArticleList(lang)).filter((a) => a.img).slice(0, 3) : [];
   return (
     <section className="nw" aria-labelledby="nw-h">
       <div className="nw-top"><h2 id="nw-h" className="art-kicker">{t.h}</h2><span>{t.sub}</span></div>
       <div className="nw-grid">
-        {(["maps", "strikes"] as const).map((v) => {
-          const c = t[v], url = href(lang, v, null, "");
+        {NEW_PAGES.map((v) => {
+          const c = t[v], url = v === "articles" ? articlesHref(lang) : href(lang, v, null, "");
           return (
             <article className="nw-card" key={v}>
-              <a className="nw-art" href={url} tabIndex={-1} aria-hidden="true">{NW_ART[v]}</a>
+              <a className={v === "articles" ? "nw-art nw-covers" : "nw-art"} href={url} tabIndex={-1} aria-hidden="true">
+                {v === "articles" ? covers.map((a) => <Image key={a.name} src={a.img!} alt="" width={400} height={240} sizes="(max-width:600px) 34vw, 200px" />) : NW_ART[v]}</a>
               <div className="nw-txt">
                 <div className="kick">{c.k}</div>
                 <h3><a href={url}>{c.t}</a></h3>
@@ -131,7 +135,7 @@ export default function Mast({ D, lang, dashboard, articles = [], records, lates
           {/* order under the lede: feature (the issue's articles) first, then records, then "new on the site" */}
           {cards}
           {records && <Records R={records} lang={lang} date={D.date} latest={latest} />}
-          {SHOW_NEW_PAGES && !dashboard && <NewPages lang={lang} />}
+          {NEW_PAGES.length > 0 && !dashboard && <NewPages lang={lang} />}
         </div>
       </section>
     </div>
