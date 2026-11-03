@@ -11710,6 +11710,45 @@
    "issue": "2026-11-02",
    "item": "kstovo-0111",
    "url": "https://kyivindependent.com/ukraine-war-latest-russian-oil-refinery-in-kstovo-ablaze-after-reported-overnight-drone-strike/"
+  },
+  {
+   "id": "samara-lpds-0211",
+   "date": "2026-11-02",
+   "night": "ранок 2.11",
+   "object": "Нафтоперекачувальна станція «Самара» (трубопровід Атирау–Самара)",
+   "place": "Просвіт, Самарська область",
+   "kind": "oil",
+   "territory": "russia",
+   "lat": 53.195,
+   "lng": 50.1,
+   "approx": true,
+   "result": "за Bloomberg — NASA FIRMS зафіксувала ймовірну пожежу; Казахстан тимчасово призупинив постачання нафти трубопроводом Атирау–Самара; офіційного підтвердження немає; заяв влади Самарської області не знайдено",
+   "confirmed": null,
+   "local": "silent",
+   "issue": "2026-11-03",
+   "item": "samara-lpds-0211",
+   "url": "https://www.ukrinform.ua/rubric-world/4180696-znimki-nasa-mogli-zafiksuvati-pozezu-na-naftovij-stancii-samara-bloomberg.html"
+  },
+  {
+   "id": "akhtubinsk-su57-2910",
+   "date": "2026-10-29",
+   "night": "29.10",
+   "object": "Літак Су-57 на аеродромі",
+   "place": "Ахтубінськ, Астраханська область",
+   "kind": "airfield",
+   "territory": "russia",
+   "lat": 48.3,
+   "lng": 46.2,
+   "approx": true,
+   "result": "за ГУР — літак вибухнув під час запуску двигуна (не заява про український удар); можлива причина — неякісне пальне; оцінка вартості ≈$150 млн; заяв російської влади не знайдено",
+   "confirmed": {
+    "by": "ГУР Міноборони України (про вибух, не про удар)",
+    "when": "2.11.2026, 11:21 (Укрінформ)"
+   },
+   "local": "silent",
+   "issue": "2026-11-03",
+   "item": "akhtubinsk-su57-2910",
+   "url": "https://www.ukrinform.ua/rubric-ato/4180448-na-aerodromi-ahtubinsk-u-rosii-vibuhnuv-novitnij-su57-rozvidka.html"
   }
  ],
  "coverage": {
