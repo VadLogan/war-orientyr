@@ -134,6 +134,17 @@ const PRESETS: { id: string; mode: string; pair?: string; ev: boolean; dse: bool
   { id: "cmp", mode: "cmp", ev: false, dse: false, per: 30 },
 ];
 const dsKey = (e: { id: number; lat: number; lng: number }) => `${e.id}/${e.lat}/${e.lng}`;
+// one DeepState update note that names several places, or several kinds of change (an advance + a map fix),
+// = one event per place and kind (one marker each); lists show the note once — the place russia claimed earliest
+// stands for it — with every kind it holds
+type DsE = NonNullable<MapsData["dsEvents"]>[number];
+const dsUpd = (e: DsE) => `${e.id}/${e.d}`;
+function dsOnce(xs: DsE[], key = dsUpd): DsE[] {
+  const by = new Map<string, DsE>();
+  for (const e of xs) { const o = by.get(key(e)); if (!o || (e.ru && (!o.ru || e.ru.d < o.ru.d))) by.set(key(e), e); }
+  return xs.filter((e) => by.get(key(e)) === e);
+}
+const dsKinds = (all: DsE[], e: DsE) => [...new Set(all.filter((x) => dsUpd(x) === dsUpd(e)).map((x) => x.k))];
 type Stop = { pts: [number, number][]; ll: [number, number]; d0: string; d: string; j: number; n: number };
 let railInit = false; // the rail starts hidden on phones once per page load; after that it's the reader's choice
 function useMapGeo(M: MapsData | null, W: number, H: number): Geo | null {
@@ -197,7 +208,7 @@ export function MapsCompare() {
   const dcol = (d: (typeof DIRS)[number]) => dirCol(dOrder, dOrder.includes(d.uk) ? d.uk : d[lang]);
   const [pair, setPair] = useSticky("mapPair", "dg_ds");
   const [ev, setEv] = useSticky("mapEv", true);
-  const [dse, setDse] = useSticky("mapDsEv", true); // DeepState advances + when russia claimed them
+  const [dse, setDse] = useSticky("mapDsE", true); // DeepState advances + when russia claimed them
   const [bm, setBm] = useSticky("mapBase", "t");
   const [per, setPer] = useSticky("mapPer", 30);
   const [vf, setVf] = useSticky("mapVf", ALL_V);
@@ -373,7 +384,7 @@ export function MapsCompare() {
     return DIRS.map((_, i) => v.renderCell(i));
   }, [geo]);
   const inDir = dir ? inPer.filter((e) => evDir.get(e) === dir) : inPer;
-  const dsShown = M && dse ? (M.dsEvents || []).filter((e) => { const n = dayN(e.d); return n > end - per && n <= end && (!dir || dirOf(e) === dir); }).sort((a, b) => (a.d < b.d ? 1 : a.d > b.d ? -1 : 0)) : [];
+  const dsShown = M && dse ? dsOnce(M.dsEvents || []).filter((e) => { const n = dayN(e.d); return n > end - per && n <= end && (!dir || dirOf(e) === dir); }).sort((a, b) => (a.d < b.d ? 1 : a.d > b.d ? -1 : 0)) : [];
   const [dsHl, setDsHl] = useState<string | null>(null);
   const cnt = countV(inDir, ref);
   const shown = ev ? inDir.filter((e) => vf[vgOf(e[ref])]).sort((a, b) => (a.d < b.d ? 1 : a.d > b.d ? -1 : 0)) : [];
@@ -453,7 +464,7 @@ export function MapsCompare() {
     const p = PRESETS.find((x) => x.id === id)!;
     setMode(p.mode); if (p.pair) setPair(p.pair); setEv(p.ev); setDse(p.dse); setPer(p.per); setOff(0); setVf(ALL_V); pickDir(null);
   };
-  const wk = (M?.dsEvents || []).filter((e) => { const n = dayN(e.d); return n > wkEnd - 7 && n <= wkEnd; });
+  const wk = dsOnce(M?.dsEvents || [], (e) => dsUpd(e) + e.k).filter((e) => { const n = dayN(e.d); return n > wkEnd - 7 && n <= wkEnd; });
   const wkN = (x: string) => wk.filter((e) => e.k === x).length, wkEarly = wk.filter((e) => e.ru && e.ru.lag > 0).length;
   // a DeepState change opened from the week strip or the map: its card stays until closed; `xs` = the set it was opened from
   const [dsSel, setDsSel] = useState<{ xs: NonNullable<MapsData["dsEvents"]>; i: number } | null>(null);
@@ -462,18 +473,17 @@ export function MapsCompare() {
   // fact-check: claims in the period that DeepState and ISW reject hardest (over 10 km > 2–10 km off the line), newest first
   // the feed under the map: what each side said in the rail's period (and direction), newest first, as a slider —
   // russian claims with what DeepState and ISW show there, DeepState's changes with whether and when russia claimed them
-  type DsEv = NonNullable<MapsData["dsEvents"]>[number];
   const [fcF, setFcF] = useSticky<"all" | "ru" | "ds">("mapFcF", "all");
   const fcRef = useRef<HTMLOListElement>(null);
-  const dsIn = (M?.dsEvents || []).filter((e) => { const n = dayN(e.d); return n > end - per && n <= end && (!dir || dirOf(e) === dir); });
-  const fcAll: ({ d: string; cl: Ev; ds?: undefined } | { d: string; ds: DsEv; cl?: undefined })[] = [
+  const dsIn = dsOnce(M?.dsEvents || []).filter((e) => { const n = dayN(e.d); return n > end - per && n <= end && (!dir || dirOf(e) === dir); });
+  const fcAll: ({ d: string; cl: Ev; ds?: undefined } | { d: string; ds: DsE; cl?: undefined })[] = [
     ...inDir.map((cl) => ({ d: cl.d, cl, ds: undefined })), ...dsIn.map((ds) => ({ d: ds.d, ds, cl: undefined })),
   ].sort((a, b) => (a.d < b.d ? 1 : a.d > b.d ? -1 : a.ds ? -1 : 1));
   const fc = fcAll.filter((x) => fcF === "all" || (fcF === "ds" ? x.ds : x.cl));
   const fcScroll = (k: number) => fcRef.current?.scrollBy({ left: k * fcRef.current.clientWidth * 0.9, behavior: "smooth" });
   useEffect(() => { fcRef.current?.scrollTo({ left: 0 }); }, [fcF, per, o, dir, snap]);
   const showClaim = (e: Ev) => { setEv(true); setVf(ALL_V); focusEv(e); };
-  const showDs = (e: DsEv) => { setDse(true); focusDs(e); };
+  const showDs = (e: DsE) => { setDse(true); focusDs(e); };
   // shareable view: #v=ds&n=7&d=pok&s=2026-10-30&c=4338 (only what differs from the defaults)
   const hashRead = useRef(false), pendC = useRef<string | null>(null);
   useEffect(() => {
@@ -661,7 +671,7 @@ export function MapsCompare() {
                     const [x, y] = geo.proj([e.lng, e.lat])!;
                     return <g key={dsKey(e)} transform={`translate(${x},${y}) scale(${1 / k})`} {...tipHandlers(setTip, () => <>
                       <div className="d">{dmy(e.d)} · DeepState · {t.dsK[e.k]}</div><div>{hs(e.t)}</div><div className="s">{dsLine(e)}</div>
-                    </>)} style={{ cursor: "pointer" }} onClick={() => openDs([e])}><DsMark k={e.k} hl={dsHl === dsKey(e) || dsKey(e) === (dsSel && dsKey(dsSel.xs[dsSel.i]))} /></g>;
+                    </>)} style={{ cursor: "pointer" }} onClick={() => openDs([e])}><DsMark k={e.k} hl={dsHl === dsKey(e) || dsHl === dsUpd(e) || dsKey(e) === (dsSel && dsKey(dsSel.xs[dsSel.i]))} /></g>;
                   })}</g>}
                   {tour && <g className="evs mp-capp">{capItems.map((it, i) => ({ it, i })).sort((a, b) => +(a.it.key === capHl) - +(b.it.key === capHl)).map(({ it, i }) => {
                     const [x, y] = geo.proj([it.lng, it.lat])!, on = it.key === capHl;
@@ -771,10 +781,10 @@ export function MapsCompare() {
                 <button type="button" className="linkbtn" onClick={() => showClaim(x.cl!)}>{t.fcMap}</button>
               </li>
             ) : (
-              <li key={"d" + dsKey(x.ds!)} className={"ds" + (dsHl === dsKey(x.ds!) ? " on" : "")} onPointerEnter={() => setDsHl(dsKey(x.ds!))} onPointerLeave={() => setDsHl(null)}>
+              <li key={"d" + dsKey(x.ds!)} className={"ds" + (dsHl === dsUpd(x.ds!) ? " on" : "")} onPointerEnter={() => setDsHl(dsUpd(x.ds!))} onPointerLeave={() => setDsHl(null)}>
                 <div className="d">{dmy(x.d)} · {t.fcDsL}</div>
                 <q>{flags(hs(x.ds!.t))}</q>
-                <div className="v"><DsIco k={x.ds!.k} /> {t.dsK[x.ds!.k]}</div>
+                <div className="v">{dsKinds(M.dsEvents || [], x.ds!).map((k) => <Fragment key={k}><DsIco k={k} /> {t.dsK[k]} </Fragment>)}</div>
                 <div className="v">{x.ds!.ru ? <><MarkIco g="occ" /> <span>{flags(t.mpCapRu(dmy(x.ds!.ru.d).slice(0, 5), hs(x.ds!.ru.t)))} <Lag n={x.ds!.ru.lag} t={t} /></span></> : <span className="map-src">{t.dsNoRu}</span>}</div>
                 <button type="button" className="linkbtn" onClick={() => showDs(x.ds!)}>{t.fcMap}</button>
               </li>
@@ -800,9 +810,9 @@ export function MapsCompare() {
             {dsShown.length ? <div className="mp-list-sc"><table>
               <thead><tr><th>{t.mpDate}</th><th>DeepState</th><th>{t.dsRu}</th><th>{t.dsLag}</th></tr></thead>
               <tbody>{dsShown.map((e) => (
-                <tr key={dsKey(e)} className={dsHl === dsKey(e) ? "hl" : undefined} onPointerEnter={() => setDsHl(dsKey(e))} onPointerLeave={() => setDsHl(null)}>
+                <tr key={dsKey(e)} className={dsHl === dsUpd(e) ? "hl" : undefined} onPointerEnter={() => setDsHl(dsUpd(e))} onPointerLeave={() => setDsHl(null)}>
                   <td className="d">{dmy(e.d).slice(0, 5)}</td>
-                  <td><button type="button" className="linkbtn" onFocus={() => setDsHl(dsKey(e))} onBlur={() => setDsHl(null)} onClick={() => focusDs(e)}><DsIco k={e.k} /> {hs(e.t)}</button></td>
+                  <td><button type="button" className="linkbtn" onFocus={() => setDsHl(dsUpd(e))} onBlur={() => setDsHl(null)} onClick={() => focusDs(e)}>{dsKinds(M.dsEvents || [], e).map((k) => <DsIco key={k} k={k} />)} {hs(e.t)}</button></td>
                   <td>{e.ru ? <>{dmy(e.ru.d).slice(0, 5)} · {flags(hs(e.ru.t))}</> : <span className="map-src">{t.dsNoRu}</span>}</td>
                   <td style={{ whiteSpace: "nowrap" }}>{e.ru ? <Lag n={e.ru.lag} t={t} /> : "—"}</td>
                 </tr>
