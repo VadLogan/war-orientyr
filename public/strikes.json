@@ -11749,6 +11749,24 @@
    "issue": "2026-11-03",
    "item": "akhtubinsk-su57-2910",
    "url": "https://www.ukrinform.ua/rubric-ato/4180448-na-aerodromi-ahtubinsk-u-rosii-vibuhnuv-novitnij-su57-rozvidka.html"
+  },
+  {
+   "id": "yaroslavl-npz-0311",
+   "date": "2026-11-03",
+   "night": "2–3.11",
+   "object": "НПЗ «Славнефть-ЯНОС»",
+   "place": "Ярославль",
+   "kind": "oil",
+   "territory": "russia",
+   "lat": 57.6261,
+   "lng": 39.8845,
+   "approx": true,
+   "result": "за Telegram-каналами Exilenova+ і Astra (через Суспільне) — велика пожежа, щонайменше п’ять великих і два менших осередки; губернатор визнав пожежу на «підприємстві» й двох поранених працівників, не назвавши НПЗ; офіційного підтвердження немає",
+   "confirmed": null,
+   "local": "partial",
+   "issue": "2026-11-04",
+   "item": "yaroslavl-npz-0311",
+   "url": "https://suspilne.media/1443423-droni-atakuvali-aroslavskij-npz/"
   }
  ],
  "coverage": {
