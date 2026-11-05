@@ -11767,6 +11767,27 @@
    "issue": "2026-11-04",
    "item": "yaroslavl-npz-0311",
    "url": "https://suspilne.media/1443423-droni-atakuvali-aroslavskij-npz/"
+  },
+  {
+   "id": "bilovodsk-depot-0311",
+   "date": "2026-11-03",
+   "night": "3–4.11",
+   "object": "Склад матеріальних засобів",
+   "place": "біля Біловодська, Луганська область",
+   "kind": "logistics",
+   "territory": "occupied",
+   "lat": 49.2,
+   "lng": 39.57556,
+   "approx": true,
+   "result": "за Генштабом — склад «уражено»; результат не деталізовано",
+   "confirmed": {
+    "by": "Генштаб ЗСУ",
+    "when": "4.11.2026, 13:51"
+   },
+   "local": "silent",
+   "issue": "2026-11-05",
+   "item": "bilovodsk-depot-0311",
+   "url": "https://my.ua/uk/news/cluster/2026-11-04-p-iat-tsilei-za-dvi-dobi-genshtab-povidomiv-pro-udari-po-okupantakh"
   }
  ],
  "coverage": {
