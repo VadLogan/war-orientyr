@@ -11788,6 +11788,63 @@
    "issue": "2026-11-05",
    "item": "bilovodsk-depot-0311",
    "url": "https://my.ua/uk/news/cluster/2026-11-04-p-iat-tsilei-za-dvi-dobi-genshtab-povidomiv-pro-udari-po-okupantakh"
+  },
+  {
+   "id": "ryazan-0511",
+   "date": "2026-11-05",
+   "night": "4–5.11",
+   "object": "Рязанський НПЗ («Роснефть»)",
+   "place": "Рязань",
+   "kind": "oil",
+   "territory": "russia",
+   "lat": 54.627,
+   "lng": 39.692,
+   "approx": true,
+   "result": "за ASTRA (через Укрінформ) — горить НПЗ, «ймовірно» пожежа на складі Wildberries; губернатор Павло Малков підтвердив масовану атаку, пожежі на промислових об’єктах і відключення світла, не назвавши НПЗ; офіційного підтвердження немає",
+   "confirmed": null,
+   "local": "partial",
+   "issue": "2026-11-06",
+   "item": "ryazan-0511",
+   "url": "https://www.ukrinform.ua/rubric-world/4181633-razan-masovano-atakuvali-droni-gorat-odin-z-najbilsih-npz-u-rosii-ta-sklad-wildberries.html"
+  },
+  {
+   "id": "afipsky-0611",
+   "date": "2026-11-06",
+   "night": "5–6.11",
+   "object": "Афіпський НПЗ",
+   "place": "Афіпський, Краснодарський край",
+   "kind": "oil",
+   "territory": "russia",
+   "lat": 44.9,
+   "lng": 38.833,
+   "approx": true,
+   "result": "за ASTRA (через Укрінформ) — горить резервуарний парк; оперативний штаб Кубані підтвердив пожежу на підприємстві «через падіння уламків БпЛА», не назвавши НПЗ; офіційного підтвердження немає",
+   "confirmed": null,
+   "local": "partial",
+   "issue": "2026-11-06",
+   "item": "afipsky-0611",
+   "url": "https://www.ukrinform.ua/rubric-world/4181988-afipskij-npz-u-krasnodarskomu-krai-atakuvali-droni-vinikla-pozeza-zmi.html"
+  },
+  {
+   "id": "genstab-crimea-melitopol-0411",
+   "date": "2026-11-04",
+   "night": "4–5.11",
+   "object": "Склад ударних БпЛА",
+   "place": "Мелітополь, Запорізька область",
+   "kind": "military",
+   "territory": "occupied",
+   "lat": 46.849,
+   "lng": 35.365,
+   "approx": true,
+   "result": "за Генштабом — уражено склад дронів у Мелітополі, а також місце зберігання, підготовки й пуску ударних БпЛА в Криму, склади, мобільну вогневу групу й ремонтні підрозділи на Донеччині й Луганщині; наслідки не деталізовано",
+   "confirmed": {
+    "by": "Генштаб ЗСУ",
+    "when": "5.11.2026, 12:43"
+   },
+   "local": "silent",
+   "issue": "2026-11-06",
+   "item": "genstab-crimea-melitopol-0411",
+   "url": "https://www.ukrinform.ua/rubric-ato/4181712-sili-oboroni-urazili-misce-pusku-udarnih-bpla-ta-skladi-armii-rf-genstab.html"
   }
  ],
  "coverage": {
