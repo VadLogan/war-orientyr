@@ -11845,6 +11845,45 @@
    "issue": "2026-11-06",
    "item": "genstab-crimea-melitopol-0411",
    "url": "https://www.ukrinform.ua/rubric-ato/4181712-sili-oboroni-urazili-misce-pusku-udarnih-bpla-ta-skladi-armii-rf-genstab.html"
+  },
+  {
+   "id": "ammo-melitopol-0506",
+   "date": "2026-11-06",
+   "night": "5–6.11",
+   "object": "Склади боєприпасів",
+   "place": "Мелітополь, Запорізька область",
+   "kind": "military",
+   "territory": "occupied",
+   "lat": 46.8489,
+   "lng": 35.365,
+   "approx": true,
+   "result": "за Генштабом — уражено два склади боєприпасів біля Мелітополя та Хліборобного, а також пункт управління дронами біля Часового Яру та склад пального біля Луганського; деталей збитків немає",
+   "confirmed": {
+    "by": "Генштаб ЗСУ",
+    "when": "6.11.2026, 13:17"
+   },
+   "local": "silent",
+   "issue": "2026-11-07",
+   "item": "ammo-melitopol-0506",
+   "url": "https://kyivindependent.com/ukraine-strikes-2-russian-ammunition-depots-other-military-targets-in-occupied-territories-general-staff-says/"
+  },
+  {
+   "id": "saratov-rostov-oryol-0711",
+   "date": "2026-11-07",
+   "night": "6–7.11",
+   "object": "Саратовський НПЗ",
+   "place": "Саратов",
+   "kind": "oil",
+   "territory": "russia",
+   "lat": 51.5336,
+   "lng": 46.0343,
+   "approx": true,
+   "result": "моніторингові канали (переважно Exilenova Plus) — пожежа на Саратовському НПЗ, а також велика пожежа біля заводу «Алмаз» у Ростові та удар по заводу «Протон» в Орлі; «місцеві канали» називають ракети «Фламінго»; Kyiv Independent перевірити не зміг; офіційного підтвердження немає",
+   "confirmed": null,
+   "local": "silent",
+   "issue": "2026-11-07",
+   "item": "saratov-rostov-oryol-0711",
+   "url": "https://kyivindependent.com/ukraine-strikes-saratov-oil-refinery-in-mass-attack-on-several-regions-reports-say/"
   }
  ],
  "coverage": {
