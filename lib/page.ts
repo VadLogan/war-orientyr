@@ -30,6 +30,9 @@ const DASH_DESC: Record<Lang, string> = {
 };
 const viewDesc = (lang: Lang, view: "dashboard" | "maps" | "strikes") => view === "dashboard" ? DASH_DESC[lang] : UI[lang].nw[view].p;
 
+/** The maps pages share that day's front map (app/og/maps), the rest the site image. */
+export const mapsImg = (view: View, date: string) => view === "maps" ? `/og/maps/${date}.png` : undefined;
+
 export async function pageMeta(lang: Lang, view: Exclude<View, "articles">, params: DateParams): Promise<Metadata> {
   const { D } = await resolve(params, lang);
   // German: the dashboard, maps and strikes always; a digest only with German text — otherwise it is the English page, canonical included
@@ -40,14 +43,14 @@ export async function pageMeta(lang: Lang, view: Exclude<View, "articles">, para
   if (root) {
     // "/" and "/dashboard" change daily: generic title/description, so a search result doesn't promise a past issue's story.
     const title = view === "digest" ? SITE_NAME[lang] : UI[lang][view === "dashboard" ? "dash" : view];
-    meta = seoMeta(lang, (l) => href(l, view, null, ""), title, clip(view === "digest" ? SITE_DESC[lang] : viewDesc(lang, view), 160), undefined, de, "website");
+    meta = seoMeta(lang, (l) => href(l, view, null, ""), title, clip(view === "digest" ? SITE_DESC[lang] : viewDesc(lang, view), 160), mapsImg(view, D.date), de, "website");
     if (view === "digest") meta.title = { absolute: title };
   } else {
     // digest: the issue's headline (old issues have none → date); dashboard: date. Site name added by the layout template.
     const title = view === "digest" && D.headline?.title ? clip(D.headline.title, 60) : dateTitle(D, lang).h + (view === "digest" ? "" : " · " + UI[lang][view === "dashboard" ? "dash" : view]);
     // digest: the headline's text (else the lede); the other views: the date + what the view shows, so the four URLs of a day differ
     const description = clip(view === "digest" ? (D.headline?.title ? D.headline.text : D.lede) || D.lede || "" : dateTitle(D, lang).h + ". " + viewDesc(lang, view), 160);
-    meta = seoMeta(lang, (l) => href(l, view, D.date, ""), title, description, undefined, de); // always the dated URL, the latest issue too
+    meta = seoMeta(lang, (l) => href(l, view, D.date, ""), title, description, mapsImg(view, D.date), de); // always the dated URL, the latest issue too
   }
   return {
     ...meta,
@@ -60,7 +63,7 @@ export async function pageMeta(lang: Lang, view: Exclude<View, "articles">, para
 /** metadataBase, canonical + hreflang (x-default = the Ukrainian URL, which redirects by Accept-Language), Open Graph, Twitter.
  *  `de`: the page has a German version (hreflang de). `type`: og:type — "website" for a listing. */
 export function seoMeta(lang: Lang, url: (l: Lang) => string, title: string, description: string, image = "/og.png", de = false, type: "article" | "website" = "article"): Metadata {
-  const images = [image === "/og.png" ? { url: image, width: 1200, height: 630, alt: SITE_NAME[lang] } : { url: image }];
+  const images = [image === "/og.png" || image.startsWith("/og/") ? { url: image, width: 1200, height: 630, alt: SITE_NAME[lang] } : { url: image }];
   return {
     metadataBase: new URL(SITE),
     title,

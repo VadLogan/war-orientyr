@@ -1,8 +1,10 @@
 // Server component: a whole Dashboard page; the charts are a client tree fed with trimmed server data.
 import type { Digest } from "@/types/digest";
 import { dirOrder, TL } from "@/lib/text";
-import { getMapsUrl, getSourceMatrix, SHOW_SOURCE_MATRIX } from "@/lib/data";
-import { resolve, type DateParams } from "@/lib/page";
+import { getMaps, getMapsUrl, getSourceMatrix, SHOW_SOURCE_MATRIX } from "@/lib/data";
+import { mapsImg, resolve, type DateParams } from "@/lib/page";
+import { href, SITE, SITE_NAME } from "@/lib/routes";
+import Ld from "../Ld";
 import { UI, type UIStrings } from "@/lib/ui";
 import type { DashIssue, DashLang } from "../ctx";
 import Shell from "../Shell";
@@ -11,6 +13,20 @@ import DashProvider from "./DashProvider";
 import MapsCard from "./MapsCard";
 import StrikesCard from "./StrikesCard";
 import StrikesSeo from "./StrikesSeo";
+import type { MapsData } from "./Panels";
+
+/** /maps as a schema.org Dataset: the day's map snapshot, its three sources and the area it covers. */
+async function mapsLd(lang: DashLang, date: string, url: string) {
+  const M = await getMaps<MapsData>(url, lang);
+  const org = { "@type": "Organization", name: SITE_NAME[lang], url: SITE };
+  return {
+    "@context": "https://schema.org", "@type": "Dataset", name: `${UI[lang].nw.maps.t} · ${date.split("-").reverse().join(".")}`,
+    description: UI[lang].nw.maps.p, url: SITE + href(lang, "maps", date, ""), inLanguage: lang, temporalCoverage: date, dateModified: date,
+    image: SITE + mapsImg("maps", date), creator: org, publisher: org, isAccessibleForFree: true,
+    isBasedOn: Object.values(M.sources).map((s) => s.url), spatialCoverage: { "@type": "Place", name: { uk: "Україна", en: "Ukraine", de: "Ukraine" }[lang], geo: { "@type": "GeoShape", box: "44.3 22.1 52.4 40.3" } },
+    distribution: { "@type": "DataDownload", encodingFormat: "application/json", contentUrl: SITE + url },
+  };
+}
 
 /** The dashboard only needs these fields; full issues stay on the server. */
 const slim = (d: Digest): DashIssue => ({
@@ -27,6 +43,7 @@ export default async function DashPage({ lang, params, view = "dashboard" }: { l
   const maps = view !== "dashboard";
   return (
     <div className="shell">
+      {view === "maps" && <Ld ld={await mapsLd(lang, D.date, MAPS)} />}
       <Shell lang={lang} t={t} view={view} date={D.date} latest={latest.date} dates={dates} />
       <Mast D={D} lang={lang} dashboard />
       <main id="main"><div className="view">
