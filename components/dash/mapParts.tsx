@@ -5,6 +5,7 @@ import { geoMercator, geoPath, zoomIdentity, type GeoPermissibleObjects, type Ge
 import type { UIStrings } from "@/lib/ui";
 import { dayN } from "@/lib/text";
 import { kmBetween } from "@/lib/strikes";
+import { inRings } from "@/lib/geo";
 import { flags } from "@/components/Flag";
 import type { MapsData } from "./Panels";
 
@@ -106,6 +107,16 @@ export function lineChanges(a: MapsData, b: MapsData): [number, number][][] {
     if (g) g.push([lng, lat]); else out.push([[lng, lat]]);
   }
   return out.sort((x, y) => y.length - x.length);
+}
+/** lineChanges from `a` (older) to `b`, each with who moved: a vertex only `b` has that lies outside `a`'s area, or one only
+ *  `a` had that now lies inside `b`'s, is russia moving forward; the cluster takes the majority. `ll` = its centre. */
+export function lineDiff(a: MapsData, b: MapsData) {
+  const A = a.layers.ds_occ || [], B = b.layers.ds_occ || [], inB = new Set(B.flat(2).map((p) => p[0] + "," + p[1]));
+  return lineChanges(a, b).map((pts) => {
+    const ru = pts.filter((p) => (inB.has(p[0] + "," + p[1]) ? !inRings(A, p) : inRings(B, p))).length * 2 >= pts.length;
+    const ll: [number, number] = [pts.reduce((s, p) => s + p[0], 0) / pts.length, pts.reduce((s, p) => s + p[1], 0) / pts.length];
+    return { pts, ll, ru };
+  });
 }
 export const lastDay = (M: MapsData) => Math.max(...M.events.map((e) => dayN(e.d)));
 /** Projection fitted to Ukraine in a W×H box, with a path builder for MultiPolygon rings. */

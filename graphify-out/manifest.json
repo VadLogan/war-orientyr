@@ -204,9 +204,9 @@
     "semantic_hash": ""
   },
   "components/dash/Maps.tsx": {
-    "mtime": 1793632551.8378897,
-    "seen": 1793696373.376703,
-    "ast_hash": "25f5a7b2c862d5e0680a3f7b94a4dfb2",
+    "mtime": 1794158028.4836438,
+    "seen": 1794158258.116256,
+    "ast_hash": "b4badc9bb21e43643a36045b95619b5c",
     "semantic_hash": ""
   },
   "components/dash/Panels.tsx": {
@@ -306,9 +306,9 @@
     "semantic_hash": ""
   },
   "lib/ui.ts": {
-    "mtime": 1793697127.2183046,
-    "seen": 1793697790.771059,
-    "ast_hash": "a87ab85c55329c15c55014b2876dafa9",
+    "mtime": 1794158159.211031,
+    "seen": 1794158258.116628,
+    "ast_hash": "1365d296807206fcec1bee28b48cb4c5",
     "semantic_hash": ""
   },
   "proxy.ts": {
@@ -348,9 +348,9 @@
     "semantic_hash": ""
   },
   "CLAUDE.md": {
-    "mtime": 1793697185.0864885,
-    "seen": 1793697790.771317,
-    "ast_hash": "dfa2e72cb5885dc1bc5be6b54f084e37",
+    "mtime": 1794158246.2068741,
+    "seen": 1794158258.1169658,
+    "ast_hash": "64e8703c5597a396289b10b0b2becb93",
     "semantic_hash": ""
   },
   "app/apple-icon.png": {
@@ -834,9 +834,9 @@
     "semantic_hash": ""
   },
   "i18n/de.json": {
-    "mtime": 1793694491.0527623,
-    "seen": 1793696373.3768861,
-    "ast_hash": "19e58861b7515a5e1942e279e8ddc3ad",
+    "mtime": 1794129115.4347415,
+    "seen": 1794157348.7132869,
+    "ast_hash": "b60099c1eec7793e8027d0b3093df679",
     "semantic_hash": ""
   },
   "public/articles/2026-10-21/operation-vivaldi/cover-map.jpg": {
@@ -930,9 +930,9 @@
     "semantic_hash": ""
   },
   "components/dash/mapParts.tsx": {
-    "mtime": 1793632552.03716,
-    "seen": 1793696373.376805,
-    "ast_hash": "7ece04f8e7f46f6d3de5e39033a736ef",
+    "mtime": 1794157782.152713,
+    "seen": 1794158258.116404,
+    "ast_hash": "23c0282601579abef6aca42c9a36643e",
     "semantic_hash": ""
   },
   "components/dash/strikeParts.tsx": {
@@ -1143,6 +1143,12 @@
     "mtime": 1793702899.6479807,
     "seen": 1793703005.246891,
     "ast_hash": "9a631e9b55c63bd09841cca2374e24c4",
+    "semantic_hash": ""
+  },
+  "lib/geo.ts": {
+    "mtime": 1794157714.795216,
+    "seen": 1794158258.1165261,
+    "ast_hash": "c41c16cec1042c6d0e84d0b5c5542bac",
     "semantic_hash": ""
   }
 }

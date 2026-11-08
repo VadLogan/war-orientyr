@@ -8,8 +8,9 @@ import { useApp } from "../ctx";
 import { LOCK } from "../digest/Item";
 import { fetchJson, useElWidth, useJson, useSticky } from "./hooks";
 import type { MapsData } from "./Panels";
-import { DIRS, dirOf, areaTiles, Cities, countV, fitFront, lastDay, Layers, lineChanges, makeGeo, Mark, MarkIco, mp, PAIR_SRC, Sw, SRC_COL, Tiles, VerdictBar, VG, vgOf, type Ev, type Geo, type Rings } from "./mapParts";
+import { DIRS, dirOf, areaTiles, Cities, countV, fitFront, lastDay, Layers, lineChanges, lineDiff, makeGeo, Mark, MarkIco, mp, PAIR_SRC, Sw, SRC_COL, Tiles, VerdictBar, VG, vgOf, type Ev, type Geo, type Rings } from "./mapParts";
 import { flags } from "@/components/Flag";
+import { toArea, type LL } from "@/lib/geo";
 import { href } from "@/lib/routes";
 import { byPlace, GCOL, GRPS, grpOf, placeKey, STK_CITIES, StkIco, StkMark, type Grp } from "./strikeParts";
 
@@ -19,19 +20,28 @@ function useZoom(key: string, ready: boolean, ext: [number, number], tExt: [[num
   const svgRef = useRef<SVGSVGElement>(null);
   const zb = useRef<ZoomBehavior<SVGSVGElement, unknown> | null>(null);
   const [t, setT] = useSticky<ZoomTransform>(key, zoomIdentity);
+  const [hint, setHint] = useState(false);
   const tx = JSON.stringify(tExt);
   useEffect(() => {
     const svg = svgRef.current;
     if (!svg) return;
-    const z = zoom<SVGSVGElement, unknown>().scaleExtent(ext).translateExtent(tExt).on("zoom", (ev) => setT(ev.transform));
+    // the wheel zooms only with Ctrl/⌘ (a trackpad pinch sends Ctrl) or in full screen, so the page scrolls past the map
+    const free = (e: WheelEvent) => e.ctrlKey || e.metaKey || !!svg.closest(".mp-grid.fs");
+    const z = zoom<SVGSVGElement, unknown>().scaleExtent(ext).translateExtent(tExt).on("zoom", (ev) => setT(ev.transform))
+      .filter((e) => (e.type === "wheel" ? free(e) : !e.ctrlKey && !e.button))
+      // ponytail: a pinch sends small Ctrl deltas, a Ctrl+mouse-wheel notch ~100: only the pinch gets d3's ×10
+      .wheelDelta((e) => -e.deltaY * (e.deltaMode === 1 ? 0.05 : e.deltaMode ? 1 : 0.002) * (e.ctrlKey && Math.abs(e.deltaY) < 50 ? 10 : 1));
     zb.current = z;
     select(svg).call(z).call(z.transform, t);
-    return () => { select(svg).on(".zoom", null); };
+    let tm = 0;
+    const onWheel = (e: WheelEvent) => { if (free(e)) return; setHint(true); clearTimeout(tm); tm = window.setTimeout(() => setHint(false), 1400); };
+    svg.addEventListener("wheel", onWheel, { passive: true });
+    return () => { select(svg).on(".zoom", null); svg.removeEventListener("wheel", onWheel); clearTimeout(tm); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tx, ready]);
   const sel = () => select(svgRef.current!);
   return {
-    svgRef, t,
+    svgRef, t, hint,
     by: (k: number, ms = 250) => sel().transition().duration(ms).call(zb.current!.scaleBy, k),
     to: (tr: ZoomTransform, ms = 300) => (ms ? sel().transition().duration(ms).call(zb.current!.transform, tr) : sel().call(zb.current!.transform, tr)),
     pan: (x: number, y: number) => sel().call(zb.current!.translateBy, x, y),
@@ -230,6 +240,20 @@ export function MapsCompare() {
   const wkEnd = snap ? dayN(snap) : 0;
   const prevSnap = snap ? snaps.filter((d) => dayN(d) <= wkEnd - 7).at(-1) ?? null : null;
   const PM = useJson<MapsData>(prevSnap ? `/maps/archive/${prevSnap}.json` : null).data;
+  // changes of DeepState's line against the snapshot `chg` days earlier: red/blue patches, the old line dashed, rings
+  const [chg, setChg] = useSticky("mapChg", 7);
+  const ago = (n: number) => (snap ? snaps.filter((d) => dayN(d) <= wkEnd - n).at(-1) ?? null : null);
+  const mSnap = ago(30), MM = useJson<MapsData>(mSnap ? `/maps/archive/${mSnap}.json` : null).data;
+  const oSnap = chg === 30 ? mSnap : chg ? prevSnap : null, OM = chg === 30 ? MM : chg ? PM : null;
+  const diffs = useMemo(() => (M && OM && OM !== M ? lineDiff(OM, M) : []), [M, OM]);
+  // distance to the occupied territory: every city now, a week and a month before; `pin` = a city or a clicked point
+  const [pin, setPin] = useState<{ ll: LL; n?: string } | null>(null);
+  const [distAll, setDistAll] = useState(false);
+  const dist = useMemo(() => !M?.layers.ds_occ ? [] : M.cities.map((c) => {
+    const ll: LL = [c.lng, c.lat], now = toArea(M.layers.ds_occ, ll);
+    return { c, ll, now, w: PM ? toArea(PM.layers.ds_occ, ll).km : null, m: MM ? toArea(MM.layers.ds_occ, ll).km : null };
+  }).filter((x) => x.now.km > 0).sort((a, b) => a.now.km - b.now.km), [M, PM, MM]);
+  const pinD = pin && M?.layers.ds_occ ? toArea(M.layers.ds_occ, pin.ll) : null;
   const [play, setPlay] = useState(false);
   const [tour, setTour] = useState(false); // started and not stopped (a paused tour still hides the direction labels)
   // the tour's stops: every change of DeepState's line between neighbouring snapshots (up to 4 per pair); `at` = the one in view
@@ -257,6 +281,7 @@ export function MapsCompare() {
   const z = useZoom("mapZ", !!M, [1, 40], [[-W * 0.2, -H * 0.2], [W * 1.2, H * 1.2]]);
   const geo = useMapGeo(M, W, H);
   const F = (n: number) => fmt(Math.round(n), lang);
+  const km1 = (n: number) => fmt(Math.round(n * 10) / 10, lang);
   const sk = { ds: "deepstate", isw: "isw", dg: "divgen" } as const;
   const SegBtn = <T extends string | number>(k: T, l: string, cur: T, set: (v: T) => void) => <button type="button" key={k} aria-pressed={cur === k} onClick={() => set(k)}>{l}</button>;
 
@@ -414,6 +439,10 @@ export function MapsCompare() {
       legend.push(<Sw key="e" c="--m-onlyds" l={t.lg.onlyB(t.src[b as "ds"])} />);
     }
     if (dse) (["ru", "ua", "fix"] as const).filter((x) => M.dsEvents?.some((e) => e.k === x)).forEach((x) => legend.push(<span key={"ds" + x}><DsIco k={x} />{t.dsK[x]}</span>));
+    if (OM && oSnap && !tour) {
+      const d0 = dmy(oSnap).slice(0, 5);
+      legend.push(<Sw key="cg" c="--m-occ" l={t.chgGain(d0)} />, <Sw key="cl" c="--m-onlyds" l={t.chgLoss(d0)} />, <span key="co"><i className="dash" />{t.chgOld(d0)}</span>);
+    }
   }
   const onKey = (e: KeyboardEvent) => {
     const st = 60 / z.t.k;
@@ -463,6 +492,7 @@ export function MapsCompare() {
   const preset = (id: string) => {
     const p = PRESETS.find((x) => x.id === id)!;
     setMode(p.mode); if (p.pair) setPair(p.pair); setEv(p.ev); setDse(p.dse); setPer(p.per); setOff(0); setVf(ALL_V); pickDir(null);
+    if (id === "new" && !chg) setChg(7);
   };
   const wk = dsOnce(M?.dsEvents || [], (e) => dsUpd(e) + e.k).filter((e) => { const n = dayN(e.d); return n > wkEnd - 7 && n <= wkEnd; });
   const wkN = (x: string) => wk.filter((e) => e.k === x).length, wkEarly = wk.filter((e) => e.ru && e.ru.lag > 0).length;
@@ -497,6 +527,7 @@ export function MapsCompare() {
     if (/^\d{4}-\d{2}-\d{2}$/.test(g("s"))) setSnap(g("s"));
     if (h.has("e")) setEv(g("e") !== "0");
     if (h.has("a")) setDse(g("a") !== "0");
+    if (h.has("g") && [0, 7, 30].includes(+g("g"))) setChg(+g("g"));
     pendC.current = g("c") || null;
     hashRead.current = true;
     if (!railInit && innerWidth <= 860) setRail(false); // phones: the map first, filters behind the button
@@ -521,12 +552,33 @@ export function MapsCompare() {
     if (dir) h.set("d", dir);
     if (!ev) h.set("e", "0");
     if (!dse) h.set("a", "0");
+    if (chg !== 7) h.set("g", String(chg));
     if (snap && snap !== pageSnap) h.set("s", snap);
     if (selOn) h.set("c", String(selOn.id));
     const s = h.toString();
     history.replaceState(history.state, "", s ? "#" + s : location.pathname + location.search);
     setCopied(false);
-  }, [mode, pair, per, o, dir, ev, dse, snap, pageSnap, selOn]);
+  }, [mode, pair, per, o, dir, ev, dse, chg, snap, pageSnap, selOn]);
+  /** A click on the map (not on a marker or label) measures from there to the occupied territory. */
+  const mapClick = (e: React.MouseEvent<SVGSVGElement>) => {
+    if (tour || !geo || (e.target as Element).closest(".evs, .mp-dlab, .mp-chgs, .mp-pin")) return;
+    const r = e.currentTarget.getBoundingClientRect(), px = ((e.clientX - r.left) * W) / r.width, py = ((e.clientY - r.top) * H) / r.height;
+    const ll = geo.proj.invert!([(px - z.t.x) / z.t.k, (py - z.t.y) / z.t.k]);
+    if (ll) setPin({ ll: ll as LL });
+  };
+  const showPin = (x: (typeof dist)[number]) => {
+    setPin({ ll: x.ll, n: x.c.n }); frame([x.ll, x.now.at]);
+    wrapRef.current?.scrollIntoView({ block: "center", behavior: "smooth" });
+  };
+  const pinName = pin && M ? pin.n ?? (() => {
+    const c = M.cities.map((x) => [x, kmBetween(x, { lng: pin.ll[0], lat: pin.ll[1] })] as const).sort((a, b) => a[1] - b[1])[0];
+    return c && c[1] < 60 ? t.distNear(c[0].n, km1(c[1])) : t.distPin;
+  })() : "";
+  const dd = (now: number, then: number | null) => {
+    if (then == null) return <>—</>;
+    const d = now - then;
+    return Math.abs(d) < 0.05 ? <>—</> : <span className={d < 0 ? "closer" : "farther"} title={d < 0 ? t.distCloser : t.distFarther}>{(d < 0 ? "−" : "+") + km1(Math.abs(d))}</span>;
+  };
   const copyLink = () => navigator.clipboard?.writeText(location.href).then(() => setCopied(true), () => {});
   const k = z.t.k;
   const evTip = (e: Ev) => () => <>
@@ -571,6 +623,11 @@ export function MapsCompare() {
               <select value={pair} onChange={(e) => setPair(e.target.value)}>{(["dg_ds", "dg_isw", "isw_ds"] as const).map((p) => <option key={p} value={p}>{t.pairs[p]}</option>)}</select>
             </label>}
           </fieldset>
+          {snaps.length > 1 && <fieldset>
+            <legend>{t.chgH}</legend>
+            <div className="seg" role="group" aria-label={t.chgH}>{SegBtn(0, t.chgOff, chg, setChg)}{SegBtn(7, t.mpDays(7), chg, setChg)}{SegBtn(30, t.mpDays(30), chg, setChg)}</div>
+            {OM && oSnap && <p className="mp-note">{diffs.length ? t.chgCnt(diffs.filter((c) => c.ru).length, diffs.filter((c) => !c.ru).length, dmy(oSnap)) : t.chgNone(dmy(oSnap))}</p>}
+          </fieldset>}
           <fieldset>
             <legend><label className="mp-chk"><input type="checkbox" checked={ev} onChange={() => setEv(!ev)} />{t.mpClaims}</label></legend>
             <div className="mp-sub">{t.mpPer}</div>
@@ -626,14 +683,14 @@ export function MapsCompare() {
         <div className="mp-main">
           <div className="mp-bar-top">
             <RailBtn on={rail} set={(v) => { refit.current = true; setRail(v); }} label={t.mpFilters} />
-            <div className="map-legend">{legend}</div>
+            {fs && <div className="map-legend">{legend}</div>}
             <BaseSeg bm={bm} set={setBm} label={t.mBase} />
             {M && ev && <span className="map-src">{t.mpShown(shown.length, inPer.length)}</span>}
             <button type="button" className="linkbtn mp-copy" onClick={copyLink}>{copied ? "✓ " + t.mpCopied : "🔗 " + t.mpCopy}</button>
           </div>
           <div className="map-wrap" ref={wrapRef}>
             {err ? <p className="map-src" style={{ padding: 16 }}>{t.mErr}</p> : !M || !geo ? <p className="map-src" style={{ padding: 16 }}>{t.mLoading}</p> : <>
-              <svg className={"map-svg bm-" + bm} viewBox={`0 0 ${W} ${H}`} tabIndex={0} role="img" aria-label={t.map} ref={z.svgRef} onKeyDown={onKey}>
+              <svg className={"map-svg bm-" + bm} viewBox={`0 0 ${W} ${H}`} tabIndex={0} role="img" aria-label={t.map} ref={z.svgRef} onKeyDown={onKey} onClick={mapClick}>
                 {BASEMAPS[bm] && <Tiles256 id={bm} proj={geo.proj} t={z.t} W={W} H={H} />}
                 <g transform={z.t.toString()}>
                   <Layers M={M} geo={geo} mode={mode} pair={pair} plain={bm === "s"} />
@@ -648,21 +705,74 @@ export function MapsCompare() {
                       dVis(DIRS[i].id) && <path key={DIRS[i].id} d={c} className={dir === DIRS[i].id ? "on" : undefined} style={{ fill: dcol(DIRS[i]), stroke: dcol(DIRS[i]), fillOpacity: !dir ? 0.32 : dir === DIRS[i].id ? 0.6 : 0.14 }} />
                     ))}</g>
                   </>}
+                  {OM?.layers.ds_occ && M.layers.ds_occ && !tour && <>
+                    {/* gained = today's area minus the old one, lost = the old minus today's, both as SVG masks; the cut-out
+                        gets a hairline stroke so the shared edges leave no seam */}
+                    {([["mp-gain", OM], ["mp-loss", M]] as const).map(([id, cut]) => (
+                      <mask key={id} id={id} maskUnits="userSpaceOnUse" x={-W} y={-H} width={W * 3} height={H * 3}>
+                        <rect x={-W} y={-H} width={W * 3} height={H * 3} fill="#fff" />
+                        <path d={geo.d(cut.layers.ds_occ)} fill="#000" stroke="#000" strokeWidth={1.5 / k} fillRule="evenodd" />
+                      </mask>
+                    ))}
+                    <path className="mp-chg-gain" d={geo.d(M.layers.ds_occ)} mask="url(#mp-gain)" fillRule="evenodd" />
+                    <path className="mp-chg-loss" d={geo.d(OM.layers.ds_occ)} mask="url(#mp-loss)" fillRule="evenodd" />
+                    <path className="mp-chg-old" d={geo.d(OM.layers.ds_occ)} fillRule="evenodd" />
+                  </>}
                   <Cities M={M} geo={geo} k={k} hidden={bm === "t"} />
-                  {(ev || sect) && !tour && <g className="mp-dlab">{dirShown.filter((d) => !sect || dVis(d.id)).map((d, i) => {
-                    // labels east of the front, alternately above and below the anchor, so neighbours don't overlap
-                    const [x, y] = geo.proj([d.lng, d.lat])!, on = dir === d.id, l = d[lang], dy = i % 2 ? 16 : -16, g = gsOf(d), lw = l.length * 5.9 + 24 + (g != null ? String(g).length * 7 + 8 : 0), c = dcol(d);
-                    return (
-                      <g key={d.id} transform={`translate(${x},${y}) scale(${1 / k})`} className={on ? "on" : undefined} onClick={() => pickDir(on ? null : d.id)} role="button" tabIndex={0} aria-pressed={on} aria-label={`${t.mpDir}: ${l}`}
-                        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pickDir(on ? null : d.id); } }}>
-                        <line x1={0} y1={0} x2={22} y2={dy} />
-                        {on && <rect className="halo" x={19} y={dy - 13} width={lw + 6} height={26} rx={4} />}
-                        <rect x={22} y={dy - 10} width={lw} height={20} rx={2} style={{ stroke: c }} />
-                        <rect className="sw" x={26} y={dy - 5} width={10} height={10} rx={2} style={{ fill: c }} />
-                        <text x={40} y={dy + 4}>{l}{g != null && <tspan className="n" dx={6}>{g}</tspan>}</text>
-                      </g>
-                    );
+                  {(ev || sect) && !tour && <g className="mp-dlab">{(() => {
+                    // labels in screen px: right of the anchor unless that runs under the zoom buttons, then left, else (narrow
+                    // map) slid inside the map above the anchor; top to bottom each moves below any label it would overlap, then
+                    // from the bottom edge up so none hangs off the map; a leader line back to the anchor
+                    const R = W - 56;
+                    const ls = dirShown.filter((d) => !sect || dVis(d.id)).map((d) => {
+                      const [x, y] = geo.proj([d.lng, d.lat])!, g = gsOf(d), l = d[lang], sx = x * k + z.t.x, sy = y * k + z.t.y;
+                      return { d, x, y, g, l, sx, sy, lw: l.length * 5.9 + 24 + (g != null ? String(g).length * 7 + 8 : 0), vis: sx >= 0 && sx <= W && sy >= 0 && sy <= H, x0: 0, ty: 0 };
+                    }).sort((a, b) => a.sy - b.sy);
+                    const hit = (a: (typeof ls)[number], b: (typeof ls)[number]) => a.x0 < b.x0 + b.lw && b.x0 < a.x0 + a.lw;
+                    ls.forEach((b, i) => {
+                      const fit = b.sx + 22 + b.lw <= R ? b.sx + 22 : b.sx - 22 - b.lw >= 0 || !b.vis ? b.sx - 22 - b.lw : null;
+                      b.x0 = fit ?? Math.max(4, Math.min(R - b.lw, b.sx - b.lw / 2));
+                      b.ty = fit == null ? b.sy - 34 : b.sy - 10;
+                      for (let moved = true; moved;) {
+                        moved = false;
+                        for (const p of ls.slice(0, i)) if (hit(b, p) && b.ty < p.ty + 22 && p.ty < b.ty + 22) { b.ty = p.ty + 22; moved = true; }
+                      }
+                    });
+                    for (let i = ls.length - 1; i >= 0; i--) {
+                      const b = ls[i];
+                      if (b.vis) b.ty = Math.min(b.ty, H - 42, ...ls.slice(i + 1).filter((p) => hit(b, p)).map((p) => p.ty - 22));
+                    }
+                    return ls.map(({ d, x, y, g, l, sx, sy, lw, x0, ty }) => {
+                      const on = dir === d.id, c = dcol(d), dy = ty + 10 - sy, lx = x0 - sx;
+                      // the line meets the label's near side; a label slid over its anchor, its top or bottom edge
+                      const side = lx > 0 ? lx : lx + lw < 0 ? lx + lw : null;
+                      return (
+                        <g key={d.id} transform={`translate(${x},${y}) scale(${1 / k})`} className={on ? "on" : undefined} onClick={() => pickDir(on ? null : d.id)} role="button" tabIndex={0} aria-pressed={on} aria-label={`${t.mpDir}: ${l}`}
+                          onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pickDir(on ? null : d.id); } }}>
+                          <line x1={0} y1={0} x2={side ?? Math.max(lx, Math.min(lx + lw, 0))} y2={side != null ? dy : dy + (dy < 0 ? 10 : -10)} />
+                          {on && <rect className="halo" x={lx - 3} y={dy - 13} width={lw + 6} height={26} rx={4} />}
+                          <rect x={lx} y={dy - 10} width={lw} height={20} rx={2} style={{ stroke: c }} />
+                          <rect className="sw" x={lx + 4} y={dy - 5} width={10} height={10} rx={2} style={{ fill: c }} />
+                          <text x={lx + 18} y={dy + 4}>{l}{g != null && <tspan className="n" dx={6}>{g}</tspan>}</text>
+                        </g>
+                      );
+                    });
+                  })()}</g>}
+                  {OM && oSnap && !tour && <g className="mp-chgs">{diffs.map((c, i) => {
+                    const [x, y] = geo.proj(c.ll)!;
+                    return <g key={i} className={c.ru ? "ru" : "ua"} transform={`translate(${x},${y}) scale(${1 / k})`} onClick={() => fly(c.pts, 900)}
+                      {...tipHandlers(setTip, () => t.chgTip(c.ru, dmy(oSnap).slice(0, 5), dmy(snap!).slice(0, 5)))}
+                      role="button" aria-label={t.chgTip(c.ru, dmy(oSnap).slice(0, 5), dmy(snap!).slice(0, 5))}
+                      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fly(c.pts, 900); } }}><circle className="h" r={12} /><circle r={12} /></g>;
                   })}</g>}
+                  {pin && pinD && (() => {
+                    const [x, y] = geo.proj(pin.ll)!, [ax, ay] = geo.proj(pinD.at)!;
+                    return <g className="mp-pin" onClick={() => setPin(null)}>
+                      {pinD.km > 0 && <line x1={x} y1={y} x2={ax} y2={ay} />}
+                      {pinD.km > 0 && <circle className="at" cx={ax} cy={ay} r={3 / k} />}
+                      <g transform={`translate(${x},${y}) scale(${1 / k})`}><circle r={6} /><text x={10} y={4}>{pinD.km > 0 ? km1(pinD.km) + " " + t.distKm : t.distOcc}</text></g>
+                    </g>;
+                  })()}
                   {!tour && <g className="evs">{[...shown].sort((a, b) => +(a === selOn || a.id === hl) - +(b === selOn || b.id === hl)).map((e) => {
                     const [x, y] = geo.proj([e.lng, e.lat])!;
                     return <g key={e.id + "" + e.d} transform={`translate(${x},${y}) scale(${1 / k})`} style={{ cursor: "pointer" }} onClick={() => setSel(e)} {...tipHandlers(setTip, evTip(e))}><Mark g={vgOf(e[ref])} hl={e === selOn || e.id === hl} /></g>;
@@ -760,8 +870,11 @@ export function MapsCompare() {
               {play && snap && <div className="mp-playdate" aria-live="polite">{dmy(snap)}</div>}
               <Attr bm={bm} />
               <MapTip tip={tip} wrap={wrapRef} />
+              {z.hint && <div className="map-hint" aria-hidden="true">{t.mWheel}</div>}
             </>}
           </div>
+          {/* under the map, so on phones the map comes right after the filter button (full screen: in the top bar) */}
+          {!fs && <div className="map-legend">{legend}</div>}
           {M && <div className="mp-fc">
             <div className="mp-fc-h">
               <b>{t.fcH(dayStr(end - per + 1), dayStr(end))}{dir && <> · {DIRS.find((x) => x.id === dir)![lang]}</>}</b>
@@ -789,6 +902,27 @@ export function MapsCompare() {
                 <button type="button" className="linkbtn" onClick={() => showDs(x.ds!)}>{t.fcMap}</button>
               </li>
             ))}</ol> : <p className="map-src" style={{ padding: "12px 16px" }}>{t.mpNone}</p>}
+          </div>}
+          {M && dist.length > 0 && <div className="mp-list mp-dist">
+            <div className="mp-list-h"><b>{t.distH}</b></div>
+            <p className="mp-note">{t.distLede}</p>
+            {pin && pinD && <div className="mp-dist-pin" role="status">
+              <span>📍 {pinName}</span><b>{pinD.km > 0 ? `${km1(pinD.km)} ${t.distKm}` : t.distOcc}</b>
+              <button type="button" aria-label={t.art.close} title={t.art.close} onClick={() => setPin(null)}>×</button>
+            </div>}
+            <div className="mp-list-sc"><table>
+              <thead><tr><th>{t.distCity}</th><th className="num">{t.distNow}, {t.distKm}</th>{PM && <th className="num">{t.distAgo(7)}</th>}{MM && <th className="num">{t.distAgo(30)}</th>}</tr></thead>
+              <tbody>{(distAll ? dist : dist.slice(0, 8)).map((x) => (
+                <tr key={x.c.n} className={pin?.n === x.c.n ? "sel" : undefined}>
+                  <td><button type="button" className="linkbtn" title={t.distShow} onClick={() => showPin(x)}>{x.c.n}</button></td>
+                  <td className="num">{km1(x.now.km)}</td>
+                  {PM && <td className="num">{dd(x.now.km, x.w)}</td>}
+                  {MM && <td className="num">{dd(x.now.km, x.m)}</td>}
+                </tr>
+              ))}</tbody>
+            </table></div>
+            {dist.length > 8 && <button type="button" className="linkbtn mp-dist-more" onClick={() => setDistAll(!distAll)}>{distAll ? t.distFew : t.distAll(dist.length)}</button>}
+            <p className="map-src" style={{ padding: "8px 16px" }}>{t.distNote}</p>
           </div>}
           {M && ev && <VerdictBar t={t} head={t.mpBar(inPer.length, per, t.src[ref])} cnt={cnt} on={vf} pick={pickV} />}
           {M && ev && <div className="mp-list">
@@ -1073,6 +1207,7 @@ export function StrikesMap({ onReady }: { onReady?: () => void }) {
               </div>
               <Attr bm={bm} />
               <MapTip tip={tip} wrap={wrapRef} />
+              {z.hint && <div className="map-hint" aria-hidden="true">{TT.mWheel}</div>}
             </>}
           </div>
 

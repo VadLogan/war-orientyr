@@ -377,9 +377,12 @@ svg.mk{flex:none;overflow:visible;vertical-align:-2px}
 .stk-page .mp-grid.fs .mp-bar-top .stk-h3{display:none}
 .map-zoom button svg{display:block;margin:auto}
 @media(max-width:860px){.mp-grid.fs .mp-rail{display:none}.mp-grid.fs{padding:8px}}
-/* wide screens: the map section stays in view while the filter rail scrolls, so a filter change is seen at once;
-   taller than the window, it scrolls inside itself */
-@media(min-width:861px){.mp-grid:not(.fs) .mp-main{position:sticky;top:8px;max-height:calc(100dvh - 16px);overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain}.mp-grid:not(.fs) .mp-main>*{flex-shrink:0}}
+/* wide screens: the filter rail stays in view and scrolls inside itself, so with the map at the top a filter change is
+   seen at once, while the map column (tables, sources) scrolls with the page */
+@media(min-width:861px){.mp-grid:not(.fs) .mp-rail{position:sticky;top:8px;max-height:calc(100dvh - 16px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-gutter:stable;flex-basis:300px}}
+/* a plain wheel over the map scrolls the page; this shows how to zoom instead */
+.map-hint{position:absolute;inset:0;z-index:6;display:flex;align-items:center;justify-content:center;pointer-events:none;background:rgba(0,0,0,.5);color:#fff;text-shadow:0 1px 3px #000;font:600 15px var(--ui);text-align:center;padding:16px;animation:map-hint .15s ease-out}
+@keyframes map-hint{from{opacity:0}}
 .mp-bar-top{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 16px;align-items:baseline}
 /* /maps: presets, the week on the front, fact-check cards */
 .mp-pr{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:14px 0 10px;font-family:var(--ui)}
@@ -1047,3 +1050,27 @@ button.stile{cursor:pointer}button.stile:hover{outline:2px solid var(--ink);outl
   .al-row .al-img{aspect-ratio:1;grid-column:2;grid-row:1}
   .al-row h3{font-size:18px}
 }
+/* /maps: DeepState's line against a week or a month before — taken / retaken patches, the old line dashed, rings to find them */
+.mp-chg-gain{fill:var(--m-occ);fill-opacity:.9;pointer-events:none}
+.mp-chg-loss{fill:var(--m-onlyds);fill-opacity:.9;pointer-events:none}
+.mp-chg-old{fill:none;stroke:var(--ink);stroke-width:1.3;stroke-dasharray:4 3;vector-effect:non-scaling-stroke;opacity:.75;pointer-events:none}
+.mp-chgs g{cursor:pointer;outline:none}
+.mp-chgs circle{fill:transparent;stroke-width:3}.mp-chgs circle.h{stroke:var(--surface)!important;stroke-width:6}
+.mp-chgs .ru circle{stroke:var(--m-occ)}.mp-chgs .ua circle{stroke:var(--m-onlyds)}
+.mp-chgs g:hover circle:not(.h),.mp-chgs g:focus-visible circle:not(.h){stroke-width:4.5}
+.map-legend i.dash{height:0;border-top:2px dashed var(--ink);border-radius:0;vertical-align:3px;opacity:.75}
+/* distance to the occupied territory: a measured point on the map + the city table */
+.mp-pin{cursor:pointer}
+.mp-pin line{stroke:var(--ink);stroke-width:2.5;stroke-dasharray:7 4;vector-effect:non-scaling-stroke;filter:drop-shadow(0 0 1.5px var(--surface))}
+.mp-pin circle{fill:var(--accent);stroke:var(--surface);stroke-width:2;vector-effect:non-scaling-stroke}
+.mp-pin text{font:700 13px var(--ui);fill:var(--ink);paint-order:stroke;stroke:var(--surface);stroke-width:4px}
+.mp-dist>.mp-note{padding:10px 16px}
+.mp-dist table{min-width:0}.mp-dist .num{text-align:right;font-family:var(--mono);white-space:nowrap}
+.mp-dist .closer{color:var(--m-occ);font-weight:600}.mp-dist .farther{color:var(--m-onlyds);font-weight:600}
+.mp-dist tr.sel td{background:var(--accent-soft)}
+.mp-dist-pin{display:flex;align-items:center;gap:10px;margin:0 16px 10px;padding:8px 10px;border-left:3px solid var(--accent);background:var(--accent-soft);font-size:14px}
+.mp-dist-pin span{flex:1}.mp-dist-pin b{font-family:var(--mono)}
+.mp-dist-pin button{border:0;background:transparent;color:var(--ink);font-size:18px;min-width:32px;min-height:32px;cursor:pointer}
+.mp-dist-more{margin:8px 16px 0}
+.mp-dist th.num{font-family:inherit}
+@media(max-width:420px){.mp-dist :is(th,td){padding:7px 6px}.mp-dist :is(th,td):first-child{padding-left:12px}}
