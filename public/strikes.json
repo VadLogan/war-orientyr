@@ -11868,22 +11868,61 @@
    "url": "https://kyivindependent.com/ukraine-strikes-2-russian-ammunition-depots-other-military-targets-in-occupied-territories-general-staff-says/"
   },
   {
-   "id": "saratov-rostov-oryol-0711",
+   "id": "saratov-npz-0711",
    "date": "2026-11-07",
    "night": "6–7.11",
-   "object": "Саратовський НПЗ",
+   "object": "НПЗ «Роснефти»",
    "place": "Саратов",
    "kind": "oil",
    "territory": "russia",
    "lat": 51.5336,
    "lng": 46.0343,
    "approx": true,
-   "result": "моніторингові канали (переважно Exilenova Plus) — пожежа на Саратовському НПЗ, а також велика пожежа біля заводу «Алмаз» у Ростові та удар по заводу «Протон» в Орлі; «місцеві канали» називають ракети «Фламінго»; Kyiv Independent перевірити не зміг; офіційного підтвердження немає",
+   "result": "за The Moscow Times і Медузою — кілька вогнищ і шлейф диму на НПЗ, пожежу фіксує Astra; ціль визначили моніторингові канали; губернатор Роман Бусаргін визнав атаку дронів і пошкодження цивільної інфраструктури, НПЗ не назвав; офіційного підтвердження немає",
+   "confirmed": null,
+   "local": "partial",
+   "issue": "2026-11-08",
+   "item": "saratov-rostov-oryol-0711",
+   "url": "https://ru.themoscowtimes.com/2026/11/07/ukraina-udarila-po-sedmomu-za-nedelyu-npz-v-saratove-i-zavodu-elektroniki-v-orle-a210705"
+  },
+  {
+   "id": "proton-oryol-0711",
+   "date": "2026-11-07",
+   "night": "6–7.11",
+   "object": "Завод «Протон-Електротекс»",
+   "place": "Орел",
+   "kind": "defence-industry",
+   "territory": "russia",
+   "lat": 52.97,
+   "lng": 36.07,
+   "approx": true,
+   "result": "за Генштабом — «Нептуни» уразили завод, що виробляє модулі для Х-71 і комутатори для «Іскандер-М»; влучання, пожежа й вибухи; губернатор Андрій Клічков визнав пошкодження виробничих приміщень підприємства в Радянському районі, не назвавши його",
+   "confirmed": {
+    "by": "Генштаб ЗСУ",
+    "when": "7.11.2026, 10:16"
+   },
+   "local": "partial",
+   "issue": "2026-11-08",
+   "item": "proton-oryol-0711",
+   "url": "https://www.ukrinform.ua/rubric-ato/4182365-ukrainski-vijska-neptunami-urazili-zavod-proton-v-orli-genstab.html"
+  },
+  {
+   "id": "rostov-almaz-0711",
+   "date": "2026-11-07",
+   "night": "6–7.11",
+   "object": "Склад біля заводу «Алмаз»",
+   "place": "Ростов-на-Дону",
+   "kind": "defence-industry",
+   "territory": "russia",
+   "lat": 47.24,
+   "lng": 39.71,
+   "approx": true,
+   "result": "за The Moscow Times (з посиланням на Exilenova+) — велика пожежа на складі, близько 8 000 кв. м; непідтверджено, офіційних заяв немає; координати за центром міста",
    "confirmed": null,
    "local": "silent",
-   "issue": "2026-11-07",
-   "item": "saratov-rostov-oryol-0711",
-   "url": "https://kyivindependent.com/ukraine-strikes-saratov-oil-refinery-in-mass-attack-on-several-regions-reports-say/"
+   "issue": "2026-11-08",
+   "item": "rostov-almaz-0711",
+   "url": "https://ru.themoscowtimes.com/2026/11/07/ukraina-udarila-po-sedmomu-za-nedelyu-npz-v-saratove-i-zavodu-elektroniki-v-orle-a210705"
   }
  ],
  "coverage": {
