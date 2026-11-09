@@ -8,14 +8,14 @@ import { useApp } from "../ctx";
 import { useChartW, useJson } from "./hooks";
 import { flags } from "@/components/Flag";
 
-const MN = { uk: ["січ", "лют", "бер", "кві", "тра", "чер", "лип", "сер", "вер", "жов", "лис", "гру"], en: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"], de: ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"], fr: ["janv", "févr", "mars", "avr", "mai", "juin", "juil", "août", "sept", "oct", "nov", "déc"] };
+export const MN = { uk: ["січ", "лют", "бер", "кві", "тра", "чер", "лип", "сер", "вер", "жов", "лис", "гру"], en: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"], de: ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"], fr: ["janv", "févr", "mars", "avr", "mai", "juin", "juil", "août", "sept", "oct", "nov", "déc"] };
 /** Ukrainian / English / German / French pick for the panel texts below. */
-const pick = (lang: Lang) => (uk: string, en: string, de: string, fr: string) => ({ uk, en, de, fr }[lang]);
+export const pick = (lang: Lang) => (uk: string, en: string, de: string, fr: string) => ({ uk, en, de, fr }[lang]);
 const Ico = ({ html }: { html: string }) => <span className="li-ico" dangerouslySetInnerHTML={{ __html: html }} />;
-const A = ({ href, children }: { href?: string; children: React.ReactNode }) => <a href={href} target="_blank" rel="noopener">{children}</a>;
+export const A = ({ href, children }: { href?: string; children: React.ReactNode }) => <a href={href} target="_blank" rel="noopener">{children}</a>;
 
 /** Horizontal grid lines with y-axis labels shared by the fixed-width bar charts. */
-function Grid({ ymax, y, ml, W, mr, dx, label }: { ymax: number; y: (v: number) => number; ml: number; W: number; mr: number; dx: number; label: (v: number) => string }) {
+export function Grid({ ymax, y, ml, W, mr, dx, label }: { ymax: number; y: (v: number) => number; ml: number; W: number; mr: number; dx: number; label: (v: number) => string }) {
   return <>{[0, 1, 2, 3, 4].map((k) => { const v = (ymax * k) / 4; return (
     <Fragment key={k}><line className="cv-g" x1={ml} x2={W - mr} y1={y(v)} y2={y(v)} /><text className="cv-x" x={ml - dx} y={y(v) + 4} textAnchor="end">{label(v)}</text></Fragment>
   ); })}</>;

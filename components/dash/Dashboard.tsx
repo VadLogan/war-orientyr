@@ -6,6 +6,7 @@ import { useSticky } from "./hooks";
 import { Attack, Civ, Fire, LandCost, Recruit, Tiles } from "./Panels";
 import { Directions, Timeline, type DirSel } from "./Timeline";
 import Losses from "./Losses";
+import { Potential } from "./Potential";
 import SourceMatrix from "./SourceMatrix";
 
 // the maps pull in d3; load them only when the dashboard is opened
@@ -21,6 +22,7 @@ export default function Dashboard({ mapsCard, strikesCard }: { mapsCard: ReactNo
       <Civ />
       <Tiles />
       <Attack />
+      <Potential />
       <Timeline sel={dirSel} setSel={setDirSel} />
       <Losses />
       <LandCost />

@@ -49,7 +49,7 @@ export function dayGroups(e: TimelineEntry, groups: PotentialData["groups"]): Re
 /** Missiles of no named type, split between ballistic and cruise in proportion to the typed ones (half/half when none). */
 const split = (bal: number, cr: number, n: number) => (bal + cr ? [n * bal / (bal + cr), n * cr / (bal + cr)] : [n / 2, n / 2]);
 
-/** Launches per month up to `date`: a hand row wins; otherwise the timeline days of that month on or before `date`. */
+/** Launches per month up to `date`: a hand row wins once its month is over; otherwise the timeline days of that month on or before `date`. */
 export function monthLaunches(P: PotentialData, tl: TimelineEntry[], date: string): Map<string, MonthL> {
   const out = new Map<string, MonthL>(), acc = new Map<string, { dr: number; bal: number; cr: number; untyped: number; days: number }>();
   for (const e of tl) {
@@ -60,7 +60,7 @@ export function monthLaunches(P: PotentialData, tl: TimelineEntry[], date: strin
   }
   for (const [m, a] of acc) { const [b, c] = split(a.bal, a.cr, a.untyped); out.set(m, { dr: a.dr, bal: a.bal + b, cr: a.cr + c, src: "tracked", days: a.days }); }
   for (const h of P.launches) {
-    if (h.month > ym(date)) continue;
+    if (h.month > ym(date) || (h.month === ym(date) && +date.slice(8, 10) < daysIn(h.month))) continue; // the month must be over
     const [b, c] = h.msl ? split(h.bal ?? 0, h.cr ?? 0, h.msl) : [0, 0];
     out.set(h.month, { dr: h.dr ?? null, bal: h.bal == null && !b ? null : (h.bal ?? 0) + b, cr: h.cr == null && !c ? null : (h.cr ?? 0) + c, src: "hand", days: daysIn(h.month) });
   }
@@ -77,7 +77,7 @@ export function potential(P: PotentialData, tl: TimelineEntry[], date: string): 
   for (const id of IDS) {
     const grp = P.groups.find((g) => g.id === id), E = P.estimates.filter((e) => e.group === id && !e.type);
     const latest = (kind: Estimate["kind"], upTo: string) => E.filter((e) => e.kind === kind && e.date <= upTo).sort((a, b) => (a.date < b.date ? -1 : 1)).at(-1) ?? null;
-    const prodAt = (m: string): Range | null => { const e = latest("production", m + "-" + String(daysIn(m)).padStart(2, "0")); return e && { lo: e.low, hi: e.high }; };
+    const prodAt = (m: string): Range | null => { const end = m + "-" + String(daysIn(m)).padStart(2, "0"), e = latest("production", end < date ? end : date); return e && { lo: e.low, hi: e.high }; };
     const rows: MonthRow[] = months.map((m) => {
       const l = ML.get(m), p = prodAt(m), part = m === dm && partial, f = part ? day / dim : 1;
       return { month: m, launched: l?.[id] ?? null, src: l?.src ?? null, partial: part, prod: p && { lo: p.lo * f, hi: p.hi * f } };
@@ -148,6 +148,10 @@ if (typeof process !== "undefined" && process.argv[1]?.endsWith("potential.ts"))
   const P1 = { ...P0, launches: [{ month: "2026-10", dr: 1000, bal: 30, cr: 10, msl: 40, src: "x", url: "u" }] };
   const { dr, bal, cr, src } = monthLaunches(P1, TL, "2026-10-31").get("2026-10")!;
   assert.deepEqual({ dr, bal, cr, src }, { dr: 1000, bal: 60, cr: 20, src: "hand" });
+  // a hand row for the issue's own month is not used before the month is over (no future data on an old issue)
+  const early = monthLaunches(P1, TL, "2026-10-10").get("2026-10")!;
+  assert.deepEqual([early.src, early.dr], ["tracked", 266 - 176]);
+  assert.equal(monthLaunches(P1, TL, "2026-10-31").get("2026-10")!.src, "hand");
   // a hand row without the group's figure is a gap, not 0
   assert.equal(monthLaunches(P2, TL, "2026-11-01").get("2026-06")!.dr, null);
   // tracked month: Oct = dr 90+176, bal 16+1, cr 16+1
@@ -179,6 +183,8 @@ if (typeof process !== "undefined" && process.argv[1]?.endsWith("potential.ts"))
   assert.equal(B.maxNight, 10);
   // drones: no stock → added since the first tracked month: Oct (300 − 266) + Nov (10 − 46)
   near(R.dr.reserveNow!.lo, -2, "drones reserve"); assert.equal(R.dr.reserveSince, "2026-10"); assert.equal(R.dr.maxNight, 176);
+  // no future estimates: on 2026-07-10 the estimate dated 2026-07-15 is not known yet
+  assert.deepEqual(potential(P2, TL, "2026-07-10").bal.now, { lo: 40, hi: 60 });
   // a 1-day-old month never divides by zero; a 2025 date with no data gives empty rows
   assert.deepEqual(potential(P2, [], "2025-01-15").dr.months, []);
   console.log("ok");
