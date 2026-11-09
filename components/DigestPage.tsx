@@ -33,7 +33,7 @@ export default async function DigestPage({ lang, params, from }: { lang: Lang; p
       <div className="shell">
         <Shell lang={lang} t={t} view="digest" date={D.date} latest={latest.date} dates={dates} from={from} />
         <Mast D={D} lang={lang} dashboard={false} articles={await getPreviews(D.date, lang)} records={await getRecords(D, lang)} latest={latest.date} />
-        <main id="main"><div className="view"><Digest D={D} lang={lang} t={t} strikes={await getStrikes()} /></div></main>
+        <main id="main"><div className="view"><Digest D={D} lang={lang} t={t} latest={latest.date} strikes={await getStrikes()} /></div></main>
       </div>
       {lang === "uk" && D.date === latest.date && <HashRedirect latest={latest.date} dates={dates} />}
     </>

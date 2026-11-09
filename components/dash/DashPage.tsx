@@ -13,6 +13,7 @@ import DashProvider from "./DashProvider";
 import MapsCard from "./MapsCard";
 import StrikesCard from "./StrikesCard";
 import StrikesSeo from "./StrikesSeo";
+import MapsSeo from "./MapsSeo";
 import type { MapsData } from "./Panels";
 
 /** /maps as a schema.org Dataset: the day's map snapshot, its three sources and the area it covers. */
@@ -35,7 +36,7 @@ const slim = (d: Digest): DashIssue => ({
 });
 
 export default async function DashPage({ lang, params, view = "dashboard" }: { lang: DashLang; params: DateParams; view?: "dashboard" | "maps" | "strikes" }) {
-  const { latest, dates, D } = await resolve(params, lang);
+  const { latest, dates, D, dir } = await resolve(params, lang);
   const t = UI[lang] as UIStrings;
   const MAPS = await getMapsUrl(D.date);
   // the maps and strikes pages read no issue series: ship the date, language and the General Staff directions, not the timelines and losses
@@ -43,7 +44,7 @@ export default async function DashPage({ lang, params, view = "dashboard" }: { l
   const maps = view !== "dashboard";
   return (
     <div className="shell">
-      {view === "maps" && <Ld ld={await mapsLd(lang, D.date, MAPS)} />}
+      {view === "maps" && !dir && <Ld ld={await mapsLd(lang, D.date, MAPS)} />}
       <Shell lang={lang} t={t} view={view} date={D.date} latest={latest.date} dates={dates} />
       <Mast D={D} lang={lang} dashboard />
       <main id="main"><div className="view">
@@ -51,7 +52,8 @@ export default async function DashPage({ lang, params, view = "dashboard" }: { l
           smx={!maps && SHOW_SOURCE_MATRIX ? await getSourceMatrix() : null}
           mapsCard={maps ? null : <MapsCard lang={lang} date={D.date} latest={latest.date} url={MAPS} />}
           strikesCard={maps ? null : <StrikesCard lang={lang} date={D.date} latest={latest.date} />}
-          strikesSeo={view === "strikes" ? <StrikesSeo lang={lang} date={D.date} latest={latest.date} /> : null} />
+          strikesSeo={view === "strikes" ? <StrikesSeo lang={lang} date={D.date} latest={latest.date} /> : null}
+          mapsSeo={view === "maps" ? <MapsSeo lang={lang} url={MAPS} dir={dir} /> : null} dir={dir?.id} />
       </div></main>
     </div>
   );

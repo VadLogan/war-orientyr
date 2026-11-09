@@ -6,6 +6,18 @@ import { getDates, getIssue, getLatest } from "./data";
 import { href, SITE, SITE_DESC, SITE_NAME, type View } from "./routes";
 import { clip, dateTitle } from "./text";
 import { UI, type Lang } from "./ui";
+import { DIRS } from "@/components/dash/mapParts";
+
+/** Front directions as /maps/<slug> pages (the latest issue, framed on that direction): slug from the English name. */
+export type Dir = (typeof DIRS)[number];
+export const dirSlug = (d: Dir) => d.en.toLowerCase().replace(/\s+/g, "-");
+export const dirHref = (lang: Lang, d: Dir) => href(lang, "maps", null, "") + "/" + dirSlug(d);
+export const dirTitle = (lang: Lang, d: Dir) => ({ uk: `${d.uk} напрямок: карта фронту`, en: `${d.en} direction: front map`, de: `Frontabschnitt ${d.de}: Frontkarte` })[lang];
+const dirDesc = (lang: Lang, d: Dir) => ({
+  uk: `${d.uk} напрямок: лінія фронту за DeepState, оцінка ISW і заяви рф (DIVGEN) про захоплення — що змінилося за тиждень. Оновлюється щодня.`,
+  en: `The ${d.en} direction: DeepState’s front line, ISW’s assessment and russian capture claims (DIVGEN) — what changed this week. Updated daily.`,
+  de: `Frontabschnitt ${d.de}: die Frontlinie laut DeepState, die ISW-Einschätzung und russische Eroberungsmeldungen (DIVGEN) – was sich diese Woche verändert hat. Täglich aktualisiert.`,
+})[lang];
 
 export type DateParams = Promise<{ date?: string[] }>;
 
@@ -13,13 +25,16 @@ export type DateParams = Promise<{ date?: string[] }>;
 export async function dateParams() {
   return [{ date: [] as string[] }, ...(await getDates()).map((d) => ({ date: [d] }))];
 }
+/** /maps: the dates plus a page per front direction. */
+export const mapsParams = async () => [...(await dateParams()), ...DIRS.map((d) => ({ date: [dirSlug(d)] }))];
 
-export async function resolve(params: DateParams, lang: Lang): Promise<{ latest: Digest; dates: string[]; D: Digest }> {
+export async function resolve(params: DateParams, lang: Lang): Promise<{ latest: Digest; dates: string[]; D: Digest; dir?: Dir }> {
   const seg = (await params).date || [];
   const [latest, dates] = await Promise.all([getLatest(lang), getDates()]);
-  const date = seg[0] ?? latest.date;
+  const dir = DIRS.find((d) => dirSlug(d) === seg[0]); // only /maps generates these params
+  const date = dir ? latest.date : seg[0] ?? latest.date;
   if (seg.length > 1 || !dates.includes(date)) notFound();
-  return { latest, dates, D: await getIssue(date, lang) };
+  return { latest, dates, D: await getIssue(date, lang), dir };
 }
 
 /** Search/share description of the dashboard, maps and strikes pages (maps/strikes reuse their "new on the site" cards). */
@@ -34,13 +49,14 @@ const viewDesc = (lang: Lang, view: "dashboard" | "maps" | "strikes") => view ==
 export const mapsImg = (view: View, date: string) => view === "maps" ? `/og/maps/${date}.png` : undefined;
 
 export async function pageMeta(lang: Lang, view: Exclude<View, "articles">, params: DateParams): Promise<Metadata> {
-  const { D } = await resolve(params, lang);
+  const { D, dir } = await resolve(params, lang);
   // German: the dashboard, maps and strikes always; a digest only with German text — otherwise it is the English page, canonical included
   const de = view !== "digest" || (lang === "de" ? D : (await resolve(params, "de")).D).contentLang === "de";
   if (lang === "de" && !de) return pageMeta("en", view, params);
   const root = !(await params).date?.length;
   let meta: Metadata;
-  if (root) {
+  if (dir) meta = seoMeta(lang, (l) => dirHref(l, dir), dirTitle(lang, dir), clip(dirDesc(lang, dir), 160), mapsImg(view, D.date), true, "website");
+  else if (root) {
     // "/" and "/dashboard" change daily: generic title/description, so a search result doesn't promise a past issue's story.
     const title = view === "digest" ? SITE_NAME[lang] : UI[lang][view === "dashboard" ? "dash" : view];
     meta = seoMeta(lang, (l) => href(l, view, null, ""), title, clip(view === "digest" ? SITE_DESC[lang] : viewDesc(lang, view), 160), mapsImg(view, D.date), de, "website");

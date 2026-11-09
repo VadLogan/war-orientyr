@@ -1074,3 +1074,6 @@ button.stile{cursor:pointer}button.stile:hover{outline:2px solid var(--ink);outl
 .mp-dist-more{margin:8px 16px 0}
 .mp-dist th.num{font-family:inherit}
 @media(max-width:420px){.mp-dist :is(th,td){padding:7px 6px}.mp-dist :is(th,td):first-child{padding-left:12px}}
+
+/* server HTML of /maps and /strikes: in the page for search engines and screen readers, not drawn */
+.seo-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}

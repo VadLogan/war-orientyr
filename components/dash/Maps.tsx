@@ -202,7 +202,8 @@ const Bold = ({ s, v }: { s: string; v: ReactNode[] }) => <>{s.split(/\{(\d)\}/)
 const Lag = ({ n, t }: { n: number; t: UIStrings }) => <b className={"mp-lag" + (n > 0 ? " ahead" : n < 0 ? " behind" : "")}>{t.dsLagT(n)}</b>;
 const DsIco = ({ k }: { k: "ru" | "ua" | "fix" }) => <svg className="mk" width="14" height="14" viewBox="-7 -7 14 14" aria-hidden="true"><DsMark k={k} /></svg>;
 
-export function MapsCompare() {
+/** `dir0`: start framed on this direction (a /maps/<direction> page) unless the link's hash names one. `onReady`: the data is here. */
+export function MapsCompare({ dir0, onReady }: { dir0?: string; onReady?: () => void } = {}) {
   const { t, lang, MAPS, D, LATEST } = useApp();
   const hs = (x: string) => hsBase(x, lang);
   const [mode, setMode] = useSticky("mapMode", "cmp");
@@ -236,6 +237,7 @@ export function MapsCompare() {
   const arch = useJson<{ dates: string[] }>(pageSnap ? "/maps/archive/index.json" : null);
   const snaps = (arch.data?.dates || []).slice().sort(), si = snap ? snaps.indexOf(snap) : -1;
   const { data: M, err } = useJson<MapsData>(snap ? `/maps/archive/${snap}.json` : MAPS);
+  useEffect(() => { if (M || err) onReady?.(); }, [M, err, onReady]);
   // the week on the front: DeepState's changes in the 7 days up to the snapshot, its area against the snapshot a week before
   const wkEnd = snap ? dayN(snap) : 0;
   const prevSnap = snap ? snaps.filter((d) => dayN(d) <= wkEnd - 7).at(-1) ?? null : null;
@@ -523,7 +525,7 @@ export function MapsCompare() {
     if (PAIR_SRC[g("p")]) setPair(g("p"));
     if (PERS.includes(+g("n"))) setPer(+g("n"));
     if (+g("o") > 0) setOff(+g("o"));
-    if (DIRS.some((x) => x.id === g("d"))) setDir(g("d"));
+    if (DIRS.some((x) => x.id === g("d"))) setDir(g("d")); else if (dir0) setDir(dir0);
     if (/^\d{4}-\d{2}-\d{2}$/.test(g("s"))) setSnap(g("s"));
     if (h.has("e")) setEv(g("e") !== "0");
     if (h.has("a")) setDse(g("a") !== "0");

@@ -34,13 +34,22 @@ export default function Dashboard({ mapsCard, strikesCard }: { mapsCard: ReactNo
   );
 }
 
+/** Server HTML for crawlers and screen readers, kept out of sight; readers see a loading line until the map has its data. */
+function SeoHtml({ seo, loading }: { seo: ReactNode; loading: string }) {
+  return <><div className="seo-only">{seo}</div><p className="map-src" style={{ padding: 16 }}>{loading}</p></>;
+}
+
 /** The /maps page: the full source comparison with its filters. */
-export function MapsView() {
+/** The /maps page: the server HTML (`seo`) until the map has its data; `dir` = a direction page's direction. */
+export function MapsView({ seo, dir }: { seo: ReactNode; dir?: string }) {
   const { t, lang, D } = useApp();
+  const [ready, setReady] = useState(false);
   return (
     <div className="dash">
       {lang === "en" && D.contentLang !== "en" && <p className="lang-note">{t.langNote}</p>}
-      <MapsCompare />
+      {!ready && <SeoHtml seo={seo} loading={t.stk.loading} />}
+      {/* mounted but hidden until ready: its width and zoom hooks attach on the first render */}
+      <div style={{ display: ready ? "contents" : "none" }}><MapsCompare dir0={dir} onReady={() => setReady(true)} /></div>
     </div>
   );
 }
@@ -52,7 +61,7 @@ export function StrikesView({ seo }: { seo: ReactNode }) {
   return (
     <div className="dash">
       {lang === "en" && D.contentLang !== "en" && <p className="lang-note">{t.langNote}</p>}
-      {!ready && seo}
+      {!ready && <SeoHtml seo={seo} loading={t.stk.loading} />}
       <StrikesMap onReady={() => setReady(true)} />
     </div>
   );

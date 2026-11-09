@@ -8,6 +8,20 @@ import TocSpy from "./TocSpy";
 import Item, { SrcChip, type RC } from "./Item";
 import { Flag, flags } from "@/components/Flag";
 import { Fragment } from "react";
+import { href } from "@/lib/routes";
+import { dirHref } from "@/lib/page";
+import { DIRS } from "@/components/dash/mapParts";
+
+/** Under the front section: the General Staff's directions of the day, each linking to the map framed on it —
+ *  the latest issue to its direction page (/maps/<slug>), an older one to that day's map (#d=<id>). */
+function DirLinks({ D, lang, t, latest }: RC & { D: DigestT; latest: string }) {
+  const ds = (D.front?.directions || []).map((g) => [g, DIRS.find((d) => d.uk === g.name || d[lang] === g.name)] as const).filter(([, d]) => d);
+  if (!ds.length) return null;
+  return (
+    <p className="note">{t.mpOnMap}: {ds.map(([g, d], k) => <Fragment key={d!.id}>{k ? " · " : ""}
+      <a href={D.date === latest ? dirHref(lang, d!) : href(lang, "maps", D.date, latest) + "#d=" + d!.id}>{g.name}</a> ({g.attacks})</Fragment>)}</p>
+  );
+}
 
 export function SecIco({ id, s }: { id: string; s?: Section }) {
   const ic = secIcon(id, s);
@@ -63,7 +77,7 @@ function Sources({ D, t }: Omit<RC, "lang"> & { D: DigestT }) {
   );
 }
 
-export default function Digest({ D, lang, t, strikes }: RC & { D: DigestT; strikes: Strikes | null }) {
+export default function Digest({ D, lang, t, strikes, latest }: RC & { D: DigestT; strikes: Strikes | null; latest: string }) {
   const secs = (D.sections || []).filter((s) => s.items && s.items.length);
   const toc: [string, string, Section?][] = [...secs.map((s): [string, string, Section] => [s.id, noFlag(secTitle(s, lang)), s]), ["diverge", t.diverge], ["sources", t.sources]];
   return (
@@ -75,6 +89,7 @@ export default function Digest({ D, lang, t, strikes }: RC & { D: DigestT; strik
           <div className="sech"><h2><SecIco id={s.id} s={s} /><span>{noFlag(secTitle(s, lang))}</span></h2><span>{t.items(s.items.length)}</span></div>
           {s.id === "react" && <FlagSub s={s} />}
           {s.items.map((i, k) => <Item i={i} key={i.id || k} lang={lang} t={t} strikes={strikes} />)}
+          {s.id === "front" && <DirLinks D={D} lang={lang} t={t} latest={latest} />}
         </section>
       ))}
       <section className="diverge" id="sec-diverge">

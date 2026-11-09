@@ -45,7 +45,7 @@ const NW_ART = {
 };
 
 /** Pages promoted in the "New on the site" block on digest pages; empty = no block. */
-const NEW_PAGES: ("maps" | "strikes" | "articles")[] = ["articles"];
+const NEW_PAGES: ("maps" | "strikes" | "articles")[] = [];
 
 /** "New on the site": a card per page in NEW_PAGES; the articles card shows the three newest covers. */
 async function NewPages({ lang }: { lang: Lang }) {

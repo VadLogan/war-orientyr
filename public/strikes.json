@@ -11923,6 +11923,108 @@
    "issue": "2026-11-08",
    "item": "rostov-almaz-0711",
    "url": "https://ru.themoscowtimes.com/2026/11/07/ukraina-udarila-po-sedmomu-za-nedelyu-npz-v-saratove-i-zavodu-elektroniki-v-orle-a210705"
+  },
+  {
+   "id": "iskander-launchers-0711",
+   "date": "2026-11-07",
+   "night": "6–7.11",
+   "object": "Дві пускові установки ОТРК «Іскандер» і ЗРПК «Панцир-С1»",
+   "place": "Брянська область (місце не назване)",
+   "kind": "military",
+   "territory": "russia",
+   "lat": 53.2434,
+   "lng": 34.3637,
+   "approx": true,
+   "result": "за Генштабом — уражено, ступінь збитків уточнюється; місце в області не назване, позначка — за Брянськом; заяв місцевої влади не знайдено",
+   "confirmed": {
+    "by": "Генштаб ЗСУ",
+    "when": "7.11.2026, 11:04"
+   },
+   "local": "silent",
+   "issue": "2026-11-09",
+   "item": "iskander-launchers-0711",
+   "url": "https://www.ukrinform.ua/rubric-ato/4182381-sili-oboroni-urazili-u-branskij-oblasti-dvi-puskovi-ustanovki-iskander-ta-pancirs1.html"
+  },
+  {
+   "id": "dcp-0708",
+   "date": "2026-11-08",
+   "night": "7–8.11",
+   "object": "Пункт тимчасової дислокації та пункт керування дронами підрозділу, пов’язаного з центром «Рубікон»",
+   "place": "Бердянськ, Запорізька область",
+   "kind": "military",
+   "territory": "occupied",
+   "lat": 46.7553,
+   "lng": 36.7885,
+   "approx": true,
+   "result": "за Генштабом — уражено, найцінніша з чотирьох цілей доби (ще пункти керування дронами біля Олешок, Білицького та Олександрівського в Брянській області — останній не позначено, місце не встановлено); результати уточнюються",
+   "confirmed": {
+    "by": "Генштаб ЗСУ",
+    "when": "8.11.2026, 14:57"
+   },
+   "local": "silent",
+   "issue": "2026-11-09",
+   "item": "dcp-0708",
+   "url": "https://www.ukrinform.ua/rubric-ato/4182672-sili-oboroni-za-dobu-urazili-cotiri-vorozi-punkti-upravlinna-dronami.html"
+  },
+  {
+   "id": "dcp-oleshky-0708",
+   "date": "2026-11-08",
+   "night": "7–8.11",
+   "object": "Пункт керування дронами",
+   "place": "біля Олешок, Херсонська область",
+   "kind": "military",
+   "territory": "occupied",
+   "lat": 46.6236,
+   "lng": 32.7183,
+   "approx": true,
+   "result": "за Генштабом — уражено; результати уточнюються; координати — за Олешками",
+   "confirmed": {
+    "by": "Генштаб ЗСУ",
+    "when": "8.11.2026, 14:57"
+   },
+   "local": "silent",
+   "issue": "2026-11-09",
+   "item": "dcp-0708",
+   "url": "https://www.ukrinform.ua/rubric-ato/4182672-sili-oboroni-za-dobu-urazili-cotiri-vorozi-punkti-upravlinna-dronami.html"
+  },
+  {
+   "id": "dcp-bilytske-0708",
+   "date": "2026-11-08",
+   "night": "7–8.11",
+   "object": "Пункт керування дронами",
+   "place": "район Білицького, Донецька область",
+   "kind": "military",
+   "territory": "occupied",
+   "lat": 48.4217,
+   "lng": 37.1822,
+   "approx": true,
+   "result": "за Генштабом — уражено; результати уточнюються; координати — за Білицьким",
+   "confirmed": {
+    "by": "Генштаб ЗСУ",
+    "when": "8.11.2026, 14:57"
+   },
+   "local": "silent",
+   "issue": "2026-11-09",
+   "item": "dcp-0708",
+   "url": "https://www.ukrinform.ua/rubric-ato/4182672-sili-oboroni-za-dobu-urazili-cotiri-vorozi-punkti-upravlinna-dronami.html"
+  },
+  {
+   "id": "rostov-bridge-0811",
+   "date": "2026-11-08",
+   "night": "8.11",
+   "object": "Міст через Міус на трасі «Новоросія» (97-й км)",
+   "place": "Неклинівський район, Ростовська область",
+   "kind": "logistics",
+   "territory": "russia",
+   "lat": 47.4167,
+   "lng": 38.9,
+   "approx": true,
+   "result": "за губернатором Юрієм Слюсарем — дрон пошкодив міст і будівельну техніку, зокрема два гусеничні крани; постраждалих немає, рух пущено зустрічним напрямком; українського підтвердження немає; координати — за центром району (Покровське)",
+   "confirmed": null,
+   "local": "confirms",
+   "issue": "2026-11-09",
+   "item": "rostov-bridge-0811",
+   "url": "https://www.ukrinform.ua/rubric-world/4182574-u-rosii-zaavili-pro-poskodzenna-mostu-na-trasi-so-zednue-rostovnadonu-z-tot.html"
   }
  ],
  "coverage": {
