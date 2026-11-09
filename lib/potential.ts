@@ -8,7 +8,7 @@ export type Scenario = "pes" | "real" | "opt";
 export type Range = { lo: number; hi: number };
 export type Estimate = { group: GroupId; type?: string; kind: "production" | "stock" | "plan"; low: number; high: number; date: string; src: string; url: string; note?: string };
 /** hand monthly totals; `msl` = missiles the source does not split into ballistic/cruise */
-export type HandMonth = { month: string; dr?: number; bal?: number; cr?: number; msl?: number; src: string; url: string };
+export type HandMonth = { month: string; dr?: number; bal?: number; cr?: number; msl?: number; full?: boolean; src: string; url: string }; // full = the Air Force's full monthly count, not morning reports
 export type PotentialData = {
   schema: 1; horizon: number; method: string;
   groups: { id: GroupId; label: string; unit: string; types: string[]; cut?: number }[];
@@ -16,7 +16,7 @@ export type PotentialData = {
   scenarios: Record<Scenario, { label: string; note: string; cut?: number }>;
 };
 /** `launched` null = no figure for that month (a gap on the chart) */
-export type MonthRow = { month: string; launched: number | null; src: "hand" | "tracked" | null; partial: boolean; prod: Range | null };
+export type MonthRow = { month: string; launched: number | null; src: "hand" | "tracked" | null; full: boolean; partial: boolean; prod: Range | null };
 export type GroupResult = {
   id: GroupId;
   months: MonthRow[];
@@ -28,7 +28,7 @@ export type GroupResult = {
   reserveEnd: Record<Scenario, Range> | null;
   perNight: number; maxNight: number;
 };
-type MonthL = Record<GroupId, number | null> & { src: "hand" | "tracked"; days: number };
+type MonthL = Record<GroupId, number | null> & { src: "hand" | "tracked"; full: boolean; days: number };
 
 const ym = (d: string) => d.slice(0, 7);
 const daysIn = (m: string) => new Date(Date.UTC(+m.slice(0, 4), +m.slice(5, 7), 0)).getUTCDate();
@@ -46,8 +46,9 @@ export function dayGroups(e: TimelineEntry, groups: PotentialData["groups"]): Re
   return r;
 }
 
-/** Missiles of no named type, split between ballistic and cruise in proportion to the typed ones (half/half when none). */
-const split = (bal: number, cr: number, n: number) => (bal + cr ? [n * bal / (bal + cr), n * cr / (bal + cr)] : [n / 2, n / 2]);
+/** Missiles of no named type, split between ballistic and cruise in proportion to the typed ones when at least half
+ *  of the month's missiles are typed; otherwise half/half (two typed Kh-59s must not make 60 untyped missiles cruise). */
+const split = (bal: number, cr: number, n: number) => (bal + cr >= n && bal + cr ? [n * bal / (bal + cr), n * cr / (bal + cr)] : [n / 2, n / 2]);
 
 /** Launches per month up to `date`: a hand row wins once its month is over; otherwise the timeline days of that month on or before `date`. */
 export function monthLaunches(P: PotentialData, tl: TimelineEntry[], date: string): Map<string, MonthL> {
@@ -58,11 +59,11 @@ export function monthLaunches(P: PotentialData, tl: TimelineEntry[], date: strin
     a.dr += d.dr; a.bal += d.bal; a.cr += d.cr; a.untyped += d.untyped; a.days++;
     acc.set(ym(e.date), a);
   }
-  for (const [m, a] of acc) { const [b, c] = split(a.bal, a.cr, a.untyped); out.set(m, { dr: a.dr, bal: a.bal + b, cr: a.cr + c, src: "tracked", days: a.days }); }
+  for (const [m, a] of acc) { const [b, c] = split(a.bal, a.cr, a.untyped); out.set(m, { dr: a.dr, bal: a.bal + b, cr: a.cr + c, src: "tracked", full: false, days: a.days }); }
   for (const h of P.launches) {
     if (h.month > ym(date) || (h.month === ym(date) && +date.slice(8, 10) < daysIn(h.month))) continue; // the month must be over
     const [b, c] = h.msl ? split(h.bal ?? 0, h.cr ?? 0, h.msl) : [0, 0];
-    out.set(h.month, { dr: h.dr ?? null, bal: h.bal == null && !b ? null : (h.bal ?? 0) + b, cr: h.cr == null && !c ? null : (h.cr ?? 0) + c, src: "hand", days: daysIn(h.month) });
+    out.set(h.month, { dr: h.dr ?? null, bal: h.bal == null && !b ? null : (h.bal ?? 0) + b, cr: h.cr == null && !c ? null : (h.cr ?? 0) + c, src: "hand", full: !!h.full, days: daysIn(h.month) });
   }
   return out;
 }
@@ -71,7 +72,8 @@ export function potential(P: PotentialData, tl: TimelineEntry[], date: string): 
   const ML = monthLaunches(P, tl, date), dm = ym(date), day = +date.slice(8, 10), dim = daysIn(dm), partial = day < dim;
   const keys = [...ML.keys()].sort(), months: string[] = [];
   if (keys.length) for (let m = keys[0]; m <= dm; m = addM(m, 1)) months.push(m);
-  const firstTracked = keys.find((m) => ML.get(m)!.src === "tracked") ?? null;
+  // "added since" for a group without a stock estimate starts where the daily timeline starts
+  const firstTracked = tl.filter((e) => e.date <= date).map((e) => ym(e.date)).sort()[0] ?? null;
   const days = tl.filter((e) => e.date <= date).map((e) => dayGroups(e, P.groups));
   const res = {} as Record<GroupId, GroupResult>;
   for (const id of IDS) {
@@ -80,12 +82,13 @@ export function potential(P: PotentialData, tl: TimelineEntry[], date: string): 
     const prodAt = (m: string): Range | null => { const end = m + "-" + String(daysIn(m)).padStart(2, "0"), e = latest("production", end < date ? end : date); return e && { lo: e.low, hi: e.high }; };
     const rows: MonthRow[] = months.map((m) => {
       const l = ML.get(m), p = prodAt(m), part = m === dm && partial, f = part ? day / dim : 1;
-      return { month: m, launched: l?.[id] ?? null, src: l?.src ?? null, partial: part, prod: p && { lo: p.lo * f, hi: p.hi * f } };
+      return { month: m, launched: l?.[id] ?? null, src: l?.src ?? null, full: !!l?.full, partial: part, prod: p && { lo: p.lo * f, hi: p.hi * f } };
     });
     const now = prodAt(dm), yearAgo = prodAt(addM(dm, -12)), plan = latest("plan", date), stock = latest("stock", date);
     const full = rows.filter((r) => !r.partial), lastFull = [...full].reverse().find((r) => r.launched != null) ?? null;
     const lastFullYearAgo = (lastFull && rows.find((r) => r.month === addM(lastFull.month, -12) && r.launched != null)) || null;
-    const l3 = full.slice(-3).map((r) => r.launched).filter((v): v is number => v != null);
+    // forecast launch rate: the last three full months, only those counted like the latest one
+    const l3 = full.slice(-3).filter((r) => r.launched != null && r.full === lastFull?.full).map((r) => r.launched as number);
     const fl = l3.length ? l3.reduce((a, b) => a + b, 0) / l3.length : 0;
     const g = now && yearAgo ? Math.pow(mid(now) / mid(yearAgo), 1 / 12) - 1 : 0;
     const cut = grp?.cut ?? P.scenarios.opt.cut ?? 0.2;
@@ -183,6 +186,14 @@ if (typeof process !== "undefined" && process.argv[1]?.endsWith("potential.ts"))
   assert.equal(B.maxNight, 10);
   // drones: no stock → added since the first tracked month: Oct (300 − 266) + Nov (10 − 46)
   near(R.dr.reserveNow!.lo, -2, "drones reserve"); assert.equal(R.dr.reserveSince, "2026-10"); assert.equal(R.dr.maxNight, 176);
+  // few typed missiles (under half of the month's missiles) → untyped split half/half, not all to the typed group
+  const few = monthLaunches(P0, [{ date: "2026-11-02", launched: 20, mix: [{ type: "kh59", n: 2 }], missilesUntyped: 18 }], "2026-11-30").get("2026-11")!;
+  assert.deepEqual([few.bal, few.cr], [9, 11]);
+  // the forecast launch rate uses only months counted like the latest one (a `full` Air Force count is not averaged with morning-report totals)
+  const P3 = { ...P2, launches: [...P2.launches, { month: "2026-08", bal: 30, src: "s", url: "u" }, { month: "2026-09", bal: 30, src: "s", url: "u" }, { month: "2026-10", bal: 150, full: true, src: "s", url: "u" }] };
+  near(potential(P3, TL, "2026-11-01").bal.forecast[0].launched, 150, "same-basis forecast");
+  // no stock estimate: "added since" starts at the first timeline month, even when that month has a hand row
+  assert.equal(potential(P3, TL, "2026-11-01").dr.reserveSince, "2026-10");
   // no future estimates: on 2026-07-10 the estimate dated 2026-07-15 is not known yet
   assert.deepEqual(potential(P2, TL, "2026-07-10").bal.now, { lo: 40, hi: 60 });
   // a 1-day-old month never divides by zero; a 2025 date with no data gives empty rows

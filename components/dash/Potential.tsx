@@ -50,7 +50,11 @@ export function Potential() {
   const shareYa = R.yearAgo && ly?.launched != null ? pct(ly.launched, mid(R.yearAgo)) : null;
   const bal = now && lf?.launched != null ? mid(now) - lf.launched : null;
   const end = R.reserveEnd?.[sc] ?? null, endMid = end ? mid(end) : null;
-  const gone = endMid != null && endMid <= 0;
+  // "used up" only against a stock estimate; without one the reserve figures are a change since tracking began, signed
+  const gone = !!R.stock && !!end && end.hi <= 0, sgn = (v: number) => (v >= 0 ? "+" : "−") + f(Math.abs(v)), rngS = (r: Range) => sgn(r.lo) + " … " + sgn(r.hi);
+  // a stock-based reserve: a range that reaches 0 is "may run out", only a wholly negative one is "used up"
+  const resB = (r: Range) => (r.hi <= 0 ? tr("вичерпано", "used up", "aufgebraucht", "épuisée") : r.lo <= 0 ? "0–" + f(r.hi) : "≈ " + f(mid(r)));
+  const mayRun = tr("за цього темпу запас може вичерпатися", "the reserve may run out at this pace", "bei diesem Tempo kann die Reserve ausgehen", "à ce rythme la réserve peut s’épuiser");
 
   // ---- chart: months + forecast
   const rows = R.months, fc = R.forecast, n = rows.length + fc.length;
@@ -82,10 +86,10 @@ export function Potential() {
       <div className="tile"><small>{tr("Запуски, ", "Launches, ", "Starts, ", "Lancements, ") + (lf ? mLab(lf.month) : "—")}</small><b>{lf?.launched != null ? f(lf.launched) : "—"}</b>
         <span>{ly?.launched != null && lf?.launched != null ? mLab(ly.month, true) + ": " + f(ly.launched) + " (" + (lf.launched >= ly.launched ? "+" : "−") + Math.abs(pct(lf.launched, ly.launched) - 100) + "%)" : tr("за той самий місяць рік тому даних немає", "no figure for the same month a year ago", "keine Zahl für denselben Monat vor einem Jahr", "pas de chiffre pour le même mois il y a un an")}</span></div>
       <div className="tile"><small>{tr("Запускає з виробленого", "Launched of output", "Gestartet von der Produktion", "Lancé sur la production")}</small><b>{share != null ? share + "%" : "—"}</b>
-        <span>{(shareYa != null ? tr("рік тому ", "a year ago ", "vor einem Jahr ", "il y a un an ") + shareYa + "% · " : "") + tr("менше 100% — накопичує", "under 100% — stockpiling", "unter 100 % – legt Vorräte an", "moins de 100 % – elle stocke")}</span></div>
-      <div className="tile"><small>{R.stock ? tr("Запас зараз", "Reserve now", "Reserve jetzt", "Réserve aujourd’hui") : tr("Додано в запас з ", "Added to the reserve since ", "Seit ", "Ajouté à la réserve depuis ") + (R.reserveSince ? mLab(R.reserveSince, true) : "—") + tr("", "", " in die Reserve", "")}</small>
-        <b>{R.reserveNow ? (mid(R.reserveNow) > 0 ? "≈ " + f(mid(R.reserveNow)) : tr("вичерпано", "used up", "aufgebraucht", "épuisée")) : "—"}</b>
-        <span>{R.reserveNow ? rng(R.reserveNow) + (R.stock ? tr(" · від оцінки ГУР на ", " · from HUR’s estimate of ", " · ab der HUR-Schätzung vom ", " · à partir de l’estimation du HUR du ") + dLab(R.stock.date) : "") : tr("немає оцінки виробництва", "no production estimate", "keine Produktionsschätzung", "pas d’estimation de production")}</span></div>
+        <span>{(shareYa != null ? tr("рік тому ", "a year ago ", "vor einem Jahr ", "il y a un an ") + shareYa + "% · " : "") + (share != null && share >= 100 ? tr("понад 100% — бере із запасу", "over 100% — drawing on the reserve", "über 100 % – greift auf die Reserve zurück", "plus de 100 % – elle puise dans la réserve") : tr("менше 100% — накопичує", "under 100% — stockpiling", "unter 100 % – legt Vorräte an", "moins de 100 % – elle stocke"))}</span></div>
+      <div className="tile"><small>{R.stock ? tr("Запас зараз", "Reserve now", "Reserve jetzt", "Réserve aujourd’hui") : tr("Зміна запасу з ", "Reserve change since ", "Veränderung der Reserve seit ", "Variation de la réserve depuis ") + (R.reserveSince ? mLab(R.reserveSince, true) : "—")}</small>
+        <b>{R.reserveNow ? (R.stock ? resB(R.reserveNow) : "≈ " + sgn(mid(R.reserveNow))) : "—"}</b>
+        <span>{R.reserveNow ? (R.stock ? rng(R.reserveNow) : rngS(R.reserveNow)) + (R.stock ? tr(" · від оцінки ГУР на ", " · from HUR’s estimate of ", " · ab der HUR-Schätzung vom ", " · à partir de l’estimation du HUR du ") + dLab(R.stock.date) : "") : tr("немає оцінки виробництва", "no production estimate", "keine Produktionsschätzung", "pas d’estimation de production")}</span></div>
     </div>
 
     <div>
@@ -125,12 +129,13 @@ export function Potential() {
         <p className="atk-sub">{flags(P.scenarios[sc].note)}</p>
       </div>
       <div className="tiles">
-        <div className="tile"><small>{(R.stock ? tr("Запас, ", "Reserve, ", "Reserve, ", "Réserve, ") : tr("Накопичено до ", "Built up by ", "Angesammelt bis ", "Accumulé d’ici ")) + mLab(lastF.month, true)}</small>
-          <b style={{ color: SC_COL[sc] }}>{gone ? tr("вичерпано", "used up", "aufgebraucht", "épuisée") : "≈ " + f(endMid!)}</b>
-          <span>{gone ? tr("за цього темпу запусків запасу не вистачить", "the reserve would not last at this launch rate", "bei dieser Startrate reicht die Reserve nicht", "la réserve ne tiendrait pas à ce rythme") : rng(end!)}</span></div>
-        <div className="tile"><small>{tr("Ночей за нинішнього темпу", "Nights at today’s pace", "Nächte beim heutigen Tempo", "Nuits au rythme actuel")}</small><b>{R.perNight > 0 && !gone ? f(endMid! / R.perNight) : "—"}</b>
+        <div className="tile"><small>{(R.stock ? tr("Запас, ", "Reserve, ", "Reserve, ", "Réserve, ") : tr("Зміна запасу до ", "Reserve change by ", "Veränderung der Reserve bis ", "Variation de la réserve d’ici ")) + mLab(lastF.month, true)}</small>
+          <b style={{ color: SC_COL[sc] }}>{R.stock ? resB(end!) : "≈ " + sgn(endMid!)}</b>
+          <span>{gone ? tr("за цього темпу запусків запасу не вистачить", "the reserve would not last at this launch rate", "bei dieser Startrate reicht die Reserve nicht", "la réserve ne tiendrait pas à ce rythme")
+            : R.stock ? (end!.lo <= 0 ? mayRun : rng(end!)) : rngS(end!) + (tr(" · від невідомого запасу", " · against an unknown reserve", " · gegenüber einer unbekannten Reserve", " · par rapport à une réserve inconnue"))}</span></div>
+        <div className="tile"><small>{tr("Ночей за нинішнього темпу", "Nights at today’s pace", "Nächte beim heutigen Tempo", "Nuits au rythme actuel")}</small><b>{R.stock && R.perNight > 0 && endMid! > 0 ? f(endMid! / R.perNight) : "—"}</b>
           <span>≈ {f(R.perNight)} {flags(grp.unit)} {tr("за ніч", "a night", "pro Nacht", "par nuit")}</span></div>
-        <div className="tile"><small>{tr("Атак як найбільша", "Attacks like the biggest", "Angriffe wie der größte", "Attaques comme la plus grande")}</small><b>{R.maxNight > 0 && !gone ? f(Math.floor(endMid! / R.maxNight)) : "—"}</b>
+        <div className="tile"><small>{tr("Атак як найбільша", "Attacks like the biggest", "Angriffe wie der größte", "Attaques comme la plus grande")}</small><b>{R.stock && R.maxNight > 0 && endMid! > 0 ? f(Math.floor(endMid! / R.maxNight)) : "—"}</b>
           <span>{tr("найбільша ніч у нашому обліку: ", "biggest night in our count: ", "größte Nacht in unserer Zählung: ", "plus grande nuit de notre décompte : ") + f(R.maxNight) + " " + flags(grp.unit)}</span></div>
         <div className="tile"><small>{tr("Виробництво, ", "Output, ", "Produktion, ", "Production, ") + mLab(lastF.month, true)}</small><b>≈ {f(lastF.prod[sc])}</b>
           <span>{tr("/ міс. · зараз ≈ ", "/ month · now ≈ ", "/ Monat · jetzt ≈ ", "/ mois · aujourd’hui ≈ ") + (now ? f(mid(now)) : "—")}</span></div>
