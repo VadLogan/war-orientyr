@@ -6,7 +6,9 @@ import type { Article, ArticleItem, Digest } from "@/types/digest";
 import { articleHref } from "./routes";
 import type { StrikesBase, StrikesData, Strikes } from "./strikes";
 import { dayRecords } from "./records";
-import { noFlag, styleData } from "./text";
+import { noFlag, num, styleData } from "./text";
+import { lcCalc, lcPeriod, type LandCfg } from "./landcost";
+import { potential, type PotentialData } from "./potential";
 import { translate } from "./i18n.mjs";
 import { isSub, type Lang } from "./ui";
 
@@ -163,3 +165,33 @@ export const getSourceMatrix = cache(async (): Promise<SourceMatrix> => {
   });
   return { days, rows: Object.values(rows) };
 });
+
+/** The two analytics for the mentions outside the dashboard (digest, "new on the dashboard"): the price of a kilometre
+ *  over 7 and 30 days (lib/landcost.ts) and the share of drone output launched in the last full month (lib/potential.ts).
+ *  Computed from the newest data, so pages show them only on the latest issue. */
+export const getAnalytics = cache(async (D: Digest) => {
+  try {
+    const [C, cur, idx, P] = await Promise.all([read<LandCfg>("landcost.json"), read<{ areas: Record<string, number> }>("maps/maps.json"),
+      read<{ dates: string[] }>("maps/archive/index.json"), read<PotentialData>("potential.json")]);
+    const gsP = num(D.losses?.gsTotal?.personnel);
+    const add = (a: number | null, b: number | null) => (a == null || b == null ? null : a + b);
+    const km = async (per: string) => {
+      const { E, S } = lcPeriod(idx.dates, per);
+      if (per !== "all" && !S) return null;
+      const old = S ? await read<{ areas: Record<string, number> }>(`maps/archive/${S}.json`) : null;
+      const r = lcCalc({ C, areas: cur.areas, oldAreas: old?.areas, series: D.losses?.series || [], gsPersonnel: gsP, per, S, E });
+      const rate = (v: number | null) => (v == null ? null : v / r.net);
+      return r.net > 0 && r.pers != null ? { pk: r.pers / r.net, gain: r.net, pers: r.pers, span: r.span, S: S ?? "", E: E!, x: r.avg ? r.pers / r.net / r.avg : null,
+        armor: rate(add(r.tot("tanks"), r.tot("armoured"))), art: rate(add(r.tot("artillery"), r.tot("mlrs"))), auto: rate(r.tot("auto")) } : null;
+    };
+    const mid = (r: { lo: number; hi: number }) => (r.lo + r.hi) / 2;
+    const all = potential(P, D.timeline || [], D.date);
+    const grp = (g: "dr" | "bal" | "cr") => {
+      const R = all[g], lf = R.lastFull;
+      return R.now && lf?.launched != null ? { share: Math.round((lf.launched / mid(R.now)) * 100), launched: lf.launched, month: lf.month, prod: mid(R.now),
+        ya: R.yearAgo ? mid(R.yearAgo) : null, reserve: R.stock && R.reserveNow ? R.reserveNow : null, stockDate: R.stock?.date ?? null } : null;
+    };
+    return { km7: await km("7"), km30: await km("30"), kmAll: await km("all"), anchor: C.anchor.date, pot: grp("dr"), pots: { dr: grp("dr"), bal: grp("bal"), cr: grp("cr") } };
+  } catch { return null; }
+});
+export type Analytics = NonNullable<Awaited<ReturnType<typeof getAnalytics>>>;

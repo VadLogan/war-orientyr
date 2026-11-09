@@ -8,6 +8,7 @@ import { useApp } from "../ctx";
 import { useChartW, useJson, useSticky } from "./hooks";
 import { flags } from "@/components/Flag";
 import { A, Grid, MN, pick } from "./Panels";
+import type { Analytics } from "@/lib/data";
 
 const SCS: Scenario[] = ["pes", "real", "opt"];
 const SC_COL: Record<Scenario, string> = { pes: "var(--unv)", real: "var(--ink)", opt: "var(--ok)" };
@@ -158,4 +159,80 @@ export function Potential() {
     </table></details>
     {src}
   </div>);
+}
+
+/** The model for one weapon group on the issue's date, plus the share of output launched in the last full month. */
+export function usePotential(g: GroupId) {
+  const { D, LATEST } = useApp();
+  const { data: P, err } = useJson<PotentialData>("/potential.json");
+  if (!P) return { P: null, err };
+  const R = potential(P, LATEST.timeline ?? [], D.date)[g], lf = R.lastFull;
+  const share = R.now && lf?.launched != null ? Math.round((lf.launched / mid(R.now)) * 100) : null;
+  return { P, err, R, grp: P.groups.find((x) => x.id === g)!, share };
+}
+
+/** Dashboard card (the "Аналітика" frame): group switch, share of output launched, output vs a year ago,
+ *  last month's launches, the reserve and the monthly launches against today's output. `s`: sections it shows in. */
+export function PotentialCard({ s, open, ssr }: { s: string; open: () => void; ssr?: Analytics["pots"] }) {
+  const { lang } = useApp();
+  const [g, setG] = useSticky<GroupId>("potGroup", "dr");
+  const X = usePotential(g);
+  const tr = pick(lang), f = (n: number) => fmt(Math.round(n), lang);
+  const mLab = (m: string, yr = false) => MN[lang][+m.slice(5, 7) - 1] + (yr ? " " + m.slice(0, 4) : "");
+  const rng = (r: Range) => (Math.round(r.lo) === Math.round(r.hi) ? f(r.lo) : f(r.lo) + "–" + f(r.hi));
+  const sgn = (v: number) => (v >= 0 ? "+" : "−") + f(Math.abs(v));
+  const head = (
+    <div className="dz-h"><span className="dz-badge">{tr("Аналітика", "Analysis", "Analyse", "Analyse")}</span>
+      <h2>{tr("Ударний потенціал росії", "russia’s strike potential", "russlands Angriffspotenzial", "Le potentiel de frappe de la russie")}</h2>
+      <button type="button" className="linkbtn dz-go" onClick={open}>{tr("Прогноз і сценарії →", "Forecast and scenarios →", "Prognose und Szenarien →", "Prévision et scénarios →")}</button></div>
+  );
+  // first paint (and crawlers): the server's share for the picked group
+  const sv = ssr?.[g];
+  if ((!X.P || !X.R) && sv) return <section className="dz-box dz-an" data-s={s}>{head}<div className="dz-big"><b>{sv.share}%</b><span>{tr(`запущено від виробленого, ${mLab(sv.month, true)}`, `of output launched, ${mLab(sv.month, true)}`, `der Produktion gestartet, ${mLab(sv.month, true)}`, `de la production lancée, ${mLab(sv.month, true)}`)}</span></div>
+    <div className="dz-mini3"><div><small>{tr("Виробництво / міс.", "Output / month", "Produktion / Monat", "Production / mois")}</small><b>≈ {f(sv.prod)}</b></div><div><small>{tr("Запуски, ", "Launches, ", "Starts, ", "Lancements, ") + mLab(sv.month)}</small><b>{f(sv.launched)}</b></div><div><small>{tr("Запас", "Reserve", "Reserve", "Réserve")}</small><b>{sv.reserve ? f(sv.reserve.lo) + "–" + f(sv.reserve.hi) : "—"}</b></div></div></section>;
+  if (!X.P || !X.R) return <section className="dz-box dz-an" data-s={s}>{head}<p className="map-src">{X.err ? tr("Не вдалося завантажити дані.", "Could not load the data.", "Die Daten konnten nicht geladen werden.", "Impossible de charger les données.") : tr("Завантаження…", "Loading…", "Wird geladen…", "Chargement…")}</p></section>;
+  const { P, R, grp, share } = X, now = R.now, lf = R.lastFull;
+  const rows = R.months.slice(-17);
+  return (
+    <section className="dz-box dz-an" data-s={s}>
+      {head}
+      <div className="seg dz-seg" role="group" aria-label={tr("Група озброєння", "Weapon group", "Waffengruppe", "Groupe d’armes")}>
+        {P.groups.map((x) => <button type="button" key={x.id} aria-pressed={g === x.id} onClick={() => setG(x.id)}>{flags(x.label)}</button>)}
+      </div>
+      <div className="dz-big">
+        <b>{share != null ? share + "%" : "—"}</b>
+        <span>{share != null && lf ? tr(`${grp.unit} запущено від виробленого, ${mLab(lf.month, true)}`, `of output launched, ${mLab(lf.month, true)}`, `der Produktion gestartet, ${mLab(lf.month, true)}`, `de la production lancée, ${mLab(lf.month, true)}`)
+          + (share >= 100 ? tr(" — понад 100%, бере із запасу", " — over 100%, drawing on the reserve", " – über 100 %, greift auf die Reserve zurück", " – plus de 100 %, puise dans la réserve") : "")
+          : tr("немає оцінки виробництва на цю дату", "no production estimate for this date", "keine Produktionsschätzung für dieses Datum", "pas d’estimation de production à cette date")}</span>
+      </div>
+      <div className="dz-mini3">
+        <div><small>{tr("Виробництво / міс.", "Output / month", "Produktion / Monat", "Production / mois")}</small><b>{now && R.yearAgo ? "×" + (mid(now) / mid(R.yearAgo)).toLocaleString(lang, { maximumFractionDigits: 1, minimumFractionDigits: 1 }) : now ? "≈ " + f(mid(now)) : "—"}</b>
+          <span>{now && R.yearAgo ? "≈" + f(mid(R.yearAgo)) + " → ≈" + f(mid(now)) : ""}</span></div>
+        <div><small>{tr("Запуски, ", "Launches, ", "Starts, ", "Lancements, ") + (lf ? mLab(lf.month) : "—")}</small><b>{lf?.launched != null ? f(lf.launched) : "—"}</b>
+          <span>{R.lastFullYearAgo?.launched != null ? tr("рік тому ", "a year ago ", "vor einem Jahr ", "il y a un an ") + f(R.lastFullYearAgo.launched) : ""}</span></div>
+        <div><small>{R.stock ? tr("Запас зараз", "Reserve now", "Reserve jetzt", "Réserve aujourd’hui") : tr("Зміна запасу", "Reserve change", "Veränderung der Reserve", "Variation de la réserve")}</small>
+          <b>{R.reserveNow ? (R.stock ? "≈ " + f(mid(R.reserveNow)) : sgn(R.reserveNow.lo) + "…" + sgn(R.reserveNow.hi)) : "—"}</b>
+          <span>{R.reserveNow ? (R.stock ? rng(R.reserveNow) : R.reserveSince ? tr("з ", "since ", "seit ", "depuis ") + mLab(R.reserveSince) : "") : ""}</span></div>
+      </div>
+      <figure className="dz-fig">
+        <Spark v={rows.map((r) => r.launched)} color="var(--c1)" line={now ? mid(now) : null} h={44} />
+        <figcaption>{tr("запуски на місяць; пунктир — виробництво зараз", "launches per month; dashed — output now", "Starts pro Monat; gestrichelt – Produktion jetzt", "lancements par mois ; pointillés – production actuelle")}{now ? " ≈" + f(mid(now)) : ""}</figcaption>
+      </figure>
+    </section>
+  );
+}
+
+/** Mini bar chart for the dashboard cards: one bar per value (null = gap), the last one solid; `stack` sits on top; `line` = a dashed level. */
+export function Spark({ v, color, line, stack, h = 28 }: { v: (number | null)[]; color: string; line?: number | null; stack?: (number | null)[]; h?: number }) {
+  const n = v.length, W = n * 10, mx = Math.max(1, ...v.map((x, i) => (x ?? 0) + (stack?.[i] ?? 0)), line ?? 0);
+  return (
+    <svg className="dz-spark" viewBox={`0 0 ${W} ${h}`} preserveAspectRatio="none" aria-hidden="true" style={{ height: h }}>
+      {v.map((x, i) => {
+        if (x == null) return <rect key={i} x={i * 10 + 2} y={h - 1.5} width={6} height={1.5} fill="var(--muted)" opacity={0.5} />;
+        const a = Math.max(1.5, (x / mx) * h), b = stack?.[i] ? (stack[i]! / mx) * h : 0;
+        return <g key={i} opacity={i === n - 1 ? 1 : 0.5}><rect x={i * 10 + 1.5} y={h - a} width={7} height={a} fill={color} />{b > 0 && <rect x={i * 10 + 1.5} y={h - a - b} width={7} height={b} fill="var(--c1)" />}</g>;
+      })}
+      {line != null && <line x1={0} x2={W} y1={h - (line / mx) * h} y2={h - (line / mx) * h} stroke="var(--ink)" strokeOpacity=".7" strokeDasharray="4 3" vectorEffect="non-scaling-stroke" />}
+    </svg>
+  );
 }

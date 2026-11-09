@@ -20,22 +20,38 @@ const dirDesc = (lang: Lang, d: Dir) => ({
   fr: `Direction de ${d.fr} : la ligne de front selon DeepState, l’évaluation de l’ISW et les revendications russes de conquête (DIVGEN) – ce qui a changé cette semaine. Mis à jour chaque jour.`,
 })[lang];
 
+/** The dashboard analytics as pages of their own (/dashboard/landcost, /dashboard/potential + /en, /de, /fr): the latest issue. */
+export const PANELS = ["landcost", "potential"] as const;
+export type Panel = (typeof PANELS)[number];
+export const panelHref = (lang: Lang, p: Panel) => href(lang, "dashboard", null, "") + "/" + p;
+export const panelTitle = (lang: Lang, p: Panel) => ({
+  landcost: { uk: "Ціна кілометра: втрати росії на 1 км² захопленої землі", en: "The price of a kilometre: russian losses per km² seized", de: "Der Preis eines Kilometers: russische Verluste pro eroberten km²", fr: "Le prix d’un kilomètre : pertes russes par km² conquis" },
+  potential: { uk: "Ударний потенціал росії: дрони й ракети — виробництво, запуски, запас", en: "russia’s strike potential: drones and missiles — output, launches, reserve", de: "russlands Angriffspotenzial: Drohnen und Raketen – Produktion, Starts, Reserve", fr: "Le potentiel de frappe de la russie : drones et missiles – production, lancements, réserve" },
+})[p][lang];
+export const panelDesc = (lang: Lang, p: Panel) => ({
+  landcost: { uk: "Скільки особового складу й техніки росія втрачає за кожен захоплений км²: втрати за Генштабом ЗСУ, площа за DeepState — з 2022 року, за 30 і 7 днів. Оновлюється щодня.", en: "How much personnel and equipment russia loses for every km² it seizes: losses per Ukraine’s General Staff, area per DeepState — since 2022, over 30 and 7 days. Updated daily.", de: "Wie viel Personal und Material russland pro eroberten km² verliert: Verluste laut ukrainischem Generalstab, Fläche laut DeepState – seit 2022, über 30 und 7 Tage. Täglich aktualisiert.", fr: "Combien de soldats et de matériel la russie perd pour chaque km² conquis : pertes selon l’état-major ukrainien, surface selon DeepState – depuis 2022, sur 30 et 7 jours. Mis à jour chaque jour." },
+  potential: { uk: "Скільки дронів, балістичних і крилатих ракет росія виробляє й запускає щомісяця, що лишається в запасі й на скільки його вистачить — оцінки ГУР і три сценарії до 2027 року.", en: "How many drones, ballistic and cruise missiles russia makes and launches each month, what is left in reserve and how long it would last — HUR estimates and three scenarios to 2027.", de: "Wie viele Drohnen, ballistische Raketen und Marschflugkörper russland monatlich herstellt und startet, was in Reserve bleibt und wie lange sie reicht – HUR-Schätzungen und drei Szenarien bis 2027.", fr: "Combien de drones, de missiles balistiques et de croisière la russie produit et lance chaque mois, ce qui reste en réserve et combien de temps elle tiendrait – estimations du HUR et trois scénarios jusqu’en 2027." },
+})[p][lang];
+
 export type DateParams = Promise<{ date?: string[] }>;
 
 /** Static params for a route: no segment = latest issue, plus every date (the latest too, so search results keep a stable URL). */
 export async function dateParams() {
   return [{ date: [] as string[] }, ...(await getDates()).map((d) => ({ date: [d] }))];
 }
+/** /dashboard: the dates plus a page per analytic. */
+export const dashParams = async () => [...(await dateParams()), ...PANELS.map((p) => ({ date: [p] }))];
 /** /maps: the dates plus a page per front direction. */
 export const mapsParams = async () => [...(await dateParams()), ...DIRS.map((d) => ({ date: [dirSlug(d)] }))];
 
-export async function resolve(params: DateParams, lang: Lang): Promise<{ latest: Digest; dates: string[]; D: Digest; dir?: Dir }> {
+export async function resolve(params: DateParams, lang: Lang): Promise<{ latest: Digest; dates: string[]; D: Digest; dir?: Dir; panel?: Panel }> {
   const seg = (await params).date || [];
   const [latest, dates] = await Promise.all([getLatest(lang), getDates()]);
   const dir = DIRS.find((d) => dirSlug(d) === seg[0]); // only /maps generates these params
-  const date = dir ? latest.date : seg[0] ?? latest.date;
+  const panel = PANELS.find((p) => p === seg[0]); // only /dashboard generates these
+  const date = dir || panel ? latest.date : seg[0] ?? latest.date;
   if (seg.length > 1 || !dates.includes(date)) notFound();
-  return { latest, dates, D: await getIssue(date, lang), dir };
+  return { latest, dates, D: await getIssue(date, lang), dir, panel };
 }
 
 /** Search/share description of the dashboard, maps and strikes pages (maps/strikes reuse their "new on the site" cards). */
@@ -47,17 +63,18 @@ const DASH_DESC: Record<Lang, string> = {
 };
 const viewDesc = (lang: Lang, view: "dashboard" | "maps" | "strikes") => view === "dashboard" ? DASH_DESC[lang] : UI[lang].nw[view].p;
 
-/** The maps pages share that day's front map (app/og/maps), the rest the site image. */
-export const mapsImg = (view: View, date: string) => view === "maps" ? `/og/maps/${date}.png` : undefined;
+/** The maps pages share that day's front map (app/og/maps), the dashboard that day's numbers (app/og/dashboard), the rest the site image. */
+export const mapsImg = (view: View, date: string) => view === "maps" ? `/og/maps/${date}.png` : view === "dashboard" ? `/og/dashboard/${date}.png` : undefined;
 
 export async function pageMeta(lang: Lang, view: Exclude<View, "articles">, params: DateParams): Promise<Metadata> {
-  const { D, dir } = await resolve(params, lang);
+  const { D, dir, panel } = await resolve(params, lang);
   // German/French: the dashboard, maps and strikes always; a digest only with text in that language — otherwise it is the English page, canonical included
   const subs = view !== "digest" ? [...SUBS] : (await Promise.all(SUBS.map(async (l) => ((lang === l ? D : (await resolve(params, l)).D).contentLang === l ? l : null)))).filter((l): l is SubLang => !!l);
   if (isSub(lang) && !subs.includes(lang)) return pageMeta("en", view, params);
   const root = !(await params).date?.length;
   let meta: Metadata;
-  if (dir) meta = seoMeta(lang, (l) => dirHref(l, dir), dirTitle(lang, dir), clip(dirDesc(lang, dir), 160), mapsImg(view, D.date), SUBS, "website");
+  if (panel) meta = seoMeta(lang, (l) => panelHref(l, panel), panelTitle(lang, panel), clip(panelDesc(lang, panel), 160), mapsImg(view, D.date), SUBS, "website");
+  else if (dir) meta = seoMeta(lang, (l) => dirHref(l, dir), dirTitle(lang, dir), clip(dirDesc(lang, dir), 160), mapsImg(view, D.date), SUBS, "website");
   else if (root) {
     // "/" and "/dashboard" change daily: generic title/description, so a search result doesn't promise a past issue's story.
     const title = view === "digest" ? SITE_NAME[lang] : UI[lang][view === "dashboard" ? "dash" : view];
