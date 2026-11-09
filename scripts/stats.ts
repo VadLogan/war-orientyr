@@ -4,6 +4,7 @@
 // Reads public/digest.json (timeline, losses.series), strikes.json and maps/strikes-base.json. Only facts already in the data.
 import fs from "node:fs";
 import { dayRecords } from "../lib/records";
+import { potential, type PotentialData } from "../lib/potential";
 import { stkDist, type Strikes } from "../lib/strikes";
 import type { Digest } from "../types/digest";
 
@@ -64,6 +65,17 @@ function main() {
   for (const m of metrics) console.log(line(m, date));
   const R = dayRecords({ ...D, date } as Digest, S);
   console.log(`\n# Records shown on the site (lib/records.ts): ${R ? JSON.stringify(R) : "none"}`);
+
+  // strike potential panel (lib/potential.ts): last full month, output, balance, reserve now and in the realistic scenario
+  console.log(`\n# Strike potential (public/potential.json + timeline; estimates, not an inventory)`);
+  const n = (x: number) => String(Math.round(x)), rg = (r: { lo: number; hi: number }) => `${n(r.lo)}–${n(r.hi)}`;
+  for (const g of Object.values(potential(pub("potential.json") as PotentialData, D.timeline ?? [], date))) {
+    const lf = g.lastFull, mid = g.now && (g.now.lo + g.now.hi) / 2;
+    console.log(`${g.id}: output ${g.now ? rg(g.now) : "—"}/month | ${lf ? `${lf.month} launched ${lf.launched == null ? "—" : n(lf.launched)} (${lf.src})` : "no full month"}`
+      + (mid && lf?.launched != null ? ` | balance ${n(mid - lf.launched)} (${Math.round((lf.launched / mid) * 100)}% of output)` : "")
+      + ` | reserve ${g.reserveNow ? rg(g.reserveNow) + (g.reserveSince ? ` added since ${g.reserveSince}` : "") : "—"}`
+      + (g.reserveEnd && g.forecast.length ? ` | realistic ${g.forecast.at(-1)!.month}: ${rg(g.reserveEnd.real)}` : ""));
+  }
 
   if (date.endsWith("-01") || args.includes("--month")) {
     const cur = date.slice(0, 7), last = new Date(Date.UTC(+date.slice(0, 4), +date.slice(5, 7) - 2, 1)).toISOString().slice(0, 7);

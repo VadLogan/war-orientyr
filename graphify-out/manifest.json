@@ -12,9 +12,9 @@
     "semantic_hash": ""
   },
   "scripts/validate.mjs": {
-    "mtime": 1794230567.8641984,
-    "seen": 1794230836.8312151,
-    "ast_hash": "95acee5ef9fe129ffa5493dfeb0b5ef5",
+    "mtime": 1794237650.46237,
+    "seen": 1794238440.086889,
+    "ast_hash": "af49694e7fe268f407dbf59cc29da8b9",
     "semantic_hash": ""
   },
   "tools/maps/build.py": {
@@ -186,9 +186,9 @@
     "semantic_hash": ""
   },
   "components/dash/Dashboard.tsx": {
-    "mtime": 1794215074.5285676,
-    "seen": 1794216302.151493,
-    "ast_hash": "4870f4de41fc9b317a5d074b7463dda8",
+    "mtime": 1794237901.827847,
+    "seen": 1794238440.086259,
+    "ast_hash": "87f2e8b120e8a219d2388f66e1b51540",
     "semantic_hash": ""
   },
   "components/dash/LineChart.tsx": {
@@ -210,9 +210,9 @@
     "semantic_hash": ""
   },
   "components/dash/Panels.tsx": {
-    "mtime": 1794230510.234563,
-    "seen": 1794230836.830935,
-    "ast_hash": "ee704e6247f887373f7faa096e7f8508",
+    "mtime": 1794237821.5758343,
+    "seen": 1794238440.086348,
+    "ast_hash": "cececb862faa6c5d3509749b0fc5d192",
     "semantic_hash": ""
   },
   "components/dash/SourceMatrix.tsx": {
@@ -348,9 +348,9 @@
     "semantic_hash": ""
   },
   "CLAUDE.md": {
-    "mtime": 1794230802.8910232,
-    "seen": 1794230836.831318,
-    "ast_hash": "1892d715eebb8a9aa9ad9ab344d175e4",
+    "mtime": 1794238409.6275167,
+    "seen": 1794238440.087102,
+    "ast_hash": "c63d721e1e3220051228a0f8981bc0e8",
     "semantic_hash": ""
   },
   "app/apple-icon.png": {
@@ -836,7 +836,7 @@
   "i18n/de.json": {
     "mtime": 1794214767.1207056,
     "seen": 1794216302.151802,
-    "ast_hash": "f5bcdc47f0f583231b801612443ae363",
+    "ast_hash": "",
     "semantic_hash": ""
   },
   "public/articles/2026-10-21/operation-vivaldi/cover-map.jpg": {
@@ -960,9 +960,9 @@
     "semantic_hash": ""
   },
   "scripts/stats.ts": {
-    "mtime": 1793608633.7653816,
-    "seen": 1793624173.288142,
-    "ast_hash": "cd518a28336ab7ee012c6f1b2082cadc",
+    "mtime": 1794238340.6177995,
+    "seen": 1794238440.086889,
+    "ast_hash": "dba318ed283cc8bc396a143636995281",
     "semantic_hash": ""
   },
   "public/img/rec-losses.webp": {
@@ -1215,6 +1215,36 @@
     "mtime": 1794230248.327546,
     "seen": 1794230836.830397,
     "ast_hash": "2c1b470522b0640a87356b0bc363509c",
+    "semantic_hash": ""
+  },
+  "components/dash/Potential.tsx": {
+    "mtime": 1794237992.9066525,
+    "seen": 1794238440.08635,
+    "ast_hash": "7bfef6537109db495532298bac82784c",
+    "semantic_hash": ""
+  },
+  "i18n/fr.json": {
+    "mtime": 1794238302.2889652,
+    "seen": 1794238440.0866199,
+    "ast_hash": "4eaceef50880db518261c80931bb3f2e",
+    "semantic_hash": ""
+  },
+  "lib/potential.ts": {
+    "mtime": 1794238076.699004,
+    "seen": 1794238440.086704,
+    "ast_hash": "0907078de0bbb69b5dac435b45bbd869",
+    "semantic_hash": ""
+  },
+  "docs/superpowers/plans/2026-11-09-strike-potential.md": {
+    "mtime": 1794237033.1190069,
+    "seen": 1794238440.087135,
+    "ast_hash": "c562d77065b1867e309f9e450dc9b899",
+    "semantic_hash": ""
+  },
+  "docs/superpowers/specs/2026-11-09-strike-potential-design.md": {
+    "mtime": 1794236461.4731314,
+    "seen": 1794238440.087136,
+    "ast_hash": "908bfcb9b2e042c81f106cdb7b6413b2",
     "semantic_hash": ""
   }
 }
