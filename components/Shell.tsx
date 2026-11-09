@@ -43,7 +43,7 @@ export default function Shell({ lang, t, view, date, latest, dates, langHrefs, f
           <div className="dnav">
             {i > 0 ? <Link href={to({ date: dates[i - 1] })} aria-label={t.prevA}><svg className="ch" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6l-6 6 6 6" /></svg><span className="t"> {t.prev}</span></Link>
               : <button type="button" aria-label={t.prevA} disabled><svg className="ch" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6l-6 6 6 6" /></svg><span className="t"> {t.prev}</span></button>}
-            <IssueSelect lang={lang} view={view} date={date} latest={latest} options={dates.slice().reverse().map((d) => [d, longDate(d, lang)])} />
+            <IssueSelect lang={lang} view={view} date={date} latest={latest} dates={dates} label={longDate(date, lang)} />
             {i >= 0 && i < dates.length - 1 ? <Link href={to({ date: dates[i + 1] })} aria-label={t.nextA}><span className="t">{t.next} </span><svg className="ch" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 6l6 6-6 6" /></svg></Link>
               : <button type="button" aria-label={t.nextA} disabled><span className="t">{t.next} </span><svg className="ch" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 6l6 6-6 6" /></svg></button>}
           </div>
