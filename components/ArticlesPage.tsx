@@ -5,7 +5,7 @@ import { articlesHref, href, SITE, SITE_NAME } from "@/lib/routes";
 import { seoMeta } from "@/lib/page";
 import { midDate, noFlag } from "@/lib/text";
 import type { ArticleItem } from "@/types/digest";
-import { LANGS, UI, type Lang, type UIStrings } from "@/lib/ui";
+import { LANGS, SUBS, UI, type Lang, type UIStrings } from "@/lib/ui";
 import Ld from "./Ld";
 import Shell from "./Shell";
 import ArticleList from "./ArticleList";
@@ -15,7 +15,7 @@ const hrefs = Object.fromEntries(LANGS.map((l) => [l.code, articlesHref(l.code)]
 /** Share image: the newest article's cover (else the site's). */
 export async function articlesMeta(lang: Lang): Promise<Metadata> {
   const cover = (await getArticleList(lang)).find((a) => a.img)?.img;
-  return seoMeta(lang, articlesHref, UI[lang].arts.title, UI[lang].arts.sub, cover, true, "website");
+  return seoMeta(lang, articlesHref, UI[lang].arts.title, UI[lang].arts.sub, cover, SUBS, "website");
 }
 
 /** schema.org CollectionPage with the articles as an ItemList (each article page carries its own NewsArticle). */

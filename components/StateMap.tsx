@@ -10,7 +10,7 @@ type Donut = Extract<ArticleBlock, { type: "donut" }>;
 type Race = NonNullable<Donut["groups"][number]["races"]>[number];
 
 // code → column, row on an 11×8 grid; Senate seats before the 2026 vote (independents who caucus with Democrats = d);
-// up: a seat on the 2026 ballot (33 regular + specials in Ohio and Florida); name: uk, en (de = en unless given)
+// up: a seat on the 2026 ballot (33 regular + specials in Ohio and Florida); name: uk, en (de = en unless given; fr = en)
 const S: Record<string, { x: number; y: number; s: "dd" | "rr" | "dr"; up?: 1; n: [string, string, string?] }> = {
   AK: { x: 0, y: 0, s: "rr", up: 1, n: ["Аляска", "Alaska"] }, ME: { x: 10, y: 0, s: "dr", up: 1, n: ["Мен", "Maine"] },
   WI: { x: 5, y: 1, s: "dr", n: ["Вісконсин", "Wisconsin"] }, VT: { x: 9, y: 1, s: "dd", n: ["Вермонт", "Vermont"] },

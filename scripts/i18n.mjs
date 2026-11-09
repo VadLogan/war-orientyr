@@ -9,11 +9,11 @@
 //   node scripts/i18n.mjs missing   → i18n/missing.json: { "<uk>": "" } for every untranslated string (newest data first),
 //                                      counted as issues / daily data (strikes, maps, prices…) / static data (STATIC)
 //   node scripts/i18n.mjs merge     → moves filled-in entries of i18n/missing.json into i18n/en.json
-//   node scripts/i18n.mjs build     → regenerates public/i18n/{en,de}/** (runs before `dev` and `build`)
+//   node scripts/i18n.mjs build     → regenerates public/i18n/{en,de,fr}/** (runs before `dev` and `build`)
 //
 //   German (i18n/de.json, i18n/missing.de.json): `missing de` / `merge de` — the current issue (digest.json) and the files the
 //   dashboard fetches (strikes, maps, prices…), not the archived issues. A German digest page without full German text shows
-//   the English page instead; a dashboard file without full German text is shown in English. `build` writes both languages.
+//   the English page instead; a dashboard file without full German text is shown in English. `build` writes all three. French (i18n/fr.json): the same, `missing fr` / `merge fr`.
 //
 // Translate the raw strings: house style (lowercase "russia", country flags) is applied at render time.
 // Not translated: `url`, and `en` / `uk` fields (already in both languages). Rules: lib/i18n.mjs.
@@ -65,7 +65,7 @@ if (cmd === "missing") {
 } else if (cmd === "build") {
   fs.rmSync(OUT, { recursive: true, force: true });
   fs.rmSync(path.join(PUB, "en"), { recursive: true, force: true }); // old full-copy mirrors, no longer used
-  for (const [lang, name, suffix] of [["en", "English", ""], ["de", "German", ":de"]]) {
+  for (const [lang, name, suffix] of [["en", "English", ""], ["de", "German", ":de"], ["fr", "French", ":fr"]]) {
     const tl = readJson(path.join(ROOT, `i18n/${lang}.json`), {}), fl = filesOf(lang), partial = [];
     for (const f of fl) {
       const ss = [...new Set(texts(readJson(path.join(PUB, f))))], left = ss.filter((s) => !tl[s]).length;

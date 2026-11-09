@@ -12,7 +12,7 @@ const st = (c: Cnt): St => { const n = c.ok + c.partial + c.unavailable; return 
 /** Every source domain × every issue: read / partial / unavailable / not used. */
 export default function SourceMatrix() {
   const { lang, smx: data } = useApp();
-  const tr = (uk: string, en: string, de: string) => ({ uk, en, de }[lang]);
+  const tr = (uk: string, en: string, de: string, fr: string) => ({ uk, en, de, fr }[lang]);
   const [fs, setFs] = useSticky<Set<St>>("smxFs", new Set());
   const [sel, setSel] = useSticky<Set<string>>("smxSel", new Set());
   const [q, setQ] = useSticky("smxQ", "");
@@ -22,10 +22,10 @@ export default function SourceMatrix() {
   if (!data) return null;
 
 
-  const nm = { ok: tr("прочитано", "read", "gelesen"), partial: tr("частково", "partial", "teilweise"), unavailable: tr("недоступне", "unavailable", "nicht erreichbar") };
+  const nm = { ok: tr("прочитано", "read", "gelesen", "lue"), partial: tr("частково", "partial", "teilweise", "partielle"), unavailable: tr("недоступне", "unavailable", "nicht erreichbar", "inaccessible") };
   const k2: Record<St, keyof typeof nm> = { ok: "ok", part: "partial", unv: "unavailable" };
-  const head = <><h2>{tr("Джерела по днях", "Sources by day", "Quellen nach Tagen")}</h2><p className="sub">{tr("Як читався кожен ресурс у кожному випуску: зелений — прочитано, бурштиновий — частково або в переказі, червоний — недоступне, порожньо — того дня не використовувався.", "How each resource was read in every issue: green — read, amber — partly or via retelling, red — unavailable, empty — not used that day.", "Wie jede Quelle in jeder Ausgabe gelesen wurde: grün – gelesen, bernsteinfarben – teilweise oder aus zweiter Hand, rot – nicht erreichbar, leer – an diesem Tag nicht verwendet.")}</p></>;
-  if (!data) return <section className="panel" id="srcMx">{head}<div><p className="map-src">{tr("Завантаження випусків…", "Loading issues…", "Ausgaben werden geladen…")}</p></div></section>;
+  const head = <><h2>{tr("Джерела по днях", "Sources by day", "Quellen nach Tagen", "Sources par jour")}</h2><p className="sub">{tr("Як читався кожен ресурс у кожному випуску: зелений — прочитано, бурштиновий — частково або в переказі, червоний — недоступне, порожньо — того дня не використовувався.", "How each resource was read in every issue: green — read, amber — partly or via retelling, red — unavailable, empty — not used that day.", "Wie jede Quelle in jeder Ausgabe gelesen wurde: grün – gelesen, bernsteinfarben – teilweise oder aus zweiter Hand, rot – nicht erreichbar, leer – an diesem Tag nicht verwendet.", "Comment chaque source a été lue dans chaque édition : vert – lue, ambre – en partie ou de seconde main, rouge – inaccessible, vide – non utilisée ce jour-là.")}</p></>;
+  if (!data) return <section className="panel" id="srcMx">{head}<div><p className="map-src">{tr("Завантаження випусків…", "Loading issues…", "Ausgaben werden geladen…", "Chargement des éditions…")}</p></div></section>;
   const days = data.days;
   if (!days.length) return <section className="panel" id="srcMx">{head}<div /></section>;
 
@@ -45,28 +45,28 @@ export default function SourceMatrix() {
     <section className="panel" id="srcMx">{head}
       <div>
         <div className="smx-ctl">
-          <div className="legend smx-leg" role="group" aria-label={tr("Фільтр за статусом", "Filter by status", "Nach Status filtern")}>
+          <div className="legend smx-leg" role="group" aria-label={tr("Фільтр за статусом", "Filter by status", "Nach Status filtern", "Filtrer par statut")}>
             {(["ok", "part", "unv"] as St[]).map((k) => (
               <button type="button" className="smx-chip" key={k} aria-pressed={fs.has(k)} onClick={() => setFs(toggleSet(fs, k, !fs.has(k)))}><i style={{ background: `var(--${k})` }} />{nm[k2[k]]}</button>
             ))}
-            <span className="smx-chip static"><i style={{ background: "var(--track)" }} />{tr("не використовувався", "not used", "nicht verwendet")}</span>
+            <span className="smx-chip static"><i style={{ background: "var(--track)" }} />{tr("не використовувався", "not used", "nicht verwendet", "non utilisée")}</span>
           </div>
-          <input type="search" className="smx-q" placeholder={tr("Ресурси: напр. reuters, axios", "Filter resources (e.g. reuters, axios)", "Quellen filtern (z. B. reuters, axios)")} aria-label={tr("Фільтр ресурсів", "Filter resources", "Quellen filtern")} value={q} onChange={(e) => setQ(e.target.value)} />
+          <input type="search" className="smx-q" placeholder={tr("Ресурси: напр. reuters, axios", "Filter resources (e.g. reuters, axios)", "Quellen filtern (z. B. reuters, axios)", "Filtrer les sources (ex. reuters, axios)")} aria-label={tr("Фільтр ресурсів", "Filter resources", "Quellen filtern", "Filtrer les sources")} value={q} onChange={(e) => setQ(e.target.value)} />
           <button type="button" className="linkbtn" style={{ display: filt ? "none" : undefined }} onClick={() => setShowAll(!showAll)}>
-            {showAll ? tr("Лише основні", "Show main only", "Nur die wichtigsten") : tr("Показати всі (", "Show all (", "Alle anzeigen (") + base.length + ")"}
+            {showAll ? tr("Лише основні", "Show main only", "Nur die wichtigsten", "Principales seulement") : tr("Показати всі (", "Show all (", "Alle anzeigen (", "Tout afficher (") + base.length + ")"}
           </button>
-          <button type="button" className="smx-chip" aria-pressed={onlyOn} hidden={!sel.size} onClick={() => setOnly(!onlyOn)}>{tr("Лише вибрані (", "Selected only (", "Nur ausgewählte (") + sel.size + ")"}</button>
-          <span className="sub">{tr("Показано: ", "Shown: ", "Angezeigt: ") + rows.length + " / " + base.length}</span>
+          <button type="button" className="smx-chip" aria-pressed={onlyOn} hidden={!sel.size} onClick={() => setOnly(!onlyOn)}>{tr("Лише вибрані (", "Selected only (", "Nur ausgewählte (", "Sélection seulement (") + sel.size + ")"}</button>
+          <span className="sub">{tr("Показано: ", "Shown: ", "Angezeigt: ", "Affichées : ") + rows.length + " / " + base.length}</span>
         </div>
         <div>
-          {!rows.length ? <p className="sub">{tr("Нічого не знайдено за фільтром.", "Nothing matches the filter.", "Nichts entspricht dem Filter.")}</p> : (
+          {!rows.length ? <p className="sub">{tr("Нічого не знайдено за фільтром.", "Nothing matches the filter.", "Nichts entspricht dem Filter.", "Rien ne correspond au filtre.")}</p> : (
             <div className="smx-wrap">
               <div className="smx" style={{ gridTemplateColumns: `minmax(170px,1.4fr) repeat(${days.length},minmax(26px,1fr))` }}>
                 <label className="smx-h smx-all">
-                  <input type="checkbox" ref={(el) => { selAll.current = el; if (el) el.indeterminate = nSel > 0 && nSel < rows.length; }} aria-label={tr("Вибрати всі", "Select all", "Alle auswählen")}
+                  <input type="checkbox" ref={(el) => { selAll.current = el; if (el) el.indeterminate = nSel > 0 && nSel < rows.length; }} aria-label={tr("Вибрати всі", "Select all", "Alle auswählen", "Tout sélectionner")}
                     checked={nSel > 0 && nSel === rows.length}
                     onChange={(e) => { const n = new Set(sel); rows.forEach((r) => (e.target.checked ? n.add(r.k) : n.delete(r.k))); setSel(n); }} />
-                  <span>{tr("Вибрати всі", "Select all", "Alle auswählen")}</span>
+                  <span>{tr("Вибрати всі", "Select all", "Alle auswählen", "Tout sélectionner")}</span>
                 </label>
                 {days.map((d) => <div className="smx-h smx-d" key={d}>{shortD(d)}</div>)}
                 {rows.map((r) => [

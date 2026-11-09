@@ -131,19 +131,19 @@ export function makeGeo(M: MapsData, W: number, H: number): Geo {
 /** Front directions (General Staff names, as in the digest) with an anchor point on the front line. A claim belongs to
  *  the nearest anchor within DIR_KM; farther claims belong to none.
  *  ponytail: anchors are hand-placed approximations; replace with sector polygons if the scraper ever provides them. */
-export const DIRS: { id: string; uk: string; en: string; de: string; lat: number; lng: number }[] = [
-  { id: "nsl", uk: "Північно-Слобожанський", en: "North Slobozhanskyi", de: "Nord-Sloboschanskyj", lat: 51.17, lng: 35.05 },
-  { id: "ssl", uk: "Південно-Слобожанський", en: "South Slobozhanskyi", de: "Süd-Sloboschanskyj", lat: 50.3, lng: 36.95 },
-  { id: "kup", uk: "Куп’янський", en: "Kupiansk", de: "Kupjansk", lat: 49.72, lng: 37.62 },
-  { id: "lym", uk: "Лиманський", en: "Lyman", de: "Lyman", lat: 49.05, lng: 37.92 },
-  { id: "slo", uk: "Слов’янський", en: "Sloviansk", de: "Slowjansk", lat: 48.87, lng: 38.12 },
-  { id: "kra", uk: "Краматорський", en: "Kramatorsk", de: "Kramatorsk", lat: 48.6, lng: 37.88 },
-  { id: "kos", uk: "Костянтинівський", en: "Kostiantynivka", de: "Kostjantyniwka", lat: 48.42, lng: 37.75 },
-  { id: "pok", uk: "Покровський", en: "Pokrovsk", de: "Pokrowsk", lat: 48.3, lng: 37.2 },
-  { id: "olk", uk: "Олександрівський", en: "Oleksandrivka", de: "Oleksandriwka", lat: 48.0, lng: 36.75 },
-  { id: "hul", uk: "Гуляйпільський", en: "Huliaipole", de: "Huljajpole", lat: 47.67, lng: 36.27 },
-  { id: "ori", uk: "Оріхівський", en: "Orikhiv", de: "Orichiw", lat: 47.56, lng: 35.8 },
-  { id: "prd", uk: "Придніпровський", en: "Prydniprovskyi", de: "Prydniprowskyj", lat: 46.68, lng: 32.75 },
+export const DIRS: { id: string; uk: string; en: string; de: string; fr: string; lat: number; lng: number }[] = [
+  { id: "nsl", uk: "Північно-Слобожанський", en: "North Slobozhanskyi", de: "Nord-Sloboschanskyj", fr: "Slobojansky Nord", lat: 51.17, lng: 35.05 },
+  { id: "ssl", uk: "Південно-Слобожанський", en: "South Slobozhanskyi", de: "Süd-Sloboschanskyj", fr: "Slobojansky Sud", lat: 50.3, lng: 36.95 },
+  { id: "kup", uk: "Куп’янський", en: "Kupiansk", de: "Kupjansk", fr: "Koupiansk", lat: 49.72, lng: 37.62 },
+  { id: "lym", uk: "Лиманський", en: "Lyman", de: "Lyman", fr: "Lyman", lat: 49.05, lng: 37.92 },
+  { id: "slo", uk: "Слов’янський", en: "Sloviansk", de: "Slowjansk", fr: "Sloviansk", lat: 48.87, lng: 38.12 },
+  { id: "kra", uk: "Краматорський", en: "Kramatorsk", de: "Kramatorsk", fr: "Kramatorsk", lat: 48.6, lng: 37.88 },
+  { id: "kos", uk: "Костянтинівський", en: "Kostiantynivka", de: "Kostjantyniwka", fr: "Kostiantynivka", lat: 48.42, lng: 37.75 },
+  { id: "pok", uk: "Покровський", en: "Pokrovsk", de: "Pokrowsk", fr: "Pokrovsk", lat: 48.3, lng: 37.2 },
+  { id: "olk", uk: "Олександрівський", en: "Oleksandrivka", de: "Oleksandriwka", fr: "Oleksandrivka", lat: 48.0, lng: 36.75 },
+  { id: "hul", uk: "Гуляйпільський", en: "Huliaipole", de: "Huljajpole", fr: "Houliaïpole", lat: 47.67, lng: 36.27 },
+  { id: "ori", uk: "Оріхівський", en: "Orikhiv", de: "Orichiw", fr: "Orikhiv", lat: 47.56, lng: 35.8 },
+  { id: "prd", uk: "Придніпровський", en: "Prydniprovskyi", de: "Prydniprowskyj", fr: "Prydniprovsky", lat: 46.68, lng: 32.75 },
 ];
 const DIR_KM = 80;
 export const dirOf = (e: { lat: number; lng: number }) => {

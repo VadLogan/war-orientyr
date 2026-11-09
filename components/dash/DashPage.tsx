@@ -24,7 +24,7 @@ async function mapsLd(lang: DashLang, date: string, url: string) {
     "@context": "https://schema.org", "@type": "Dataset", name: `${UI[lang].nw.maps.t} · ${date.split("-").reverse().join(".")}`,
     description: UI[lang].nw.maps.p, url: SITE + href(lang, "maps", date, ""), inLanguage: lang, temporalCoverage: date, dateModified: date,
     image: SITE + mapsImg("maps", date), creator: org, publisher: org, isAccessibleForFree: true,
-    isBasedOn: Object.values(M.sources).map((s) => s.url), spatialCoverage: { "@type": "Place", name: { uk: "Україна", en: "Ukraine", de: "Ukraine" }[lang], geo: { "@type": "GeoShape", box: "44.3 22.1 52.4 40.3" } },
+    isBasedOn: Object.values(M.sources).map((s) => s.url), spatialCoverage: { "@type": "Place", name: { uk: "Україна", en: "Ukraine", de: "Ukraine", fr: "Ukraine" }[lang], geo: { "@type": "GeoShape", box: "44.3 22.1 52.4 40.3" } },
     distribution: { "@type": "DataDownload", encodingFormat: "application/json", contentUrl: SITE + url },
   };
 }

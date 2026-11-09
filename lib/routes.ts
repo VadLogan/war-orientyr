@@ -1,4 +1,4 @@
-// URL scheme: [/en|/de][/dashboard|/maps|/strikes][/YYYY-MM-DD]; no date = latest issue (routes in app/(uk), app/(en), app/(de)).
+// URL scheme: [/en|/de|/fr][/dashboard|/maps|/strikes][/YYYY-MM-DD]; no date = latest issue (routes in app/(uk), app/(en), app/(de), app/(fr)).
 import type { Lang } from "./ui";
 
 /** "articles": the article pages (no dated twin; their Shell gets `langHrefs`) */
@@ -13,9 +13,10 @@ export const articlesHref = (lang: Lang) => pre(lang) + "/articles";
 export const articleHref = (lang: Lang, date: string, name: string) => pre(lang) + `/articles/${date}/${name}`;
 /** Absolute site origin (production domain on Vercel, else localhost). */
 export const SITE = process.env.VERCEL_PROJECT_PRODUCTION_URL ? "https://" + process.env.VERCEL_PROJECT_PRODUCTION_URL : "http://localhost:3000";
-export const SITE_NAME: Record<Lang, string> = { uk: "Щоденний дайджест війни", en: "Daily war digest", de: "Täglicher Kriegsbericht" };
+export const SITE_NAME: Record<Lang, string> = { uk: "Щоденний дайджест війни", en: "Daily war digest", de: "Täglicher Kriegsbericht", fr: "Synthèse quotidienne de la guerre" };
 export const SITE_DESC: Record<Lang, string> = {
   uk: "Щодня: фронт, удари, втрати, заяви кремля і реакція світу — коротко і з джерелами.",
   en: "Every day: the front, strikes, losses, the kremlin’s claims and the world’s reaction — briefly, with sources.",
   de: "Jeden Tag: die Front, Angriffe, Verluste, die Behauptungen des kremls und die Reaktionen der Welt – kurz und mit Quellen.",
+  fr: "Chaque jour : le front, les frappes, les pertes, les affirmations du kremlin et les réactions du monde – en bref et avec les sources.",
 };

@@ -4,7 +4,7 @@ import { resolve, type DateParams } from "@/lib/page";
 import { href, SITE, SITE_DESC, SITE_NAME } from "@/lib/routes";
 import { clip, dateTitle, noFlag } from "@/lib/text";
 import type { Digest as DigestT } from "@/types/digest";
-import { UI, type Lang, type UIStrings } from "@/lib/ui";
+import { UI, isSub, type Lang, type SubLang, type UIStrings } from "@/lib/ui";
 import Ld from "./Ld";
 import Shell from "./Shell";
 import Mast from "./Mast";
@@ -23,9 +23,9 @@ function issueLd(D: DigestT, lang: Lang, root: boolean) {
   };
 }
 
-export default async function DigestPage({ lang, params, from }: { lang: Lang; params: DateParams; from?: "de" }) {
+export default async function DigestPage({ lang, params, from }: { lang: Lang; params: DateParams; from?: SubLang }) {
   const { latest, dates, D } = await resolve(params, lang);
-  if (lang === "de" && D.contentLang !== "de") return <div lang="en" style={{ display: "contents" }}><DigestPage lang="en" params={params} from="de" /></div>; // no German text for this issue
+  if (isSub(lang) && D.contentLang !== lang) return <div lang="en" style={{ display: "contents" }}><DigestPage lang="en" params={params} from={lang} /></div>; // no German/French text for this issue
   const t = UI[lang] as UIStrings;
   return (
     <>

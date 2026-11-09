@@ -5,14 +5,14 @@ import Link from "next/link";
 import { href } from "@/lib/routes";
 import { loc, longDate } from "@/lib/text";
 import type { Article, PresentationBody, PresPhase } from "@/types/digest";
-import { UI, type Lang, type UIStrings } from "@/lib/ui";
+import { UI, type Lang, type SubLang, type UIStrings } from "@/lib/ui";
 import { flags } from "@/components/Flag";
 import Shell from "./Shell";
 import EmbedFrame from "./EmbedFrame";
 import PhaseExplorer from "./PhaseExplorer";
 import { artHrefs, Block, LdJson, Sources } from "./ArticlePage";
 
-type P = { a: Article & { presentation: PresentationBody }; lang: Lang; latest: string; dates: string[]; from?: "de" };
+type P = { a: Article & { presentation: PresentationBody }; lang: Lang; latest: string; dates: string[]; from?: SubLang };
 
 /** Claimed (cumulative `area`) vs measured (drop of DeepState `occupied` since the first phase), one row per phase that gained ground. */
 function Compare({ c, phases, locale }: { c: NonNullable<PresentationBody["compare"]>; phases: PresPhase[]; locale: string }) {

@@ -111,7 +111,7 @@ function Records({ R, lang, date, latest }: { R: DayRecords; lang: Lang; date: s
 export default function Mast({ D, lang, dashboard, articles = [], records, latest = "" }: { D: Digest; lang: Lang; dashboard: boolean; articles?: Article[]; records?: DayRecords | null; latest?: string }) {
   const dt = dateTitle(D, lang);
   const H = D.headline && D.headline.title ? D.headline : null;
-  const more = (item: string) => <a className="lede-more" href={"#it-" + item}>{{ uk: "Детальніше ↓", en: "Read more ↓", de: "Mehr dazu ↓" }[lang]}</a>;
+  const more = (item: string) => <a className="lede-more" href={"#it-" + item}>{{ uk: "Детальніше ↓", en: "Read more ↓", de: "Mehr dazu ↓", fr: "Lire la suite ↓" }[lang]}</a>;
   const P = Array.isArray(D.ledeParts) && D.ledeParts.length ? D.ledeParts : null;
   const parts = P?.map((x, k) => <p key={k}>{x.label && <b>{flags(x.label)}</b>}{flags(x.text)}</p>);
 

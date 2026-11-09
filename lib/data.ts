@@ -8,22 +8,22 @@ import type { StrikesBase, StrikesData, Strikes } from "./strikes";
 import { dayRecords } from "./records";
 import { noFlag, styleData } from "./text";
 import { translate } from "./i18n.mjs";
-import type { Lang } from "./ui";
+import { isSub, type Lang } from "./ui";
 
 const read = async <T,>(p: string): Promise<T> => JSON.parse(await fs.readFile(path.join(process.cwd(), "public", p), "utf8"));
 
-/** Translated text (i18n/en.json, i18n/de.json); the data itself is shared by all languages. */
+/** Translated text (i18n/en.json, de.json, fr.json); the data itself is shared by all languages. */
 const getTexts = cache(async (lang: Lang): Promise<Record<string, string>> => {
   try { return JSON.parse(await fs.readFile(path.join(process.cwd(), `i18n/${lang}.json`), "utf8")); } catch { return {}; }
 });
 
-/** An issue in the requested language: its text applied when every string is translated; German falls back to English,
- *  then to Ukrainian (a German digest page without German text shows the English page instead — see DigestPage).
+/** An issue in the requested language: its text applied when every string is translated; German/French fall back to English,
+ *  then to Ukrainian (a German/French digest page without its text shows the English page instead — see DigestPage).
  *  Sources that could not be opened (`status: "unavailable"`) are dropped — readers see only what was read. */
 async function readIssue(p: string, lang: Lang): Promise<Digest> {
   const data = await read<Digest>(p);
   if (data.sources) data.sources = data.sources.filter((s) => s.status !== "unavailable");
-  for (const l of lang === "de" ? (["de", "en"] as const) : lang === "en" ? (["en"] as const) : []) {
+  for (const l of isSub(lang) ? [lang, "en" as const] : lang === "en" ? (["en"] as const) : []) {
     const tr = translate(data, await getTexts(l));
     if (tr) return { ...styleData(tr, "", l), contentLang: l };
   }
@@ -47,8 +47,8 @@ export const getDates = cache(async () => {
 export const getMaps = cache(async <T,>(url: string, lang: Lang): Promise<T> => {
   const data = await read<T>(url.replace(/^\//, ""));
   if (lang === "uk") return data;
-  // German not complete for this file → English, as the browser does (useJson)
-  return ((translate(data, await getTexts(lang)) ?? (lang === "de" ? translate(data, await getTexts("en")) : null)) as T) || data;
+  // German/French not complete for this file → English, as the browser does (useJson)
+  return ((translate(data, await getTexts(lang)) ?? (isSub(lang) ? translate(data, await getTexts("en")) : null)) as T) || data;
 });
 
 /** Map snapshot for a dashboard date: the newest public/maps/archive/<date>.json on or before it (else the oldest), or maps.json. */
@@ -81,11 +81,11 @@ export const getArticleDirs = cache(async () => {
   return out.sort((a, b) => (a.date + a.name < b.date + b.name ? -1 : 1));
 });
 
-/** One article in `lang` (German files fall back to English, English to Ukrainian); null without preview.uk.json. */
+/** One article in `lang` (German/French files fall back to English, English to Ukrainian); null without preview.uk.json. */
 export const getArticle = cache(async (date: string, name: string, lang: Lang = "uk"): Promise<Article | null> => {
   const dir = (await getArticleDirs()).find((x) => x.date === date && x.name === name);
   if (!dir) return null;
-  const order: Lang[] = lang === "de" ? ["de", "en", "uk"] : lang === "en" ? ["en", "uk"] : ["uk"];
+  const order: Lang[] = isSub(lang) ? [lang, "en", "uk"] : lang === "en" ? ["en", "uk"] : ["uk"];
   const pick = (base: string) => order.map((l) => `${base}.${l}.json`).find((f) => dir.files.includes(f)) ?? null;
   const pf = pick("preview"), af = pick("article"), sf = pick("presentation");
   if (!pf) return null;
@@ -122,7 +122,7 @@ export const getArticleList = cache(async (lang: Lang = "uk"): Promise<ArticleIt
       title: b?.title || a.preview.title, lead: a.preview.lead || b?.lead || "", kicker: b?.kicker, button: a.preview.button,
       topic: uk.preview.topic, fmt: a.presentation ? "live" : a.article?.blocks.some((x) => x.type === "scenarios") ? "scen" : "an",
       mins: Math.max(1, Math.round(words(b?.blocks ?? []) / 200)), sources: a.article?.sources?.length ?? 0,
-      langs: (["uk", "en", "de"] as Lang[]).filter(has), contentLang: a.contentLang,
+      langs: (["uk", "en", "de", "fr"] as Lang[]).filter(has), contentLang: a.contentLang,
     };
   }));
   return rows.filter((x): x is ArticleItem => !!x);
@@ -137,7 +137,7 @@ export const getStrikes = cache(async (): Promise<Strikes> => ({
 export const getRecords = cache(async (D: Digest, lang: Lang) => {
   const R = dayRecords(D, await getStrikes());
   if (!R?.strike || lang === "uk") return R;
-  const tm = { ...(lang === "de" ? await getTexts("en") : {}), ...(await getTexts(lang)) }, tr = (s: string) => tm[s] ?? s;
+  const tm = { ...(isSub(lang) ? await getTexts("en") : {}), ...(await getTexts(lang)) }, tr = (s: string) => tm[s] ?? s;
   return { ...R, strike: { ...R.strike, place: tr(R.strike.place), prevPlace: tr(R.strike.prevPlace) } };
 });
 
