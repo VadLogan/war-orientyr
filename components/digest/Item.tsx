@@ -22,6 +22,10 @@ export function fireLabel(k: keyof Fire, n: number, f: Fire, lang: Lang) {
     return { air: n === 1 ? "Luftangriff" : "Luftangriffe", kab: "gelenkte Gleitbomben (KAB)", kamikaze: "Kamikaze-Drohnen",
       shell: (n === 1 ? "Beschuss" : "Beschüsse") + " von Stellungen und Ortschaften" + (f.mlrs != null ? `, davon ${fmt(f.mlrs, lang)} mit Mehrfachraketenwerfern` : ""),
       missiles: n === 1 ? "Raketenangriff" : "Raketenangriffe", mlrs: "" }[k];
+  if (lang === "fr")
+    return { air: n === 1 ? "frappe aérienne" : "frappes aériennes", kab: n === 1 ? "bombe aérienne guidée (KAB)" : "bombes aériennes guidées (KAB)", kamikaze: n === 1 ? "drone kamikaze" : "drones kamikazes",
+      shell: (n === 1 ? "bombardement" : "bombardements") + " de positions et de localités" + (f.mlrs != null ? `, dont ${fmt(f.mlrs, lang)} au lance-roquettes multiple` : ""),
+      missiles: n === 1 ? "frappe de missile" : "frappes de missiles", mlrs: "" }[k];
   return { air: plural(n, "авіаудар", "авіаудари", "авіаударів"), kab: plural(n, "КАБ", "КАБи", "КАБів"),
     kamikaze: plural(n, "дрон-камікадзе", "дрони-камікадзе", "дронів-камікадзе"),
     shell: plural(n, "обстріл", "обстріли", "обстрілів") + " позицій і населених пунктів" + (f.mlrs != null ? `, з них ${fmt(f.mlrs, lang)} — з РСЗВ` : ""),
@@ -79,7 +83,7 @@ export default function Item({ i, lang, t, strikes }: RC & { i: ItemT; strikes: 
       {i.quote && <blockquote className="quote"><span className="en">{flags(i.quote.en)}</span>{lang === "uk" && <span className="uk">{flags(i.quote.uk)}</span>}</blockquote>}
       <span className="cred">{flags(i.source)}</span>
       {Array.isArray(i.links) && i.links.length > 0 && (
-        <span className="reslinks">{{ uk: "Джерела:", en: "Sources:", de: "Quellen:" }[lang]}{" "}
+        <span className="reslinks">{{ uk: "Джерела:", en: "Sources:", de: "Quellen:", fr: "Sources :" }[lang]}{" "}
           {i.links.map((x, k) => <Fragment key={k}>{k > 0 && " · "}<a href={x.url} target="_blank" rel="noopener">{flags(x.title)}</a></Fragment>)}
         </span>
       )}

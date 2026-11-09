@@ -7,7 +7,7 @@ import { articleHref, href, SITE, SITE_NAME } from "@/lib/routes";
 import { seoMeta } from "@/lib/page";
 import { clip, loc, longDate, noFlag } from "@/lib/text";
 import type { Article, ArticleBlock } from "@/types/digest";
-import { LANGS, UI, type Lang, type UIStrings } from "@/lib/ui";
+import { LANGS, SUBS, UI, isSub, type Lang, type SubLang, type UIStrings } from "@/lib/ui";
 import Ld from "./Ld";
 import Shell from "./Shell";
 import ImgZoom from "./ImgZoom";
@@ -18,7 +18,7 @@ import Scenarios from "./Scenarios";
 import StateMap from "./StateMap";
 
 const num = (v: number, lang: Lang) => v.toLocaleString(loc(lang), { maximumFractionDigits: 1 });
-const IN_ART: Record<Lang, string> = { uk: "У матеріалі", en: "In this article", de: "In diesem Artikel" };
+const IN_ART: Record<Lang, string> = { uk: "У матеріалі", en: "In this article", de: "In diesem Artikel", fr: "Dans cet article" };
 
 /** Bars, one series, one scale: value and share at the bar end, makers under the label (no hover needed).
  *  `col`: vertical bars, value on top, label under. */
@@ -153,7 +153,7 @@ export function Block({ b, lang, base, id }: { b: ArticleBlock; lang: Lang; base
     );
     case "estimate": return (
       <aside className="art-est">
-        <span className="chip part">{flags(b.title || ({ uk: "Оцінка редакції", en: "Our estimate", de: "Einschätzung der Redaktion" }[lang]))}</span>
+        <span className="chip part">{flags(b.title || ({ uk: "Оцінка редакції", en: "Our estimate", de: "Einschätzung der Redaktion", fr: "Notre estimation" }[lang]))}</span>
         {b.text.map((x, k) => <p key={k}>{rich(x)}</p>)}
       </aside>
     );
@@ -170,7 +170,7 @@ export function Block({ b, lang, base, id }: { b: ArticleBlock; lang: Lang; base
       </div>
     );
     case "links": return (
-      <p className="reslinks art-res">{{ uk: "Ресурси:", en: "Resources:", de: "Ressourcen:" }[lang]}{" "}
+      <p className="reslinks art-res">{{ uk: "Ресурси:", en: "Resources:", de: "Ressourcen:", fr: "Ressources :" }[lang]}{" "}
         {b.items.map((x, k) => <span key={k}>{k > 0 && ", "}<a href={x.url} target="_blank" rel="noopener">{flags(x.title)}</a></span>)}</p>
     );
     case "cols": return <div className="art-cols">{b.cols.map((c, k) => <div key={k}>{c.map((x, j) => <Block b={x} lang={lang} base={base} key={j} />)}</div>)}</div>;
@@ -209,10 +209,10 @@ export const heading = (a: Article) => {
 
 export async function articleMeta(lang: Lang, params: ArticleParams): Promise<Metadata> {
   const a = await load(params, lang), url = (l: Lang) => articleHref(l, a.date, a.name), h = heading(a);
-  const de = lang === "de" ? a.contentLang === "de" : (await load(params, "de")).contentLang === "de";
-  if (lang === "de" && !de) return articleMeta("en", params);
+  const subs = (await Promise.all(SUBS.map(async (l) => ((lang === l ? a : await load(params, l)).contentLang === l ? l : null)))).filter((l): l is SubLang => !!l);
+  if (isSub(lang) && !subs.includes(lang)) return articleMeta("en", params);
   const s = (a.article || a.presentation)?.seo;
-  return seoMeta(lang, url, clip(s?.title || h.title, 60), clip(s?.description || h.lead, 160), a.img || undefined, de);
+  return seoMeta(lang, url, clip(s?.title || h.title, 60), clip(s?.description || h.lead, 160), a.img || undefined, subs);
 }
 
 /** schema.org NewsArticle for search engines (title, date, image, language, publisher). */
@@ -230,9 +230,9 @@ export function LdJson({ a, lang }: { a: Article; lang: Lang }) {
 /** Article hrefs of the language picker. */
 export const artHrefs = (a: Article) => Object.fromEntries(LANGS.map((l) => [l.code, articleHref(l.code, a.date, a.name)])) as Record<Lang, string>;
 
-export default async function ArticlePage({ lang, params, from }: { lang: Lang; params: ArticleParams; from?: "de" }) {
+export default async function ArticlePage({ lang, params, from }: { lang: Lang; params: ArticleParams; from?: SubLang }) {
   const [a, latest, dates] = await Promise.all([load(params, lang), getLatest(), getDates()]);
-  if (lang === "de" && a.contentLang !== "de") return <div lang="en" style={{ display: "contents" }}><ArticlePage lang="en" params={params} from="de" /></div>; // no German version
+  if (isSub(lang) && a.contentLang !== lang) return <div lang="en" style={{ display: "contents" }}><ArticlePage lang="en" params={params} from={lang} /></div>; // no German/French version
   if (a.presentation) return <PresentationPage a={{ ...a, presentation: a.presentation }} lang={lang} latest={latest.date} dates={dates} from={from} />;
   const t = UI[lang] as UIStrings, A = a.article!, inIssue = dates.includes(a.date);
   const img = typeof A.image === "object" ? A.image : null;

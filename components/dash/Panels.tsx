@@ -1,21 +1,23 @@
 "use client";
 import { Fragment, useLayoutEffect, useRef, useState } from "react";
 import type { TimelineEntry } from "@/types/digest";
-import { fmt, loc, niceMax, num, shortD, TL } from "@/lib/text";
+import { dayN, fmt, loc, nDay, niceMax, num, plural, shortD, TL } from "@/lib/text";
+import IssueSelect from "@/components/IssueSelect";
+import { lcCalc, lcPeriod, type LandCfg } from "@/lib/landcost";
 import { fireIco } from "@/lib/icons";
 import type { Lang } from "@/lib/ui";
 import { useApp } from "../ctx";
-import { useChartW, useJson } from "./hooks";
+import { useChartW, useJson, useSticky } from "./hooks";
 import { flags } from "@/components/Flag";
 
-const MN = { uk: ["січ", "лют", "бер", "кві", "тра", "чер", "лип", "сер", "вер", "жов", "лис", "гру"], en: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"], de: ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"] };
-/** Ukrainian / English / German pick for the panel texts below. */
-const pick = (lang: Lang) => (uk: string, en: string, de: string) => ({ uk, en, de }[lang]);
+export const MN = { uk: ["січ", "лют", "бер", "кві", "тра", "чер", "лип", "сер", "вер", "жов", "лис", "гру"], en: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"], de: ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"], fr: ["janv", "févr", "mars", "avr", "mai", "juin", "juil", "août", "sept", "oct", "nov", "déc"] };
+/** Ukrainian / English / German / French pick for the panel texts below. */
+export const pick = (lang: Lang) => (uk: string, en: string, de: string, fr: string) => ({ uk, en, de, fr }[lang]);
 const Ico = ({ html }: { html: string }) => <span className="li-ico" dangerouslySetInnerHTML={{ __html: html }} />;
-const A = ({ href, children }: { href?: string; children: React.ReactNode }) => <a href={href} target="_blank" rel="noopener">{children}</a>;
+export const A = ({ href, children }: { href?: string; children: React.ReactNode }) => <a href={href} target="_blank" rel="noopener">{children}</a>;
 
 /** Horizontal grid lines with y-axis labels shared by the fixed-width bar charts. */
-function Grid({ ymax, y, ml, W, mr, dx, label }: { ymax: number; y: (v: number) => number; ml: number; W: number; mr: number; dx: number; label: (v: number) => string }) {
+export function Grid({ ymax, y, ml, W, mr, dx, label }: { ymax: number; y: (v: number) => number; ml: number; W: number; mr: number; dx: number; label: (v: number) => string }) {
   return <>{[0, 1, 2, 3, 4].map((k) => { const v = (ymax * k) / 4; return (
     <Fragment key={k}><line className="cv-g" x1={ml} x2={W - mr} y1={y(v)} y2={y(v)} /><text className="cv-x" x={ml - dx} y={y(v) + 4} textAnchor="end">{label(v)}</text></Fragment>
   ); })}</>;
@@ -40,16 +42,16 @@ export function Civ() {
   };
   return (
     <section className="panel cv" id="civ">
-      <h2>{flags(C.title || tr("Цивільні жертви за місяцями", "Civilian casualties by month", "Zivile Opfer nach Monaten"))}</h2>
+      <h2>{flags(C.title || tr("Цивільні жертви за місяцями", "Civilian casualties by month", "Zivile Opfer nach Monaten", "Victimes civiles par mois"))}</h2>
       {C.lead && <p className="cv-lead">{flags(C.lead)}</p>}
-      <div className="cv-leg"><span><i style={{ background: "var(--c2)" }} />{tr("Загинули", "Killed", "Getötet")}</span><span><i style={{ background: "var(--c1)" }} />{tr("Поранені", "Injured", "Verletzt")}</span><span className="cv-hint">{tr("над стовпчиком — разом; під місяцем — загиблі", "above the bar — total; below the month — killed", "über dem Balken – gesamt; unter dem Monat – Getötete")}</span></div>
-      <svg className="cv-svg" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`${C.title || ""}: ${M.map((r) => lab(r) + tr(" — загинули ", " — killed ", " – getötet ") + r.killed + tr(", поранені ", ", injured ", ", verletzt ") + r.injured).join("; ")}`}>
+      <div className="cv-leg"><span><i style={{ background: "var(--c2)" }} />{tr("Загинули", "Killed", "Getötet", "Tués")}</span><span><i style={{ background: "var(--c1)" }} />{tr("Поранені", "Injured", "Verletzt", "Blessés")}</span><span className="cv-hint">{tr("над стовпчиком — разом; під місяцем — загиблі", "above the bar — total; below the month — killed", "über dem Balken – gesamt; unter dem Monat – Getötete", "au-dessus de la barre – total ; sous le mois – tués")}</span></div>
+      <svg className="cv-svg" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`${C.title || ""}: ${M.map((r) => lab(r) + tr(" — загинули ", " — killed ", " – getötet ", " – tués ") + r.killed + tr(", поранені ", ", injured ", ", verletzt ", ", blessés ") + r.injured).join("; ")}`}>
         <Grid ymax={ymax} y={y} ml={ml} W={W} mr={mr} dx={8} label={(v) => f(Math.round(v))} />
         {M.map((r, i) => {
           const cx = ml + bw * (i + 0.5), x0 = +(cx - g / 2).toFixed(1), t = r.killed + r.injured, yk = y(r.killed), yt = y(t);
           return (
             <g className="cv-b" tabIndex={0} key={r.m}>
-              <title>{`${lab(r)}: ${tr("загинули", "killed", "getötet")} ${f(r.killed)}, ${tr("поранені", "injured", "verletzt")} ${f(r.injured)}, ${tr("разом", "total", "gesamt")} ${f(t)}${r.note ? " (" + r.note + ")" : ""}`}</title>
+              <title>{`${lab(r)}: ${tr("загинули", "killed", "getötet", "tués")} ${f(r.killed)}, ${tr("поранені", "injured", "verletzt", "blessés")} ${f(r.injured)}, ${tr("разом", "total", "gesamt", "total")} ${f(t)}${r.note ? " (" + r.note + ")" : ""}`}</title>
               <rect x={(cx - bw / 2).toFixed(1)} y={mt} width={bw.toFixed(1)} height={ih} fill="transparent" />
               {seg(x0, yk, mt + ih, "var(--c2)", false)}{seg(x0, yt, yk - 2, "var(--c1)", true)}
               <text className="cv-v" x={cx} y={yt - 7} textAnchor="middle">{f(t)}</text>
@@ -60,8 +62,8 @@ export function Civ() {
         })}
         <line className="cv-base" x1={ml} x2={W - mr} y1={mt + ih} y2={mt + ih} />
       </svg>
-      <details className="cv-tbl"><summary>{tr("Таблиця", "Table", "Tabelle")}</summary><table>
-        <thead><tr><th>{tr("Місяць", "Month", "Monat")}</th><th className="n">{tr("Загинули", "Killed", "Getötet")}</th><th className="n">{tr("Поранені", "Injured", "Verletzt")}</th><th className="n">{tr("Разом", "Total", "Gesamt")}</th></tr></thead>
+      <details className="cv-tbl"><summary>{tr("Таблиця", "Table", "Tabelle", "Tableau")}</summary><table>
+        <thead><tr><th>{tr("Місяць", "Month", "Monat", "Mois")}</th><th className="n">{tr("Загинули", "Killed", "Getötet", "Tués")}</th><th className="n">{tr("Поранені", "Injured", "Verletzt", "Blessés")}</th><th className="n">{tr("Разом", "Total", "Gesamt", "Total")}</th></tr></thead>
         <tbody>{M.map((r) => <tr key={r.m}><td>{lab(r)}</td><td className="n">{f(r.killed)}</td><td className="n">{f(r.injured)}</td><td className="n">{f(r.killed + r.injured)}</td></tr>)}</tbody>
       </table></details>
       <p className="cv-src">{flags(C.note || "")} <A href={C.url || "#"}>{flags(C.source || "")}</A></p>
@@ -75,15 +77,15 @@ export function Fire() {
   const tr = pick(lang);
   const rows = TL(LATEST).filter((e) => e.fire && e.date <= D.date).slice(-30);
   const day = (d: string) => { const x = new Date(d + "T00:00:00Z"); x.setUTCDate(x.getUTCDate() - 1); return x.toISOString().slice(0, 10); };
-  const TT = { air: tr("Авіаудари", "Airstrikes", "Luftangriffe"), kab: tr("КАБи", "Guided bombs (KAB)", "Gleitbomben (KAB)"), kamikaze: tr("Дрони-камікадзе", "Kamikaze drones", "Kamikaze-Drohnen"), shell: tr("Обстріли", "Shelling", "Beschuss") };
+  const TT = { air: tr("Авіаудари", "Airstrikes", "Luftangriffe", "Frappes aériennes"), kab: tr("КАБи", "Guided bombs (KAB)", "Gleitbomben (KAB)", "Bombes guidées (KAB)"), kamikaze: tr("Дрони-камікадзе", "Kamikaze drones", "Kamikaze-Drohnen", "Drones kamikazes"), shell: tr("Обстріли", "Shelling", "Beschuss", "Bombardements") };
   const f = (n: number) => fmt(n, lang);
   const [sel, setSel] = useState<{ k: string; n: number } | null>(null);
   return (
     <section className="panel" id="fireP">
-      <h2>{tr("Вогонь рф за добу", "russian fire per day", "russisches Feuer pro Tag")}</h2>
-      <p className="sub">{tr("За зведенням Генштабу ЗСУ: авіаудари, КАБи, дрони-камікадзе та обстріли. Кожен стовпчик — доба; виділено останню. Наведіть або торкніться стовпчика, щоб побачити дані за ту добу.", "General Staff daily report: airstrikes, guided bombs, kamikaze drones and shelling. Each bar is one day; the highlighted bar is the latest. Hover over or tap a bar to see that day.", "Tagesbericht des Generalstabs: Luftangriffe, Gleitbomben, Kamikaze-Drohnen und Beschuss. Jeder Balken ist ein Tag; hervorgehoben ist der neueste. Fahren Sie über einen Balken oder tippen Sie ihn an, um diesen Tag zu sehen.")}</p>
+      <h2>{tr("Вогонь рф за добу", "russian fire per day", "russisches Feuer pro Tag", "feu russe par jour")}</h2>
+      <p className="sub">{tr("За зведенням Генштабу ЗСУ: авіаудари, КАБи, дрони-камікадзе та обстріли. Кожен стовпчик — доба; виділено останню. Наведіть або торкніться стовпчика, щоб побачити дані за ту добу.", "General Staff daily report: airstrikes, guided bombs, kamikaze drones and shelling. Each bar is one day; the highlighted bar is the latest. Hover over or tap a bar to see that day.", "Tagesbericht des Generalstabs: Luftangriffe, Gleitbomben, Kamikaze-Drohnen und Beschuss. Jeder Balken ist ein Tag; hervorgehoben ist der neueste. Fahren Sie über einen Balken oder tippen Sie ihn an, um diesen Tag zu sehen.", "Bilan quotidien de l’état-major : frappes aériennes, bombes guidées, drones kamikazes et bombardements. Chaque barre est un jour ; la barre mise en évidence est la plus récente. Survolez ou touchez une barre pour voir ce jour.")}</p>
       <div className="fire-grid">
-        {!rows.length ? <p className="sub">{tr("Даних поки немає.", "No data yet.", "Noch keine Daten.")}</p> : (["air", "kab", "kamikaze", "shell"] as const).map((k) => {
+        {!rows.length ? <p className="sub">{tr("Даних поки немає.", "No data yet.", "Noch keine Daten.", "Pas encore de données.")}</p> : (["air", "kab", "kamikaze", "shell"] as const).map((k) => {
           const pts = rows.filter((e) => e.fire![k] != null);
           if (!pts.length) return null;
           const val = (e: TimelineEntry) => e.fire![k]!;
@@ -94,7 +96,7 @@ export function Fire() {
             <div className="fire-card" key={k}>
               <div className="fire-h"><Ico html={fireIco(k)} />{TT[k]}</div>
               <div className="fire-v"><b>{f(v)}</b>{dlt != null && <span className={"fire-d " + (dlt > 0 ? "up" : dlt < 0 ? "dn" : "")}>{dlt > 0 ? "▲ +" : dlt < 0 ? "▼ −" : "= "}{f(Math.abs(dlt))}</span>}</div>
-              <div className="sub" style={{ margin: 0 }}>{tr("доба", "day", "Tag")} {shortD(day(last.date))}{k === "shell" && mlrs(last) != null ? tr(" · з РСЗВ ", " · MLRS ", " · Mehrfachraketenwerfer ") + f(mlrs(last)!) : ""} · {tr("середнє", "avg", "Ø")} {f(avg)}</div>
+              <div className="sub" style={{ margin: 0 }}>{tr("доба", "day", "Tag", "jour")} {shortD(day(last.date))}{k === "shell" && mlrs(last) != null ? tr(" · з РСЗВ ", " · MLRS ", " · Mehrfachraketenwerfer ", " · LRM ") + f(mlrs(last)!) : ""} · {tr("середнє", "avg", "Ø", "moy.")} {f(avg)}</div>
               <div style={{ position: "relative" }} onPointerLeave={(ev) => { if (ev.pointerType === "mouse") setSel(null); }}>
                 <svg className="fire-bars" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" role="img" aria-label={TT[k]}>
                   {pts.map((e, n) => { const h = Math.max(1.5, (val(e) / mx) * H), isL = n === pts.length - 1, on = sel?.k === k && sel.n === n; return (
@@ -110,11 +112,11 @@ export function Fire() {
                   const sg = (n: number) => (n > 0 ? "+" : n < 0 ? "−" : "±") + f(Math.abs(n));
                   return (
                     <div className="ctip" style={{ bottom: "100%", marginBottom: 6, ...(x < 50 ? { left: x + "%" } : { right: 100 - x + "%" }) }}>
-                      <div className="d">{tr("доба ", "day ", "Tag ") + shortD(day(e.date)) + (sel.n === pts.length - 1 ? tr(" · остання", " · latest", " · neuester") : "")}</div>
+                      <div className="d">{tr("доба ", "day ", "Tag ", "jour ") + shortD(day(e.date)) + (sel.n === pts.length - 1 ? tr(" · остання", " · latest", " · neuester", " · le plus récent") : "")}</div>
                       <div className="r"><b>{f(val(e))}</b><span>{TT[k]}</span></div>
-                      {k === "shell" && mlrs(e) != null && <div className="r"><b>{f(mlrs(e)!)}</b><span>{tr("з РСЗВ", "MLRS", "Mehrfachraketenwerfer")}</span></div>}
-                      {d != null && <div className="s">{sg(d) + tr(" до попередньої доби", " vs the day before", " zum Vortag")}</div>}
-                      <div className="s">{sg(va) + tr(" до середнього ", " vs the average ", " zum Durchschnitt ") + f(avg)}</div>
+                      {k === "shell" && mlrs(e) != null && <div className="r"><b>{f(mlrs(e)!)}</b><span>{tr("з РСЗВ", "MLRS", "Mehrfachraketenwerfer", "LRM")}</span></div>}
+                      {d != null && <div className="s">{sg(d) + tr(" до попередньої доби", " vs the day before", " zum Vortag", " par rapport à la veille")}</div>}
+                      <div className="s">{sg(va) + tr(" до середнього ", " vs the average ", " zum Durchschnitt ", " par rapport à la moyenne ") + f(avg)}</div>
                     </div>
                   );
                 })()}
@@ -129,15 +131,15 @@ export function Fire() {
 }
 
 /* ---------- cost of the nightly attack: counts from the Air Force report, unit prices from prices.json ---------- */
-type Prices = { note: string; types: Record<string, { label: string; low: number; high: number; src: string; url?: string }> };
-type Mix = { type: string; n: number }[];
-function money(v: number, lang: Lang) {
+export type Prices = { note: string; types: Record<string, { label: string; low: number; high: number; src: string; url?: string }> };
+export type Mix = { type: string; n: number }[];
+export function money(v: number, lang: Lang) {
   const tr = pick(lang), L = loc(lang);
-  if (v < 1e6) return "$" + Math.round(v / 1e3).toLocaleString(L) + tr(" тис.", "k", " Tsd.");
-  if (v >= 1e9) return "$" + (v / 1e9).toLocaleString(L, { maximumFractionDigits: 2 }) + tr(" млрд", " bn", " Mrd.");
-  return "$" + (v / 1e6).toLocaleString(L, { maximumFractionDigits: v < 1e7 ? 1 : 0 }) + tr(" млн", " m", " Mio.");
+  if (v < 1e6) return "$" + Math.round(v / 1e3).toLocaleString(L) + tr(" тис.", "k", " Tsd.", " k");
+  if (v >= 1e9) return "$" + (v / 1e9).toLocaleString(L, { maximumFractionDigits: 2 }) + tr(" млрд", " bn", " Mrd.", " Md");
+  return "$" + (v / 1e6).toLocaleString(L, { maximumFractionDigits: v < 1e7 ? 1 : 0 }) + tr(" млн", " m", " Mio.", " M");
 }
-const atkMix = (e: { mix?: Mix; launched?: number }) => {
+export const atkMix = (e: { mix?: Mix; launched?: number }) => {
   if (Array.isArray(e.mix) && e.mix.length) return { mix: e.mix, full: true };
   const n = num(e.launched);
   return n != null ? { mix: [{ type: "drone-mixed", n }], full: false } : null;
@@ -160,13 +162,13 @@ export function Attack() {
   });
   const tr = pick(lang);
   const body = (() => {
-    if (err) return <p className="map-src">{tr("Не вдалося завантажити ціни (prices.json).", "Could not load the prices (prices.json).", "Die Preise konnten nicht geladen werden (prices.json).")}</p>;
-    if (!P) return <p className="map-src">{tr("Завантаження цін…", "Loading prices…", "Preise werden geladen…")}</p>;
+    if (err) return <p className="map-src">{tr("Не вдалося завантажити ціни (prices.json).", "Could not load the prices (prices.json).", "Die Preise konnten nicht geladen werden (prices.json).", "Impossible de charger les prix (prices.json).")}</p>;
+    if (!P) return <p className="map-src">{tr("Завантаження цін…", "Loading prices…", "Preise werden geladen…", "Chargement des prix…")}</p>;
     const f = (n: number) => fmt(n, lang), $ = (v: number) => money(v, lang);
     const sum = (mix: Mix) => { let lo = 0, hi = 0; mix.forEach((m) => { const p = P.types[m.type]; if (p) { lo += m.n * p.low; hi += m.n * p.high; } }); return { lo, hi }; };
     const Ad = D.airDefense || {};
     const cur = atkMix(Array.isArray(Ad.mix) ? Ad : { launched: Ad.launched });
-    if (!cur) return <p className="map-src">{tr("У звіті Повітряних сил за цю ніч немає кількості засобів атаки.", "The Air Force report for this night gives no count of attack weapons.", "Der Bericht der Luftwaffe nennt für diese Nacht keine Zahl der Angriffsmittel.")}</p>;
+    if (!cur) return <p className="map-src">{tr("У звіті Повітряних сил за цю ніч немає кількості засобів атаки.", "The Air Force report for this night gives no count of attack weapons.", "Der Bericht der Luftwaffe nennt für diese Nacht keine Zahl der Angriffsmittel.", "Le bilan de l’armée de l’air pour cette nuit ne donne pas le nombre d’armes d’attaque.")}</p>;
     const S = sum(cur.mix), tot = cur.mix.reduce((a, m) => a + m.n, 0);
     const H = TL(LATEST).filter((e) => e.date <= D.date).map((e) => {
       const m = atkMix(e);
@@ -181,9 +183,9 @@ export function Attack() {
       const ymax = niceMax(Math.max(...H.map((h) => h.hi)) * 1.05), y = (v: number) => mt + ih - (v / ymax) * ih;
       const h = sel != null ? H[sel] : null, open = (d: string) => d !== D.date && DATES.includes(d);
       chart = <>
-        <p className="atk-sub">{tr("Попередні ночі, діапазон оцінки в млн $ (блідіші стовпчики — лише дрони без розбивки; «+N рак.» — ракети, які не вдалося оцінити, бо їхні типи не названо). ⓘ Наведіть або торкніться стовпчика — покаже розрахунок за ту ніч:", "Previous nights, estimate range in $ m (paler bars — drones only, no breakdown; “+N msl” — missiles that could not be priced because their types were not named). ⓘ Hover over or tap a bar to see that night’s calculation:", "Vorherige Nächte, Schätzspanne in Mio. $ (blassere Balken – nur Drohnen ohne Aufschlüsselung; „+N Rak.“ – Raketen, die sich nicht bewerten ließen, weil ihr Typ nicht genannt wurde). ⓘ Fahren Sie über einen Balken oder tippen Sie ihn an, um die Berechnung für diese Nacht zu sehen:")}</p>
+        <p className="atk-sub">{tr("Попередні ночі, діапазон оцінки в млн $ (блідіші стовпчики — лише дрони без розбивки; «+N рак.» — ракети, які не вдалося оцінити, бо їхні типи не названо). ⓘ Наведіть або торкніться стовпчика — покаже розрахунок за ту ніч:", "Previous nights, estimate range in $ m (paler bars — drones only, no breakdown; “+N msl” — missiles that could not be priced because their types were not named). ⓘ Hover over or tap a bar to see that night’s calculation:", "Vorherige Nächte, Schätzspanne in Mio. $ (blassere Balken – nur Drohnen ohne Aufschlüsselung; „+N Rak.“ – Raketen, die sich nicht bewerten ließen, weil ihr Typ nicht genannt wurde). ⓘ Fahren Sie über einen Balken oder tippen Sie ihn an, um die Berechnung für diese Nacht zu sehen:", "Nuits précédentes, fourchette estimée en M$ (barres plus pâles – drones seulement, sans détail ; « +N miss. » – missiles impossibles à chiffrer faute de type précisé). ⓘ Survolez ou touchez une barre pour voir le calcul de cette nuit :")}</p>
         <div className="atk-plot" style={{ position: "relative" }} ref={wrapRef} onPointerLeave={(ev) => { if (ev.pointerType === "mouse") setSel(null); }}>
-          <svg className="cv-svg" viewBox={`0 0 ${W} ${Hh}`} role="img" aria-label={tr("Оцінка вартості нічних атак: ", "Estimated cost of the night attacks: ", "Geschätzte Kosten der nächtlichen Angriffe: ") + H.map((h) => shortD(h.date) + " " + $(h.lo) + "–" + $(h.hi)).join("; ")}>
+          <svg className="cv-svg" viewBox={`0 0 ${W} ${Hh}`} role="img" aria-label={tr("Оцінка вартості нічних атак: ", "Estimated cost of the night attacks: ", "Geschätzte Kosten der nächtlichen Angriffe: ", "Coût estimé des attaques nocturnes : ") + H.map((h) => shortD(h.date) + " " + $(h.lo) + "–" + $(h.hi)).join("; ")}>
             <line className="cv-base" x1={ml} x2={W - mr} y1={mt + ih} y2={mt + ih} />
             <Grid ymax={ymax} y={y} ml={ml} W={W} mr={mr} dx={6} label={(v) => (v ? $(v).replace(/ (млн|m)$/, "") : "0")} />
             {H.map((h, i) => {
@@ -194,7 +196,7 @@ export function Attack() {
                   onClick={() => { if (sel === i && open(h.date)) { selectDate(h.date); return; } setSel(i); }}>
                   <rect x={(cx - bw / 2).toFixed(1)} y={mt} width={bw.toFixed(1)} height={ih} fill="transparent" />
                   <rect x={(cx - g / 2).toFixed(1)} y={yt.toFixed(1)} width={g.toFixed(1)} height={Math.max(2, yb - yt).toFixed(1)} rx={3} fill={h.date === D.date ? "var(--c2)" : "var(--c1)"} fillOpacity={h.full ? undefined : ".55"} />
-                  {h.mu ? <text className="cv-k" x={cx} y={(yt - 6).toFixed(1)} textAnchor="middle">+{h.mu} {tr("рак.", "msl", "Rak.")}</text> : null}
+                  {h.mu ? <text className="cv-k" x={cx} y={(yt - 6).toFixed(1)} textAnchor="middle">+{h.mu} {tr("рак.", "msl", "Rak.", "miss.")}</text> : null}
                   <text className="cv-x" x={cx} y={Hh - 6} textAnchor="middle">{shortD(h.date)}</text>
                 </g>
               );
@@ -202,36 +204,36 @@ export function Attack() {
           </svg>
           {h && (
             <div className="ctip" ref={tipRef}>
-              <div className="d">{tr("ніч ", "night ", "Nacht ") + (h.night || shortD(h.date)) + (h.date === D.date ? tr(" · цей випуск", " · this issue", " · diese Ausgabe") : "")}</div>
-              <div style={{ fontWeight: 600 }}>{tr("Оцінка: ", "Estimate: ", "Schätzung: ") + range(h.lo, h.hi)}</div>
-              {h.la != null && <div className="s">{tr("Запущено ", "Launched ", "Gestartet ") + f(h.la) + (h.ic != null && h.la ? tr(", збито / подавлено ", ", shot down / suppressed ", ", abgeschossen / unterdrückt ") + f(h.ic) + " (" + Math.round((h.ic / h.la) * 100) + "%)" : "")}</div>}
+              <div className="d">{tr("ніч ", "night ", "Nacht ", "nuit ") + (h.night || shortD(h.date)) + (h.date === D.date ? tr(" · цей випуск", " · this issue", " · diese Ausgabe", " · cette édition") : "")}</div>
+              <div style={{ fontWeight: 600 }}>{tr("Оцінка: ", "Estimate: ", "Schätzung: ", "Estimation : ") + range(h.lo, h.hi)}</div>
+              {h.la != null && <div className="s">{tr("Запущено ", "Launched ", "Gestartet ", "Lancés ") + f(h.la) + (h.ic != null && h.la ? tr(", збито / подавлено ", ", shot down / suppressed ", ", abgeschossen / unterdrückt ", ", abattus / neutralisés ") + f(h.ic) + " (" + Math.round((h.ic / h.la) * 100) + "%)" : "")}</div>}
               {h.mix.map((m, k) => { const pp = P.types[m.type]; return (
-                <div className="r" key={k}><b>{f(m.n)}</b><span>{flags((pp ? pp.label : m.type) + (pp ? " · " + range(m.n * pp.low, m.n * pp.high) : tr(" · ціну не знайдено", " · no price found", " · kein Preis gefunden")))}</span></div>
+                <div className="r" key={k}><b>{f(m.n)}</b><span>{flags((pp ? pp.label : m.type) + (pp ? " · " + range(m.n * pp.low, m.n * pp.high) : tr(" · ціну не знайдено", " · no price found", " · kein Preis gefunden", " · aucun prix trouvé")))}</span></div>
               ); })}
-              {!h.full && <div className="s">{tr("Розбивки за типами немає — оцінка за діапазоном усіх дронів.", "No breakdown by type — estimated over the range of all drones.", "Keine Aufschlüsselung nach Typ – geschätzt über die Spanne aller Drohnen.")}</div>}
-              {h.mu ? <div className="s">{tr("Ще " + h.mu + " ракет без названого типу — не оцінено.", h.mu + " more missiles of unnamed type — not priced.", "Weitere " + h.mu + " Raketen ohne genannten Typ – nicht bewertet.")}</div> : null}
-              {open(h.date) && <div className="s" style={{ color: "var(--accent)" }}>{tr("Клацніть, щоб відкрити випуск (на телефоні — торкніться ще раз)", "Click to open the issue (on a phone, tap again)", "Klicken, um die Ausgabe zu öffnen (auf dem Handy erneut tippen)")}</div>}
+              {!h.full && <div className="s">{tr("Розбивки за типами немає — оцінка за діапазоном усіх дронів.", "No breakdown by type — estimated over the range of all drones.", "Keine Aufschlüsselung nach Typ – geschätzt über die Spanne aller Drohnen.", "Pas de détail par type – estimation sur la fourchette de tous les drones.")}</div>}
+              {h.mu ? <div className="s">{tr("Ще " + h.mu + " ракет без названого типу — не оцінено.", h.mu + " more missiles of unnamed type — not priced.", "Weitere " + h.mu + " Raketen ohne genannten Typ – nicht bewertet.", h.mu + " autres missiles de type non précisé – non chiffrés.")}</div> : null}
+              {open(h.date) && <div className="s" style={{ color: "var(--accent)" }}>{tr("Клацніть, щоб відкрити випуск (на телефоні — торкніться ще раз)", "Click to open the issue (on a phone, tap again)", "Klicken, um die Ausgabe zu öffnen (auf dem Handy erneut tippen)", "Cliquez pour ouvrir l’édition (sur téléphone, touchez à nouveau)")}</div>}
             </div>
           )}
         </div>
       </>;
     }
     return <>
-      <div className="atk-top"><b>{$(S.lo)}–{$(S.hi)}</b><span>{flags(Ad.period || "")}: {f(tot)} {tr("засобів атаки", "attack weapons", "Angriffsmittel")}{num(Ad.missiles) ? "" : tr(", ракет у звіті немає", ", no missiles in the report", ", keine Raketen im Bericht")}{cur.full ? "" : tr(" · розбивки за типами немає, оцінка за діапазоном усіх дронів", " · no breakdown by type, estimated over the range of all drones", " · keine Aufschlüsselung nach Typ, geschätzt über die Spanne aller Drohnen")}</span></div>
-      <details className="cv-tbl"><summary>{tr("Розрахунок по типах", "Calculation by type", "Berechnung nach Typ")}</summary><table>
-        <thead><tr><th>{tr("Тип", "Type", "Typ")}</th><th className="n">{tr("Кількість", "Count", "Anzahl")}</th><th className="n">{tr("Ціна одиниці", "Unit price", "Stückpreis")}</th><th className="n">{tr("Разом", "Total", "Gesamt")}</th></tr></thead>
+      <div className="atk-top"><b>{$(S.lo)}–{$(S.hi)}</b><span>{flags(Ad.period || "")}: {f(tot)} {tr("засобів атаки", "attack weapons", "Angriffsmittel", "armes d’attaque")}{num(Ad.missiles) ? "" : tr(", ракет у звіті немає", ", no missiles in the report", ", keine Raketen im Bericht", ", aucun missile dans le bilan")}{cur.full ? "" : tr(" · розбивки за типами немає, оцінка за діапазоном усіх дронів", " · no breakdown by type, estimated over the range of all drones", " · keine Aufschlüsselung nach Typ, geschätzt über die Spanne aller Drohnen", " · pas de détail par type, estimation sur la fourchette de tous les drones")}</span></div>
+      <details className="cv-tbl"><summary>{tr("Розрахунок по типах", "Calculation by type", "Berechnung nach Typ", "Calcul par type")}</summary><table>
+        <thead><tr><th>{tr("Тип", "Type", "Typ", "Type")}</th><th className="n">{tr("Кількість", "Count", "Anzahl", "Nombre")}</th><th className="n">{tr("Ціна одиниці", "Unit price", "Stückpreis", "Prix unitaire")}</th><th className="n">{tr("Разом", "Total", "Gesamt", "Total")}</th></tr></thead>
         <tbody>{cur.mix.map((m, k) => {
-          const p = P.types[m.type] || { label: m.type, low: null, high: null, src: tr("ціну не знайдено", "no price found", "kein Preis gefunden") } as unknown as Prices["types"][string];
+          const p = P.types[m.type] || { label: m.type, low: null, high: null, src: tr("ціну не знайдено", "no price found", "kein Preis gefunden", "aucun prix trouvé") } as unknown as Prices["types"][string];
           const lo = p.low != null ? m.n * p.low : null, hi = p.high != null ? m.n * p.high : null;
           return <tr key={k}><td>{flags(p.label)}<small className="src">{p.url ? <A href={p.url}>{flags(p.src)}</A> : flags(p.src)}</small></td><td className="n">{f(m.n)}</td>
             <td className="n">{p.low == null ? "—" : range(p.low, p.high)}</td><td className="n">{lo == null ? "—" : range(lo, hi!)}</td></tr>;
         })}</tbody>
       </table></details>
       {chart}
-      <p className="cv-src">{flags(P.note)} {tr("Кількість — зі звіту Повітряних сил; це вартість лише засобів ураження, без пусків, логістики та збитків, завданих Україні. Ціни не перевірені незалежно.", "Counts are from the Air Force report; this is the cost of the weapons only, without launch, logistics or the damage done to Ukraine. Prices are not independently verified.", "Die Anzahl stammt aus dem Bericht der Luftwaffe; es sind nur die Kosten der Waffen selbst, ohne Start, Logistik und die in der Ukraine angerichteten Schäden. Die Preise sind nicht unabhängig überprüft.")}</p>
+      <p className="cv-src">{flags(P.note)} {tr("Кількість — зі звіту Повітряних сил; це вартість лише засобів ураження, без пусків, логістики та збитків, завданих Україні. Ціни не перевірені незалежно.", "Counts are from the Air Force report; this is the cost of the weapons only, without launch, logistics or the damage done to Ukraine. Prices are not independently verified.", "Die Anzahl stammt aus dem Bericht der Luftwaffe; es sind nur die Kosten der Waffen selbst, ohne Start, Logistik und die in der Ukraine angerichteten Schäden. Die Preise sind nicht unabhängig überprüft.", "Les nombres viennent du bilan de l’armée de l’air ; c’est le coût des armes seules, sans le lancement, la logistique ni les dégâts causés à l’Ukraine. Les prix ne sont pas vérifiés de façon indépendante.")}</p>
     </>;
   })();
-  return <section className="panel atk" id="atk"><h2>{tr("Скільки коштував росії нічний обстріл — оцінка", "What the night attack cost russia — an estimate", "Was russland der nächtliche Angriff kostete – eine Schätzung")}</h2><div>{body}</div></section>;
+  return <section className="panel atk" id="atk"><h2>{tr("Скільки коштував росії нічний обстріл — оцінка", "What the night attack cost russia — an estimate", "Was russland der nächtliche Angriff kostete – eine Schätzung", "Ce que l’attaque nocturne a coûté à la russie – une estimation")}</h2><div>{body}</div></section>;
 }
 
 /* ---------- recruitment vs losses: recruit.json ---------- */
@@ -254,9 +256,9 @@ export function Recruit() {
   const W = useChartW();
   const { data: C, err } = useJson<Recruit>("/recruit.json");
   const tr = pick(lang);
-  const head = <h2>{tr("Набір у російську армію проти втрат — оцінка", "Recruitment into the russian army vs losses — an estimate", "Rekrutierung in die russische Armee und Verluste – eine Schätzung")}</h2>;
-  if (err) return <section className="panel rec" id="rec">{head}<div><p className="map-src">{tr("Не вдалося завантажити дані (recruit.json).", "Could not load the data (recruit.json).", "Die Daten konnten nicht geladen werden (recruit.json).")}</p></div></section>;
-  if (!C) return <section className="panel rec" id="rec">{head}<div><p className="map-src">{tr("Завантаження…", "Loading…", "Wird geladen…")}</p></div></section>;
+  const head = <h2>{tr("Набір у російську армію проти втрат — оцінка", "Recruitment into the russian army vs losses — an estimate", "Rekrutierung in die russische Armee und Verluste – eine Schätzung", "Recrutement dans l’armée russe et pertes – une estimation")}</h2>;
+  if (err) return <section className="panel rec" id="rec">{head}<div><p className="map-src">{tr("Не вдалося завантажити дані (recruit.json).", "Could not load the data (recruit.json).", "Die Daten konnten nicht geladen werden (recruit.json).", "Impossible de charger les données (recruit.json).")}</p></div></section>;
+  if (!C) return <section className="panel rec" id="rec">{head}<div><p className="map-src">{tr("Завантаження…", "Loading…", "Wird geladen…", "Chargement…")}</p></div></section>;
   const f = (n: number) => fmt(n, lang), lab = (m: string) => MN[lang][+m.slice(5, 7) - 1];
   const rec: Record<string, number> = {}, recP: Record<string, { derived?: boolean }> = {}, cl: Record<string, number> = {};
   (C.periods || []).forEach((p) => { const ms = mSpan(p.from, p.to); ms.forEach((m) => { rec[m] = p.n / ms.length; recP[m] = p; }); });
@@ -287,19 +289,19 @@ export function Recruit() {
   return (
     <section className="panel rec" id="rec">{head}<div>
       <div className="rc-stats">
-        <div><small>{tr(`Набрано за ${per} (оцінка)`, `Recruited in ${per} (estimate)`, `Rekrutiert ${per} (Schätzung)`)}</small><b>≈{k(recSum)}</b></div>
-        <div><small>{tr("Втрати за ті ж місяці (Генштаб)", "Losses in the same months (General Staff)", "Verluste in denselben Monaten (Generalstab)")}</small><b>{f(losSum)}</b></div>
-        {C.plan && <div><small>{tr(`План кремля на ${C.plan.year} рік`, `The kremlin’s plan for ${C.plan.year}`, `Plan des kremls für ${C.plan.year}`)}</small><b>{f(C.plan.n)}</b><span>{tr("виконано", "fulfilled", "erfüllt")} ≈{Math.round((recYear / C.plan.n) * 100)}% {tr("(оцінка)", "(estimate)", "(Schätzung)")}</span></div>}
+        <div><small>{tr(`Набрано за ${per} (оцінка)`, `Recruited in ${per} (estimate)`, `Rekrutiert ${per} (Schätzung)`, `Recrutés en ${per} (estimation)`)}</small><b>≈{k(recSum)}</b></div>
+        <div><small>{tr("Втрати за ті ж місяці (Генштаб)", "Losses in the same months (General Staff)", "Verluste in denselben Monaten (Generalstab)", "Pertes sur les mêmes mois (état-major)")}</small><b>{f(losSum)}</b></div>
+        {C.plan && <div><small>{tr(`План кремля на ${C.plan.year} рік`, `The kremlin’s plan for ${C.plan.year}`, `Plan des kremls für ${C.plan.year}`, `Plan du kremlin pour ${C.plan.year}`)}</small><b>{f(C.plan.n)}</b><span>{tr("виконано", "fulfilled", "erfüllt", "réalisé")} ≈{Math.round((recYear / C.plan.n) * 100)}% {tr("(оцінка)", "(estimate)", "(Schätzung)", "(estimation)")}</span></div>}
       </div>
-      <div className="cv-leg"><span><i style={{ background: "var(--c2)" }} />{tr("Втрати особового складу (Генштаб ЗСУ)", "Personnel losses (Ukraine’s General Staff)", "Personalverluste (ukrainischer Generalstab)")}</span><span><i className="ln" />{tr("Набір контрактників — оцінка (середнє за місяць)", "Contract recruitment — estimate (monthly average)", "Anwerbung von Vertragssoldaten – Schätzung (Monatsdurchschnitt)")}</span><span><i className="ln dash" />{tr("Заява рф (Медведєв)", "russia’s claim (Medvedev)", "Angabe russlands (Medwedew)")}</span></div>
-      <svg className="cv-svg" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={tr("Набір і втрати за місяцями: ", "Recruitment and losses by month: ", "Rekrutierung und Verluste nach Monaten: ") + all.map((m) => lab(m) + tr(" втрати ", " losses ", " Verluste ") + (L[m] ?? "—") + tr(", набір ", ", recruited ", ", rekrutiert ") + (rec[m] != null ? Math.round(rec[m]) : "—")).join("; ")}>
+      <div className="cv-leg"><span><i style={{ background: "var(--c2)" }} />{tr("Втрати особового складу (Генштаб ЗСУ)", "Personnel losses (Ukraine’s General Staff)", "Personalverluste (ukrainischer Generalstab)", "Pertes en personnel (état-major ukrainien)")}</span><span><i className="ln" />{tr("Набір контрактників — оцінка (середнє за місяць)", "Contract recruitment — estimate (monthly average)", "Anwerbung von Vertragssoldaten – Schätzung (Monatsdurchschnitt)", "Recrutement sous contrat – estimation (moyenne mensuelle)")}</span><span><i className="ln dash" />{tr("Заява рф (Медведєв)", "russia’s claim (Medvedev)", "Angabe russlands (Medwedew)", "affirmation de la russie (Medvedev)")}</span></div>
+      <svg className="cv-svg" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={tr("Набір і втрати за місяцями: ", "Recruitment and losses by month: ", "Rekrutierung und Verluste nach Monaten: ", "Recrutement et pertes par mois : ") + all.map((m) => lab(m) + tr(" втрати ", " losses ", " Verluste ", " pertes ") + (L[m] ?? "—") + tr(", набір ", ", recruited ", ", rekrutiert ", ", recrutés ") + (rec[m] != null ? Math.round(rec[m]) : "—")).join("; ")}>
         <line className="cv-base" x1={ml} x2={W - mr} y1={mt + ih} y2={mt + ih} />
-        <Grid ymax={ymax} y={y} ml={ml} W={W} mr={mr} dx={6} label={(v) => (v ? f(Math.round(v / 1000)) + (lang === "en" ? "k" : lang === "de" ? " Tsd." : " тис.") : "0")} />
+        <Grid ymax={ymax} y={y} ml={ml} W={W} mr={mr} dx={6} label={(v) => (v ? f(Math.round(v / 1000)) + ({ uk: " тис.", en: "k", de: " Tsd.", fr: " k" }[lang]) : "0")} />
         {all.map((m, i) => {
           const cx = ml + bw * (i + 0.5), v = L[m];
           return (
             <g className="cv-b" tabIndex={0} key={m}>
-              <title>{`${lab(m)} ${m.slice(0, 4)}: ${tr("втрати за Генштабом", "losses per General Staff", "Verluste laut Generalstab")} ${v != null ? f(v) : "—"}; ${tr("набір (оцінка)", "recruited (estimate)", "rekrutiert (Schätzung)")} ${rec[m] != null ? "≈" + k(rec[m]) + (recP[m].derived ? tr(" (розраховано)", " (derived)", " (berechnet)") : "") : tr("немає даних", "no data", "keine Daten")}${cl[m] != null ? tr("; заява рф ≈", "; russia’s claim ≈", "; Angabe russlands ≈") + k(cl[m]) : ""}`}</title>
+              <title>{`${lab(m)} ${m.slice(0, 4)}: ${tr("втрати за Генштабом", "losses per General Staff", "Verluste laut Generalstab", "pertes selon l’état-major")} ${v != null ? f(v) : "—"}; ${tr("набір (оцінка)", "recruited (estimate)", "rekrutiert (Schätzung)", "recrutés (estimation)")} ${rec[m] != null ? "≈" + k(rec[m]) + (recP[m].derived ? tr(" (розраховано)", " (derived)", " (berechnet)", " (calculé)") : "") : tr("немає даних", "no data", "keine Daten", "pas de données")}${cl[m] != null ? tr("; заява рф ≈", "; russia’s claim ≈", "; Angabe russlands ≈", "; affirmation de la russie ≈") + k(cl[m]) : ""}`}</title>
               <rect x={(cx - bw / 2).toFixed(1)} y={mt} width={bw.toFixed(1)} height={ih} fill="transparent" />
               {v != null && <path d={`M${(cx - g / 2).toFixed(1)} ${mt + ih}V${(y(v) + 3).toFixed(1)}q0 -3 3 -3h${(g - 6).toFixed(1)}q3 0 3 3V${mt + ih}z`} fill="var(--c2)" fillOpacity=".85" />}
               <text className="cv-x" x={cx} y={H - 6} textAnchor="middle">{lab(m)}</text>
@@ -308,8 +310,8 @@ export function Recruit() {
         })}
         {step(cl, "rc-cl")}{step(rec, "rc-rec")}
       </svg>
-      <details className="cv-tbl"><summary>{tr("Таблиця і джерела", "Table and sources", "Tabelle und Quellen")}</summary><table>
-        <thead><tr><th>{tr("Місяць", "Month", "Monat")}</th><th className="n">{tr("Втрати (Генштаб)", "Losses (General Staff)", "Verluste (Generalstab)")}</th><th className="n">{tr("Набір (оцінка)", "Recruited (estimate)", "Rekrutiert (Schätzung)")}</th><th className="n">{tr("Заява рф", "russia’s claim", "Angabe russlands")}</th></tr></thead>
+      <details className="cv-tbl"><summary>{tr("Таблиця і джерела", "Table and sources", "Tabelle und Quellen", "Tableau et sources")}</summary><table>
+        <thead><tr><th>{tr("Місяць", "Month", "Monat", "Mois")}</th><th className="n">{tr("Втрати (Генштаб)", "Losses (General Staff)", "Verluste (Generalstab)", "Pertes (état-major)")}</th><th className="n">{tr("Набір (оцінка)", "Recruited (estimate)", "Rekrutiert (Schätzung)", "Recrutés (estimation)")}</th><th className="n">{tr("Заява рф", "russia’s claim", "Angabe russlands", "affirmation de la russie")}</th></tr></thead>
         <tbody>{all.map((m) => <tr key={m}><td>{lab(m)} {m.slice(0, 4)}</td><td className="n">{L[m] != null ? f(L[m]) : "—"}</td><td className="n">{rec[m] != null ? "≈" + k(rec[m]) : "—"}</td><td className="n">{cl[m] != null ? "≈" + k(cl[m]) : "—"}</td></tr>)}</tbody>
       </table><ul className="rc-src">{srcs.map(([s, u], i) => <li key={i}>{u ? <A href={u}>{flags(s)}</A> : flags(s)}</li>)}</ul></details>
       <p className="cv-src">{flags(C.note || "")}</p>
@@ -318,7 +320,6 @@ export function Recruit() {
 }
 
 /* ---------- price of a kilometre: GS totals + losses timeline, DeepState area from maps.json ---------- */
-type LandCfg = { baseline: { km2: number; url: string; source: string }; anchor: { date: string; totals: Record<string, number>; url: string; source: string } };
 export type MapsData = {
   areas: Record<string, number>;
   sources: Record<"deepstate" | "isw" | "divgen", { url: string; asOfLabel: string; note: string }>;
@@ -330,19 +331,67 @@ export type MapsData = {
   dsEvents?: { id: number; d: string; lat: number; lng: number; k: "ru" | "ua" | "fix"; t: string; ru: { id: number; d: string; t: string; km: number; lag: number } | null }[];
   method?: string;
 };
-export function LandCost() {
+export type LandCostR = {
+  per: string; setPer: (v: string) => void; dates: string[]; S: string | null; E?: string; dmy: (iso: string) => string;
+  st: "err" | "load" | "msg" | "ok"; msg?: React.ReactNode; avg?: number | null;
+  C?: LandCfg; M?: MapsData; gs?: { personnel?: number | string | null; source?: string; date?: string } | null;
+  pers?: number | null; tot?: (k: string) => number | null; net?: number; netI?: number; line?: React.ReactNode;
+};
+/** Price of a kilometre for a period — "all" (since 24.02.2022), "30"/"7" days or a start date; a period starts at an archived
+ *  DeepState snapshot (newest on or before it). Shared by the panel and the dashboard card; `per0` overrides the reader's choice. */
+export function useLandCost(per0?: string): LandCostR {
   const { LATEST, lang, t: T } = useApp();
   const t = T.lcost;
+  const tr = pick(lang);
   const lc = useJson<LandCfg>("/landcost.json"), mp = useJson<MapsData>("/maps/maps.json");
-  const wrap = (x: React.ReactNode) => <section className="tlwrap" id="landcost"><div className="tl-head"><h2>{t.title}</h2><p>{t.sub}</p></div><div>{x}</div></section>;
-  if (lc.err || mp.err) return wrap(<p className="map-src">{t.err}</p>);
-  if (!lc.data || !mp.data) return wrap(<p className="map-src">{t.loading}</p>);
-  const C = lc.data, M = mp.data, Ar = M.areas || {}, base = C.baseline.km2, B = LATEST;
-  const ser = ((B.losses && B.losses.series) || []).filter((e) => e && e.ru && e.date > C.anchor.date);
-  const tot = (k: string) => { const a = C.anchor.totals[k]; if (a == null) return null; return a + ser.reduce((s, e) => s + (num(e.ru![k]) || 0), 0); };
-  const gs = B.losses && B.losses.gsTotal, pers = gs ? num(gs.personnel) : null;
-  const net = Ar.ds_occ - base, netI = Ar.isw - base;
-  if (!(net > 0)) return wrap(<p className="map-src">{t.err}</p>);
+  const [perS, setPer] = useSticky("lcPer", "all");
+  const per = per0 ?? perS;
+  const dates = useJson<{ dates: string[] }>("/maps/archive/index.json").data?.dates || [];
+  const { E, S } = lcPeriod(dates, per);
+  const old = useJson<MapsData>(S ? `/maps/archive/${S}.json` : null);
+  const dmy = (iso: string) => iso.split("-").reverse().join(".");
+  const base = { per, setPer, dates, S, E, dmy };
+  if (lc.err || mp.err || old.err) return { ...base, st: "err" };
+  if (!lc.data || !mp.data || (per !== "all" && !old.data)) return { ...base, st: "load" };
+  const C = lc.data, M = mp.data, Ar = M.areas || {}, base0 = C.baseline.km2, B = LATEST;
+  const f = (n: number) => fmt(n, lang);
+  const gs = B.losses && B.losses.gsTotal;
+  const { pers, tot, net, netI, avg, a0, days, span } = lcCalc({ C, areas: Ar, oldAreas: old.data?.areas, series: (B.losses && B.losses.series) || [], gsPersonnel: gs ? num(gs.personnel) : null, per, S, E });
+  let line: React.ReactNode;
+  if (per === "all") {
+    if (!(net > 0)) return { ...base, st: "msg", msg: t.err };
+    line = t.area(f(Ar.ds_occ), "DeepState", M.sources.deepstate.asOfLabel, f(base0), f(net));
+  } else {
+    const rows = { length: days };
+    const head = tr(`Період ${dmy(S!)} – ${dmy(E!)} (${span} дн.)`, `Period ${dmy(S!)} – ${dmy(E!)} (${span} days)`, `Zeitraum ${dmy(S!)} – ${dmy(E!)} (${span} Tage)`, `Période du ${dmy(S!)} au ${dmy(E!)} (${span} jours)`)
+      + (rows.length < span ? tr(`, втрати є за ${rows.length} дн.`, `, losses for ${rows.length} days`, `, Verluste für ${rows.length} Tage`, `, pertes sur ${rows.length} jours`) : "");
+    if (!(net > 0)) return { ...base, st: "msg" as const, msg: <>{head}: {tr(`за DeepState росія не збільшила окуповану площу (${f(a0)} → ${f(Ar.ds_occ)} км²), тож ціну не порахувати.`, `per DeepState russia gained no net ground (${f(a0)} → ${f(Ar.ds_occ)} km²), so there is no price to compute.`, `laut DeepState hat russland netto kein Gelände gewonnen (${f(a0)} → ${f(Ar.ds_occ)} km²), ein Preis lässt sich nicht berechnen.`, `selon DeepState, la russie n’a gagné aucun terrain net (${f(a0)} → ${f(Ar.ds_occ)} km²) : pas de prix à calculer.`)}</> };
+    line = <>{head}. {tr(`Приріст за DeepState: ${f(Ar.ds_occ)} − ${f(a0)} км² = ${f(net)} км². За короткий період приріст малий, тож уточнення карти на кілька км² помітно змінюють результат.`, `Gain per DeepState: ${f(Ar.ds_occ)} − ${f(a0)} km² = ${f(net)} km². Over a short period the gain is small, so map corrections of a few km² shift the result noticeably.`, `Gewinn laut DeepState: ${f(Ar.ds_occ)} − ${f(a0)} km² = ${f(net)} km². Über einen kurzen Zeitraum ist der Gewinn klein, Kartenkorrekturen von wenigen km² verschieben das Ergebnis daher deutlich.`, `Gain selon DeepState : ${f(Ar.ds_occ)} − ${f(a0)} km² = ${f(net)} km². Sur une courte période le gain est faible : des corrections de carte de quelques km² changent nettement le résultat.`)}</>;
+  }
+  return { ...base, st: "ok", avg, C, M, gs, pers, tot, net, netI, line };
+}
+
+export function LandCost() {
+  const { lang, t: T } = useApp();
+  const t = T.lcost;
+  const tr = pick(lang);
+  const L = useLandCost(), { per, setPer, dates, S, dmy } = L;
+  const ctl = (
+    <div className="tl-controls">
+      <div className="seg" role="group" aria-label={tr("Період", "Period", "Zeitraum", "Période")}>
+        {([["all", tr("з 24.02.2022", "since 24.02.2022", "seit 24.02.2022", "depuis le 24.02.2022")], ["30", T.r30], ["7", T.r7]] as const).map(([k, l]) => <button type="button" key={k} aria-pressed={per === k} onClick={() => setPer(k)}>{l}</button>)}
+      </div>
+      {dates.length > 1 && <IssueSelect lang={lang} dates={dates.slice(0, -1)} latest={dates.at(-2)!} date={S || dates.at(-2)!} onPick={setPer} className={per.length === 10 ? "on" : undefined}
+        label={per.length === 10 && S ? tr("з ", "from ", "ab ", "depuis le ") + dmy(S) : tr("з дати…", "from date…", "ab Datum…", "depuis le…")}
+        cal={{ h: tr("Початок періоду", "Start of the period", "Beginn des Zeitraums", "Début de la période"), none: tr("немає знімка карти", "no map snapshot", "kein Kartenstand", "pas d’état de la carte"), fresh: tr("найновіший знімок", "newest snapshot", "neuester Kartenstand", "dernier état de la carte"),
+          count: (n: number) => tr(`${n} ${plural(n, "знімок", "знімки", "знімків")} карти`, `${n} map ${n === 1 ? "snapshot" : "snapshots"}`, `${n} ${n === 1 ? "Kartenstand" : "Kartenstände"}`, `${n} ${n === 1 ? "état" : "états"} de la carte`) }} />}
+    </div>
+  );
+  const wrap = (x: React.ReactNode) => <section className="tlwrap" id="landcost"><div className="tl-head"><h2>{t.title}</h2><p>{t.sub}</p></div><div>{ctl}{x}</div></section>;
+  if (L.st === "err") return wrap(<p className="map-src">{t.err}</p>);
+  if (L.st === "load") return wrap(<p className="map-src">{t.loading}</p>);
+  if (L.st === "msg") return wrap(<p className="map-src">{L.msg}</p>);
+  const { C, M, gs, pers, tot, net, netI, line } = L as Required<LandCostR>;
   const f = (n: number) => fmt(n, lang);
   const f1 = (v: number) => (v >= 100 ? f(Math.round(v)) : Number(v).toLocaleString(loc(lang), { maximumFractionDigits: 1, minimumFractionDigits: 1 }));
   const add = (a: number | null, b: number | null) => (a == null || b == null ? null : a + b);
@@ -353,7 +402,7 @@ export function LandCost() {
       <p className="ls-caveat">{flags(t.caveat)}</p>
       <div className="tiles">{tiles.map(([l, v]) => <div className="tile" key={l}><small>{flags(l)}</small><b>{v == null ? "—" : f1(v / net)}</b><span>{v == null ? "" : t.tot(f(v), f(net))}</span></div>)}</div>
       <section className="panel">
-        <p className="sub" style={{ margin: 0 }}>{t.area(f(Ar.ds_occ), "DeepState", ds.asOfLabel, f(base), f(net))}</p>
+        <p className="sub" style={{ margin: 0 }}>{line}</p>
         {netI > 0 && pers != null && <p className="sub" style={{ margin: 0 }}>{t.alt("ISW", f(netI), f1(pers / netI))}</p>}
         <details className="method"><summary>{t.method}</summary>
           <p>{flags(t.methodText(C.anchor.date.split("-").reverse().join(".")))}</p>

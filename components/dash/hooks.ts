@@ -26,9 +26,9 @@ export function useJson<T>(url: string | null): { data: T | null; err: boolean }
     if (!url) return;
     let live = true;
     const data = fetchJson<T>(url);
-    // text subset in the page language; German falls back to English (a file not yet fully in German has no /i18n/de subset)
+    // text subset in the page language; German/French fall back to English (a file not yet fully translated has no /i18n/<lang> subset)
     const text = (l: string) => fetchJson<Record<string, string>>("/i18n/" + l + url);
-    const get = lang === "uk" ? data : Promise.all([data, text(lang).catch(() => (lang === "de" ? text("en").catch(() => null) : null))])
+    const get = lang === "uk" ? data : Promise.all([data, text(lang).catch(() => (lang === "de" || lang === "fr" ? text("en").catch(() => null) : null))])
       .then(([d, tm]) => (tm && (translate(d, tm) as T)) || d);
     get.then((data) => live && setS({ data, err: false }), () => live && setS({ data: null, err: true }));
     return () => { live = false; };

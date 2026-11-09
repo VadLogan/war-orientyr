@@ -10,6 +10,7 @@ const L = {
   uk: { house: "Палата представників", senate: "Сенат", maj: "більшість", two: "дві третини", of: "з", d: "Д", r: "Р", tools: "Що отримує Конгрес", part: "частково" },
   en: { house: "House", senate: "Senate", maj: "majority", two: "two-thirds", of: "of", d: "D", r: "R", tools: "What Congress gets", part: "partly" },
   de: { house: "Repräsentantenhaus", senate: "Senat", maj: "Mehrheit", two: "Zweidrittel", of: "von", d: "D", r: "R", tools: "Was der Kongress bekommt", part: "teilweise" },
+  fr: { house: "Chambre des représentants", senate: "Sénat", maj: "majorité", two: "deux tiers", of: "sur", d: "D", r: "R", tools: "Ce qu’obtient le Congrès", part: "en partie" },
 };
 const CHAMBERS = [{ k: "house", n: 435, maj: 218, two: 290 }, { k: "senate", n: 100, maj: 51, two: 67 }] as const;
 const pct = (v: number, n: number) => (v / n) * 100 + "%";

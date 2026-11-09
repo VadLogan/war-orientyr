@@ -7,9 +7,10 @@ import { dayLabel, dayN, loc, longDate, nDay } from "@/lib/text";
 
 /** Client island: the issue picker. The date button opens a month calendar (a modal <dialog>):
  *  wide screens — a panel under the button, one month with ‹ ›; phones — a bottom sheet with every month, newest first.
- *  Days with an issue are links; quick jumps to the latest issue, a week and a month before it. */
-export default function IssueSelect({ lang, view, date, latest, dates, label }: { lang: Lang; view: View; date: string; latest: string; dates: string[]; label: string }) {
-  const t = UI[lang].cal;
+ *  Days with an issue are links; quick jumps to the latest issue, a week and a month before it.
+ *  With `onPick` it is a plain date picker over `dates`: days are buttons, no jumps, `cal` overrides the issue wording. */
+export default function IssueSelect({ lang, view, date, latest, dates, label, onPick, cal, className }: { lang: Lang; view?: View; date: string; latest: string; dates: string[]; label: string; onPick?: (d: string) => void; cal?: Partial<typeof UI.uk.cal>; className?: string }) {
+  const t = { ...UI[lang].cal, ...cal };
   const btn = useRef<HTMLButtonElement>(null), dlg = useRef<HTMLDialogElement>(null);
   const [open, setOpen] = useState(false), [sheet, setSheet] = useState(false), [month, setMonth] = useState(date.slice(0, 7));
   const has = new Set(dates);
@@ -53,7 +54,8 @@ export default function IssueSelect({ lang, view, date, latest, dates, label }: 
             const d = `${ym}-${String(i + 1).padStart(2, "0")}`;
             const cls = "ic-d" + (d === latest ? " new" : "");
             return has.has(d)
-              ? <Link key={d} className={cls} href={href(lang, view, d, latest)} aria-current={d === date ? "date" : undefined} aria-label={longDate(d, lang)} onClick={close}>{i + 1}</Link>
+              ? onPick ? <button key={d} type="button" className={cls} aria-current={d === date ? "date" : undefined} aria-label={longDate(d, lang)} onClick={() => { onPick(d); close(); }}>{i + 1}</button>
+              : <Link key={d} className={cls} href={href(lang, view!, d, latest)} aria-current={d === date ? "date" : undefined} aria-label={longDate(d, lang)} onClick={close}>{i + 1}</Link>
               : <span key={d} className="ic-d off" aria-label={`${i + 1} · ${t.none}`}>{i + 1}</span>;
           })}
         </div>
@@ -61,13 +63,13 @@ export default function IssueSelect({ lang, view, date, latest, dates, label }: 
     );
   };
   const mi = months.indexOf(month);
-  const jumps = ([[t.latest, 0], [t.week, 7], [t.month, 30]] as const)
+  const jumps = onPick ? [] : ([[t.latest, 0], [t.week, 7], [t.month, 30]] as const)
     .map(([l, k]) => [l, nDay(dayN(latest) - k)] as const).filter(([, d]) => has.has(d));
   const arrow = (d: string) => <svg viewBox="0 0 24 24" aria-hidden="true"><path d={d} /></svg>;
 
   return (
     <>
-      <button ref={btn} id="issueSel" type="button" className="isel" aria-haspopup="dialog" aria-expanded={open} onClick={show}>
+      <button ref={btn} id={onPick ? undefined : "issueSel"} type="button" className={"isel" + (className ? " " + className : "")} aria-haspopup="dialog" aria-expanded={open} onClick={show}>
         <svg className="isel-cal" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5.5" width="16" height="14.5" rx="2" /><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4" /></svg>
         <span>{label}</span>
         <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 4.5l3 3 3-3" /></svg>
@@ -83,7 +85,7 @@ export default function IssueSelect({ lang, view, date, latest, dates, label }: 
                 <div className="ic-mt"><b>{name(month)}</b><span>{t.count(dates.filter((d) => d.startsWith(month)).length)}</span></div>
                 <button type="button" className="ic-ib" aria-label={t.nextM} disabled={mi >= months.length - 1} onClick={() => setMonth(months[mi + 1])}>{arrow("M9.5 6l6 6-6 6")}</button></header>}
           {jumps.length > 1 && <div className="ic-q">{jumps.map(([l, d]) =>
-            <Link key={d} href={href(lang, view, d, latest)} aria-current={d === date ? "date" : undefined} onClick={close}>{l}</Link>)}</div>}
+            <Link key={d} href={href(lang, view!, d, latest)} aria-current={d === date ? "date" : undefined} onClick={close}>{l}</Link>)}</div>}
           <div className="ic-wd" aria-hidden="true">{wd.map((w) => <span key={w}>{w}</span>)}</div>
           <div className="ic-body">{sheet ? months.slice().reverse().map(grid) : grid(month)}</div>
           <footer className="ic-foot"><span>{longDate(date, lang)} · {dayLabel(dayN(date) - dayN("2022-02-24") + 1, lang)}</span>

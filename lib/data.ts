@@ -6,24 +6,26 @@ import type { Article, ArticleItem, Digest } from "@/types/digest";
 import { articleHref } from "./routes";
 import type { StrikesBase, StrikesData, Strikes } from "./strikes";
 import { dayRecords } from "./records";
-import { noFlag, styleData } from "./text";
+import { noFlag, num, styleData } from "./text";
+import { lcCalc, lcPeriod, type LandCfg } from "./landcost";
+import { potential, type PotentialData } from "./potential";
 import { translate } from "./i18n.mjs";
-import type { Lang } from "./ui";
+import { isSub, type Lang } from "./ui";
 
 const read = async <T,>(p: string): Promise<T> => JSON.parse(await fs.readFile(path.join(process.cwd(), "public", p), "utf8"));
 
-/** Translated text (i18n/en.json, i18n/de.json); the data itself is shared by all languages. */
+/** Translated text (i18n/en.json, de.json, fr.json); the data itself is shared by all languages. */
 const getTexts = cache(async (lang: Lang): Promise<Record<string, string>> => {
   try { return JSON.parse(await fs.readFile(path.join(process.cwd(), `i18n/${lang}.json`), "utf8")); } catch { return {}; }
 });
 
-/** An issue in the requested language: its text applied when every string is translated; German falls back to English,
- *  then to Ukrainian (a German digest page without German text shows the English page instead — see DigestPage).
+/** An issue in the requested language: its text applied when every string is translated; German/French fall back to English,
+ *  then to Ukrainian (a German/French digest page without its text shows the English page instead — see DigestPage).
  *  Sources that could not be opened (`status: "unavailable"`) are dropped — readers see only what was read. */
 async function readIssue(p: string, lang: Lang): Promise<Digest> {
   const data = await read<Digest>(p);
   if (data.sources) data.sources = data.sources.filter((s) => s.status !== "unavailable");
-  for (const l of lang === "de" ? (["de", "en"] as const) : lang === "en" ? (["en"] as const) : []) {
+  for (const l of isSub(lang) ? [lang, "en" as const] : lang === "en" ? (["en"] as const) : []) {
     const tr = translate(data, await getTexts(l));
     if (tr) return { ...styleData(tr, "", l), contentLang: l };
   }
@@ -47,8 +49,8 @@ export const getDates = cache(async () => {
 export const getMaps = cache(async <T,>(url: string, lang: Lang): Promise<T> => {
   const data = await read<T>(url.replace(/^\//, ""));
   if (lang === "uk") return data;
-  // German not complete for this file → English, as the browser does (useJson)
-  return ((translate(data, await getTexts(lang)) ?? (lang === "de" ? translate(data, await getTexts("en")) : null)) as T) || data;
+  // German/French not complete for this file → English, as the browser does (useJson)
+  return ((translate(data, await getTexts(lang)) ?? (isSub(lang) ? translate(data, await getTexts("en")) : null)) as T) || data;
 });
 
 /** Map snapshot for a dashboard date: the newest public/maps/archive/<date>.json on or before it (else the oldest), or maps.json. */
@@ -81,11 +83,11 @@ export const getArticleDirs = cache(async () => {
   return out.sort((a, b) => (a.date + a.name < b.date + b.name ? -1 : 1));
 });
 
-/** One article in `lang` (German files fall back to English, English to Ukrainian); null without preview.uk.json. */
+/** One article in `lang` (German/French files fall back to English, English to Ukrainian); null without preview.uk.json. */
 export const getArticle = cache(async (date: string, name: string, lang: Lang = "uk"): Promise<Article | null> => {
   const dir = (await getArticleDirs()).find((x) => x.date === date && x.name === name);
   if (!dir) return null;
-  const order: Lang[] = lang === "de" ? ["de", "en", "uk"] : lang === "en" ? ["en", "uk"] : ["uk"];
+  const order: Lang[] = isSub(lang) ? [lang, "en", "uk"] : lang === "en" ? ["en", "uk"] : ["uk"];
   const pick = (base: string) => order.map((l) => `${base}.${l}.json`).find((f) => dir.files.includes(f)) ?? null;
   const pf = pick("preview"), af = pick("article"), sf = pick("presentation");
   if (!pf) return null;
@@ -122,7 +124,7 @@ export const getArticleList = cache(async (lang: Lang = "uk"): Promise<ArticleIt
       title: b?.title || a.preview.title, lead: a.preview.lead || b?.lead || "", kicker: b?.kicker, button: a.preview.button,
       topic: uk.preview.topic, fmt: a.presentation ? "live" : a.article?.blocks.some((x) => x.type === "scenarios") ? "scen" : "an",
       mins: Math.max(1, Math.round(words(b?.blocks ?? []) / 200)), sources: a.article?.sources?.length ?? 0,
-      langs: (["uk", "en", "de"] as Lang[]).filter(has), contentLang: a.contentLang,
+      langs: (["uk", "en", "de", "fr"] as Lang[]).filter(has), contentLang: a.contentLang,
     };
   }));
   return rows.filter((x): x is ArticleItem => !!x);
@@ -137,7 +139,7 @@ export const getStrikes = cache(async (): Promise<Strikes> => ({
 export const getRecords = cache(async (D: Digest, lang: Lang) => {
   const R = dayRecords(D, await getStrikes());
   if (!R?.strike || lang === "uk") return R;
-  const tm = { ...(lang === "de" ? await getTexts("en") : {}), ...(await getTexts(lang)) }, tr = (s: string) => tm[s] ?? s;
+  const tm = { ...(isSub(lang) ? await getTexts("en") : {}), ...(await getTexts(lang)) }, tr = (s: string) => tm[s] ?? s;
   return { ...R, strike: { ...R.strike, place: tr(R.strike.place), prevPlace: tr(R.strike.prevPlace) } };
 });
 
@@ -163,3 +165,33 @@ export const getSourceMatrix = cache(async (): Promise<SourceMatrix> => {
   });
   return { days, rows: Object.values(rows) };
 });
+
+/** The two analytics for the mentions outside the dashboard (digest, "new on the dashboard"): the price of a kilometre
+ *  over 7 and 30 days (lib/landcost.ts) and the share of drone output launched in the last full month (lib/potential.ts).
+ *  Computed from the newest data, so pages show them only on the latest issue. */
+export const getAnalytics = cache(async (D: Digest) => {
+  try {
+    const [C, cur, idx, P] = await Promise.all([read<LandCfg>("landcost.json"), read<{ areas: Record<string, number> }>("maps/maps.json"),
+      read<{ dates: string[] }>("maps/archive/index.json"), read<PotentialData>("potential.json")]);
+    const gsP = num(D.losses?.gsTotal?.personnel);
+    const add = (a: number | null, b: number | null) => (a == null || b == null ? null : a + b);
+    const km = async (per: string) => {
+      const { E, S } = lcPeriod(idx.dates, per);
+      if (per !== "all" && !S) return null;
+      const old = S ? await read<{ areas: Record<string, number> }>(`maps/archive/${S}.json`) : null;
+      const r = lcCalc({ C, areas: cur.areas, oldAreas: old?.areas, series: D.losses?.series || [], gsPersonnel: gsP, per, S, E });
+      const rate = (v: number | null) => (v == null ? null : v / r.net);
+      return r.net > 0 && r.pers != null ? { pk: r.pers / r.net, gain: r.net, pers: r.pers, span: r.span, S: S ?? "", E: E!, x: r.avg ? r.pers / r.net / r.avg : null,
+        armor: rate(add(r.tot("tanks"), r.tot("armoured"))), art: rate(add(r.tot("artillery"), r.tot("mlrs"))), auto: rate(r.tot("auto")) } : null;
+    };
+    const mid = (r: { lo: number; hi: number }) => (r.lo + r.hi) / 2;
+    const all = potential(P, D.timeline || [], D.date);
+    const grp = (g: "dr" | "bal" | "cr") => {
+      const R = all[g], lf = R.lastFull;
+      return R.now && lf?.launched != null ? { share: Math.round((lf.launched / mid(R.now)) * 100), launched: lf.launched, month: lf.month, prod: mid(R.now),
+        ya: R.yearAgo ? mid(R.yearAgo) : null, reserve: R.stock && R.reserveNow ? R.reserveNow : null, stockDate: R.stock?.date ?? null } : null;
+    };
+    return { km7: await km("7"), km30: await km("30"), kmAll: await km("all"), anchor: C.anchor.date, pot: grp("dr"), pots: { dr: grp("dr"), bal: grp("bal"), cr: grp("cr") } };
+  } catch { return null; }
+});
+export type Analytics = NonNullable<Awaited<ReturnType<typeof getAnalytics>>>;

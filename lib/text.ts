@@ -35,13 +35,23 @@ const DE_COUNTRIES: [string, string[]][] = [["🇺🇦", ["Ukraine"]], ["🇩�
 const DE_CRX: [string, RegExp][] = DE_COUNTRIES.map(([f, forms]) => [f, new RegExp(NOFLAG + L_ + "(" + forms.join("|") + ")" + R_, "gu")]);
 const DE_RU: [RegExp, (m: string) => string][] = [[new RegExp("(?<!Forbes )" + L_ + "(Russlands?|Russisch\\p{L}*|Russen)" + R_, "gu"), (m) => m.toLowerCase()]];
 
+/* French: the same rules ("russie", "russe(s)" lowercase; "État(s)-Unis" keep their capitals) */
+const FR_COUNTRIES: [string, string[]][] = [["🇺🇦", ["Ukraine"]], ["🇩🇪", ["Allemagne"]], ["🇲🇩", ["Moldavie", "Moldova"]], ["🇺🇸", ["États-Unis", "USA"]], ["🇬🇧", ["Royaume-Uni", "Grande-Bretagne"]],
+  ["🇨🇳", ["Chine"]], ["🇦🇪", ["Émirats arabes unis", "EAU"]], ["🇫🇷", ["France"]], ["🇵🇱", ["Pologne"]], ["🇧🇾", ["Biélorussie", "Bélarus"]], ["🇹🇷", ["Turquie"]],
+  ["🇮🇳", ["Inde"]], ["🇮🇷", ["Iran"]], ["🇰🇵", ["Corée du Nord"]], ["🇯🇵", ["Japon"]], ["🇮🇹", ["Italie"]], ["🇨🇦", ["Canada"]], ["🇳🇴", ["Norvège"]],
+  ["🇸🇪", ["Suède"]], ["🇫🇮", ["Finlande"]], ["🇳🇱", ["Pays-Bas"]], ["🇩🇰", ["Danemark"]], ["🇱🇹", ["Lituanie"]], ["🇱🇻", ["Lettonie"]], ["🇪🇪", ["Estonie"]],
+  ["🇷🇴", ["Roumanie"]], ["🇭🇺", ["Hongrie"]], ["🇸🇰", ["Slovaquie"]], ["🇨🇿", ["République tchèque", "Tchéquie"]], ["🇬🇪", ["Géorgie"]], ["🇮🇱", ["Israël"]],
+  ["🇸🇦", ["Arabie saoudite"]], ["🇶🇦", ["Qatar"]], ["🇨🇭", ["Suisse"]], ["🇦🇹", ["Autriche"]], ["🇪🇸", ["Espagne"]], ["🇧🇪", ["Belgique"]], ["🇪🇺", ["Union européenne", "UE"]]];
+const FR_CRX: [string, RegExp][] = FR_COUNTRIES.map(([f, forms]) => [f, new RegExp(NOFLAG + L_ + "(" + forms.join("|") + ")" + R_, "gu")]);
+const FR_RU: [RegExp, (m: string) => string][] = [[new RegExp("(?<!Forbes )" + L_ + "(Russie|Russes?)" + R_, "gu"), (m) => m.toLowerCase()]];
+
 /** House style: «росія»/"russia" lowercase without a flag; other countries get a flag at their first mention in a string. */
 export function houseStyle<T>(str: T, lang: Lang = "uk"): T {
   if (typeof str !== "string") return str;
   let s: string = str;
-  if (lang !== "uk") (lang === "de" ? DE_RU : EN_RU).forEach(([re, fn]) => { s = s.replace(re, fn); });
+  if (lang !== "uk") ({ en: EN_RU, de: DE_RU, fr: FR_RU }[lang]).forEach(([re, fn]) => { s = s.replace(re, fn); });
   else RU.forEach(([re, fn]) => { s = s.replace(re, (m: string, ...a: any[]) => { const o = a[a.length - 2], whole = a[a.length - 1]; return fn(m, typeof o === "number" ? o : 0, whole); }); });
-  ({ uk: CRX, en: EN_CRX, de: DE_CRX }[lang]).forEach(([f, re]) => { let done = s.includes(f); s = s.replace(re, (m) => { if (done) return m; done = true; return f + " " + m; }); });
+  ({ uk: CRX, en: EN_CRX, de: DE_CRX, fr: FR_CRX }[lang]).forEach(([f, re]) => { let done = s.includes(f); s = s.replace(re, (m) => { if (done) return m; done = true; return f + " " + m; }); });
   return s as T;
 }
 export function styleData(o: any, key: string, lang: Lang = "uk"): any {
@@ -51,7 +61,7 @@ export function styleData(o: any, key: string, lang: Lang = "uk"): any {
   return o;
 }
 
-export const loc = (lang: Lang) => ({ uk: "uk-UA", en: "en-GB", de: "de-DE" }[lang]);
+export const loc = (lang: Lang) => ({ uk: "uk-UA", en: "en-GB", de: "de-DE", fr: "fr-FR" }[lang]);
 export const fmt = (n: number, lang: Lang) => Number(n).toLocaleString(loc(lang)).replace(/\s/g, ' ');
 export const noFlag = (x: string) => String(x).replace(/[\u{1F1E6}-\u{1F1FF}]{2}[️  ]?/gu, "").trim();
 /** Plain text cut to `n` chars at a word boundary, with "…" when cut (titles, meta descriptions). */
@@ -75,10 +85,10 @@ export function itemTopics(i: Item): string[] {
 function diploTitle(s: Section, lang: Lang) {
   const has = new Set<string>();
   (s.items || []).forEach((i) => itemTopics(i).forEach((k) => has.add(k)));
-  const W: Record<string, string> = { uk: { dip: "дипломатія", sanc: "санкції", aid: "допомога" }, en: { dip: "diplomacy", sanc: "sanctions", aid: "aid" }, de: { dip: "Diplomatie", sanc: "Sanktionen", aid: "Hilfe" } }[lang];
+  const W: Record<string, string> = { uk: { dip: "дипломатія", sanc: "санкції", aid: "допомога" }, en: { dip: "diplomacy", sanc: "sanctions", aid: "aid" }, de: { dip: "Diplomatie", sanc: "Sanktionen", aid: "Hilfe" }, fr: { dip: "diplomatie", sanc: "sanctions", aid: "aide" } }[lang];
   const ws = ["dip", "sanc", "aid"].filter((k) => has.has(k)).map((k) => W[k]);
   if (!ws.length) return null;
-  const j = ws.length === 1 ? ws[0] : ws.slice(0, -1).join(", ") + { uk: " та ", en: " & ", de: " & " }[lang] + ws[ws.length - 1];
+  const j = ws.length === 1 ? ws[0] : ws.slice(0, -1).join(", ") + { uk: " та ", en: " & ", de: " & ", fr: " et " }[lang] + ws[ws.length - 1];
   return j[0].toUpperCase() + j.slice(1);
 }
 export const secTitle = (s: Section, lang: Lang) =>
@@ -102,6 +112,10 @@ function spanText(e: ReturnType<typeof elapsed>, L: Lang) {
     if (e.y) p.push(e.y + (e.y === 1 ? " Jahr" : " Jahre"));
     if (e.mo) p.push(e.mo + (e.mo === 1 ? " Monat" : " Monate"));
     if (e.d || !p.length) p.push(e.d + (e.d === 1 ? " Tag" : " Tage"));
+  } else if (L === "fr") {
+    if (e.y) p.push(e.y + (e.y === 1 ? " an" : " ans"));
+    if (e.mo) p.push(e.mo + " mois");
+    if (e.d || !p.length) p.push(e.d + (e.d > 1 ? " jours" : " jour"));
   } else {
     if (e.y) p.push(e.y + " " + plural(e.y, "рік", "роки", "років"));
     if (e.mo) p.push(e.mo + " " + plural(e.mo, "місяць", "місяці", "місяців"));
@@ -112,6 +126,7 @@ function spanText(e: ReturnType<typeof elapsed>, L: Lang) {
 const SINCE: Partial<Record<Lang, Record<string, string>>> = {
   en: { "2014-04-14": "Since the ATO began", "2022-02-24": "Since the full-scale invasion" },
   de: { "2014-04-14": "Seit Beginn der ATO", "2022-02-24": "Seit Beginn der Großinvasion" },
+  fr: { "2014-04-14": "Depuis le début de l’ATO", "2022-02-24": "Depuis l’invasion à grande échelle" },
 };
 export function sinceList(D: Digest, L: Lang) {
   return (D.since || []).map((x) => {
@@ -130,9 +145,14 @@ export function dateTitle(D: Digest, lang: Lang) {
     const d = new Date(D.date + "T12:00:00Z"), o = { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" } as const;
     return { line: d.toLocaleDateString("de-DE", { ...o, weekday: "long" }), h: "Kriegslage am " + d.toLocaleDateString("de-DE", o) };
   }
+  if (lang === "fr") {
+    const d = new Date(D.date + "T12:00:00Z"), o = { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" } as const, s = d.toLocaleDateString("fr-FR", o);
+    const wd = d.toLocaleDateString("fr-FR", { weekday: "long", timeZone: "UTC" });
+    return { line: wd[0].toUpperCase() + wd.slice(1) + " " + s, h: "La guerre au " + s };
+  }
   return { line: D.weekday + ", " + D.dateLabel, h: "Стан війни на " + D.dateLabel };
 }
-export const dayLabel = (n: number, lang: Lang) => ({ uk: fmt(n, lang) + "-й день", en: "day " + fmt(n, lang), de: "Tag " + fmt(n, lang) }[lang]);
+export const dayLabel = (n: number, lang: Lang) => ({ uk: fmt(n, lang) + "-й день", en: "day " + fmt(n, lang), de: "Tag " + fmt(n, lang), fr: fmt(n, lang) + (n === 1 ? "er" : "e") + " jour" }[lang]);
 export const longDate = (iso: string, lang: Lang) =>
   new Date(iso + "T12:00:00Z").toLocaleDateString(loc(lang), { weekday: "short", day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).replace(/\s?р\.$/, "");
 export const midDate = (iso: string, lang: Lang) =>

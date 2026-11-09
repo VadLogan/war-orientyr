@@ -20,14 +20,15 @@ if (noId.length || noMap.length) {
 }
 // articles/<YYYY-MM-DD>/<name>/: preview.uk.json required (title); a full article (article.uk.json, body[]) or a preview url
 const ART = new URL("../public/articles/", import.meta.url);
-// An article h2 that repeats a digest section title (uk, or its English/German in i18n/en.json, de.json) must carry that section's id
+// An article h2 that repeats a digest section title (uk, or its English/German/French in i18n/en.json, de.json, fr.json) must carry that section's id
 // in `section`, so it shows the same icon as the digest.
 const EN = JSON.parse(fs.readFileSync(new URL("../i18n/en.json", import.meta.url), "utf8"));
-const DE_FILE = new URL("../i18n/de.json", import.meta.url), DE = fs.existsSync(DE_FILE) ? JSON.parse(fs.readFileSync(DE_FILE, "utf8")) : {}; // must stay valid JSON
+const tm = (l) => { const f = new URL(`../i18n/${l}.json`, import.meta.url); return fs.existsSync(f) ? JSON.parse(fs.readFileSync(f, "utf8")) : {}; }; // must stay valid JSON
+const DE = tm("de"), FR = tm("fr");
 const secT = new Map(), secIds = new Set();
 for (const iss of [d, ...idx.filter((x) => x !== d.date).map((x) => rd(`issues/${x}.json`))]) for (const s of iss.sections || []) {
   secIds.add(s.id);
-  if (s.title) { secT.set(s.title, s.id); if (EN[s.title]) secT.set(EN[s.title], s.id); if (DE[s.title]) secT.set(DE[s.title], s.id); }
+  if (s.title) { secT.set(s.title, s.id); if (EN[s.title]) secT.set(EN[s.title], s.id); if (DE[s.title]) secT.set(DE[s.title], s.id); if (FR[s.title]) secT.set(FR[s.title], s.id); }
 }
 const dirs = (u) => (fs.existsSync(u) ? fs.readdirSync(u, { withFileTypes: true }).filter((e) => e.isDirectory()).map((e) => e.name) : []);
 let nArt = 0;
@@ -38,7 +39,7 @@ for (const date of dirs(ART)) {
     const fail = (m) => { console.error(at + ": " + m); process.exit(1); };
     if (!/^[a-z0-9-]+$/.test(name)) fail("folder name: a-z, 0-9, - only (it is the URL)");
     if (!has("preview.uk.json")) fail("missing preview.uk.json");
-    for (const l of ["uk", "en", "de"]) {
+    for (const l of ["uk", "en", "de", "fr"]) {
       if (has(`preview.${l}.json`)) { const p = rd(at + `preview.${l}.json`); if (!p.title) fail(`preview.${l}.json needs title`); if (p.url && !/^https?:\/\//.test(p.url)) fail(`preview.${l}.json url must be http(s)`); if (p.image && !has(p.image)) fail("image not found: " + p.image); }
       if (has(`article.${l}.json`) && !Array.isArray(rd(at + `article.${l}.json`).blocks)) fail(`article.${l}.json needs blocks[]`);
       for (const f of [`article.${l}.json`, `presentation.${l}.json`]) if (has(f)) for (const b of rd(at + f).blocks || []) if (b.type === "h2") {
@@ -58,6 +59,31 @@ for (const date of dirs(ART)) {
   }
 }
 for (const f of ["strikes.json","prices.json","recruit.json","landcost.json","maps/maps.json","maps/strikes-base.json","maps/targets.json"]) rd(f);
+// potential.json (strike potential panel): sourced estimates and monthly totals; every Air Force weapon type in any issue
+// timeline must belong to exactly one group, or new types would silently drop out of the launch counts.
+{
+  const P = rd("potential.json"), bad = [], ids = P.groups.map((g) => g.id), seen = new Set();
+  const D = /^\d{4}-\d{2}-\d{2}$/, M = /^\d{4}-\d{2}$/;
+  for (const e of P.estimates) {
+    const at = `estimate ${e.group}/${e.type ?? "group"}/${e.kind}/${e.date}`;
+    if (!D.test(e.date ?? "") || !e.src || !e.url) bad.push(at + ": needs date (YYYY-MM-DD), src and url");
+    if (!(e.low <= e.high)) bad.push(at + ": low > high");
+    if (!ids.includes(e.group)) bad.push(at + ": unknown group");
+    if (!["production", "stock", "plan"].includes(e.kind)) bad.push(at + ": kind must be production|stock|plan");
+  }
+  for (const l of P.launches) {
+    if (!M.test(l.month ?? "") || !l.src || !l.url) bad.push(`launches ${l.month}: needs month (YYYY-MM), src and url`);
+    if (seen.has(l.month)) bad.push(`launches ${l.month}: duplicate month`);
+    seen.add(l.month);
+  }
+  for (const s of ["pes", "real", "opt"]) if (!P.scenarios?.[s]) bad.push("scenarios." + s + " missing");
+  for (const f of ["digest.json", ...fs.readdirSync(new URL("../public/issues/", import.meta.url)).filter((x) => /^\d{4}-\d{2}-\d{2}\.json$/.test(x)).map((x) => "issues/" + x)])
+    for (const t of rd(f).timeline ?? []) for (const m of t.mix ?? []) {
+      const n = P.groups.filter((g) => g.types.includes(m.type)).length;
+      if (n !== 1) bad.push(`${f} ${t.date}: weapon type "${m.type}" is in ${n} potential.json groups (needs exactly 1)`);
+    }
+  if (bad.length) { console.error("potential.json:\n  " + [...new Set(bad)].join("\n  ")); process.exit(1); }
+}
 for (const d of rd("maps/archive/index.json").dates) if (rd(`maps/archive/${d}.json`).generated !== d) { console.error(`maps/archive/${d}.json: generated != ${d}`); process.exit(1); }
 // Research-tool residue must not reach readers ("відхилено проксі (HTTP 400)", "WebFetch", snapshot ids…).
 // `assumption` / `unavailable` are working notes the page does not render, and sources with status "unavailable" are
@@ -69,7 +95,7 @@ const walk = (v, f, at) => {
   else if (v && typeof v === "object" && v.status !== "unavailable") for (const k in v) if (k !== "assumption" && k !== "unavailable") walk(v[k], f, at + "." + k);
 };
 const jsonFiles = (dir) => fs.readdirSync(new URL("../public/" + dir, import.meta.url), { recursive: true }).filter((f) => f.endsWith(".json")).map((f) => dir + f);
-for (const f of ["digest.json", ...jsonFiles("issues/"), ...jsonFiles("articles/"), "strikes.json", "prices.json", "recruit.json", "maps/maps.json"]) walk(rd(f), f, "");
+for (const f of ["digest.json", ...jsonFiles("issues/"), ...jsonFiles("articles/"), "strikes.json", "prices.json", "recruit.json", "potential.json", "maps/maps.json"]) walk(rd(f), f, "");
 if (residue.length) { console.error("research-tool residue in reader-facing text:\n  " + residue.join("\n  ")); process.exit(1); }
 JSON.parse(fs.readFileSync(new URL("../i18n/en.json", import.meta.url), "utf8")); // translation memory must stay valid JSON
 console.log("ok:", d.date, idx.length, "issues,", nArt, "articles");

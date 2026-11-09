@@ -19,7 +19,7 @@ export default function Losses() {
   const [table, setTable] = useSticky("lsTable", false);
   const B = LATEST;
   if (!B.losses) return null;
-  const tr = (uk: string, en: string, de: string) => ({ uk, en, de }[lang]);
+  const tr = (uk: string, en: string, de: string, fr: string) => ({ uk, en, de, fr }[lang]);
   const all = ((B.losses.series || []) as LossRow[]).filter((e) => e && /^\d{4}-\d{2}-\d{2}$/.test(e.date)).sort((a, b) => (a.date < b.date ? -1 : 1));
   const row = all.find((e) => e.date === D.date) || null;
   // russia's MoD publishes around midday, after the morning issue — show its latest claim up to this date
@@ -31,7 +31,7 @@ export default function Losses() {
     { name: t.lsRuName, color: "var(--s1)", get: (e) => num(e.ru && e.ru[cat]), src: "ru" },
     { name: t.lsUaName, color: "var(--s2)", get: (e) => num(e.ua && e.ua[cat]), src: "ua" },
   ];
-  if (cat === "personnel") ser.push({ name: tr("у т.ч. СБС (знищено особового складу)", "of which USF (killed)", "davon USF (getötet)"), color: "var(--c3)", get: (e) => num(e.sbs && e.sbs.killed), src: "sbs" });
+  if (cat === "personnel") ser.push({ name: tr("у т.ч. СБС (знищено особового складу)", "of which USF (killed)", "davon USF (getötet)", "dont USF (tués)"), color: "var(--c3)", get: (e) => num(e.sbs && e.sbs.killed), src: "sbs" });
   const end = dayN(B.date), start = rangeStart(all, range, end);
   const rows = all.filter((e) => { const n = dayN(e.date); return n >= start && n <= end && ser.some((s) => s.get(e) != null); });
   // period totals per series: a day with no data adds nothing, so say how many days are counted
@@ -39,7 +39,7 @@ export default function Losses() {
   const sums = ser.filter((s) => s.src !== "sbs").map((s) => { const v = rows.map(s.get).filter((x): x is number => x != null); return { s, sum: v.reduce((a, b) => a + b, 0), n: v.length }; }).filter((x) => x.n);
   const uaNone = !all.some((e) => num(e.ua && e.ua[cat]) != null);
   const note = (uaNone ? t.lsNoUa + " " : "") + t.lsGaps + (cat === "personnel"
-    ? tr(" Втрати від СБС — частина загальних втрат за Генштабом; показано лише дні, для яких є дані табло СБС.", " USF is part of the General Staff total; shown only for days with USF board data.", " Die USF-Verluste sind Teil der Gesamtzahl des Generalstabs; gezeigt nur an Tagen mit Daten der USF-Anzeigetafel.")
+    ? tr(" Втрати від СБС — частина загальних втрат за Генштабом; показано лише дні, для яких є дані табло СБС.", " USF is part of the General Staff total; shown only for days with USF board data.", " Die USF-Verluste sind Teil der Gesamtzahl des Generalstabs; gezeigt nur an Tagen mit Daten der USF-Anzeigetafel.", " Les pertes des USF font partie du total de l’état-major ; affichées seulement les jours où le tableau des USF a des données.")
     : "");
 
   return (
@@ -60,8 +60,8 @@ export default function Losses() {
       <div className="panel tl-panel">
         <Legend ser={ser} bars />
         {sums.length > 0 && <div className="ls-sum">
-          <small>{tr("Разом за ", "Total over ", "Summe über ")}{range === "all" ? tr("увесь період", "the whole period", "den gesamten Zeitraum") : tr(`${range} днів`, `${range} days`, `${range} Tage`)}</small>
-          {sums.map(({ s, sum, n }) => <span key={s.src}><i style={{ background: s.color }} />{s.name}: <b>{(s.src === "ua" && cat === "personnel" ? "≈ " : "") + fmt(sum, lang)}</b>{n < span && range !== "all" ? tr(` (${n} дн. з даними)`, ` (${n} days with data)`, ` (${n} Tage mit Daten)`) : ""}</span>)}
+          <small>{tr("Разом за ", "Total over ", "Summe über ", "Total sur ")}{range === "all" ? tr("увесь період", "the whole period", "den gesamten Zeitraum", "toute la période") : tr(`${range} днів`, `${range} days`, `${range} Tage`, `${range} jours`)}</small>
+          {sums.map(({ s, sum, n }) => <span key={s.src}><i style={{ background: s.color }} />{s.name}: <b>{(s.src === "ua" && cat === "personnel" ? "≈ " : "") + fmt(sum, lang)}</b>{n < span && range !== "all" ? tr(` (${n} дн. з даними)`, ` (${n} days with data)`, ` (${n} Tage mit Daten)`, ` (${n} jours avec données)`) : ""}</span>)}
         </div>}
         <LineChart key={cat + range + D.date} rows={rows} ser={ser} start={start} end={end} table={table} aria={t.ls} bars label={(e) => shortD(e.date)}
           srcOf={(e, s) => (e.src && e.src[s.src]) || ""}
