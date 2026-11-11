@@ -1252,7 +1252,8 @@ const Diamond = ({ r, fill, stroke }: { r: number; fill: string; stroke: string 
 
 /** Which targets each weapon reaches: distance to the front = stkDist (the strikes' 📏); the band is a disc of the range
  *  around every 3rd front point, clipped to russia + the occupied area; "struck nearby" = a strike of a matching group ≤10 km. */
-export function TargetsMap() {
+/** `onReady`: the server HTML (TargetsSeo) stays until the data is here; nothing renders before that. */
+export function TargetsMap({ onReady }: { onReady?: () => void }) {
   const { t: TT, lang } = useApp();
   const hs = (x: string) => hsBase(x, lang);
   const t = TT.stk;
@@ -1266,9 +1267,6 @@ export function TargetsMap() {
   const [bm, setBm] = useSticky("stkBase", "t");
   const [rail, setRail] = useSticky("tgRail", true);
   const [sel, setSel] = useState<string | null>(null);
-  // weapon whose photo tooltip is open + where: fixed to the viewport, since the rail scrolls and would clip it
-  const [hov, setHov] = useState<{ id: string; x: number; y: number } | null>(null);
-  const showTip = (id: string, el: HTMLElement) => { if (!WEAPONS.find((x) => x.id === id)?.img) return; const r = el.getBoundingClientRect(); setHov({ id, x: Math.min(r.left, innerWidth - 250), y: r.bottom + 6 }); };
   const [tip, setTip] = useState<Tip>(null);
   const wp = WEAPONS.find((x) => x.id === wpn) || WEAPONS[0], wName = wpnName(wp, lang);
   const tgs = useMemo(() => (B && tg.data ? tg.data.items.map((x, i) => ({ ...x, key: x.id || String(i), km: stkDist(B, x) ?? 0 })) : []), [B, tg.data]);
@@ -1318,6 +1316,8 @@ export function TargetsMap() {
     wrapRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
   };
 
+  useEffect(() => { if (ready) onReady?.(); }, [ready, onReady]);
+  if (onReady && !ready && !err) return null;
   return (
     <section className="tlwrap mp stk-page tg-page" id="targets">
       <div className="mp-head"><h2>{t.tgTitle}</h2><p>{flags(t.tgSub)}</p></div>
@@ -1335,20 +1335,12 @@ export function TargetsMap() {
               {WPN_GROUPS.map((g) => <div key={g} className="tg-wpg">
                 <span className="tg-wpl">{t.wpG[g]}</span>
                 <div className="mp-dirs" role="group" aria-label={t.wpG[g]}>{WEAPONS.filter((x) => x.g === g).map((x) => (
-                  <span key={x.id} className="tg-wpb">
-                    <button type="button" aria-pressed={wpn === x.id} aria-describedby={hov?.id === x.id ? "tg-tip" : undefined} onClick={() => setWpn(x.id)}
-                      onPointerEnter={(e) => showTip(x.id, e.currentTarget)} onPointerLeave={() => setHov(null)} onFocus={(e) => showTip(x.id, e.currentTarget)} onBlur={() => setHov(null)}>
-                      {wpnName(x, lang)}{x.limited && "*"} <small>{kmTxt(x.r)}</small>
-                    </button>
-                    {hov?.id === x.id && <span className="tg-tip" id="tg-tip" role="tooltip" style={{ left: hov.x, top: hov.y }}>
-                      <img src={wpnImg(x)!} alt="" width={640} height={427} />
-                      <span><b>{wpnName(x, lang)}</b> <span className="d">{kmTxt(x.r)}</span></span>
-                      <small>{t.wpPhoto}: {x.img!.by}, {x.img!.lic}</small>
-                    </span>}
-                  </span>
+                  <button type="button" key={x.id} aria-pressed={wpn === x.id} onClick={() => setWpn(x.id)}>
+                    {wpnName(x, lang)}{x.limited && "*"} <small>{kmTxt(x.r)}</small>
+                  </button>
                 ))}</div>
               </div>)}
-              <p className="mp-note">{t.tgHover} · * {t.wpLim}</p>
+              <p className="mp-note">* {t.wpLim}</p>
               {wp.limited && <p className="tg-lim">{t.wpLimNote(wName)}</p>}
             </div>
           </fieldset>

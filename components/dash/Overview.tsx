@@ -5,7 +5,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import type { LossRow, TimelineEntry } from "@/types/digest";
 import { dayN, dirCol, dirOrder, fmt, loc, num, shortD, TL } from "@/lib/text";
-import { href } from "@/lib/routes";
+import { href, tgHref } from "@/lib/routes";
 import { flags } from "@/components/Flag";
 import { useApp } from "../ctx";
 import { useJson, useSticky } from "./hooks";
@@ -273,6 +273,11 @@ export default function Overview({ headline, mapsMini, strikesMini, an, summary 
       <div className="dz-more">
         <div className="dz-srv" data-s="over front d">{mapsMini}</div>
         <div className="dz-srv" data-s="over d">{strikesMini}</div>
+        {/* new: /strikes/targets — a page of its own, so a plain link */}
+        <a className="dz-card dz-new" data-s="over d" href={tgHref(lang)}>
+          <small><span><span className="dz-badge">{t.nw.targets.k}</span> {t.stk.swTg}</span><span aria-hidden="true">→</span></small>
+          <span className="dz-cn">{t.stk.swTgSub}</span>
+        </a>
         <Card s="air d" to="atk" t={tr("Вартість нічної атаки", "Cost of the night attack", "Kosten des nächtlichen Angriffs", "Coût de l’attaque nocturne")} v={cNow ? money(cNow.lo, lang) + "–" + money(cNow.hi, lang) : "—"}
           n={tr("оцінка за цінами типів", "estimate from unit prices", "Schätzung nach Stückpreisen", "estimation selon les prix unitaires")} sp={<Spark v={last14.map((e) => { const c = cost(e); return c ? (c.lo + c.hi) / 2 : null; })} color="var(--c2)" />} />
         <Card s="air" t={tr("Ударний потенціал", "Strike potential", "Angriffspotenzial", "Potentiel de frappe")} to="potential" v="→" n={tr("виробництво, запуски, запас", "output, launches, reserve", "Produktion, Starts, Reserve", "production, lancements, réserve")} />

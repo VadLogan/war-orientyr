@@ -6,7 +6,7 @@ import { UI, type Lang, type UIStrings } from "@/lib/ui";
 import Image from "next/image";
 import ImgZoom from "./ImgZoom";
 import { flags } from "@/components/Flag";
-import { articlesHref, href } from "@/lib/routes";
+import { articlesHref, href, tgHref } from "@/lib/routes";
 import { getArticleList } from "@/lib/data";
 
 /** Compact card for an article of this issue (public/articles/<date>/<name>/). */
@@ -42,6 +42,13 @@ const NW_ART = {
     {([[300, 60, 9, 2], [372, 44, 12, 2], [452, 72, 9, 2], [236, 92, 8, 1], [330, 118, 10, 0], [410, 132, 8, 4], [268, 150, 7, 3], [496, 112, 7, 1]] as const)
       .map(([x, y, r, c], k) => <circle key={k} cx={x} cy={y} r={r} style={{ fill: c ? `var(--c${c})` : "var(--ink)" }} />)}
   </svg>,
+  // /strikes/targets: a weapon's reach from the front as a band, targets inside it solid, beyond it faded
+  targets: <svg viewBox="0 0 540 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <path className="land" d="M0 0H540V200H0Z" /><path className="ua" d="M-10 130C50 112 100 140 150 120S200 150 220 210H-10Z" />
+    <path d="M150 120C200 92 250 70 330 60 410 52 470 80 520 210H220C200 150 170 140 150 120Z" style={{ fill: "var(--accent)", opacity: 0.18 }} />
+    {([[250, 110, 1, 1], [300, 88, 2, 1], [356, 120, 1, 1], [410, 96, 5, 1], [282, 150, 4, 1], [470, 40, 1, 0], [512, 70, 2, 0], [440, 24, 4, 0]] as const)
+      .map(([x, y, c, on], k) => <path key={k} d={`M${x} ${y - 11}L${x + 11} ${y}L${x} ${y + 11}L${x - 11} ${y}Z`} style={{ fill: on ? `var(--c${c})` : "var(--surface)", stroke: `var(--c${c})`, strokeWidth: 2.5, opacity: on ? 0.9 : 0.5 }} />)}
+  </svg>,
   // the two dashboard analytics: rising bars (losses per km²), monthly launches against a dashed output line
   landcost: <svg viewBox="0 0 540 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
     <path className="land" d="M0 0H540V200H0Z" />
@@ -55,8 +62,8 @@ const NW_ART = {
 };
 
 /** Pages promoted in the "New on the site" block on digest pages; empty = no block. landcost/potential = the dashboard analytics. */
-type NewPage = "maps" | "strikes" | "articles" | "landcost" | "potential";
-const NEW_PAGES: NewPage[] = ["landcost", "potential"];
+type NewPage = "maps" | "strikes" | "targets" | "articles" | "landcost" | "potential";
+const NEW_PAGES: NewPage[] = ["targets"];
 const AN: NewPage[] = ["landcost", "potential"];
 
 /** "New on the site": a card per page in NEW_PAGES; the articles card shows the three newest covers. */
@@ -68,7 +75,7 @@ async function NewPages({ lang }: { lang: Lang }) {
       <div className="nw-top"><h2 id="nw-h" className="art-kicker">{t.h}</h2><span>{t.sub}</span></div>
       <div className="nw-grid">
         {NEW_PAGES.map((v) => {
-          const c = t[v], an = AN.includes(v), url = v === "articles" ? articlesHref(lang) : an ? href(lang, "dashboard", null, "") + "#" + v : href(lang, v as "maps" | "strikes", null, "");
+          const c = t[v], an = AN.includes(v), url = v === "articles" ? articlesHref(lang) : v === "targets" ? tgHref(lang) : an ? href(lang, "dashboard", null, "") + "#" + v : href(lang, v as "maps" | "strikes", null, "");
           return (
             <article className={an ? "nw-card nw-an" : "nw-card"} key={v}>
               <a className={v === "articles" ? "nw-art nw-covers" : "nw-art"} href={url} tabIndex={-1} aria-hidden="true">

@@ -3,7 +3,7 @@
 // potential), in the dashboard's accent frame. Figures come from the server (lib/data getAnalytics), latest issue only.
 import type { Analytics } from "@/lib/data";
 import { fmt } from "@/lib/text";
-import { href } from "@/lib/routes";
+import { href, tgHref } from "@/lib/routes";
 import { useApp } from "../ctx";
 import { MN } from "./Panels";
 import { flags } from "@/components/Flag";
@@ -43,11 +43,12 @@ export function PotentialNote({ an }: { an: Analytics | null | undefined }) {
 }
 
 /** Top of /maps and /strikes (where most visitors land): the day's digest and both dashboard analytics, one tap away. */
-export function CrossLinks({ an, headline }: { an: Analytics | null | undefined; headline: { title?: string; item?: string } | null | undefined }) {
+/** `tg`: also promote /strikes/targets (not on /strikes, whose switcher already leads there). */
+export function CrossLinks({ an, headline, tg }: { an: Analytics | null | undefined; headline: { title?: string; item?: string } | null | undefined; tg?: boolean }) {
   const { lang, t, D, LATEST } = useApp();
   const f = (n: number) => fmt(Math.round(n), lang), dash = href(lang, "dashboard", null, "");
   const k = an?.km7, p = an?.pot;
-  if (!headline?.title && !k && !p) return null;
+  if (!headline?.title && !k && !p && !tg) return null;
   return (
     <nav className="xl" aria-label={t.an.more}>
       <span className="xl-h">{t.an.more}</span>
@@ -57,6 +58,8 @@ export function CrossLinks({ an, headline }: { an: Analytics | null | undefined;
         <span className="v"><b>{f(k.pk)}</b><span>{t.an.kmS(k.span)}{k.x != null && k.x >= 2 ? " · " + t.an.x(Math.round(k.x)) : ""}</span></span></a>}
       {p && <a className="xl-c an" href={dash + "#potential"}><span className="k"><span className="dz-badge">{t.an.b}</span>{t.an.potK}</span>
         <span className="v"><b>{p.share}%</b><span>{t.an.potS}</span></span></a>}
+      {tg && <a className="xl-c an" href={tgHref(lang)}><span className="k"><span className="dz-badge">{t.nw.targets.k}</span>{t.stk.swTg}</span>
+        <span className="hl">{t.stk.swTgSub}</span></a>}
     </nav>
   );
 }

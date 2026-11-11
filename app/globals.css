@@ -576,13 +576,6 @@ svg.mk{flex:none;overflow:visible;vertical-align:-2px}
 .stk-sw b{font-size:20px;font-weight:700;letter-spacing:.04em}
 .stk-sw small{font-size:14px;opacity:.8}
 @media (max-width:560px){.stk-sw a{min-height:60px;padding:8px 12px;gap:10px}.stk-sw svg{width:24px;height:24px}.stk-sw b{font-size:17px}.stk-sw small{font-size:12.5px}}
-/* weapon photo tooltip in the targets rail */
-.tg-wpb{position:relative;display:inline-flex}
-.tg-tip{position:fixed;z-index:60;width:240px;display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--ink);box-shadow:0 6px 18px rgba(0,0,0,.2);pointer-events:none;font-family:var(--ui);font-size:14px}
-.tg-tip img{display:block;width:100%;height:auto;aspect-ratio:3/2;object-fit:cover}
-.tg-tip>span{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:7px 9px 0}
-.tg-tip .d{font-family:var(--mono);font-size:12.5px;color:var(--muted)}
-.tg-tip small{padding:2px 9px 8px;font-size:11.5px;color:var(--muted)}
 .tg-lg{display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px;margin:8px 0 0;font-family:var(--ui);font-size:13.5px;color:var(--muted)}
 .tg-lg span{display:inline-flex;align-items:center;gap:6px}
 .tg-lg i{display:inline-block;width:18px;height:11px}
@@ -1191,6 +1184,7 @@ button.stile{cursor:pointer}button.stile:hover{outline:2px solid var(--ink);outl
 .dz-kpis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
 .dz-k{font:inherit;text-align:left;cursor:pointer;color:var(--ink);background:var(--surface);border:1px solid var(--rule);border-radius:4px;padding:10px 12px;display:flex;flex-direction:column;gap:3px;min-width:0}
 .dz-k:hover,.dz-card:hover{border-color:var(--rule-strong)}
+.dz-card.dz-new{border:2px solid var(--accent)}
 .dz-k small{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dz-kv{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 8px}
 .dz-kv b{font-family:var(--mono);font-weight:500;font-size:26px;line-height:1.1;font-variant-numeric:tabular-nums}
@@ -1305,7 +1299,7 @@ dialog.ps::backdrop{background:rgba(21,27,31,.45)}
 .an-card .v{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px}.an-card .v>b{font-family:var(--mono);font-weight:500;font-size:28px;line-height:1.1}
 .an-card .v>span{font-size:14px}.an-card .n{font-size:13.5px;line-height:1.35;color:var(--muted)}.an-card .go{font-size:14.5px;font-weight:600;color:var(--accent)}
 /* /maps and /strikes: the day's digest and both analytics above the map (dash/AnNotes.tsx CrossLinks) */
-.xl{display:grid;grid-template-columns:auto minmax(0,1.6fr) minmax(0,1fr) minmax(0,1fr);gap:10px;align-items:stretch;font-family:var(--ui)}
+.xl{display:grid;grid-template-columns:auto minmax(0,1.6fr);grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:10px;align-items:stretch;font-family:var(--ui)}
 .xl-h{align-self:center;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);writing-mode:horizontal-tb}
 .xl-c{display:flex;flex-direction:column;gap:4px;min-width:0;padding:9px 12px;background:var(--surface);border:1px solid var(--rule);border-radius:6px;color:var(--ink);text-decoration:none}
 .xl-c:hover{border-color:var(--rule-strong)}.xl-c.an{border:2px solid var(--accent)}

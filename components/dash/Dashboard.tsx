@@ -18,12 +18,7 @@ import { CrossLinks } from "./AnNotes";
 // the maps pull in d3; load them only when the dashboard is opened
 const MapsCompare = dynamic(() => import("./Maps").then((m) => m.MapsCompare), { ssr: false });
 const StrikesMap = dynamic(() => import("./Maps").then((m) => m.StrikesMap), { ssr: false });
-/** Until the map code is here (and in the server HTML), /strikes/targets shows its heading. */
-function TgHead() {
-  const { t } = useApp();
-  return <div className="mp-head"><h2>{t.stk.tgTitle}</h2><p>{t.stk.tgSub}</p><p className="map-src">{t.stk.loading}</p></div>;
-}
-const TargetsMap = dynamic(() => import("./Maps").then((m) => m.TargetsMap), { ssr: false, loading: TgHead });
+const TargetsMap = dynamic(() => import("./Maps").then((m) => m.TargetsMap), { ssr: false });
 
 /** `panel`: an analytics page (/dashboard/landcost…) — only that panel, inline. `an`: server figures for the first paint; `summary`: the day as text (server). */
 export default function Dashboard({ mapsCard, strikesCard, mapsMini, strikesMini, headline, an, summary, panel }: { mapsCard: ReactNode; strikesCard: ReactNode; mapsMini: ReactNode; strikesMini: ReactNode; headline: { title?: string; item?: string } | null; an?: Analytics | null; summary?: ReactNode; panel?: string }) {
@@ -68,7 +63,7 @@ export function MapsView({ seo, dir, an, headline }: { seo: ReactNode; dir?: str
   return (
     <div className="dash">
       {lang === "en" && D.contentLang !== "en" && <p className="lang-note">{t.langNote}</p>}
-      <CrossLinks an={an} headline={headline} />
+      <CrossLinks an={an} headline={headline} tg />
       {!ready && <SeoHtml seo={seo} loading={t.stk.loading} />}
       {/* mounted but hidden until ready: its width and zoom hooks attach on the first render */}
       <div style={{ display: ready ? "contents" : "none" }}><MapsCompare dir0={dir} an={an} onReady={() => setReady(true)} /></div>
@@ -94,7 +89,7 @@ function StkSwitch({ tg }: { tg?: boolean }) {
 }
 
 /** The /strikes page: the server HTML (`seo`) until the interactive map with its filters, legend and list has its data.
- *  `tg`: /strikes/targets — the potential targets and what each weapon reaches instead. */
+ *  `tg`: /strikes/targets — the potential targets and what each weapon reaches instead (server HTML: TargetsSeo). */
 export function StrikesView({ seo, an, headline, tg }: { seo: ReactNode; an?: Analytics | null; headline?: { title?: string; item?: string } | null; tg?: boolean }) {
   const { t, lang, D } = useApp();
   const [ready, setReady] = useState(false);
@@ -103,10 +98,8 @@ export function StrikesView({ seo, an, headline, tg }: { seo: ReactNode; an?: An
       {lang === "en" && D.contentLang !== "en" && <p className="lang-note">{t.langNote}</p>}
       <CrossLinks an={an} headline={headline} />
       <StkSwitch tg={tg} />
-      {tg ? <TargetsMap /> : <>
-        {!ready && <SeoHtml seo={seo} loading={t.stk.loading} />}
-        <StrikesMap an={an} onReady={() => setReady(true)} />
-      </>}
+      {!ready && <SeoHtml seo={seo} loading={t.stk.loading} />}
+      {tg ? <TargetsMap onReady={() => setReady(true)} /> : <StrikesMap an={an} onReady={() => setReady(true)} />}
     </div>
   );
 }

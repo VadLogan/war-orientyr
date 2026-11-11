@@ -13,6 +13,7 @@ import DashProvider from "./DashProvider";
 import MapsCard from "./MapsCard";
 import StrikesCard from "./StrikesCard";
 import StrikesSeo from "./StrikesSeo";
+import TargetsSeo from "./TargetsSeo";
 import MapsSeo from "./MapsSeo";
 import { dashLd, DashSummary, PanelFoot, PanelIntro } from "./DashText";
 import type { MapsData } from "./Panels";
@@ -77,7 +78,7 @@ export default async function DashPage({ lang, params, view = "dashboard" }: { l
           mapsMini={maps ? null : <MapsCard lang={lang} date={D.date} latest={latest.date} url={MAPS} mini />}
           strikesMini={maps ? null : <StrikesCard lang={lang} date={D.date} latest={latest.date} mini />}
           headline={hl(D)} an={an} summary={maps ? null : <DashSummary D={D} an={an} lang={lang} />}
-          tg={tg} strikesSeo={view === "strikes" && !tg ? <StrikesSeo lang={lang} date={D.date} latest={latest.date} /> : null}
+          tg={tg} strikesSeo={view !== "strikes" ? null : tg ? <TargetsSeo lang={lang} /> : <StrikesSeo lang={lang} date={D.date} latest={latest.date} />}
           mapsSeo={view === "maps" ? <MapsSeo lang={lang} url={MAPS} dir={dir} /> : null} dir={dir?.id} />
       </div></main>
     </div>
