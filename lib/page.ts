@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import type { Digest } from "@/types/digest";
 import { getDates, getIssue, getLatest } from "./data";
-import { href, SITE, SITE_DESC, SITE_NAME, tgHref, type View } from "./routes";
+import { href, SITE, SITE_DESC, SITE_NAME, SITE_TAG, tgHref, type View } from "./routes";
 import { clip, dateTitle } from "./text";
 import { SUBS, UI, isSub, type Lang, type SubLang } from "./ui";
 import { DIRS } from "@/components/dash/mapParts";
@@ -66,6 +66,34 @@ const DASH_DESC: Record<Lang, string> = {
 };
 const viewDesc = (lang: Lang, view: "dashboard" | "maps" | "strikes") => view === "dashboard" ? DASH_DESC[lang] : UI[lang].nw[view].p;
 
+/** Search titles of the dashboard, maps and strikes pages: `day` = "" for the undated page (today), else the issue's short date. */
+const shortDate = (date: string, lang: Lang) => {
+  const d = new Date(date + "T12:00:00Z");
+  return lang === "uk" ? d.toLocaleDateString("uk-UA", { day: "numeric", month: "long", timeZone: "UTC" }) + " " + d.getUTCFullYear()
+    : d.toLocaleDateString({ en: "en-GB", de: "de-DE", fr: "fr-FR" }[lang], { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
+};
+const n = "\u202f"; // French: narrow no-break space before ":"
+const VIEW_TITLE: Record<"dashboard" | "maps" | "strikes", Record<Lang, (day: string) => string>> = {
+  maps: {
+    uk: (d) => d ? `Лінія фронту на ${d}: DeepState, ISW і заяви рф` : "Карта фронту в Україні сьогодні — DeepState, ISW і заяви рф",
+    en: (d) => d ? `Front line on ${d}: DeepState vs ISW vs russian claims` : "Ukraine front line map today — DeepState vs ISW vs russian claims",
+    de: (d) => d ? `Frontverlauf am ${d}: DeepState, ISW, russische Meldungen` : "Frontverlauf Ukraine heute: Karte – DeepState, ISW, russische Meldungen",
+    fr: (d) => d ? `Ligne de front au ${d}${n}: DeepState, ISW, revendications russes` : "Carte du front en Ukraine aujourd’hui – DeepState, ISW, revendications russes",
+  },
+  strikes: {
+    uk: (d) => d ? `Удари України по росії на ${d}: карта` : "Карта ударів України по росії сьогодні: НПЗ, аеродроми, заводи",
+    en: (d) => d ? `Ukraine’s strikes on russia, ${d}: map` : "Map of Ukraine’s strikes on russia today: refineries, airfields, plants",
+    de: (d) => d ? `Ukrainische Angriffe auf russland am ${d}: Karte` : "Ukrainische Angriffe auf russland heute: Karte – Raffinerien, Flugplätze, Werke",
+    fr: (d) => d ? `Frappes ukrainiennes en russie au ${d}${n}: carte` : `Carte des frappes ukrainiennes en russie aujourd’hui${n}: raffineries, aérodromes, usines`,
+  },
+  dashboard: {
+    uk: (d) => `Війна в цифрах ${d ? "на " + d : "сьогодні"}: втрати, удари, ціна кілометра`,
+    en: (d) => `The war in numbers ${d ? "on " + d : "today"}: losses, strikes, price per km`,
+    de: (d) => `Der Krieg in Zahlen ${d ? "am " + d : "heute"}: Verluste, Angriffe, Preis pro km`,
+    fr: (d) => `La guerre en chiffres ${d ? "au " + d : "aujourd’hui"}${n}: pertes, frappes, prix du km`,
+  },
+};
+
 /** The maps pages share that day's front map (app/og/maps), the dashboard that day's numbers (app/og/dashboard), the rest the site image. */
 export const mapsImg = (view: View, date: string) => view === "maps" ? `/og/maps/${date}.png` : view === "dashboard" ? `/og/dashboard/${date}.png` : undefined;
 
@@ -81,12 +109,12 @@ export async function pageMeta(lang: Lang, view: Exclude<View, "articles">, para
   else if (dir) meta = seoMeta(lang, (l) => dirHref(l, dir), dirTitle(lang, dir), clip(dirDesc(lang, dir), 160), mapsImg(view, D.date), SUBS, "website");
   else if (root) {
     // "/" and "/dashboard" change daily: generic title/description, so a search result doesn't promise a past issue's story.
-    const title = view === "digest" ? SITE_NAME[lang] : UI[lang][view === "dashboard" ? "dash" : view];
+    const title = view === "digest" ? `${SITE_NAME[lang]} — ${SITE_TAG[lang]}` : VIEW_TITLE[view][lang]("");
     meta = seoMeta(lang, (l) => href(l, view, null, ""), title, clip(view === "digest" ? SITE_DESC[lang] : viewDesc(lang, view), 160), mapsImg(view, D.date), subs, "website");
     if (view === "digest") meta.title = { absolute: title };
   } else {
     // digest: the issue's headline (old issues have none → date); dashboard: date. Site name added by the layout template.
-    const title = view === "digest" && D.headline?.title ? clip(D.headline.title, 60) : dateTitle(D, lang).h + (view === "digest" ? "" : " · " + UI[lang][view === "dashboard" ? "dash" : view]);
+    const title = view === "digest" && D.headline?.title ? clip(D.headline.title, 60) : view === "digest" ? dateTitle(D, lang).h : VIEW_TITLE[view][lang](shortDate(D.date, lang));
     // digest: the headline's text (else the lede); the other views: the date + what the view shows, so the four URLs of a day differ
     const description = clip(view === "digest" ? (D.headline?.title ? D.headline.text : D.lede) || D.lede || "" : dateTitle(D, lang).h + ". " + viewDesc(lang, view), 160);
     meta = seoMeta(lang, (l) => href(l, view, D.date, ""), title, description, mapsImg(view, D.date), subs); // always the dated URL, the latest issue too
@@ -102,13 +130,15 @@ export async function pageMeta(lang: Lang, view: Exclude<View, "articles">, para
 /** metadataBase, canonical + hreflang (x-default = the Ukrainian URL, which redirects by Accept-Language), Open Graph, Twitter.
  *  `subs`: the German/French versions the page has (hreflang de/fr). `type`: og:type — "website" for a listing. */
 export function seoMeta(lang: Lang, url: (l: Lang) => string, title: string, description: string, image = "/og.png", subs: readonly SubLang[] = [], type: "article" | "website" = "article"): Metadata {
+  // og:/twitter:title get no layout template: add the brand here (the home page's title already has it)
+  const full = title.includes(SITE_NAME[lang]) ? title : `${title} | ${SITE_NAME[lang]}`;
   const images = [image === "/og.png" || image.startsWith("/og/") ? { url: image, width: 1200, height: 630, alt: SITE_NAME[lang] } : { url: image }];
   return {
     metadataBase: new URL(SITE),
     title,
     description,
     alternates: { canonical: url(lang), languages: { uk: url("uk"), en: url("en"), ...Object.fromEntries(subs.map((l) => [l, url(l)])), "x-default": url("uk") } },
-    openGraph: { type, siteName: SITE_NAME[lang], locale: { uk: "uk_UA", en: "en_GB", de: "de_DE", fr: "fr_FR" }[lang], url: url(lang), title, description, images },
-    twitter: { card: "summary_large_image", title, description, images },
+    openGraph: { type, siteName: SITE_NAME[lang], locale: { uk: "uk_UA", en: "en_GB", de: "de_DE", fr: "fr_FR" }[lang], url: url(lang), title: full, description, images },
+    twitter: { card: "summary_large_image", title: full, description, images },
   };
 }

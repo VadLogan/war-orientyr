@@ -13,7 +13,7 @@ import { LandCostNote, PotentialNote } from "./AnNotes";
 import { DIRS, dirOf, areaTiles, Cities, countV, fitFront, lastDay, Layers, lineChanges, lineDiff, makeGeo, Mark, MarkIco, mp, PAIR_SRC, Sw, SRC_COL, Tiles, VerdictBar, VG, vgOf, type Ev, type Geo, type Rings } from "./mapParts";
 import { flags } from "@/components/Flag";
 import { toArea, type LL } from "@/lib/geo";
-import { href } from "@/lib/routes";
+import { href, utm } from "@/lib/routes";
 import { byPlace, GCOL, GRPS, grpOf, placeKey, STK_CITIES, StkIco, StkMark, type Grp } from "./strikeParts";
 import { reaching, WEAPONS, WPN_GROUPS, wpnImg, wpnName } from "@/lib/weapons";
 
@@ -584,7 +584,7 @@ export function MapsCompare({ dir0, onReady, an }: { dir0?: string; onReady?: ()
     const d = now - then;
     return Math.abs(d) < 0.05 ? <>—</> : <span className={d < 0 ? "closer" : "farther"} title={d < 0 ? t.distCloser : t.distFarther}>{(d < 0 ? "−" : "+") + km1(Math.abs(d))}</span>;
   };
-  const copyLink = () => navigator.clipboard?.writeText(location.href).then(() => setCopied(true), () => {});
+  const copyLink = () => navigator.clipboard?.writeText(utm(location.href, "copy_link", "maps", "share")).then(() => setCopied(true), () => {});
   const k = z.t.k;
   const evTip = (e: Ev) => () => <>
     <div className="d">{dmy(e.d)}</div><div>{flags(hs(e.t))}</div>

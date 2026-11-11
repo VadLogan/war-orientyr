@@ -13,9 +13,21 @@ export function href(lang: Lang, view: View, date: string | null, latest: string
 export const tgHref = (lang: Lang) => pre(lang) + "/strikes/targets";
 export const articlesHref =(lang: Lang) => pre(lang) + "/articles";
 export const articleHref = (lang: Lang, date: string, name: string) => pre(lang) + `/articles/${date}/${name}`;
+/** `url` tagged for analytics: utm_source/medium/campaign set (replacing any the visitor arrived with), hash kept after the query. */
+export function utm(url: string, source: string, campaign: string, medium = "social") {
+  const u = new URL(url);
+  for (const k of [...u.searchParams.keys()]) if (k.startsWith("utm_")) u.searchParams.delete(k);
+  u.searchParams.set("utm_source", source);
+  u.searchParams.set("utm_medium", medium);
+  u.searchParams.set("utm_campaign", campaign);
+  return u.toString();
+}
 /** Absolute site origin (production domain on Vercel, else localhost). */
 export const SITE = process.env.VERCEL_PROJECT_PRODUCTION_URL ? "https://" + process.env.VERCEL_PROJECT_PRODUCTION_URL : "http://localhost:3000";
-export const SITE_NAME: Record<Lang, string> = { uk: "Щоденний дайджест війни", en: "Daily war digest", de: "Täglicher Kriegsbericht", fr: "Synthèse quotidienne de la guerre" };
+/** The brand as the masthead shows it: og:site_name, title suffix, schema.org Organization. */
+export const SITE_NAME: Record<Lang, string> = { uk: "WAR·Орієнтир", en: "War Orientyr", de: "War Orientyr", fr: "War Orientyr" };
+/** What the site is, for the home page title. */
+export const SITE_TAG: Record<Lang, string> = { uk: "щоденний дайджест війни", en: "daily war digest", de: "täglicher Kriegsbericht", fr: "synthèse quotidienne de la guerre" };
 export const SITE_DESC: Record<Lang, string> = {
   uk: "Щодня: фронт, удари, втрати, заяви кремля і реакція світу — коротко і з джерелами.",
   en: "Every day: the front, strikes, losses, the kremlin’s claims and the world’s reaction — briefly, with sources.",

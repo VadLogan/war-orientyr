@@ -104,9 +104,15 @@ Who reads: a French-speaking public that follows the war through its own media (
 - Articles: `preview.fr.json`, `article.fr.json` / `presentation.fr.json` — free structure, as for English; same fields kept identical; a cover with text in it gets a `cover.fr.<ext>` copy. An `h2` that repeats a digest section title carries `section` in French too.
 - **Site wiring:** `/fr` is live (`app/(fr)/`, `UI.fr`) and follows the German rules: a page without full French text falls back to English with a French notice, and a dashboard/maps/strikes data file is shown in English until every string of it is French. French starts with the issue of 2026-11-10: translate the current issue and new daily data only — never back-fill archived issues. The French section titles are in `UI.fr.sec` (`lib/ui.ts`); a new UI key needs its French value in code (`UI.fr`, `tr(uk, en, de, fr)`, `DIRS`/`STK_CITIES` `fr`).
 
+## Every issue: search titles and post links (all desks)
+
+- **`headline.title` is the day's search title.** The dated digest page's `<title>`/og:title = the first 60 characters of `headline.title` + ` | War Orientyr` (`WAR·Орієнтир` in Ukrainian; `pageMeta` in `lib/page.ts`). So in every language the first ~60 characters must stand alone: the searchable words (the place, the weapon, the number and its yardstick — “317 дронів за ніч”, “Pokrovsk”, “Tuapse refinery”), no throat-clearing, no brand or date (both are added). The rest of the ~90 may finish the thought. Same for article `preview.*.json` `title` (clipped at 60 too).
+- **Don't touch the fixed titles:** the maps/strikes/dashboard titles (`VIEW_TITLE`) and the brand (`SITE_NAME`, `lib/routes.ts`) are code, not the issue's text — if one reads wrong, say so in the report.
+- **Telegram post links:** in the report give the day's post links already tagged, one per page you'd link (digest, any article, /maps or /strikes if the story is there), with `npm run utm -- <url> <campaign>` — campaign `digest-<date>`, `article-<name>` or `maps-<date>`; source stays `telegram`. Never post an untagged link: UTM is how growth gets attributed.
+
 ## 6. Check and report
 
 1. `npm run i18n:missing` — must report 0 for digest strings; if not, the English desk missed a changed Ukrainian string. `npm run i18n:missing:de` and `npm run i18n:missing:fr` — must report 0 too (else the German/French page falls back to English). Then `npm run validate`.
-2. Show `git diff --stat` and, for headline and lede, before → after for all four languages.
-3. Report: the memo’s angle, structural changes (if any), what each desk changed, anything left alone and why.
+2. Show `git diff --stat` and, for headline and lede, before → after for all four languages — with the headline's first 60 characters (the search title) marked.
+3. Report: the tagged Telegram post links, the memo’s angle, structural changes (if any), what each desk changed, anything left alone and why.
 4. Don't commit unless the user asks. Remind that the Artifact is still the primary publisher: a same-date re-sync from it overwrites these edits, so run this after the day's final sync.

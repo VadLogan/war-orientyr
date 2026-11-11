@@ -2,11 +2,11 @@ import type { Metadata, Viewport } from "next";
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import type { Lang } from "@/lib/ui";
-import { SITE_NAME as SITE } from "@/lib/routes";
+import { SITE_NAME as SITE, SITE_TAG } from "@/lib/routes";
 import "@/app/globals.css";
 
 /** Root metadata per language: the site name, and the template pages' titles are wrapped in. */
-export const siteMeta = (lang: Lang): Metadata => ({ title: { default: SITE[lang], template: `%s · ${SITE[lang]}` } });
+export const siteMeta = (lang: Lang): Metadata => ({ title: { default: `${SITE[lang]} — ${SITE_TAG[lang]}`, template: `%s | ${SITE[lang]}` } });
 export const viewport: Viewport = { width: "device-width", initialScale: 1, viewportFit: "cover" };
 
 const FONTS = [
