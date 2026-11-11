@@ -59,6 +59,31 @@ for (const date of dirs(ART)) {
   }
 }
 for (const f of ["strikes.json","prices.json","recruit.json","landcost.json","maps/maps.json","maps/strikes-base.json","maps/targets.json"]) rd(f);
+// potential.json (strike potential panel): sourced estimates and monthly totals; every Air Force weapon type in any issue
+// timeline must belong to exactly one group, or new types would silently drop out of the launch counts.
+{
+  const P = rd("potential.json"), bad = [], ids = P.groups.map((g) => g.id), seen = new Set();
+  const D = /^\d{4}-\d{2}-\d{2}$/, M = /^\d{4}-\d{2}$/;
+  for (const e of P.estimates) {
+    const at = `estimate ${e.group}/${e.type ?? "group"}/${e.kind}/${e.date}`;
+    if (!D.test(e.date ?? "") || !e.src || !e.url) bad.push(at + ": needs date (YYYY-MM-DD), src and url");
+    if (!(e.low <= e.high)) bad.push(at + ": low > high");
+    if (!ids.includes(e.group)) bad.push(at + ": unknown group");
+    if (!["production", "stock", "plan"].includes(e.kind)) bad.push(at + ": kind must be production|stock|plan");
+  }
+  for (const l of P.launches) {
+    if (!M.test(l.month ?? "") || !l.src || !l.url) bad.push(`launches ${l.month}: needs month (YYYY-MM), src and url`);
+    if (seen.has(l.month)) bad.push(`launches ${l.month}: duplicate month`);
+    seen.add(l.month);
+  }
+  for (const s of ["pes", "real", "opt"]) if (!P.scenarios?.[s]) bad.push("scenarios." + s + " missing");
+  for (const f of ["digest.json", ...fs.readdirSync(new URL("../public/issues/", import.meta.url)).filter((x) => /^\d{4}-\d{2}-\d{2}\.json$/.test(x)).map((x) => "issues/" + x)])
+    for (const t of rd(f).timeline ?? []) for (const m of t.mix ?? []) {
+      const n = P.groups.filter((g) => g.types.includes(m.type)).length;
+      if (n !== 1) bad.push(`${f} ${t.date}: weapon type "${m.type}" is in ${n} potential.json groups (needs exactly 1)`);
+    }
+  if (bad.length) { console.error("potential.json:\n  " + [...new Set(bad)].join("\n  ")); process.exit(1); }
+}
 for (const d of rd("maps/archive/index.json").dates) if (rd(`maps/archive/${d}.json`).generated !== d) { console.error(`maps/archive/${d}.json: generated != ${d}`); process.exit(1); }
 // Research-tool residue must not reach readers ("відхилено проксі (HTTP 400)", "WebFetch", snapshot ids…).
 // `assumption` / `unavailable` are working notes the page does not render, and sources with status "unavailable" are
@@ -70,7 +95,7 @@ const walk = (v, f, at) => {
   else if (v && typeof v === "object" && v.status !== "unavailable") for (const k in v) if (k !== "assumption" && k !== "unavailable") walk(v[k], f, at + "." + k);
 };
 const jsonFiles = (dir) => fs.readdirSync(new URL("../public/" + dir, import.meta.url), { recursive: true }).filter((f) => f.endsWith(".json")).map((f) => dir + f);
-for (const f of ["digest.json", ...jsonFiles("issues/"), ...jsonFiles("articles/"), "strikes.json", "prices.json", "recruit.json", "maps/maps.json"]) walk(rd(f), f, "");
+for (const f of ["digest.json", ...jsonFiles("issues/"), ...jsonFiles("articles/"), "strikes.json", "prices.json", "recruit.json", "potential.json", "maps/maps.json"]) walk(rd(f), f, "");
 if (residue.length) { console.error("research-tool residue in reader-facing text:\n  " + residue.join("\n  ")); process.exit(1); }
 JSON.parse(fs.readFileSync(new URL("../i18n/en.json", import.meta.url), "utf8")); // translation memory must stay valid JSON
 console.log("ok:", d.date, idx.length, "issues,", nArt, "articles");

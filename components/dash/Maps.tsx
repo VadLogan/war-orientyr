@@ -8,6 +8,8 @@ import { useApp } from "../ctx";
 import { LOCK } from "../digest/Item";
 import { fetchJson, useElWidth, useJson, useSticky } from "./hooks";
 import type { MapsData } from "./Panels";
+import type { Analytics } from "@/lib/data";
+import { LandCostNote, PotentialNote } from "./AnNotes";
 import { DIRS, dirOf, areaTiles, Cities, countV, fitFront, lastDay, Layers, lineChanges, lineDiff, makeGeo, Mark, MarkIco, mp, PAIR_SRC, Sw, SRC_COL, Tiles, VerdictBar, VG, vgOf, type Ev, type Geo, type Rings } from "./mapParts";
 import { flags } from "@/components/Flag";
 import { toArea, type LL } from "@/lib/geo";
@@ -204,7 +206,7 @@ const Lag = ({ n, t }: { n: number; t: UIStrings }) => <b className={"mp-lag" + 
 const DsIco = ({ k }: { k: "ru" | "ua" | "fix" }) => <svg className="mk" width="14" height="14" viewBox="-7 -7 14 14" aria-hidden="true"><DsMark k={k} /></svg>;
 
 /** `dir0`: start framed on this direction (a /maps/<direction> page) unless the link's hash names one. `onReady`: the data is here. */
-export function MapsCompare({ dir0, onReady }: { dir0?: string; onReady?: () => void } = {}) {
+export function MapsCompare({ dir0, onReady, an }: { dir0?: string; onReady?: () => void; an?: Analytics | null } = {}) {
   const { t, lang, MAPS, D, LATEST } = useApp();
   const hs = (x: string) => hsBase(x, lang);
   const [mode, setMode] = useSticky("mapMode", "cmp");
@@ -878,6 +880,8 @@ export function MapsCompare({ dir0, onReady }: { dir0?: string; onReady?: () => 
           </div>
           {/* under the map, so on phones the map comes right after the filter button (full screen: in the top bar) */}
           {!fs && <div className="map-legend">{legend}</div>}
+          {/* right under the map and its legend: what the ground the map shows taken cost (the "line then and now" period) */}
+          {M && !fs && D.date === LATEST.date && <LandCostNote an={an} chg={chg} />}
           {M && <div className="mp-fc">
             <div className="mp-fc-h">
               <b>{t.fcH(dayStr(end - per + 1), dayStr(end))}{dir && <> · {DIRS.find((x) => x.id === dir)![lang]}</>}</b>
@@ -977,8 +981,8 @@ const byDate = (a: Strike, b: Strike) => (a.date < b.date ? 1 : a.date > b.date 
 const FAR_LNG = 61;
 
 /** `onReady`: on /strikes the server HTML stays until the data is here; nothing renders before that. */
-export function StrikesMap({ onReady }: { onReady?: () => void }) {
-  const { t: TT, lang, D, goItem } = useApp();
+export function StrikesMap({ onReady, an }: { onReady?: () => void; an?: Analytics | null }) {
+  const { t: TT, lang, D, LATEST, goItem } = useApp();
   const hs = (x: string) => hsBase(x, lang);
   const sd = useJson<StrikesData>("/strikes.json"), sb = useJson<StrikesBase>("/maps/strikes-base.json");
   const S = useMemo(() => (sd.data && sb.data ? { stk: sd.data, base: sb.data } : null), [sd.data, sb.data]);
@@ -1085,6 +1089,7 @@ export function StrikesMap({ onReady }: { onReady?: () => void }) {
         [t.tObj, fmt(objs, lang), t.tObjRep(items.length - objs)],
         [t.tFar, farthest && farthest.d ? <>{fmt(farthest.d, lang)}<sub>{t.km}</sub></> : "—", farthest ? hs(farthest.x.place).split(",")[0] + " · " + dmy(farthest.x.date).slice(0, 5) : ""],
       ]} />}</div>
+      {S && D.date === LATEST.date && <PotentialNote an={an} />}
       <div className={"mp-grid" + (fs ? " fs" : "")} role={fs ? "dialog" : undefined} aria-modal={fs || undefined} aria-label={fs ? t.title : undefined}>
         <aside className="mp-rail" hidden={!rail}>
           <fieldset>

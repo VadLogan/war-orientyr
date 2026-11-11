@@ -42,10 +42,22 @@ const NW_ART = {
     {([[300, 60, 9, 2], [372, 44, 12, 2], [452, 72, 9, 2], [236, 92, 8, 1], [330, 118, 10, 0], [410, 132, 8, 4], [268, 150, 7, 3], [496, 112, 7, 1]] as const)
       .map(([x, y, r, c], k) => <circle key={k} cx={x} cy={y} r={r} style={{ fill: c ? `var(--c${c})` : "var(--ink)" }} />)}
   </svg>,
+  // the two dashboard analytics: rising bars (losses per km²), monthly launches against a dashed output line
+  landcost: <svg viewBox="0 0 540 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <path className="land" d="M0 0H540V200H0Z" />
+    {[22, 30, 26, 41, 38, 55, 70, 64, 92, 120, 150].map((h, k) => <rect key={k} x={40 + k * 44} y={180 - h} width={30} height={h} style={{ fill: k === 10 ? "var(--unv)" : "var(--accent)", opacity: k === 10 ? 1 : 0.45 }} />)}
+  </svg>,
+  potential: <svg viewBox="0 0 540 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <path className="land" d="M0 0H540V200H0Z" />
+    {[80, 96, 0, 86, 81, 0, 78, 0, 77, 99, 100, 124, 88, 76, 77, 98, 134].map((h, k) => <rect key={k} x={24 + k * 30} y={180 - h} width={20} height={Math.max(h, 2)} style={{ fill: "var(--c1)", opacity: k === 16 ? 1 : 0.5 }} />)}
+    <path d="M10 58H530" style={{ stroke: "var(--ink)", strokeWidth: 2, strokeDasharray: "8 6", opacity: 0.7 }} />
+  </svg>,
 };
 
-/** Pages promoted in the "New on the site" block on digest pages; empty = no block. */
-const NEW_PAGES: ("maps" | "strikes" | "articles")[] = [];
+/** Pages promoted in the "New on the site" block on digest pages; empty = no block. landcost/potential = the dashboard analytics. */
+type NewPage = "maps" | "strikes" | "articles" | "landcost" | "potential";
+const NEW_PAGES: NewPage[] = ["landcost", "potential"];
+const AN: NewPage[] = ["landcost", "potential"];
 
 /** "New on the site": a card per page in NEW_PAGES; the articles card shows the three newest covers. */
 async function NewPages({ lang }: { lang: Lang }) {
@@ -56,11 +68,11 @@ async function NewPages({ lang }: { lang: Lang }) {
       <div className="nw-top"><h2 id="nw-h" className="art-kicker">{t.h}</h2><span>{t.sub}</span></div>
       <div className="nw-grid">
         {NEW_PAGES.map((v) => {
-          const c = t[v], url = v === "articles" ? articlesHref(lang) : href(lang, v, null, "");
+          const c = t[v], an = AN.includes(v), url = v === "articles" ? articlesHref(lang) : an ? href(lang, "dashboard", null, "") + "#" + v : href(lang, v as "maps" | "strikes", null, "");
           return (
-            <article className="nw-card" key={v}>
+            <article className={an ? "nw-card nw-an" : "nw-card"} key={v}>
               <a className={v === "articles" ? "nw-art nw-covers" : "nw-art"} href={url} tabIndex={-1} aria-hidden="true">
-                {v === "articles" ? covers.map((a) => <Image key={a.name} src={a.img!} alt="" width={400} height={240} sizes="(max-width:600px) 34vw, 200px" />) : NW_ART[v]}</a>
+                {v === "articles" ? covers.map((a) => <Image key={a.name} src={a.img!} alt="" width={400} height={240} sizes="(max-width:600px) 34vw, 200px" />) : NW_ART[v as keyof typeof NW_ART]}</a>
               <div className="nw-txt">
                 <div className="kick">{c.k}</div>
                 <h3><a href={url}>{c.t}</a></h3>

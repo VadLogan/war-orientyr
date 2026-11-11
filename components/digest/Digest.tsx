@@ -1,6 +1,7 @@
 // Server component: the Digest tab.
 import type { Digest as DigestT, Section, Source } from "@/types/digest";
-import { noFlag, secTitle } from "@/lib/text";
+import { fmt, noFlag, secTitle } from "@/lib/text";
+import type { Analytics } from "@/lib/data";
 import { secIcon } from "@/lib/icons";
 import type { Strikes } from "@/lib/strikes";
 import ChkToggle from "./ChkToggle";
@@ -21,6 +22,15 @@ function DirLinks({ D, lang, t, latest }: RC & { D: DigestT; latest: string }) {
     <p className="note">{t.mpOnMap}: {ds.map(([g, d], k) => <Fragment key={d!.id}>{k ? " · " : ""}
       <a href={D.date === latest ? dirHref(lang, d!) : href(lang, "maps", D.date, latest) + "#d=" + d!.id}>{g.name}</a> ({g.attacks})</Fragment>)}</p>
   );
+}
+
+/** A line under a section pointing to a dashboard analytic, with the newest figure (latest issue only). */
+export function anMonth(m: string, lang: string) {
+  const s = new Date(m + "-15T00:00:00Z").toLocaleDateString(lang === "uk" ? "uk-UA" : lang, { month: "long", year: "numeric", timeZone: "UTC" }).replace(/\s*р\.$/, "");
+  return s[0].toUpperCase() + s.slice(1);
+}
+function AnLine({ id, lang, t, children }: { id: string; lang: RC["lang"]; t: RC["t"]; children: React.ReactNode }) {
+  return <a className="an-line" href={href(lang, "dashboard", null, "") + "#" + id}><span className="dz-badge">{t.an.b}</span><span>{children} <span className="go">{t.an.go}</span></span></a>;
 }
 
 export function SecIco({ id, s }: { id: string; s?: Section }) {
@@ -77,7 +87,9 @@ function Sources({ D, t }: Omit<RC, "lang"> & { D: DigestT }) {
   );
 }
 
-export default function Digest({ D, lang, t, strikes, latest }: RC & { D: DigestT; strikes: Strikes | null; latest: string }) {
+/** `an`: the dashboard analytics (lib/data getAnalytics) — given on the latest issue only, then the front and strikes sections end with a line each. */
+export default function Digest({ D, lang, t, strikes, latest, an }: RC & { D: DigestT; strikes: Strikes | null; latest: string; an?: Analytics | null }) {
+  const f = (n: number) => fmt(Math.round(n), lang);
   const secs = (D.sections || []).filter((s) => s.items && s.items.length);
   const toc: [string, string, Section?][] = [...secs.map((s): [string, string, Section] => [s.id, noFlag(secTitle(s, lang)), s]), ["diverge", t.diverge], ["sources", t.sources]];
   return (
@@ -90,6 +102,8 @@ export default function Digest({ D, lang, t, strikes, latest }: RC & { D: Digest
           {s.id === "react" && <FlagSub s={s} />}
           {s.items.map((i, k) => <Item i={i} key={i.id || k} lang={lang} t={t} strikes={strikes} />)}
           {s.id === "front" && <DirLinks D={D} lang={lang} t={t} latest={latest} />}
+          {s.id === "front" && an?.km7 && <AnLine id="landcost" lang={lang} t={t}>{t.an.km(an.km7.span, f(an.km7.gain), f(an.km7.pers), f(an.km7.pk))}</AnLine>}
+          {s.id === "strikes" && an?.pot && <AnLine id="potential" lang={lang} t={t}>{t.an.pot(anMonth(an.pot.month, lang), f(an.pot.launched), an.pot.share)}</AnLine>}
         </section>
       ))}
       <section className="diverge" id="sec-diverge">

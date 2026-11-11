@@ -15,7 +15,8 @@ import StrikesThumb from "./StrikesThumb";
 const FAR_LNG = 61;
 const dmy = (d: string) => d.split("-").reverse().join(".");
 
-export default async function StrikesCard({ lang, date, latest }: { lang: DashLang; date: string; latest: string }) {
+/** `mini`: the dashboard's small card (30-day total and the by-type bar). */
+export default async function StrikesCard({ lang, date, latest, mini }: { lang: DashLang; date: string; latest: string; mini?: boolean }) {
   const t = (UI[lang] as UIStrings).stk;
   const stk = await getMaps<StrikesData>("/strikes.json", lang);
   const hs = (x: string) => houseStyle(x, lang);
@@ -28,6 +29,13 @@ export default async function StrikesCard({ lang, date, latest }: { lang: DashLa
   const conf = items.filter((x) => x.confirmed).length, objs = new Set(items.map((x) => x.object)).size;
   const gc = GRPS.map((g) => [g, items.filter((x) => grpOf(x) === g).length] as const).filter(([, n]) => n);
 
+  if (mini) return (
+    <Link className="dz-card" href={to}>
+      <small><span>{t.cardH}</span><span aria-hidden="true">→</span></small>
+      <span className="dz-cv"><b>{fmt(items.length, lang)}</b><span className="mp-bar dz-typebar">{gc.map(([g, n]) => <span key={g} style={{ flex: n, background: GCOL[g] }} title={`${t.g[g]}: ${n}`} />)}</span></span>
+      <span className="dz-cn">{t.p30} · {gc.slice(0, 2).map(([g, n]) => `${t.g[g]} ${n}`).join(", ")}</span>
+    </Link>
+  );
   return (
     <section className="tlwrap" id="strikemap">
       <div className="tl-head mp-teaser-h"><h2>{t.cardH}</h2><Link href={to}>{t.open}</Link></div>

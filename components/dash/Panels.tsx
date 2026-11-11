@@ -1,21 +1,23 @@
 "use client";
 import { Fragment, useLayoutEffect, useRef, useState } from "react";
 import type { TimelineEntry } from "@/types/digest";
-import { fmt, loc, niceMax, num, shortD, TL } from "@/lib/text";
+import { dayN, fmt, loc, nDay, niceMax, num, plural, shortD, TL } from "@/lib/text";
+import IssueSelect from "@/components/IssueSelect";
+import { lcCalc, lcPeriod, type LandCfg } from "@/lib/landcost";
 import { fireIco } from "@/lib/icons";
 import type { Lang } from "@/lib/ui";
 import { useApp } from "../ctx";
-import { useChartW, useJson } from "./hooks";
+import { useChartW, useJson, useSticky } from "./hooks";
 import { flags } from "@/components/Flag";
 
-const MN = { uk: ["січ", "лют", "бер", "кві", "тра", "чер", "лип", "сер", "вер", "жов", "лис", "гру"], en: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"], de: ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"], fr: ["janv", "févr", "mars", "avr", "mai", "juin", "juil", "août", "sept", "oct", "nov", "déc"] };
+export const MN = { uk: ["січ", "лют", "бер", "кві", "тра", "чер", "лип", "сер", "вер", "жов", "лис", "гру"], en: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"], de: ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"], fr: ["janv", "févr", "mars", "avr", "mai", "juin", "juil", "août", "sept", "oct", "nov", "déc"] };
 /** Ukrainian / English / German / French pick for the panel texts below. */
-const pick = (lang: Lang) => (uk: string, en: string, de: string, fr: string) => ({ uk, en, de, fr }[lang]);
+export const pick = (lang: Lang) => (uk: string, en: string, de: string, fr: string) => ({ uk, en, de, fr }[lang]);
 const Ico = ({ html }: { html: string }) => <span className="li-ico" dangerouslySetInnerHTML={{ __html: html }} />;
-const A = ({ href, children }: { href?: string; children: React.ReactNode }) => <a href={href} target="_blank" rel="noopener">{children}</a>;
+export const A = ({ href, children }: { href?: string; children: React.ReactNode }) => <a href={href} target="_blank" rel="noopener">{children}</a>;
 
 /** Horizontal grid lines with y-axis labels shared by the fixed-width bar charts. */
-function Grid({ ymax, y, ml, W, mr, dx, label }: { ymax: number; y: (v: number) => number; ml: number; W: number; mr: number; dx: number; label: (v: number) => string }) {
+export function Grid({ ymax, y, ml, W, mr, dx, label }: { ymax: number; y: (v: number) => number; ml: number; W: number; mr: number; dx: number; label: (v: number) => string }) {
   return <>{[0, 1, 2, 3, 4].map((k) => { const v = (ymax * k) / 4; return (
     <Fragment key={k}><line className="cv-g" x1={ml} x2={W - mr} y1={y(v)} y2={y(v)} /><text className="cv-x" x={ml - dx} y={y(v) + 4} textAnchor="end">{label(v)}</text></Fragment>
   ); })}</>;
@@ -129,15 +131,15 @@ export function Fire() {
 }
 
 /* ---------- cost of the nightly attack: counts from the Air Force report, unit prices from prices.json ---------- */
-type Prices = { note: string; types: Record<string, { label: string; low: number; high: number; src: string; url?: string }> };
-type Mix = { type: string; n: number }[];
-function money(v: number, lang: Lang) {
+export type Prices = { note: string; types: Record<string, { label: string; low: number; high: number; src: string; url?: string }> };
+export type Mix = { type: string; n: number }[];
+export function money(v: number, lang: Lang) {
   const tr = pick(lang), L = loc(lang);
   if (v < 1e6) return "$" + Math.round(v / 1e3).toLocaleString(L) + tr(" тис.", "k", " Tsd.", " k");
   if (v >= 1e9) return "$" + (v / 1e9).toLocaleString(L, { maximumFractionDigits: 2 }) + tr(" млрд", " bn", " Mrd.", " Md");
   return "$" + (v / 1e6).toLocaleString(L, { maximumFractionDigits: v < 1e7 ? 1 : 0 }) + tr(" млн", " m", " Mio.", " M");
 }
-const atkMix = (e: { mix?: Mix; launched?: number }) => {
+export const atkMix = (e: { mix?: Mix; launched?: number }) => {
   if (Array.isArray(e.mix) && e.mix.length) return { mix: e.mix, full: true };
   const n = num(e.launched);
   return n != null ? { mix: [{ type: "drone-mixed", n }], full: false } : null;
@@ -318,7 +320,6 @@ export function Recruit() {
 }
 
 /* ---------- price of a kilometre: GS totals + losses timeline, DeepState area from maps.json ---------- */
-type LandCfg = { baseline: { km2: number; url: string; source: string }; anchor: { date: string; totals: Record<string, number>; url: string; source: string } };
 export type MapsData = {
   areas: Record<string, number>;
   sources: Record<"deepstate" | "isw" | "divgen", { url: string; asOfLabel: string; note: string }>;
@@ -330,19 +331,67 @@ export type MapsData = {
   dsEvents?: { id: number; d: string; lat: number; lng: number; k: "ru" | "ua" | "fix"; t: string; ru: { id: number; d: string; t: string; km: number; lag: number } | null }[];
   method?: string;
 };
-export function LandCost() {
+export type LandCostR = {
+  per: string; setPer: (v: string) => void; dates: string[]; S: string | null; E?: string; dmy: (iso: string) => string;
+  st: "err" | "load" | "msg" | "ok"; msg?: React.ReactNode; avg?: number | null;
+  C?: LandCfg; M?: MapsData; gs?: { personnel?: number | string | null; source?: string; date?: string } | null;
+  pers?: number | null; tot?: (k: string) => number | null; net?: number; netI?: number; line?: React.ReactNode;
+};
+/** Price of a kilometre for a period — "all" (since 24.02.2022), "30"/"7" days or a start date; a period starts at an archived
+ *  DeepState snapshot (newest on or before it). Shared by the panel and the dashboard card; `per0` overrides the reader's choice. */
+export function useLandCost(per0?: string): LandCostR {
   const { LATEST, lang, t: T } = useApp();
   const t = T.lcost;
+  const tr = pick(lang);
   const lc = useJson<LandCfg>("/landcost.json"), mp = useJson<MapsData>("/maps/maps.json");
-  const wrap = (x: React.ReactNode) => <section className="tlwrap" id="landcost"><div className="tl-head"><h2>{t.title}</h2><p>{t.sub}</p></div><div>{x}</div></section>;
-  if (lc.err || mp.err) return wrap(<p className="map-src">{t.err}</p>);
-  if (!lc.data || !mp.data) return wrap(<p className="map-src">{t.loading}</p>);
-  const C = lc.data, M = mp.data, Ar = M.areas || {}, base = C.baseline.km2, B = LATEST;
-  const ser = ((B.losses && B.losses.series) || []).filter((e) => e && e.ru && e.date > C.anchor.date);
-  const tot = (k: string) => { const a = C.anchor.totals[k]; if (a == null) return null; return a + ser.reduce((s, e) => s + (num(e.ru![k]) || 0), 0); };
-  const gs = B.losses && B.losses.gsTotal, pers = gs ? num(gs.personnel) : null;
-  const net = Ar.ds_occ - base, netI = Ar.isw - base;
-  if (!(net > 0)) return wrap(<p className="map-src">{t.err}</p>);
+  const [perS, setPer] = useSticky("lcPer", "all");
+  const per = per0 ?? perS;
+  const dates = useJson<{ dates: string[] }>("/maps/archive/index.json").data?.dates || [];
+  const { E, S } = lcPeriod(dates, per);
+  const old = useJson<MapsData>(S ? `/maps/archive/${S}.json` : null);
+  const dmy = (iso: string) => iso.split("-").reverse().join(".");
+  const base = { per, setPer, dates, S, E, dmy };
+  if (lc.err || mp.err || old.err) return { ...base, st: "err" };
+  if (!lc.data || !mp.data || (per !== "all" && !old.data)) return { ...base, st: "load" };
+  const C = lc.data, M = mp.data, Ar = M.areas || {}, base0 = C.baseline.km2, B = LATEST;
+  const f = (n: number) => fmt(n, lang);
+  const gs = B.losses && B.losses.gsTotal;
+  const { pers, tot, net, netI, avg, a0, days, span } = lcCalc({ C, areas: Ar, oldAreas: old.data?.areas, series: (B.losses && B.losses.series) || [], gsPersonnel: gs ? num(gs.personnel) : null, per, S, E });
+  let line: React.ReactNode;
+  if (per === "all") {
+    if (!(net > 0)) return { ...base, st: "msg", msg: t.err };
+    line = t.area(f(Ar.ds_occ), "DeepState", M.sources.deepstate.asOfLabel, f(base0), f(net));
+  } else {
+    const rows = { length: days };
+    const head = tr(`Період ${dmy(S!)} – ${dmy(E!)} (${span} дн.)`, `Period ${dmy(S!)} – ${dmy(E!)} (${span} days)`, `Zeitraum ${dmy(S!)} – ${dmy(E!)} (${span} Tage)`, `Période du ${dmy(S!)} au ${dmy(E!)} (${span} jours)`)
+      + (rows.length < span ? tr(`, втрати є за ${rows.length} дн.`, `, losses for ${rows.length} days`, `, Verluste für ${rows.length} Tage`, `, pertes sur ${rows.length} jours`) : "");
+    if (!(net > 0)) return { ...base, st: "msg" as const, msg: <>{head}: {tr(`за DeepState росія не збільшила окуповану площу (${f(a0)} → ${f(Ar.ds_occ)} км²), тож ціну не порахувати.`, `per DeepState russia gained no net ground (${f(a0)} → ${f(Ar.ds_occ)} km²), so there is no price to compute.`, `laut DeepState hat russland netto kein Gelände gewonnen (${f(a0)} → ${f(Ar.ds_occ)} km²), ein Preis lässt sich nicht berechnen.`, `selon DeepState, la russie n’a gagné aucun terrain net (${f(a0)} → ${f(Ar.ds_occ)} km²) : pas de prix à calculer.`)}</> };
+    line = <>{head}. {tr(`Приріст за DeepState: ${f(Ar.ds_occ)} − ${f(a0)} км² = ${f(net)} км². За короткий період приріст малий, тож уточнення карти на кілька км² помітно змінюють результат.`, `Gain per DeepState: ${f(Ar.ds_occ)} − ${f(a0)} km² = ${f(net)} km². Over a short period the gain is small, so map corrections of a few km² shift the result noticeably.`, `Gewinn laut DeepState: ${f(Ar.ds_occ)} − ${f(a0)} km² = ${f(net)} km². Über einen kurzen Zeitraum ist der Gewinn klein, Kartenkorrekturen von wenigen km² verschieben das Ergebnis daher deutlich.`, `Gain selon DeepState : ${f(Ar.ds_occ)} − ${f(a0)} km² = ${f(net)} km². Sur une courte période le gain est faible : des corrections de carte de quelques km² changent nettement le résultat.`)}</>;
+  }
+  return { ...base, st: "ok", avg, C, M, gs, pers, tot, net, netI, line };
+}
+
+export function LandCost() {
+  const { lang, t: T } = useApp();
+  const t = T.lcost;
+  const tr = pick(lang);
+  const L = useLandCost(), { per, setPer, dates, S, dmy } = L;
+  const ctl = (
+    <div className="tl-controls">
+      <div className="seg" role="group" aria-label={tr("Період", "Period", "Zeitraum", "Période")}>
+        {([["all", tr("з 24.02.2022", "since 24.02.2022", "seit 24.02.2022", "depuis le 24.02.2022")], ["30", T.r30], ["7", T.r7]] as const).map(([k, l]) => <button type="button" key={k} aria-pressed={per === k} onClick={() => setPer(k)}>{l}</button>)}
+      </div>
+      {dates.length > 1 && <IssueSelect lang={lang} dates={dates.slice(0, -1)} latest={dates.at(-2)!} date={S || dates.at(-2)!} onPick={setPer} className={per.length === 10 ? "on" : undefined}
+        label={per.length === 10 && S ? tr("з ", "from ", "ab ", "depuis le ") + dmy(S) : tr("з дати…", "from date…", "ab Datum…", "depuis le…")}
+        cal={{ h: tr("Початок періоду", "Start of the period", "Beginn des Zeitraums", "Début de la période"), none: tr("немає знімка карти", "no map snapshot", "kein Kartenstand", "pas d’état de la carte"), fresh: tr("найновіший знімок", "newest snapshot", "neuester Kartenstand", "dernier état de la carte"),
+          count: (n: number) => tr(`${n} ${plural(n, "знімок", "знімки", "знімків")} карти`, `${n} map ${n === 1 ? "snapshot" : "snapshots"}`, `${n} ${n === 1 ? "Kartenstand" : "Kartenstände"}`, `${n} ${n === 1 ? "état" : "états"} de la carte`) }} />}
+    </div>
+  );
+  const wrap = (x: React.ReactNode) => <section className="tlwrap" id="landcost"><div className="tl-head"><h2>{t.title}</h2><p>{t.sub}</p></div><div>{ctl}{x}</div></section>;
+  if (L.st === "err") return wrap(<p className="map-src">{t.err}</p>);
+  if (L.st === "load") return wrap(<p className="map-src">{t.loading}</p>);
+  if (L.st === "msg") return wrap(<p className="map-src">{L.msg}</p>);
+  const { C, M, gs, pers, tot, net, netI, line } = L as Required<LandCostR>;
   const f = (n: number) => fmt(n, lang);
   const f1 = (v: number) => (v >= 100 ? f(Math.round(v)) : Number(v).toLocaleString(loc(lang), { maximumFractionDigits: 1, minimumFractionDigits: 1 }));
   const add = (a: number | null, b: number | null) => (a == null || b == null ? null : a + b);
@@ -353,7 +402,7 @@ export function LandCost() {
       <p className="ls-caveat">{flags(t.caveat)}</p>
       <div className="tiles">{tiles.map(([l, v]) => <div className="tile" key={l}><small>{flags(l)}</small><b>{v == null ? "—" : f1(v / net)}</b><span>{v == null ? "" : t.tot(f(v), f(net))}</span></div>)}</div>
       <section className="panel">
-        <p className="sub" style={{ margin: 0 }}>{t.area(f(Ar.ds_occ), "DeepState", ds.asOfLabel, f(base), f(net))}</p>
+        <p className="sub" style={{ margin: 0 }}>{line}</p>
         {netI > 0 && pers != null && <p className="sub" style={{ margin: 0 }}>{t.alt("ISW", f(netI), f1(pers / netI))}</p>}
         <details className="method"><summary>{t.method}</summary>
           <p>{flags(t.methodText(C.anchor.date.split("-").reverse().join(".")))}</p>

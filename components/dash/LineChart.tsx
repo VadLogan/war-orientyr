@@ -8,7 +8,7 @@ import { flags } from "@/components/Flag";
 export type Ser<R> = { name: string; color: string; get: (e: R) => number | null; src: string; pct?: boolean };
 type Props<R extends { date: string }> = {
   rows: R[]; ser: Ser<R>[]; start: number; end: number; aria: string;
-  table?: boolean; bars?: boolean;
+  table?: boolean; bars?: boolean; h?: number; // h: plot height (default 220 narrow / 260 wide)
   label: (e: R) => string;
   srcOf: (e: R, s: Ser<R>) => string;
   fmtV: (s: Ser<R>, v: number | null) => string;
@@ -29,7 +29,7 @@ export default function LineChart<R extends { date: string }>(c: Props<R>) {
   const w = useElWidth(plotRef);
   const { rows, ser, start, end, bars } = c;
 
-  const W = Math.max(280, w || 600), H = W < 520 ? 220 : 260, m = { l: 44, r: 14, t: 14, b: 26 }, iw = W - m.l - m.r, ih = H - m.t - m.b;
+  const W = Math.max(280, w || 600), H = c.h ?? (W < 520 ? 220 : 260), m = { l: 44, r: 14, t: 14, b: 26 }, iw = W - m.l - m.r, ih = H - m.t - m.b;
   const span = Math.max(1, end - start), bw = iw / (end - start + 1);
   const x = bars ? (n: number) => m.l + (n - start + 0.5) * bw : (n: number) => m.l + (end === start ? iw / 2 : ((n - start) / span) * iw);
   let vmax = 0;

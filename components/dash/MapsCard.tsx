@@ -14,7 +14,8 @@ import { areaTiles, Cities, countV, lastDay, Layers, Mark, mp, Tiles, VerdictBar
 const W = 640, H = 380;
 const dmy = (d: string) => d.split("-").reverse().join(".");
 
-export default async function MapsCard({ lang, date, latest, url }: { lang: DashLang; date: string; latest: string; url: string }) {
+/** `mini`: the dashboard's small card (occupied area, DeepState changes in 7 days, the still map in miniature). */
+export default async function MapsCard({ lang, date, latest, url, mini }: { lang: DashLang; date: string; latest: string; url: string; mini?: boolean }) {
   const t = UI[lang] as UIStrings;
   const M = await getMaps<MapsData>(url, lang);
   const hs = (x: string) => houseStyle(x, lang);
@@ -35,6 +36,18 @@ export default async function MapsCard({ lang, date, latest, url }: { lang: Dash
   const recent = M.events.filter((e) => dayN(e.d) > end - 30);
   const last = M.events.reduce((a, b) => (b.d > a.d ? b : a), M.events[0]);
 
+  if (mini) {
+    const tr = (uk: string, en: string, de: string, fr: string) => ({ uk, en, de, fr }[lang]);
+    const ch7 = (M.dsEvents || []).filter((e) => dayN(e.d) > end - 7 && e.k !== "fix").length;
+    return (
+      <Link className="dz-card" href={to}>
+        <small><span>{t.map}</span><span aria-hidden="true">→</span></small>
+        <span className="dz-cv"><b>{F(M.areas.ds_occ)} {tr("км²", "km²", "km²", "km²")}</b>
+          <svg className="dz-thumb" viewBox={`0 0 ${W} ${H}`} aria-hidden="true"><Layers M={M} geo={geo} mode="cmp" pair="dg_ds" /></svg></span>
+        <span className="dz-cn">{tr(`окуповано · ${ch7} змін за 7 днів`, `occupied · ${ch7} changes in 7 days`, `besetzt · ${ch7} Änderungen in 7 Tagen`, `occupés · ${ch7} changements en 7 jours`)}</span>
+      </Link>
+    );
+  }
   return (
     <section className="tlwrap" id="maps">
       <div className="tl-head mp-teaser-h"><h2>{t.map}</h2><Link href={to}>{t.mpOpen}</Link></div>
