@@ -13,6 +13,7 @@ import { flags } from "@/components/Flag";
 import { toArea, type LL } from "@/lib/geo";
 import { href } from "@/lib/routes";
 import { byPlace, GCOL, GRPS, grpOf, placeKey, STK_CITIES, StkIco, StkMark, type Grp } from "./strikeParts";
+import { reaching, WEAPONS, WPN_GROUPS, wpnImg, wpnName } from "@/lib/weapons";
 
 
 /* ---------- shared: d3-zoom on an SVG, transform kept in (sticky) React state ---------- */
@@ -969,7 +970,8 @@ export function MapsCompare({ dir0, onReady }: { dir0?: string; onReady?: () => 
 const TG_COL: Record<string, string> = { fuel: "--c2", en: "--c4", air: "--c5", mil: "--c1", dc: "--c3" };
 const TG_MATCH: Record<string, Grp[]> = { fuel: ["oil"], en: ["en"], air: ["mil"], mil: ["mil", "vpk"], dc: ["vpk", "en", "log"] };
 const ALL_G = Object.fromEntries(GRPS.map((g) => [g, true])) as Record<Grp, boolean>;
-type Target = { cat: string; name: string; sub: string; lat: number; lng: number; approx?: boolean; src: string };
+type Target = { id?: string; cat: string; name: string; sub: string; lat: number; lng: number; approx?: boolean; src: string };
+const TG_CATS = ["fuel", "en", "air", "mil", "dc"] as const;
 const dmy = (d: string) => d.split("-").reverse().join(".");
 const byDate = (a: Strike, b: Strike) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0);
 const FAR_LNG = 61;
@@ -988,12 +990,9 @@ export function StrikesMap({ onReady }: { onReady?: () => void }) {
   const [lc, setLc] = useSticky("stkLoc", "all");
   const [sel, setSel] = useState<string | null>(null);
   const [more, setMore] = useSticky("stkMore", 40);
-  const [tgOn, setTgOn] = useSticky("tgOn", false);
   const [bm, setBm] = useSticky("stkBase", "t");
-  const [tgCat, setTgCat] = useSticky<Record<string, boolean>>("tgCat", { fuel: true, en: true, air: true, mil: true, dc: true });
   const [tip, setTip] = useState<Tip>(null);
   const maps = useJson<MapsData>("/maps/maps.json");
-  const tg = useJson<{ items: Target[]; note?: string }>(tgOn ? "/maps/targets.json" : null);
   const wrapRef = useRef<HTMLDivElement>(null);
   const w = useElWidth(wrapRef, !!S); // nothing renders before the data on /strikes: attach once the map is there
   const { fs, setFs, vh } = useFullscreen();
@@ -1045,14 +1044,8 @@ export function StrikesMap({ onReady }: { onReady?: () => void }) {
   const reset = () => { setPer("30"); setGrp(ALL_G); setSt("all"); setLc("all"); setSel(null); setMore(40); z.to(zoomIdentity, 0); };
   const pickPer = (kk: string) => { setPer(kk); setMore(40); setSel(null); z.to(zoomIdentity, 0); };
   const pickGrp = (g: Grp) => { const n = { ...grp, [g]: !grp[g] }; if (!GRPS.some((x) => n[x])) n[g] = true; setGrp(n); setMore(40); };
-  const pickTg = (c: string) => { const n = { ...tgCat, [c]: !tgCat[c] }; if (!Object.values(n).some(Boolean)) n[c] = true; setTgCat(n); };
-  const tc: Record<string, number> = { fuel: 0, en: 0, air: 0, mil: 0, dc: 0 };
-  (tg.data?.items || []).forEach((x) => tc[x.cat]++);
   const k = z.t.k;
   const selXs = sel ? items.filter((x) => placeKey(x) === sel) : [];
-  const Diamond = ({ r, fill, stroke }: { r: number; fill: string; stroke: string }) => (
-    <svg className="mk" width={2 * r + 2} height={2 * r + 2} viewBox={`-${r + 1} -${r + 1} ${2 * r + 2} ${2 * r + 2}`} aria-hidden="true"><path d={`M0,-${r}L${r},0L0,${r}L-${r},0Z`} fill={fill} stroke={stroke} strokeWidth={1.6} /></svg>
-  );
   const locName = (l: string) => (l === "none" ? t.locNone : (TT.loc as Record<string, string>)[l] || l);
 
   // timeline bins: days up to two months, then weeks, then months
@@ -1113,14 +1106,7 @@ export function StrikesMap({ onReady }: { onReady?: () => void }) {
               {["all", ...locs].map((l) => <button type="button" key={l} aria-pressed={lc === l} onClick={() => { setLc(l); setSel(null); }}>{l === "all" ? t.all : locName(l)}</button>)}
             </div>
           </fieldset>
-          <fieldset>
-            <legend><label className="mp-chk"><input type="checkbox" checked={tgOn} onChange={() => setTgOn(!tgOn)} />{t.tgLbl}</label></legend>
-            {tgOn && <div className="mp-verd">{["fuel", "en", "air", "mil", "dc"].map((c) => (
-              <label key={c} className="mp-chk"><input type="checkbox" checked={tgCat[c]} onChange={() => pickTg(c)} /><Diamond r={6} fill={`var(${TG_COL[c]})`} stroke={`var(${TG_COL[c]})`} /><span>{t.tg[c as "fuel"]}</span><span className="n">{tg.data ? tc[c] : ""}</span></label>
-            ))}</div>}
-            {tgOn && tg.err && <p className="mp-note">{t.tgErr}</p>}
-            {dirty && <button type="button" className="linkbtn" onClick={reset}>{t.reset}</button>}
-          </fieldset>
+          {dirty && <button type="button" className="linkbtn" onClick={reset}>{t.reset}</button>}
         </aside>
 
         <div className="mp-main">
@@ -1150,21 +1136,6 @@ export function StrikesMap({ onReady }: { onReady?: () => void }) {
                       <text x={6} y={4} fontSize={c.cap ? 13 : 11} fontWeight={c.cap ? 700 : 500}>{c[lang]}</text>
                     </g>
                   ); })}</g>
-                  {tgOn && tg.data && <g className="tgt">{tg.data.items.filter((x) => tgCat[x.cat]).map((x, i) => {
-                    const pp = geo.proj([x.lng, x.lat]);
-                    if (!pp) return null;
-                    const col = `var(${TG_COL[x.cat]})`;
-                    const hits = all.filter((s) => TG_MATCH[x.cat].includes(grpOf(s)) && kmBetween(s, x) <= 10).sort(byDate);
-                    return (
-                      <g key={i} className="stk tgm" transform={`translate(${pp[0]},${pp[1]}) scale(${1 / k})`} {...tipHandlers(setTip, () => <>
-                        <div className="d">{flags(`◆ ${t.tg[x.cat as "fuel"]} · ${hs(x.name)}`)}</div><div>{flags(x.sub + (x.approx ? " · ≈" : ""))}</div>
-                        {dl(x) && <div style={{ fontWeight: 600 }}>{"📏 " + dl(x)}</div>}
-                        <div className="s">{hits.length ? t.tgHit(hits.length, dmy(hits[0].date)) : t.tgNo}</div><div className="s">{(t.tgSrc as Record<string, string>)[x.src] || x.src}</div>
-                      </>)}>
-                        <path d="M0,-5.5L5.5,0L0,5.5L-5.5,0Z" fill={hits.length ? col : "var(--surface)"} fillOpacity={hits.length ? 0.55 : 0.9} stroke={col} strokeWidth={1.5} />
-                      </g>
-                    );
-                  })}</g>}
                   <g>{[...places].sort((a, b) => +(a.k === sel) - +(b.k === sel) || b.xs.length - a.xs.length).map(({ k: pk, xs }) => {
                     const x = xs[0], [px, py] = geo.proj([x.lng, x.lat])!, on = pk === sel;
                     return (
@@ -1229,8 +1200,6 @@ export function StrikesMap({ onReady }: { onReady?: () => void }) {
               {maps.data && <span><i style={{ background: "var(--m-occ)", opacity: 0.45 }} />{t.occ}</span>}
               <span><i style={{ background: "var(--m-ua)", border: "1px solid var(--m-border)" }} />{t.lgUa}</span>
               <span><i style={{ background: "var(--m-land)", border: "1px solid var(--m-border)" }} />{t.lgRu}</span>
-              <span><Diamond r={6} fill="var(--surface)" stroke="var(--muted)" />{t.tgLg}</span>
-              <span><Diamond r={6} fill="var(--muted)" stroke="var(--muted)" />{t.tgLgHit}</span>
             </div>
           </div>
 
@@ -1263,7 +1232,226 @@ export function StrikesMap({ onReady }: { onReady?: () => void }) {
             {items.length > shown.length && <li><span /><div><button type="button" className="linkbtn" onClick={() => setMore(more + 60)}>{t.more(items.length - shown.length)}</button></div></li>}
           </ol>
           <details className="method"><summary>{t.about}</summary>
-            <p className="map-src">{flags(S ? t.distNote(S.base.ctrlAsOf || "") + " " + (S.stk.coverage ? (S.stk.coverage[lang] ?? S.stk.coverage.en) + " " : "") + (tgOn && tg.data && tg.data.note ? " ◆ " + tg.data.note : "") : "")}</p>
+            <p className="map-src">{flags(S ? t.distNote(S.base.ctrlAsOf || "") + " " + (S.stk.coverage ? (S.stk.coverage[lang] ?? S.stk.coverage.en) + " " : "") : "")}</p>
+          </details>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------- Potential targets (/strikes/targets): maps/targets.json against the weapon ranges in lib/weapons.ts ---------- */
+const Diamond = ({ r, fill, stroke }: { r: number; fill: string; stroke: string }) => (
+  <svg className="mk" width={2 * r + 2} height={2 * r + 2} viewBox={`-${r + 1} -${r + 1} ${2 * r + 2} ${2 * r + 2}`} aria-hidden="true"><path d={`M0,-${r}L${r},0L0,${r}L-${r},0Z`} fill={fill} stroke={stroke} strokeWidth={1.6} /></svg>
+);
+
+/** Which targets each weapon reaches: distance to the front = stkDist (the strikes' 📏); the band is a disc of the range
+ *  around every 3rd front point, clipped to russia + the occupied area; "struck nearby" = a strike of a matching group ≤10 km. */
+export function TargetsMap() {
+  const { t: TT, lang } = useApp();
+  const hs = (x: string) => hsBase(x, lang);
+  const t = TT.stk;
+  const sd = useJson<StrikesData>("/strikes.json"), sb = useJson<StrikesBase>("/maps/strikes-base.json");
+  const tg = useJson<{ items: Target[]; note?: string }>("/maps/targets.json");
+  const maps = useJson<MapsData>("/maps/maps.json");
+  const B = sb.data, err = sd.err || sb.err || tg.err;
+  const [wpn, setWpn] = useSticky("tgWpn", "lneptune");
+  const [scope, setScope] = useSticky<"in" | "all">("tgScope", "in");
+  const [cat, setCat] = useSticky<Record<string, boolean>>("tgCat", { fuel: true, en: true, air: true, mil: true, dc: true });
+  const [bm, setBm] = useSticky("stkBase", "t");
+  const [rail, setRail] = useSticky("tgRail", true);
+  const [sel, setSel] = useState<string | null>(null);
+  // weapon whose photo tooltip is open + where: fixed to the viewport, since the rail scrolls and would clip it
+  const [hov, setHov] = useState<{ id: string; x: number; y: number } | null>(null);
+  const showTip = (id: string, el: HTMLElement) => { if (!WEAPONS.find((x) => x.id === id)?.img) return; const r = el.getBoundingClientRect(); setHov({ id, x: Math.min(r.left, innerWidth - 250), y: r.bottom + 6 }); };
+  const [tip, setTip] = useState<Tip>(null);
+  const wp = WEAPONS.find((x) => x.id === wpn) || WEAPONS[0], wName = wpnName(wp, lang);
+  const tgs = useMemo(() => (B && tg.data ? tg.data.items.map((x, i) => ({ ...x, key: x.id || String(i), km: stkDist(B, x) ?? 0 })) : []), [B, tg.data]);
+  const ready = !!B && tgs.length > 0;
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const w = useElWidth(wrapRef, ready);
+  const { fs, setFs, vh } = useFullscreen();
+  const W = Math.max(300, w || 800), H = fs ? Math.max(340, vh - 96) : Math.round(Math.min(620, Math.max(340, W * 0.7)));
+  const z = useZoom("tgPageZ", ready, [0.4, 12], [[-W * 1.5, -H * 0.8], [W * 2.5, H * 1.6]]);
+  const strikes = (sd.data?.items || []).filter((x) => x.lat != null);
+  const hits = (x: Target) => strikes.filter((s) => TG_MATCH[x.cat].includes(grpOf(s)) && kmBetween(s, x) <= 10).sort(byDate);
+  const kmTxt = (n: number) => fmt(n, lang) + " " + t.km;
+
+  const geo = useMemo(() => {
+    if (!ready) return null;
+    const ua = B!.base.find((b) => b.ua)!;
+    const pts = tgs.filter((x) => x.lng <= FAR_LNG).map((x) => ({ type: "Feature", properties: {}, geometry: { type: "Point", coordinates: [x.lng, x.lat] } }) as GeoPermissibleObjects);
+    const proj = geoMercator().fitExtent([[28, 28], [W - 64, H - 28]], { type: "FeatureCollection", features: [mp(ua.c), ...pts] } as GeoPermissibleObjects);
+    const path = geoPath(proj);
+    return { proj, d: (c?: Rings) => (c && c.length ? path(mp(c)) || "" : "") };
+  }, [ready, B, tgs, W, H]);
+  const band = useMemo(() => {
+    if (!geo || !B?.ctrl) return null;
+    const dl = wp.r / 111.2;
+    return B.ctrl.filter((_, i) => i % 3 === 0).map(([lng, lat], i) => {
+      const a = geo.proj([lng, lat])!, n = geo.proj([lng, Math.min(85, lat + dl)])!, s = geo.proj([lng, Math.max(-85, lat - dl)])!;
+      return <circle key={i} cx={a[0]} cy={a[1]} r={(s[1] - n[1]) / 2} />;
+    });
+  }, [geo, B, wp.r]);
+  const keepView = useKeepView(z, geo, W, H, [0.4, 12]);
+  useWholeOnFs(fs, z);
+
+  const pickCat = (c: string) => { const n = { ...cat, [c]: !cat[c] }; if (!Object.values(n).some(Boolean)) n[c] = true; setCat(n); };
+  const shown = tgs.filter((x) => cat[x.cat]);
+  const inR = shown.filter((x) => x.km <= wp.r).sort((a, b) => a.km - b.km);
+  const outR = shown.filter((x) => x.km > wp.r).sort((a, b) => a.km - b.km);
+  const rows = scope === "in" ? inR : [...inR, ...outR].sort((a, b) => a.km - b.km);
+  const tc: Record<string, number> = { fuel: 0, en: 0, air: 0, mil: 0, dc: 0 };
+  tgs.forEach((x) => { if (scope === "all" || x.km <= wp.r) tc[x.cat]++; }); // a type with none here is disabled
+  const X = tgs.find((x) => x.key === sel);
+  const far = inR.at(-1), next = outR[0], k = z.t.k;
+  const focusTg = (x: (typeof tgs)[number]) => {
+    setSel(x.key);
+    if (!geo) return;
+    const [px, py] = geo.proj([x.lng, x.lat])!, s = Math.max(z.t.k, 1.6);
+    z.to(zoomIdentity.translate(W / 2, H / 2).scale(s).translate(-px, -py), 400);
+    wrapRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  };
+
+  return (
+    <section className="tlwrap mp stk-page tg-page" id="targets">
+      <div className="mp-head"><h2>{t.tgTitle}</h2><p>{flags(t.tgSub)}</p></div>
+      <div className="tiles map-tiles">{ready && <Tiles items={[
+        [t.tgTIn, fmt(inR.length, lang), t.tgOfAll(fmt(shown.length, lang), wName)],
+        [t.tgTMil, fmt(inR.filter((x) => x.cat === "mil").length, lang), t.tgTMilSub],
+        [t.tgTFar, far ? <>{fmt(far.km, lang)}<sub>{t.km}</sub></> : "—", far ? hs(far.name) : ""],
+        [t.tgTNext, next ? <>−{fmt(next.km - wp.r, lang)}<sub>{t.km}</sub></> : "—", next ? hs(next.name) + " · " + kmTxt(next.km) : t.tgAllIn],
+      ]} />}</div>
+      <div className={"mp-grid" + (fs ? " fs" : "")} role={fs ? "dialog" : undefined} aria-modal={fs || undefined} aria-label={fs ? t.tgTitle : undefined}>
+        <aside className="mp-rail" hidden={!rail}>
+          <fieldset>
+            <legend>{t.wpH}</legend>
+            <div className="tg-wp">
+              {WPN_GROUPS.map((g) => <div key={g} className="tg-wpg">
+                <span className="tg-wpl">{t.wpG[g]}</span>
+                <div className="mp-dirs" role="group" aria-label={t.wpG[g]}>{WEAPONS.filter((x) => x.g === g).map((x) => (
+                  <span key={x.id} className="tg-wpb">
+                    <button type="button" aria-pressed={wpn === x.id} aria-describedby={hov?.id === x.id ? "tg-tip" : undefined} onClick={() => setWpn(x.id)}
+                      onPointerEnter={(e) => showTip(x.id, e.currentTarget)} onPointerLeave={() => setHov(null)} onFocus={(e) => showTip(x.id, e.currentTarget)} onBlur={() => setHov(null)}>
+                      {wpnName(x, lang)}{x.limited && "*"} <small>{kmTxt(x.r)}</small>
+                    </button>
+                    {hov?.id === x.id && <span className="tg-tip" id="tg-tip" role="tooltip" style={{ left: hov.x, top: hov.y }}>
+                      <img src={wpnImg(x)!} alt="" width={640} height={427} />
+                      <span><b>{wpnName(x, lang)}</b> <span className="d">{kmTxt(x.r)}</span></span>
+                      <small>{t.wpPhoto}: {x.img!.by}, {x.img!.lic}</small>
+                    </span>}
+                  </span>
+                ))}</div>
+              </div>)}
+              <p className="mp-note">{t.tgHover} · * {t.wpLim}</p>
+              {wp.limited && <p className="tg-lim">{t.wpLimNote(wName)}</p>}
+            </div>
+          </fieldset>
+        </aside>
+
+        <div className="mp-main">
+          <div className="mp-bar-top"><RailBtn on={rail} set={(v) => { keepView(); setRail(v); }} label={TT.mpFilters} /><b className="stk-h3">{t.tgBand(wName, fmt(wp.r, lang))}</b><BaseSeg bm={bm} set={setBm} label={TT.mBase} /></div>
+          <div className="map-wrap" ref={wrapRef}>
+            {err ? <p className="map-src" style={{ padding: 16 }}>{t.tgErr}</p> : !geo ? <p className="map-src" style={{ padding: 16 }}>{t.loading}</p> : <>
+              <svg className={"map-svg bm-" + bm} viewBox={`0 0 ${W} ${H}`} tabIndex={0} role="img" aria-label={t.tgBand(wName, fmt(wp.r, lang))} ref={z.svgRef}>
+                {BASEMAPS[bm] && <Tiles256 id={bm} proj={geo.proj} t={z.t} W={W} H={H} />}
+                <g transform={z.t.toString()}>
+                  {B!.base.map((b, i) => <path key={i} d={geo.d(b.c)} fill={b.ua ? "var(--m-ua)" : "var(--m-land)"} fillOpacity={bm === "s" ? 1 : 0} stroke="var(--m-border)" strokeWidth={b.ua ? 1.4 : 0.8} fillRule="evenodd" />)}
+                  {maps.data?.layers?.ds_occ && <path d={geo.d(maps.data.layers.ds_occ)} fill="var(--m-occ)" fillOpacity={0.3} stroke="var(--m-occ)" strokeWidth={0.6} fillRule="evenodd" />}
+                  <clipPath id="tg-clip">
+                    {B!.base.filter((b) => b.ru).map((b, i) => <path key={i} d={geo.d(b.c)} />)}
+                    {maps.data?.layers?.ds_occ && <path d={geo.d(maps.data.layers.ds_occ)} />}
+                  </clipPath>
+                  <g className="tg-band" fill="var(--accent)" opacity={bm === "t" ? 0.34 : 0.22} clipPath="url(#tg-clip)" aria-hidden="true">{band}</g>
+                  <g className="city stk-city" aria-hidden="true">{STK_CITIES.filter((c) => c.t === 1 || k >= 2).map((c) => { const [x, y] = geo.proj([c.lng, c.lat])!; return (
+                    <g key={c.en} transform={`translate(${x},${y}) scale(${1 / k})`}>
+                      {c.cap ? <rect x={-3.5} y={-3.5} width={7} height={7} fill="var(--surface)" stroke="var(--m-city)" strokeWidth={1.8} /> : <circle r={2.6} fill="var(--m-city)" />}
+                      <text x={6} y={4} fontSize={c.cap ? 13 : 11} fontWeight={c.cap ? 700 : 500}>{c[lang]}</text>
+                    </g>
+                  ); })}</g>
+                  <g className="tgt">{[...shown].sort((a, b) => +(a.key === sel) - +(b.key === sel) || b.km - a.km).map((x) => {
+                    const pp = geo.proj([x.lng, x.lat]);
+                    if (!pp) return null;
+                    const col = `var(${TG_COL[x.cat]})`, on = x.key === sel, ok = x.km <= wp.r, h = hits(x), pick = () => setSel(on ? null : x.key);
+                    return (
+                      <g key={x.key} className={"stk tgm" + (ok ? "" : " out")} transform={`translate(${pp[0]},${pp[1]}) scale(${1 / k})`} style={{ cursor: "pointer" }} role="button"
+                        aria-label={`${t.tg[x.cat as "fuel"]}: ${hs(x.name)}, ${kmTxt(x.km)}`} aria-pressed={on}
+                        onClick={pick} onKeyDown={(e: KeyboardEvent) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(); } }}
+                        {...tipHandlers(setTip, () => <>
+                          <div className="d">{flags(`◆ ${t.tg[x.cat as "fuel"]} · ${hs(x.name)}`)}</div><div>{flags(hs(x.sub) + (x.approx ? " · ≈" : ""))}</div>
+                          <div style={{ fontWeight: 600 }}>{"📏 " + (x.km ? t.dist(fmt(x.km, lang)) : t.distNear)}</div>
+                          <div className="s">{wName}: {ok ? t.tgIn : t.tgShort(fmt(x.km - wp.r, lang))}</div>
+                          <div className="s">{h.length ? t.tgHit(h.length, dmy(h[0].date)) : t.tgNo}</div>
+                        </>)}>
+                        {on && <circle r={11} fill="none" stroke="var(--ink)" strokeWidth={2} />}
+                        <path d={on ? "M0,-7.5L7.5,0L0,7.5L-7.5,0Z" : "M0,-5.5L5.5,0L0,5.5L-5.5,0Z"} fill={h.length ? col : "var(--surface)"} fillOpacity={h.length ? 0.55 : 0.9} stroke={col} strokeWidth={1.5} />
+                      </g>
+                    );
+                  })}</g>
+                </g>
+              </svg>
+              <ZoomButtons z={z}><FsButton fs={fs} onClick={() => setFs(!fs)} /></ZoomButtons>
+              {X && (() => {
+                const ok = X.km <= wp.r, reach = reaching(X.km), h = hits(X), col = `var(${TG_COL[X.cat]})`;
+                return <div className="mp-sel tg-card" role="status" style={{ borderTopColor: col }}>
+                  <button type="button" aria-label={TT.art.close} title={TT.art.close} onClick={() => setSel(null)}>×</button>
+                  <span className="d tg-cat"><Diamond r={5} fill={col} stroke={col} />{t.tg[X.cat as "fuel"]}</span>
+                  <span className="tx">{flags(hs(X.name))}</span>
+                  <span>{flags(hs(X.sub))}{X.approx ? " · ≈" : ""}</span>
+                  <dl className="tg-dl">
+                    <div><dt>{t.tgFront}</dt><dd>{X.km ? kmTxt(X.km) : t.distNear}</dd></div>
+                    <div><dt>{wName}</dt><dd className={ok ? "ok" : "no"}>{ok ? t.tgIn : t.tgShort(fmt(X.km - wp.r, lang))}</dd></div>
+                    <div><dt>{t.tgWpnN}</dt><dd>{t.tgOf(reach.length, WEAPONS.length)}</dd></div>
+                    <div><dt>{t.tgCoord}</dt><dd>{X.lat.toFixed(2)}° N, {X.lng.toFixed(2)}° E</dd></div>
+                  </dl>
+                  <b className="tg-sub">{t.tgReach}</b>
+                  {reach.length ? <ul className="tg-wl">{reach.map((x) => (
+                    <li key={x.id}><button type="button" aria-pressed={x.id === wpn} onClick={() => setWpn(x.id)}>{wpnImg(x) ? <img src={wpnImg(x)!} alt="" width={40} height={27} loading="lazy" /> : <i aria-hidden="true" />}{wpnName(x, lang)}{x.limited && "*"}</button><span className="d">+{kmTxt(x.r - X.km)}</span></li>
+                  ))}</ul> : <span>{t.tgNone}</span>}
+                  <span className="d">{h.length ? t.tgHit(h.length, dmy(h[0].date)) : t.tgNo}</span>
+                  {ok && wp.limited && <span className="tg-lim">{t.wpLimNote(wName)}</span>}
+                </div>;
+              })()}
+              <Attr bm={bm} />
+              <MapTip tip={tip} wrap={wrapRef} />
+              {z.hint && <div className="map-hint" aria-hidden="true">{TT.mWheel}</div>}
+            </>}
+          </div>
+          <div className="tg-lg" aria-label={t.lgTerr}>
+            <span><i style={{ background: "var(--accent)", opacity: 0.3 }} />{t.tgLgBand}</span>
+            {maps.data && <span><i style={{ background: "var(--m-occ)", opacity: 0.45 }} />{t.occ}</span>}
+            <span><Diamond r={6} fill="var(--surface)" stroke="var(--muted)" />{t.tgLgIn}</span>
+            <span className="tg-out-lg"><Diamond r={6} fill="var(--surface)" stroke="var(--muted)" />{t.tgOut}</span>
+            <span><Diamond r={6} fill="var(--muted)" stroke="var(--muted)" />{t.tgLgHit}</span>
+          </div>
+
+          {ready && <div className="mp-list tg-list">
+            <div className="mp-list-h"><b>{flags(t.tgTblH(wName, fmt(wp.r, lang)))}</b> <span className="map-src">{t.tgPick}</span></div>
+            <div className="tg-flt">
+              <div className="mp-verd" role="group" aria-label={t.types}>{TG_CATS.map((c) => (
+                <label key={c} className="mp-chk"><input type="checkbox" checked={cat[c] && tc[c] > 0} disabled={!tc[c]} onChange={() => pickCat(c)} /><Diamond r={6} fill={`var(${TG_COL[c]})`} stroke={`var(${TG_COL[c]})`} /><span>{t.tg[c]}</span><span className="n">{tc[c]}</span></label>
+              ))}</div>
+              <div className="seg" role="group" aria-label={t.tgTitle}>
+                <button type="button" aria-pressed={scope === "in"} onClick={() => setScope("in")}>{t.tgScIn(inR.length)}</button>
+                <button type="button" aria-pressed={scope === "all"} onClick={() => setScope("all")}>{t.tgScAll(shown.length)}</button>
+              </div>
+            </div>
+            {rows.length ? <div className="mp-list-sc"><table>
+              <thead><tr><th>{t.tgColT}</th><th>{t.tgColW}</th><th>{t.tgFront}</th><th>{wName}</th><th>{t.tgWpnN}</th></tr></thead>
+              <tbody>{rows.map((x) => { const ok = x.km <= wp.r, col = `var(${TG_COL[x.cat]})`; return (
+                <tr key={x.key} className={x.key === sel ? "sel" : undefined}>
+                  <td><button type="button" className="linkbtn tg-nm" onClick={() => focusTg(x)}><Diamond r={5} fill={col} stroke={col} />{flags(hs(x.name))}</button></td>
+                  <td>{flags(hs(x.sub))}</td>
+                  <td className="d">{x.km ? kmTxt(x.km) : t.distNear}</td>
+                  <td className={"d " + (ok ? "ok" : "no")}>{ok ? "+" + kmTxt(wp.r - x.km) : t.tgShort(fmt(x.km - wp.r, lang))}</td>
+                  <td className="d">{t.tgOf(reaching(x.km).length, WEAPONS.length)}</td>
+                </tr>
+              ); })}</tbody>
+            </table></div> : <p className="map-src" style={{ padding: "12px 16px" }}>{t.none}</p>}
+          </div>}
+          <details className="method"><summary>{t.about}</summary>
+            <p className="map-src">{flags(t.tgRangeNote + " " + (B ? t.distNote(B.ctrlAsOf || "") : "") + (tg.data?.note ? " ◆ " + tg.data.note : ""))}</p>
+            <p className="map-src">{t.tgPhotos}: {WEAPONS.filter((x) => x.img).map((x, i) => <Fragment key={x.id}>{i > 0 && " · "}<a href={x.img!.url} target="_blank" rel="noopener">{wpnName(x, lang)}</a> ({x.img!.by}, {x.img!.lic})</Fragment>)}</p>
           </details>
         </div>
       </div>

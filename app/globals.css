@@ -542,6 +542,58 @@ svg.mk{flex:none;overflow:visible;vertical-align:-2px}
 .stk-far>*{pointer-events:auto}.stk-far>span{background:var(--surface);border:1px solid var(--rule);padding:4px 8px}
 .stk-far button{display:inline-flex;align-items:center;gap:4px;min-height:34px;padding:0 8px;font:13px var(--ui);background:var(--surface);color:var(--ink);border:1px solid var(--rule-strong);border-radius:2px;cursor:pointer}
 .stk-sel{max-height:calc(100% - 20px);overflow-y:auto}.mp-ov .stk-sel{max-height:45%}.stk-sel .v{align-items:flex-start}
+/* potential targets: weapon reach (rail picker, target card on the map, targets table) */
+.tg-wp{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+.tg-wpg{display:flex;flex-direction:column;gap:4px}
+.tg-wpl{font-family:var(--ui);font-size:12.5px;color:var(--muted)}
+.tg-wp .mp-dirs button small{font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-left:2px}
+.tg-wp .mp-dirs button[aria-pressed="true"] small{color:inherit}
+.tgm.out{opacity:.4}.tgm:focus-visible{outline:none}.tgm:focus-visible path{stroke:var(--ink);stroke-width:2.5}
+.tg-card{left:auto;right:54px;width:min(320px,calc(100% - 76px));max-height:calc(100% - 20px);overflow-y:auto;border-top-width:4px}
+.tg-cat{display:flex;align-items:center;gap:6px;text-transform:uppercase;letter-spacing:.06em}
+.tg-dl{margin:4px 0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule)}
+.tg-dl>div{background:var(--surface);padding:6px 8px;min-width:0}
+.tg-dl dt{font-size:12px;color:var(--muted)}
+.tg-dl dd{margin:0;font-family:var(--mono);font-size:13px;font-weight:500}
+:is(.tg-dl dd,.tg-list td).ok{color:var(--ok)}:is(.tg-dl dd,.tg-list td).no{color:var(--unv)}
+.tg-sub{font-size:12.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+.tg-wl{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.tg-wl li{display:flex;align-items:center;justify-content:space-between;gap:8px;border-top:1px solid var(--rule)}
+.tg-wl button{border:0;background:transparent;color:var(--ink);font:500 13.5px var(--ui);padding:5px 0;min-height:30px;text-align:left;cursor:pointer}
+.tg-wl button:hover{text-decoration:underline}.tg-wl button[aria-pressed="true"]{font-weight:700}
+.tg-wl .d{color:var(--ok)}
+.tg-wl button{display:inline-flex;align-items:center;gap:8px}
+.tg-wl button img,.tg-wl button i{flex:none;width:40px;height:27px;object-fit:cover;border-radius:2px;background:var(--track)}
+/* /strikes ↔ /strikes/targets switcher */
+.stk-sw{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border:2px solid var(--ink);border-radius:2px;background:var(--surface);margin:0 0 18px}
+.stk-sw a{display:flex;align-items:center;gap:14px;min-height:72px;padding:10px 18px;color:var(--ink);text-decoration:none;font-family:var(--ui)}
+.stk-sw a+a{border-left:2px solid var(--ink)}
+.stk-sw a:hover{background:var(--accent-soft)}
+.stk-sw a[aria-current="page"]{background:var(--ink);color:var(--bg)}
+.stk-sw svg{flex:none;width:30px;height:30px;fill:none;stroke:currentColor;stroke-width:2}.stk-sw svg .fl{fill:currentColor}
+.stk-sw span{display:flex;flex-direction:column;gap:2px;min-width:0}
+.stk-sw b{font-size:20px;font-weight:700;letter-spacing:.04em}
+.stk-sw small{font-size:14px;opacity:.8}
+@media (max-width:560px){.stk-sw a{min-height:60px;padding:8px 12px;gap:10px}.stk-sw svg{width:24px;height:24px}.stk-sw b{font-size:17px}.stk-sw small{font-size:12.5px}}
+/* weapon photo tooltip in the targets rail */
+.tg-wpb{position:relative;display:inline-flex}
+.tg-tip{position:fixed;z-index:60;width:240px;display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--ink);box-shadow:0 6px 18px rgba(0,0,0,.2);pointer-events:none;font-family:var(--ui);font-size:14px}
+.tg-tip img{display:block;width:100%;height:auto;aspect-ratio:3/2;object-fit:cover}
+.tg-tip>span{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:7px 9px 0}
+.tg-tip .d{font-family:var(--mono);font-size:12.5px;color:var(--muted)}
+.tg-tip small{padding:2px 9px 8px;font-size:11.5px;color:var(--muted)}
+.tg-lg{display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px;margin:8px 0 0;font-family:var(--ui);font-size:13.5px;color:var(--muted)}
+.tg-lg span{display:inline-flex;align-items:center;gap:6px}
+.tg-lg i{display:inline-block;width:18px;height:11px}
+.tg-out-lg{opacity:.45}
+.tg-lim{margin:0}
+.tg-lim{background:var(--part-soft);padding:6px 8px;font-size:12.5px}
+.tg-list{margin:18px 0}
+.tg-flt{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:10px 16px;padding:10px 16px;border-bottom:1px solid var(--rule)}
+.tg-flt .mp-verd{flex-direction:row;flex-wrap:wrap;gap:4px 14px}
+.tg-flt .seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.tg-nm{display:inline-flex;align-items:center;gap:6px}
+@media (max-width:640px){.tg-card{right:auto;left:10px;top:auto;bottom:10px;max-height:60%;width:calc(100% - 20px)}}
 .stk-lg{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px 24px;background:var(--surface);border:1px solid var(--rule);padding:14px 16px;font-family:var(--ui);font-size:13.5px}
 .stk-lg>div{display:flex;flex-direction:column;gap:6px}
 .stk-lg h3{margin:0 0 2px;font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}

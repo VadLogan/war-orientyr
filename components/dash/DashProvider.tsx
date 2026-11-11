@@ -9,8 +9,8 @@ import Dashboard, { MapsView, StrikesView } from "./Dashboard";
 
 /** Client root of the dashboard page; data comes from the server, navigation goes through the router. */
 /** `mapsCard`, `strikesCard`: the dashboard's map blocks, rendered on the server (MapsCard, StrikesCard).
- *  `strikesSeo`, `mapsSeo`: the /strikes and /maps pages as plain server HTML (StrikesSeo), shown until the interactive page has loaded. `dir`: a /maps/<direction> page, framed on it. */
-export default function DashProvider({ view, lang, D, LATEST, DATES, MAPS, smx, mapsCard, strikesCard, strikesSeo, mapsSeo, dir }: { view: "dashboard" | "maps" | "strikes"; lang: DashLang; D: DashIssue; LATEST: DashIssue; DATES: string[]; MAPS: string; smx: SourceMatrix | null; mapsCard?: ReactNode; strikesCard?: ReactNode; strikesSeo?: ReactNode; mapsSeo?: ReactNode; dir?: string }) {
+ *  `strikesSeo`, `mapsSeo`: the /strikes and /maps pages as plain server HTML (StrikesSeo), shown until the interactive page has loaded. `dir`: a /maps/<direction> page, framed on it. `tg`: /strikes/targets. */
+export default function DashProvider({ view, lang, D, LATEST, DATES, MAPS, smx, mapsCard, strikesCard, strikesSeo, mapsSeo, dir, tg }: { view: "dashboard" | "maps" | "strikes"; lang: DashLang; D: DashIssue; LATEST: DashIssue; DATES: string[]; MAPS: string; smx: SourceMatrix | null; mapsCard?: ReactNode; strikesCard?: ReactNode; strikesSeo?: ReactNode; mapsSeo?: ReactNode; dir?: string; tg?: boolean }) {
   const router = useRouter();
   const ctx: Ctx = useMemo(() => ({
     lang, t: strings(lang), D, LATEST, DATES, MAPS, smx,
@@ -20,7 +20,7 @@ export default function DashProvider({ view, lang, D, LATEST, DATES, MAPS, smx, 
   }), [view, lang, D, LATEST, DATES, MAPS, smx, router]);
   return (
     <AppCtx.Provider value={ctx}>
-      {view === "maps" ? <MapsView seo={mapsSeo} dir={dir} /> : view === "strikes" ? <StrikesView seo={strikesSeo} /> : <Dashboard mapsCard={mapsCard} strikesCard={strikesCard} />}
+      {view === "maps" ? <MapsView seo={mapsSeo} dir={dir} /> : view === "strikes" ? <StrikesView seo={strikesSeo} tg={tg} /> : <Dashboard mapsCard={mapsCard} strikesCard={strikesCard} />}
       <Tooltip />
     </AppCtx.Provider>
   );

@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import type { Digest } from "@/types/digest";
 import { getDates, getIssue, getLatest } from "./data";
-import { href, SITE, SITE_DESC, SITE_NAME, type View } from "./routes";
+import { href, SITE, SITE_DESC, SITE_NAME, tgHref, type View } from "./routes";
 import { clip, dateTitle } from "./text";
 import { SUBS, UI, isSub, type Lang, type SubLang } from "./ui";
 import { DIRS } from "@/components/dash/mapParts";
@@ -28,14 +28,17 @@ export async function dateParams() {
 }
 /** /maps: the dates plus a page per front direction. */
 export const mapsParams = async () => [...(await dateParams()), ...DIRS.map((d) => ({ date: [dirSlug(d)] }))];
+/** /strikes: the dates plus /strikes/targets (potential targets; not dated — shown with the latest issue). */
+export const strikesParams = async () => [...(await dateParams()), { date: ["targets"] }];
 
-export async function resolve(params: DateParams, lang: Lang): Promise<{ latest: Digest; dates: string[]; D: Digest; dir?: Dir }> {
+export async function resolve(params: DateParams, lang: Lang): Promise<{ latest: Digest; dates: string[]; D: Digest; dir?: Dir; tg?: boolean }> {
   const seg = (await params).date || [];
   const [latest, dates] = await Promise.all([getLatest(lang), getDates()]);
   const dir = DIRS.find((d) => dirSlug(d) === seg[0]); // only /maps generates these params
-  const date = dir ? latest.date : seg[0] ?? latest.date;
+  const tg = seg[0] === "targets"; // only /strikes generates it
+  const date = dir || tg ? latest.date : seg[0] ?? latest.date;
   if (seg.length > 1 || !dates.includes(date)) notFound();
-  return { latest, dates, D: await getIssue(date, lang), dir };
+  return { latest, dates, D: await getIssue(date, lang), dir, tg };
 }
 
 /** Search/share description of the dashboard, maps and strikes pages (maps/strikes reuse their "new on the site" cards). */
@@ -51,13 +54,14 @@ const viewDesc = (lang: Lang, view: "dashboard" | "maps" | "strikes") => view ==
 export const mapsImg = (view: View, date: string) => view === "maps" ? `/og/maps/${date}.png` : undefined;
 
 export async function pageMeta(lang: Lang, view: Exclude<View, "articles">, params: DateParams): Promise<Metadata> {
-  const { D, dir } = await resolve(params, lang);
+  const { D, dir, tg } = await resolve(params, lang);
   // German/French: the dashboard, maps and strikes always; a digest only with text in that language — otherwise it is the English page, canonical included
   const subs = view !== "digest" ? [...SUBS] : (await Promise.all(SUBS.map(async (l) => ((lang === l ? D : (await resolve(params, l)).D).contentLang === l ? l : null)))).filter((l): l is SubLang => !!l);
   if (isSub(lang) && !subs.includes(lang)) return pageMeta("en", view, params);
   const root = !(await params).date?.length;
   let meta: Metadata;
-  if (dir) meta = seoMeta(lang, (l) => dirHref(l, dir), dirTitle(lang, dir), clip(dirDesc(lang, dir), 160), mapsImg(view, D.date), SUBS, "website");
+  if (tg) meta = seoMeta(lang, tgHref, UI[lang].stk.tgTitle, clip(UI[lang].stk.tgSub, 160), undefined, SUBS, "website");
+  else if (dir) meta = seoMeta(lang, (l) => dirHref(l, dir), dirTitle(lang, dir), clip(dirDesc(lang, dir), 160), mapsImg(view, D.date), SUBS, "website");
   else if (root) {
     // "/" and "/dashboard" change daily: generic title/description, so a search result doesn't promise a past issue's story.
     const title = view === "digest" ? SITE_NAME[lang] : UI[lang][view === "dashboard" ? "dash" : view];

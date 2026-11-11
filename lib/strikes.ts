@@ -9,7 +9,7 @@ export type Strike = {
 };
 /** coverage.de / .fr: German / French note (falls back to English). */
 export type StrikesData = { items: Strike[]; coverage?: { uk: string; en: string; de?: string; fr?: string } };
-export type StrikesBase = { base: { ua?: boolean; c: number[][][][] }[]; ctrl?: [number, number][]; ctrlAsOf?: string };
+export type StrikesBase = { base: { name?: string; ua?: boolean; ru?: boolean; c: number[][][][] }[]; ctrl?: [number, number][]; ctrlAsOf?: string };
 export type Strikes = { stk: StrikesData; base: StrikesBase };
 
 export function kmBetween(a: { lat: number; lng: number }, b: { lat: number; lng: number }) {

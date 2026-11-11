@@ -9,7 +9,9 @@ export function href(lang: Lang, view: View, date: string | null, latest: string
   const p = pre(lang) + (view === "digest" ? "" : "/" + view) + (date && date !== latest ? "/" + date : "");
   return p || "/";
 }
-export const articlesHref = (lang: Lang) => pre(lang) + "/articles";
+/** The potential-targets view of /strikes: one undated page per language. */
+export const tgHref = (lang: Lang) => pre(lang) + "/strikes/targets";
+export const articlesHref =(lang: Lang) => pre(lang) + "/articles";
 export const articleHref = (lang: Lang, date: string, name: string) => pre(lang) + `/articles/${date}/${name}`;
 /** Absolute site origin (production domain on Vercel, else localhost). */
 export const SITE = process.env.VERCEL_PROJECT_PRODUCTION_URL ? "https://" + process.env.VERCEL_PROJECT_PRODUCTION_URL : "http://localhost:3000";
