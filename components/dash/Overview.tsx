@@ -8,7 +8,7 @@ import { dayN, dirCol, dirOrder, fmt, loc, num, shortD, TL } from "@/lib/text";
 import { href, tgHref } from "@/lib/routes";
 import { flags } from "@/components/Flag";
 import { useApp } from "../ctx";
-import { useJson, useSticky } from "./hooks";
+import { useJson, useNarrow, useSticky } from "./hooks";
 import { atkMix, money, pick, useLandCost, type Prices } from "./Panels";
 import { PotentialCard, Spark, usePotential } from "./Potential";
 import LineChart, { Legend, type Ser } from "./LineChart";
@@ -22,16 +22,6 @@ export type PanelItem = { id: string; title: string; node: ReactNode };
 /** Open a panel in the sheet: the hash is the panel's id, so the link can be shared and Back closes it. */
 export const openPanel = (id: string) => { location.hash = id; };
 
-/** Phone layout (the site's phone breakpoint), measured after mount. */
-function useNarrow() {
-  const [n, setN] = useState(false);
-  useEffect(() => {
-    const m = matchMedia("(max-width:600px)"), on = () => setN(m.matches);
-    on(); m.addEventListener("change", on);
-    return () => m.removeEventListener("change", on);
-  }, []);
-  return n;
-}
 
 const Delta = ({ d, good }: { d: number | null; good?: "up" | "dn" }) => {
   const { lang } = useApp();

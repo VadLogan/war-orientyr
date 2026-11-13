@@ -1378,21 +1378,106 @@ dialog.ps::backdrop{background:rgba(21,27,31,.45)}
   .mpx .mp-secs a{flex:0 0 auto;max-width:72%;scroll-snap-align:start}}
 .mpx .mp-scrim,.mpx .mp-rail-done{display:none}
 .mpx .mp-grid.fs .mp-main>.mp-row{display:block}
+/* filters (≤860): a bottom sheet over the page, and over the full-screen map on phones */
 @media(max-width:860px){
   .mpx .mp-grid:not(.fs) .mp-rail:not([hidden]){position:fixed;left:0;right:0;bottom:0;z-index:41;max-width:none;max-height:85dvh;overflow-y:auto;overscroll-behavior:contain;border:0;border-top:1px solid var(--rule-strong);border-radius:12px 12px 0 0;box-shadow:0 -8px 28px rgb(0 0 0/.25)}
   .mpx .mp-grid:not(.fs) .mp-scrim{display:block;position:fixed;inset:0;z-index:40;padding:0;border:0;background:rgb(0 0 0/.45);cursor:pointer}
-  .mpx .mp-grid:not(.fs) .mp-rail-done{display:block;position:sticky;bottom:0;padding:10px 16px calc(10px + env(safe-area-inset-bottom));background:var(--surface);border-top:1px solid var(--rule)}
-  .mpx .mp-rail-done button{width:100%;min-height:48px;border:0;border-radius:2px;background:var(--accent);color:var(--bg);font:600 16px var(--ui);cursor:pointer}
+  .mpx .mp-grid:not(.fs) .mp-rail-done{display:flex;gap:8px;position:sticky;bottom:0;padding:10px 16px calc(10px + env(safe-area-inset-bottom));background:var(--surface);border-top:1px solid var(--rule)}
+  .mpx .mp-rail-done button{flex:1;min-height:48px;border:0;border-radius:2px;background:var(--accent);color:var(--bg);font:600 16px var(--ui);cursor:pointer}
+  .mpx .mp-rail-done .mp-rail-copy{flex:0 0 48px;display:flex;align-items:center;justify-content:center;background:transparent;color:var(--ink);border:1px solid var(--rule-strong)}
   html:has(.mpx .mp-grid:not(.fs) .mp-rail:not([hidden])){overflow:hidden}
 }
+/* phones (≤600): design v2 — docs/maps-mobile-spec.md */
 @media(max-width:600px){
+  .datebar.slim{display:none}
+  .mpx .mp-top{padding-top:0;gap:0}
+  .mpx .mp-top h1{font-size:22px;line-height:1.25}
   .mpx .mp-grid:not(.fs) .mp-row{display:contents}
-  .mpx .mp-grid:not(.fs) .mp-row>.map-wrap{order:-3;flex:none;margin-inline:-16px;border-inline:0;border-radius:0}
-  .mpx .mp-grid:not(.fs) .mp-bar-top{order:-2;display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px}
-  .mpx .mp-bar-top>.mp-prs,.mpx .mp-bar-top>.mp-copy{grid-column:1/-1}.mpx .mp-bar-top>.mp-copy{justify-self:end}
+  .mpx .mp-grid:not(.fs) .mp-main>.mp-tabs{order:-5}
+  .mpx .mp-grid:not(.fs) .mp-row>.map-wrap{order:-4;flex:none;margin-inline:-16px;border-inline:0;border-radius:0}
+  .mpx .mp-grid:not(.fs) .mp-mstrip{order:-3}
+  .mpx .mp-grid:not(.fs) .mp-chips{order:-2}
   .mpx .mp-grid:not(.fs) .mp-wkl{order:-1;flex:none}
-  .mpx .mp-bar-top>.map-src{display:none}
-  .mpx .mp-prs button{flex:1;min-height:44px;padding:4px 6px;font-size:13.5px;line-height:1.15;white-space:normal}
-  .mpx .mp-bar-top .mp-railbtn{min-height:44px}
-  .mpx .mp-bar-top>.seg{display:flex;min-width:0}.mpx .mp-bar-top>.seg>button{flex:1;min-width:0;padding-inline:6px}
+  /* one finger scrolls the page over the map; two fingers move it (useZoom touch2) */
+  .mpx .mp-grid:not(.fs) .map-wrap>svg{touch-action:pan-y}
+  .mpx .mp-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:1px solid var(--rule-strong);border-radius:2px;overflow:hidden;background:var(--surface)}
+  .mpx .mp-tabs button{min-height:44px;padding:4px 6px;border:0;background:transparent;color:var(--ink);font:500 14px/1.15 var(--ui);cursor:pointer}
+  .mpx .mp-tabs button+button{border-left:1px solid var(--rule-strong)}
+  .mpx .mp-tabs button[aria-selected="true"]{background:var(--ink);color:var(--bg);font-weight:600}
+  /* controls on the map: one column on the right, the time bar at the bottom */
+  .mpx .map-zoom{right:8px;top:8px;gap:8px}
+  .mpx .map-zoom button{position:relative;width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:8px;border-color:var(--m-border);background:color-mix(in srgb,var(--surface) 94%,transparent);font-size:18px}
+  .mpx .mp-fbtn b{position:absolute;right:-6px;top:-6px;min-width:18px;height:18px;padding:0 4px;box-sizing:border-box;border-radius:9px;background:var(--accent);color:var(--bg);font:500 11px/18px var(--mono)}
+  .mpx .mp-tbar{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);z-index:3;display:flex;gap:6px;max-width:calc(100% - 16px)}
+  .mpx .mp-tbar>*{flex:none;min-width:44px;height:44px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;padding:0;border:1px solid var(--m-border);border-radius:8px;background:color-mix(in srgb,var(--surface) 94%,transparent);color:var(--ink);font:600 18px var(--ui);cursor:pointer}
+  .mpx .mp-tbar>:disabled{opacity:.4;cursor:default}
+  .mpx .mp-tbar .lab{position:relative;padding:0 12px;font:500 14px var(--mono);white-space:nowrap}
+  .mpx .mp-tbar .lab.off{color:var(--accent);border-color:var(--accent)}
+  .mpx .mp-tbar .lab select{position:absolute;inset:0;width:100%;height:100%;opacity:0;font-size:16px;cursor:pointer}
+  .mpx .map-wrap.has-card .mp-tbar{display:none}
+  /* the tour: its caption card (at the bottom of the screen) already heads with the dates, so no date badge over it */
+  .mpx .mp-playdate{display:none}
+  .mpx .map-wrap .map-attr{right:auto;left:0;bottom:auto;top:0;font-size:9.5px;max-width:58%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  /* the picked thing: a card at the bottom of the screen, above the site's bottom bar */
+  .mpx .mp-ov .mp-sel{position:fixed;left:0;right:0;top:auto;bottom:calc(58px + env(safe-area-inset-bottom));z-index:30;width:auto;max-height:45dvh;overflow-y:auto;border:0;border-top:1px solid var(--rule-strong);border-radius:14px 14px 0 0;padding:14px 52px 14px 16px;font-size:14.5px;box-shadow:0 -8px 24px rgb(0 0 0/.3)}
+  .mpx .mp-ov .mp-sel .tx{font-size:16.5px;line-height:1.3}
+  .mpx .mp-ov .mp-sel>button{width:44px;height:44px;right:4px;top:4px}
+  .mpx .mp-ov .mp-sel .nav button{width:44px;height:44px;border-radius:8px}
+  /* the week's changes: numbered rings (the numbers of the list); claims: counted clusters */
+  .mpx .mp-nums>g,.mpx .mp-clu>g{cursor:pointer}
+  .mpx :is(.mp-nums,.mp-clu) .hit{fill:transparent}
+  .mpx .mp-nums .ring{fill:color-mix(in srgb,var(--m-occ) 16%,transparent);stroke:var(--m-occ);stroke-width:2.2}
+  .mpx .mp-nums .nb circle{fill:var(--m-occ);stroke:var(--bg);stroke-width:1.5}
+  .mpx .mp-nums .nb text{fill:var(--bg);font:500 10.5px var(--mono);text-anchor:middle}
+  .mpx .mp-nums .n-ua .ring{fill:color-mix(in srgb,var(--m-onlyds) 16%,transparent);stroke:var(--m-onlyds)}.mpx .mp-nums .n-ua .nb circle{fill:var(--m-onlyds)}
+  .mpx .mp-nums .n-fix .ring{fill:var(--m-grey);stroke:var(--bg);stroke-width:1.5}
+  .mpx .mp-nums .on .ring{stroke-width:3;fill-opacity:.3}
+  .mpx .mp-nums .dim{opacity:.4}
+  .mpx .mp-clu .n circle:not(.hit){fill:var(--ink);stroke:var(--bg);stroke-width:2}
+  .mpx .mp-clu .n text{fill:var(--bg);font:500 12px var(--mono);text-anchor:middle}
+  /* under the map: the mode's legend line (claims: verdicts as filter buttons), the direction chips, the mode's list */
+  .mpx .mp-mstrip{display:flex;flex-direction:column;align-items:flex-start;gap:6px;font-family:var(--ui)}
+  .mpx .mp-lg1{display:flex;flex-wrap:wrap;align-items:center;gap:4px 12px;width:100%;margin:0;font-size:12.5px;color:var(--muted)}
+  .mpx .mp-lg1 i{display:inline-block;width:12px;height:10px;margin-right:5px;vertical-align:-1px;border-radius:2px}
+  .mpx .mp-lg1 i.ring{width:11px;height:11px;box-sizing:border-box;border-radius:50%;border:2px solid var(--m-occ);background:none}
+  .mpx .mp-lg1 i.ring.ua{border-color:var(--m-onlyds)}
+  .mpx .mp-lg1 b{margin-left:auto;color:var(--ink);font-weight:600}
+  .mpx .mp-vbtn{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:6px;width:100%}
+  .mpx .mp-vbtn button{display:flex;align-items:center;gap:6px;min-height:44px;padding:4px 8px;border:1px solid var(--rule);border-radius:8px;background:var(--surface);color:var(--ink);font:12.5px/1.15 var(--ui);text-align:left;cursor:pointer}
+  .mpx .mp-vbtn button[aria-pressed="true"]{border:2px solid var(--ink)}
+  .mpx .mp-vbtn b{font:500 14px var(--mono)}
+  .mpx .mp-pairs{display:flex;width:100%}.mpx .mp-pairs button{flex:1;min-height:40px;padding:2px 4px;font-size:12px;line-height:1.15;white-space:normal}
+  .mpx .mp-lgall{font-size:12.5px}
+  .mpx .mp-chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin-inline:-16px;padding:2px 16px 4px}
+  .mpx .mp-chips::-webkit-scrollbar{display:none}
+  .mpx .mp-chips button{flex:none;display:flex;align-items:center;gap:6px;height:36px;padding:0 12px;border:1px solid var(--rule);border-radius:18px;background:transparent;color:var(--ink);font:14px var(--ui);white-space:nowrap;cursor:pointer}
+  .mpx .mp-chips button[aria-pressed="true"]:not(.on){background:var(--ink);border-color:var(--ink);color:var(--bg);font-weight:600}
+  .mpx .mp-chips button.on{border-width:2px;font-weight:600}
+  .mpx .mp-chips i{width:8px;height:8px;border-radius:50%}
+  .mpx .mp-chips b{font:500 13px var(--mono);color:var(--muted)}
+  .mpx .mp-nb{flex:none;width:20px;height:20px;border-radius:50%;background:var(--m-occ);color:var(--bg);font:500 11px/20px var(--mono);text-align:center}
+  .mpx .mp-nb.n-ua{background:var(--m-onlyds)}
+  .mpx .mp-wkl li button[aria-current]{background:var(--accent-soft)}
+  .mpx .mp-wkl ol{max-height:none}
+  .mpx .mp-arow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;padding:10px 0;font-size:14px}
+  .mpx .mp-arow b{font:500 16px var(--mono)}.mpx .mp-arow small{grid-column:1/-1;color:var(--muted);font-size:12.5px}
+  /* full screen: the map edge to edge, tabs and close on top, the list as a sheet with three heights */
+  .mpx .mp-grid.fs{padding:0}
+  .mpx .mp-grid.fs .map-wrap{border:0;border-radius:0}
+  .mpx .mp-grid.fs .map-wrap>svg{height:100dvh}
+  .mpx .mp-grid.fs .mp-main>.mp-tabs{display:grid;position:absolute;z-index:7;top:calc(8px + env(safe-area-inset-top));left:60px;right:8px}
+  .mpx .mp-fsx{position:absolute;z-index:7;left:8px;top:calc(8px + env(safe-area-inset-top));width:44px;height:44px;display:flex;align-items:center;justify-content:center;border:1px solid var(--m-border);border-radius:8px;background:var(--surface);color:var(--ink);cursor:pointer}
+  .mpx .mp-grid.fs .map-zoom{top:calc(64px + env(safe-area-inset-top))}
+  .mpx .mp-grid.fs .mp-tbar{bottom:calc(162px + env(safe-area-inset-bottom))}
+  .mpx .mp-grid.fs:has(.mp-wkl.sh1,.mp-wkl.sh2) .mp-tbar{display:none}
+  .mpx .mp-grid.fs .mp-wkl{position:fixed;left:0;right:0;bottom:0;z-index:6;height:150px;padding-bottom:env(safe-area-inset-bottom);overflow:hidden;border:0;border-top:1px solid var(--rule-strong);border-radius:14px 14px 0 0;box-shadow:0 -8px 24px rgb(0 0 0/.35);transition:height .2s ease-out}
+  .mpx .mp-grid.fs .mp-wkl.sh1{height:50dvh}.mpx .mp-grid.fs .mp-wkl.sh2{height:calc(100dvh - 64px)}
+  .mpx .mp-grid.fs .mp-wkl ol{overflow-y:auto;overscroll-behavior:contain;max-height:calc(100% - 52px)}
+  .mpx .mp-grid.fs .mp-wkl-h{position:relative;padding-top:18px;cursor:grab;touch-action:none}
+  .mpx .mp-wkl .grip{position:absolute;left:50%;top:6px;width:40px;height:4px;margin-left:-20px;border-radius:2px;background:var(--rule-strong)}
+  .mpx .mp-grid.fs .mp-ov .mp-sel{bottom:env(safe-area-inset-bottom);z-index:8}
+  .mpx .mp-grid.fs .mp-rail:not([hidden]){display:block;position:fixed;left:0;right:0;bottom:0;z-index:41;max-width:none;max-height:85dvh;overflow-y:auto;overscroll-behavior:contain;border:0;border-top:1px solid var(--rule-strong);border-radius:12px 12px 0 0}
+  .mpx .mp-grid.fs .mp-scrim{display:block;position:fixed;inset:0;z-index:40;padding:0;border:0;background:rgb(0 0 0/.45)}
+  .mpx .mp-grid.fs .mp-rail-done{display:flex;gap:8px;position:sticky;bottom:0;padding:10px 16px calc(10px + env(safe-area-inset-bottom));background:var(--surface);border-top:1px solid var(--rule)}
 }
+@media (prefers-reduced-motion:reduce){.mpx .mp-grid.fs .mp-wkl{transition:none}}

@@ -63,8 +63,9 @@ export function Layers({ M, geo, mode, pair, plain = true }: { M: MapsData; geo:
       </>}
   </>;
 }
-export const Cities = ({ M, geo, k, hidden }: { M: MapsData; geo: Geo; k: number; hidden?: boolean }) => (
-  <g className="city" display={hidden ? "none" : undefined}>{M.cities.map((c) => { const [x, y] = geo.proj([c.lng, c.lat])!; return [
+/** `few` (phones): at whole-front zoom only the ten largest cities (the first in maps.json), the rest from ×2.5. */
+export const Cities = ({ M, geo, k, hidden, few }: { M: MapsData; geo: Geo; k: number; hidden?: boolean; few?: boolean }) => (
+  <g className="city" display={hidden ? "none" : undefined}>{(few && k < 2.5 ? M.cities.slice(0, 10) : M.cities).map((c) => { const [x, y] = geo.proj([c.lng, c.lat])!; return [
     <circle key={c.n + "c"} cx={x} cy={y} r={2.6 / k} fill="var(--m-city)" />,
     <text key={c.n + "t"} x={x + 5 / k} y={y + 4 / k} fontSize={11 / k} style={{ strokeWidth: 3 / k + "px" }}>{c.n}</text>,
   ]; })}</g>
@@ -126,6 +127,25 @@ export function makeGeo(M: MapsData, W: number, H: number): Geo {
   const proj = geoMercator().fitExtent([[12, 12], [W - 12, H - 12]], mp(ua.c));
   const path = geoPath(proj);
   return { proj, d: (c?: Rings) => (c && c.length ? path(mp(c)) || "" : "") };
+}
+
+/** The same projection, drawing with less detail for zoom bucket `b` (a power of 2 at or under the zoom): vertices
+ *  closer than ~0.6 px (×1–2 within the bucket) to the last kept one are dropped from every ring — at the whole front
+ *  the occupied area has ~4× fewer points to paint, and full detail returns as the zoom grows. */
+export function lodGeo(geo: Geo, b: number): Geo {
+  const eps = 0.6 / b;
+  const path = geoPath({ stream: (s: GeoStream) => geo.proj.stream(thin(s, eps)) } as unknown as GeoProjection);
+  return { proj: geo.proj, d: (c?: Rings) => (c && c.length ? path(mp(c)) || "" : "") };
+}
+type GeoStream = { point(x: number, y: number): void; lineStart(): void; lineEnd(): void; polygonStart(): void; polygonEnd(): void; sphere?(): void };
+function thin(s: GeoStream, eps: number): GeoStream {
+  let px = 0, py = 0, lx = 0, ly = 0, n = 0;
+  return {
+    point(x, y) { if (!n || Math.abs(x - px) + Math.abs(y - py) >= eps) { s.point(x, y); px = x; py = y; } lx = x; ly = y; n++; },
+    lineStart() { n = 0; s.lineStart(); },
+    lineEnd() { if (n && (lx !== px || ly !== py)) s.point(lx, ly); s.lineEnd(); },
+    polygonStart() { s.polygonStart(); }, polygonEnd() { s.polygonEnd(); }, sphere() { s.sphere?.(); },
+  };
 }
 
 /** Front directions (General Staff names, as in the digest) with an anchor point on the front line. A claim belongs to

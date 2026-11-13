@@ -3,6 +3,17 @@ import { useEffect, useState, type RefObject } from "react";
 import { useApp } from "../ctx";
 import { translate } from "@/lib/i18n.mjs";
 
+/** Phone layout (the site's phone breakpoint, max-width 600px), measured after mount (false on the server). */
+export function useNarrow() {
+  const [n, setN] = useState(false);
+  useEffect(() => {
+    const m = matchMedia("(max-width:600px)"), on = () => setN(m.matches);
+    on(); m.addEventListener("change", on);
+    return () => m.removeEventListener("change", on);
+  }, []);
+  return n;
+}
+
 /** useState whose value survives the dashboard unmounting (switching to the digest tab and back), like the legacy module globals. */
 const STICKY = new Map<string, unknown>();
 export function useSticky<T>(key: string, init: T): [T, (v: T) => void] {

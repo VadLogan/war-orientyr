@@ -5,7 +5,7 @@ import { href, tgHref, type MapSec } from "@/lib/routes";
 import { useState, type ReactNode } from "react";
 import type { Analytics } from "@/lib/data";
 import { useApp } from "../ctx";
-import { useSticky } from "./hooks";
+import { fetchJson, useSticky } from "./hooks";
 import { Attack, Civ, Fire, LandCost, pick, Recruit, Tiles } from "./Panels";
 import { Directions, Timeline, type DirSel } from "./Timeline";
 import Losses from "./Losses";
@@ -58,8 +58,19 @@ function SeoHtml({ seo, loading }: { seo: ReactNode; loading: string }) {
 /** The /maps page: the full source comparison with its filters. */
 /** The /maps page: the server HTML (`seo`) until the map has its data; `dir` = a direction page's direction. */
 export function MapsView({ seo, dir, sec, an, headline }: { seo: ReactNode; dir?: string; sec?: MapSec; an?: Analytics | null; headline?: { title?: string; item?: string } | null }) {
-  const { t, lang, D } = useApp();
+  const { t, lang, D, MAPS } = useApp();
   const [ready, setReady] = useState(false);
+  // first load: start the map's code and data while the page hydrates, not one after the other once it has (the lazy
+  // map chunk would only start after hydration, and its data only after that chunk runs); fetchJson's cache hands the
+  // same requests to the map when it mounts
+  useState(() => {
+    if (typeof window === "undefined") return;
+    void import("./Maps").catch(() => {});
+    for (const u of [MAPS, "/maps/archive/index.json"]) {
+      fetchJson(u).catch(() => {});
+      if (lang !== "uk") fetchJson("/i18n/" + lang + u).catch(() => {});
+    }
+  });
   return (
     <div className="dash">
       {lang === "en" && D.contentLang !== "en" && <p className="lang-note">{t.langNote}</p>}
