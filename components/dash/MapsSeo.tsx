@@ -22,7 +22,7 @@ export default async function MapsSeo({ lang, url, dir }: { lang: DashLang; url:
   const cl = M.events.filter((e) => dayN(e.d) > end - 30 && inDir(e)).sort((a, b) => (a.d < b.d ? 1 : -1)).slice(0, 60);
   return (
     <section className="tlwrap mp">
-      <div className="mp-head"><h2>{dir ? dirTitle(lang, dir) : t.mpH}</h2><p>{flags(t.mpLede)}</p></div>
+      <div className="mp-head"><h1>{dir ? dirTitle(lang, dir) : t.mpH}</h1><p>{flags(t.mpLede)}</p></div>
       <div className="tiles map-tiles"><Tiles items={areaTiles(M, t, (n) => fmt(Math.round(n), lang), "cmp", "dg_ds")} /></div>
       <h3>{flags(t.dsAdvH)} · {t.mpDays(7)}</h3>
       {ds.length ? <ul>{ds.map((e, k) => (

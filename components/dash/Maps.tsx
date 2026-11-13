@@ -13,7 +13,7 @@ import { LandCostNote, PotentialNote } from "./AnNotes";
 import { DIRS, dirOf, areaTiles, Cities, countV, fitFront, lastDay, Layers, lineChanges, lineDiff, makeGeo, Mark, MarkIco, mp, PAIR_SRC, Sw, SRC_COL, Tiles, VerdictBar, VG, vgOf, type Ev, type Geo, type Rings } from "./mapParts";
 import { flags } from "@/components/Flag";
 import { toArea, type LL } from "@/lib/geo";
-import { href, utm } from "@/lib/routes";
+import { href, MAP_SECS, mapSecHref, utm, type MapSec } from "@/lib/routes";
 import { byPlace, GCOL, GRPS, grpOf, placeKey, STK_CITIES, StkIco, StkMark, type Grp } from "./strikeParts";
 import { reaching, WEAPONS, WPN_GROUPS, wpnImg, wpnName } from "@/lib/weapons";
 
@@ -206,10 +206,29 @@ const Lag = ({ n, t }: { n: number; t: UIStrings }) => <b className={"mp-lag" + 
 const DsIco = ({ k }: { k: "ru" | "ua" | "fix" }) => <svg className="mk" width="14" height="14" viewBox="-7 -7 14 14" aria-hidden="true"><DsMark k={k} /></svg>;
 
 /** `dir0`: start framed on this direction (a /maps/<direction> page) unless the link's hash names one. `onReady`: the data is here. */
-export function MapsCompare({ dir0, onReady, an }: { dir0?: string; onReady?: () => void; an?: Analytics | null } = {}) {
+export function MapsCompare({ dir0, sec0, onReady, an }: { dir0?: string; sec0?: MapSec; onReady?: () => void; an?: Analytics | null } = {}) {
   const { t, lang, MAPS, D, LATEST } = useApp();
   const hs = (x: string) => hsBase(x, lang);
-  const [mode, setMode] = useSticky("mapMode", "cmp");
+  // the open section under the map. On the latest issue's plain /maps (or a /maps/<section> page) it is the URL: a switch
+  // pushes /maps/<section> (Next keeps its router in step, analytics count a page view; the map stays as it is) and Back
+  // closes it; on a dated or direction page the URL can't say it, so it stays in state
+  const [sec, setSec] = useState<MapSec | null>(sec0 ?? null);
+  const secUrl = D.date === LATEST.date && !dir0;
+  const secRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    if (!secUrl) return;
+    const on = () => setSec(MAP_SECS.find((x) => location.pathname.endsWith("/maps/" + x)) ?? null);
+    addEventListener("popstate", on);
+    return () => removeEventListener("popstate", on);
+  }, [secUrl]);
+  const pickSec = (x: MapSec) => {
+    const next = sec === x ? null : x;
+    setSec(next);
+    if (secUrl) history.pushState(null, "", (next ? mapSecHref(lang, next) : href(lang, "maps", null, "")) + location.hash);
+    if (next) requestAnimationFrame(() => secRef.current?.scrollIntoView({ block: "start", behavior: "smooth" }));
+  };
+  // a first visit opens on "what changed" (the preset "new"): DeepState's line, its week of changes, no claims
+  const [mode, setMode] = useSticky("mapMode", "ds");
   const [sect, setSect] = useSticky("mapSect", true);
   const [dOff, setDOff] = useSticky<string[]>("mapDirOff", []); // directions switched off on the map
   const dVis = (id: string) => sect && !dOff.includes(id);
@@ -221,10 +240,10 @@ export function MapsCompare({ dir0, onReady, an }: { dir0?: string; onReady?: ()
   const dOrder = useMemo(() => LATEST.dirOrder ?? dirOrder(TL(LATEST)), [LATEST]);
   const dcol = (d: (typeof DIRS)[number]) => dirCol(dOrder, dOrder.includes(d.uk) ? d.uk : d[lang]);
   const [pair, setPair] = useSticky("mapPair", "dg_ds");
-  const [ev, setEv] = useSticky("mapEv", true);
+  const [ev, setEv] = useSticky("mapEv", false);
   const [dse, setDse] = useSticky("mapDsE", true); // DeepState advances + when russia claimed them
   const [bm, setBm] = useSticky("mapBase", "t");
-  const [per, setPer] = useSticky("mapPer", 30);
+  const [per, setPer] = useSticky("mapPer", 7);
   const [vf, setVf] = useSticky("mapVf", ALL_V);
   const [ref, setRef] = useSticky<"ds" | "isw">("mapRef", "ds");
   const [dir, setDir] = useSticky<string | null>("mapDir", null);
@@ -280,9 +299,12 @@ export function MapsCompare({ dir0, onReady, an }: { dir0?: string; onReady?: ()
   const wrapRef = useRef<HTMLDivElement>(null);
   const w = useElWidth(wrapRef);
   const { fs, setFs, vh } = useFullscreen();
-  const [rail, setRail] = useSticky("mapRail", true);
+  const [rail, setRail] = useSticky("mapRail", false); // filters behind a button: a bottom sheet on phones, a column on wide screens
   const [flOpen, setFlOpen] = useSticky("mapFlOpen", true); // claims panel on the full-screen map
-  const W = Math.max(300, w || 800), H = fs ? Math.max(340, vh - 96) : Math.round(Math.min(640, Math.max(340, W * 0.66)));
+  // wide screens: no taller than the window leaves under the header, so the whole map is on the first screen
+  const W = Math.max(300, w || 800);
+  const winCap = W > 600 && typeof window !== "undefined" ? Math.max(420, window.innerHeight - 320) : 640;
+  const H = fs ? Math.max(340, vh - 96) : Math.round(Math.min(640, winCap, Math.max(340, W * 0.66)));
   const z = useZoom("mapZ", !!M, [1, 40], [[-W * 0.2, -H * 0.2], [W * 1.2, H * 1.2]]);
   const geo = useMapGeo(M, W, H);
   const F = (n: number) => fmt(Math.round(n), lang);
@@ -485,11 +507,22 @@ export function MapsCompare({ dir0, onReady, an }: { dir0?: string; onReady?: ()
   }, [geo]);
   const toggleFs = () => setFs(!fs);
   useWholeOnFs(fs, z);
-  const framed = useRef(false);
+  // frame the front; again once the size settles (the map is laid out hidden until its data is here, so the first fit
+  // is for the wrong width) — unless the reader or a shared link has moved the map since the last automatic fit
+  // arriving on /maps/<section>: once the map is in, the page opens at that section
+  const secShown = useRef(false);
   useEffect(() => {
-    if (framed.current || !M || !geo) return;
-    framed.current = true;
-    if (z.t.k === 1 && z.t.x === 0 && z.t.y === 0) z.to(fitFront(M, geo, W, H), 0);
+    if (!sec0 || !M || secShown.current) return;
+    secShown.current = true;
+    setTimeout(() => secRef.current?.scrollIntoView({ block: "start" }), 200);
+  }, [M, sec0]);
+  const autoFit = useRef<string | null>(null);
+  useEffect(() => {
+    if (!M || !geo) return;
+    if (z.t.toString() !== autoFit.current && !(z.t.k === 1 && z.t.x === 0 && z.t.y === 0)) return;
+    const f = fitFront(M, geo, W, H);
+    autoFit.current = f.toString();
+    z.to(f, 0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [M, geo]);
   // presets: three ready views instead of setting the rail by hand
@@ -505,12 +538,20 @@ export function MapsCompare({ dir0, onReady, an }: { dir0?: string; onReady?: ()
   const [dsSel, setDsSel] = useState<{ xs: NonNullable<MapsData["dsEvents"]>; i: number } | null>(null);
   const openDs = (xs: NonNullable<MapsData["dsEvents"]>, i = 0) => { setSel(null); setDsSel({ xs, i }); setDse(true); setDsHl(dsKey(xs[i])); focusDs(xs[i]); };
   const dArea = M && PM ? M.areas.ds_nc - PM.areas.ds_nc : null;
+  const areaStr = dArea != null && prevSnap ? (dArea > 0 ? "+" : dArea < 0 ? "−" : "±") + F(Math.abs(dArea)) + (lang === "uk" ? " км²" : " km²") : null;
+  // the month of claims against DeepState: how many it does not confirm (2–10 km off, or farther)
+  const cl30s = M ? M.events.filter((e) => dayN(e.d) > last - 30) : [];
+  const cl30 = cl30s.length, notConf = cl30s.filter((e) => ["ua", "far"].includes(vgOf(e.ds))).length;
+  const topDir = DIRS.filter((d) => gsOf(d) != null).sort((a, b) => gsOf(b)! - gsOf(a)!)[0];
   // fact-check: claims in the period that DeepState and ISW reject hardest (over 10 km > 2–10 km off the line), newest first
   // the feed under the map: what each side said in the rail's period (and direction), newest first, as a slider —
   // russian claims with what DeepState and ISW show there, DeepState's changes with whether and when russia claimed them
   const [fcF, setFcF] = useSticky<"all" | "ru" | "ds">("mapFcF", "all");
   const fcRef = useRef<HTMLOListElement>(null);
   const dsIn = dsOnce(M?.dsEvents || []).filter((e) => { const n = dayN(e.d); return n > end - per && n <= end && (!dir || dirOf(e) === dir); });
+  const dsList = [...dsIn].sort((a, b) => (a.d < b.d ? 1 : a.d > b.d ? -1 : 0));
+  // the claims section lists the window's claims whether or not the map shows them (a row turns them on and flies there)
+  const listed = inDir.filter((e) => vf[vgOf(e[ref])]).sort((a, b) => (a.d < b.d ? 1 : a.d > b.d ? -1 : 0));
   const fcAll: ({ d: string; cl: Ev; ds?: undefined } | { d: string; ds: DsE; cl?: undefined })[] = [
     ...inDir.map((cl) => ({ d: cl.d, cl, ds: undefined })), ...dsIn.map((ds) => ({ d: ds.d, ds, cl: undefined })),
   ].sort((a, b) => (a.d < b.d ? 1 : a.d > b.d ? -1 : a.ds ? -1 : 1));
@@ -524,6 +565,8 @@ export function MapsCompare({ dir0, onReady, an }: { dir0?: string; onReady?: ()
   useEffect(() => {
     if (hashRead.current) return; // read once: by a second run (React dev) the hash is already our own rewrite
     const h = new URLSearchParams(location.hash.slice(1)), g = (x: string) => h.get(x) || "";
+    // a shared view (any hash): keys it leaves out mean the defaults the hash is written against (comparison, 30 days, claims on)
+    if ([...h.keys()].length) { setMode("cmp"); setPer(30); setEv(true); }
     if (["ds", "isw", "dg", "cmp"].includes(g("v"))) setMode(g("v"));
     if (PAIR_SRC[g("p")]) setPair(g("p"));
     if (PERS.includes(+g("n"))) setPer(+g("n"));
@@ -594,20 +637,24 @@ export function MapsCompare({ dir0, onReady, an }: { dir0?: string; onReady?: ()
   </>;
 
   return (
-    <section className="tlwrap mp" id="maps">
-      <div className="mp-head"><h2>{t.mpH}</h2><p>{flags(t.mpLede)}</p></div>
-      <div className="mp-pr" role="group" aria-label={t.prH}><span>{t.prH}</span>{PRESETS.map((p) => (
-        <button type="button" key={p.id} aria-pressed={pr === p.id} onClick={() => preset(p.id)}>{flags(t.pr[p.id as "new"])}</button>
-      ))}<a className="mp-pr-stk" href={href(lang, "strikes", D.date, LATEST.date)}>{flags(t.nw.strikes.k)} →</a></div>
-      {M?.dsEvents && snap && <div className="mp-wk">
-        <b>{t.wkH(dayStr(wkEnd - 6), dayStr(wkEnd))}</b>
-        <p>{wk.length ? <>{wkN("ru") > 0 && <span className="ru">{t.wkRu(wkN("ru"))}</span>}{wkN("ua") > 0 && <span className="ua">{t.wkUa(wkN("ua"))}</span>}</> : <span>{t.wkNone}</span>}
-          {dArea != null && prevSnap && <span><Bold s={t.wkArea("{0}", "{1}")} v={[(dArea > 0 ? "+" : dArea < 0 ? "−" : "±") + F(Math.abs(dArea)) + (lang === "uk" ? " км²" : " km²"), dmy(prevSnap).slice(0, 5)]} /></span>}
-          {wkEarly > 0 && <span><button type="button" className="linkbtn" onClick={() => openDs(wk.filter((e) => e.ru && e.ru.lag > 0).sort((a, b) => (a.d < b.d ? 1 : -1)))}>{flags(t.wkEarly(wkEarly))}</button></span>}</p>
-        {wk.length > 0 && pr !== "new" && <button type="button" className="linkbtn" onClick={() => preset("new")}>{t.wkShow}</button>}
-      </div>}
+    <section className="tlwrap mp mpx" id="maps">
+      {/* the week in one line, then the map: the first screen answers "what changed" before any controls */}
+      {M && <header className="mp-top">
+        <div className="mp-top-h">
+          {snap && <div className="mp-kick">{t.wkH(dayStr(wkEnd - 6), dayStr(wkEnd))} · DeepState</div>}
+          <h1>{wkN("ru") + wkN("ua") ? t.wkLine(wkN("ru"), wkN("ua")) : t.wkNone}</h1>
+          {areaStr && <p className="mp-sub"><Bold s={t.wkSub} v={[areaStr]} /></p>}
+        </div>
+        <dl className="mp-kpi">
+          {areaStr && <div><dt>{t.kpiArea}</dt><dd className={dArea! > 0 ? "ru" : undefined}>{areaStr}</dd></div>}
+          {cl30 > 0 && <div><dt>{t.kpiClaims}</dt><dd>{t.kpiOf(notConf, cl30)}</dd></div>}
+          {topDir && <div><dt>{t.kpiDir(topDir[lang])}</dt><dd>{gsOf(topDir)}</dd></div>}
+        </dl>
+      </header>}
       <div className={"mp-grid" + (fs ? " fs" : "")} role={fs ? "dialog" : undefined} aria-modal={fs || undefined} aria-label={fs ? t.map : undefined}>
-        <aside className="mp-rail" hidden={!rail}>
+        {/* phones: the rail is a bottom sheet over the page; this backdrop closes it */}
+        {rail && !fs && <button type="button" className="mp-scrim" aria-label={t.art.close} onClick={() => setRail(false)} />}
+        <aside className="mp-rail" hidden={!rail} aria-label={t.mpFilters}>
           <fieldset>
             <legend>{t.mpSnapH}</legend>
             <div className="mp-step">
@@ -684,15 +731,20 @@ export function MapsCompare({ dir0, onReady, an }: { dir0?: string; onReady?: ()
             <legend><label className="mp-chk"><input type="checkbox" checked={dse} onChange={() => setDse(!dse)} /><DsIco k="ru" />{t.dsAdv}</label></legend>
             {dse && <p className="mp-note">{t.dsCnt(dsShown.length, dsShown.filter((e) => e.ru).length)}</p>}
           </fieldset>}
+          <div className="mp-rail-done"><button type="button" onClick={() => setRail(false)}>{t.wkShow}{ev ? ` · ${shown.length}` : ""}</button></div>
         </aside>
         <div className="mp-main">
           <div className="mp-bar-top">
+            <div className="seg mp-prs" role="group" aria-label={t.prH}>{PRESETS.map((p) => (
+              <button type="button" key={p.id} aria-pressed={pr === p.id} onClick={() => preset(p.id)}>{flags(t.pr[p.id as "new"])}</button>
+            ))}</div>
             <RailBtn on={rail} set={(v) => { refit.current = true; setRail(v); }} label={t.mpFilters} />
             {fs && <div className="map-legend">{legend}</div>}
             <BaseSeg bm={bm} set={setBm} label={t.mBase} />
             {M && ev && <span className="map-src">{t.mpShown(shown.length, inPer.length)}</span>}
             <button type="button" className="linkbtn mp-copy" onClick={copyLink}>{copied ? "✓ " + t.mpCopied : "🔗 " + t.mpCopy}</button>
           </div>
+          <div className="mp-row">
           <div className="map-wrap" ref={wrapRef}>
             {err ? <p className="map-src" style={{ padding: 16 }}>{t.mErr}</p> : !M || !geo ? <p className="map-src" style={{ padding: 16 }}>{t.mLoading}</p> : <>
               <svg className={"map-svg bm-" + bm} viewBox={`0 0 ${W} ${H}`} tabIndex={0} role="img" aria-label={t.map} ref={z.svgRef} onKeyDown={onKey} onClick={mapClick}>
@@ -729,7 +781,8 @@ export function MapsCompare({ dir0, onReady, an }: { dir0?: string; onReady?: ()
                     // map) slid inside the map above the anchor; top to bottom each moves below any label it would overlap, then
                     // from the bottom edge up so none hangs off the map; a leader line back to the anchor
                     const R = W - 56;
-                    const ls = dirShown.filter((d) => !sect || dVis(d.id)).map((d) => {
+                    // a phone-width map has no room for a dozen labels over the front: only the direction picked in the filters
+                    const ls = dirShown.filter((d) => (!sect || dVis(d.id)) && (W >= 600 || d.id === dir)).map((d) => {
                       const [x, y] = geo.proj([d.lng, d.lat])!, g = gsOf(d), l = d[lang], sx = x * k + z.t.x, sy = y * k + z.t.y;
                       return { d, x, y, g, l, sx, sy, lw: l.length * 5.9 + 24 + (g != null ? String(g).length * 7 + 8 : 0), vis: sx >= 0 && sx <= W && sy >= 0 && sy <= H, x0: 0, ty: 0 };
                     }).sort((a, b) => a.sy - b.sy);
@@ -878,11 +931,51 @@ export function MapsCompare({ dir0, onReady, an }: { dir0?: string; onReady?: ()
               {z.hint && <div className="map-hint" aria-hidden="true">{t.mWheel}</div>}
             </>}
           </div>
+          {/* the week's DeepState changes: beside the map on wide screens, under it on phones; a click flies the map there */}
+          {M?.dsEvents && snap && !fs && <aside className="mp-wkl" aria-label={t.dsAdv}>
+            <div className="mp-wkl-h"><b>{t.dsAdv}</b><span>{dayStr(wkEnd - 6)}–{dayStr(wkEnd)}</span></div>
+            {wk.length ? <ol>{[...wk].sort((a, b) => (a.d < b.d ? 1 : a.d > b.d ? -1 : 0)).map((e) => (
+              <li key={dsKey(e) + e.k}><button type="button" onClick={() => openDs([e])}>
+                <DsIco k={e.k} />
+                <span><span className="d">{dmy(e.d).slice(0, 5)}</span> {flags(hs(e.t))}
+                  {e.ru && <span className="v">{flags(t.mpCapRu(dmy(e.ru.d).slice(0, 5), hs(e.ru.t)))} <Lag n={e.ru.lag} t={t} /></span>}</span>
+              </button></li>
+            ))}</ol> : <p className="mp-note">{t.wkNone}</p>}
+            {OM && oSnap && <p className="mp-note">{diffs.length ? t.chgCnt(diffs.filter((c) => c.ru).length, diffs.filter((c) => !c.ru).length, dmy(oSnap)) : t.chgNone(dmy(oSnap))}</p>}
+            {snaps.length > 1 && <button type="button" className="mp-play" aria-pressed={play} onClick={togglePlay}>{play ? "❚❚ " + t.mpPause : "▶ " + t.mpPlay}</button>}
+          </aside>}
+          </div>
           {/* under the map, so on phones the map comes right after the filter button (full screen: in the top bar) */}
           {!fs && <div className="map-legend">{legend}</div>}
-          {/* right under the map and its legend: what the ground the map shows taken cost (the "line then and now" period) */}
-          {M && !fs && D.date === LATEST.date && <LandCostNote an={an} chg={chg} />}
-          {M && <div className="mp-fc">
+          {/* below the map: the comparison of sources as sections, one open at a time; each has a page of its own
+              (/maps/claims…) on the latest issue, so a switch is a page view and only the open one is rendered */}
+          {M && <div className="mp-head"><h2>{t.mpH}</h2><p>{flags(t.mpLede)}</p></div>}
+          {M && <nav className="mp-secs" aria-label={t.secNav} ref={secRef}>{MAP_SECS.filter((x) => x !== "distance" || dist.length > 0).map((x) => (
+            <a key={x} href={mapSecHref(lang, x)} aria-current={sec === x ? "page" : undefined} onClick={(e) => { e.preventDefault(); pickSec(x); }}>
+              <b>{t.secs[x]}</b><span>{x === "claims" ? `${t.kpiOf(cnt.ua + cnt.far, inDir.length)} ${t.secNotConf}` : x === "changes" ? <>{flags(t.fcDsF)} {dsIn.length} · {flags(t.fcRuF)} {inDir.length}</> : x === "distance" ? `${dist[0].c.n} — ${km1(dist[0].now.km)} ${t.distKm}` : `DeepState ${F(M.areas.ds_nc)} ${lang === "uk" ? "км²" : "km²"}`}</span>
+            </a>
+          ))}</nav>}
+          {M && sec && <section className="mp-secb" aria-label={t.secs[sec]}>
+            <h2>{sec === "claims" ? t.secClaims : sec === "changes" ? flags(t.dsAdvH) : sec === "distance" ? t.distH : t.secAreas}</h2>
+            {sec === "claims" && <>
+              <VerdictBar t={t} head={t.mpBar(inPer.length, per, t.src[ref])} cnt={cnt} on={vf} pick={pickV} />
+              {!ev && <button type="button" className="mp-play" onClick={() => { preset("claims"); wrapRef.current?.scrollIntoView({ block: "center", behavior: "smooth" }); }}>{flags(t.pr.claims)}: {t.wkShow.toLowerCase()} ↑</button>}
+              <div className="mp-list">
+                {listed.length ? <div className="mp-list-sc"><table>
+                  <thead><tr><th>{t.mpDate}</th><th>{t.mpClaim}</th><th>DeepState</th><th>ISW</th></tr></thead>
+                  <tbody>{listed.map((e) => (
+                    <tr key={e.id + "" + e.d} className={e === selOn ? "sel" : e.id === hl ? "hl" : undefined} onPointerEnter={() => setHl(e.id)} onPointerLeave={() => setHl(null)}>
+                      <td className="d">{dmy(e.d).slice(0, 5)}</td>
+                      <td><button type="button" className="linkbtn" onFocus={() => setHl(e.id)} onBlur={() => setHl(null)} aria-current={e === selOn || undefined} onClick={() => showClaim(e)}>{flags(hs(e.t))}</button></td>
+                      <td><MarkIco g={vgOf(e.ds)} /> {t.evSt.ds[e.ds as "occ"]}</td>
+                      <td><MarkIco g={vgOf(e.isw)} /> {t.evSt.isw[e.isw as "occ"]}</td>
+                    </tr>
+                  ))}</tbody>
+                </table></div> : <p className="map-src" style={{ padding: "12px 16px" }}>{t.mpNone}</p>}
+              </div>
+            </>}
+            {sec === "changes" && <>
+          <div className="mp-fc">
             <div className="mp-fc-h">
               <b>{t.fcH(dayStr(end - per + 1), dayStr(end))}{dir && <> · {DIRS.find((x) => x.id === dir)![lang]}</>}</b>
               <div className="seg" role="group">{([["all", t.fcAll, fcAll.length], ["ru", t.fcRuF, inDir.length], ["ds", t.fcDsF, dsIn.length]] as const).map(([k, l, n]) =>
@@ -909,8 +1002,24 @@ export function MapsCompare({ dir0, onReady, an }: { dir0?: string; onReady?: ()
                 <button type="button" className="linkbtn" onClick={() => showDs(x.ds!)}>{t.fcMap}</button>
               </li>
             ))}</ol> : <p className="map-src" style={{ padding: "12px 16px" }}>{t.mpNone}</p>}
-          </div>}
-          {M && dist.length > 0 && <div className="mp-list mp-dist">
+          </div>
+          <div className="mp-list">
+            {dsList.length ? <div className="mp-list-sc"><table>
+              <thead><tr><th>{t.mpDate}</th><th>DeepState</th><th>{t.dsRu}</th><th>{t.dsLag}</th></tr></thead>
+              <tbody>{dsList.map((e) => (
+                <tr key={dsKey(e)} className={dsHl === dsUpd(e) ? "hl" : undefined} onPointerEnter={() => setDsHl(dsUpd(e))} onPointerLeave={() => setDsHl(null)}>
+                  <td className="d">{dmy(e.d).slice(0, 5)}</td>
+                  <td><button type="button" className="linkbtn" onFocus={() => setDsHl(dsUpd(e))} onBlur={() => setDsHl(null)} onClick={() => showDs(e)}>{dsKinds(M.dsEvents || [], e).map((k) => <DsIco key={k} k={k} />)} {hs(e.t)}</button></td>
+                  <td>{e.ru ? <>{dmy(e.ru.d).slice(0, 5)} · {flags(hs(e.ru.t))}</> : <span className="map-src">{t.dsNoRu}</span>}</td>
+                  <td style={{ whiteSpace: "nowrap" }}>{e.ru ? <Lag n={e.ru.lag} t={t} /> : "—"}</td>
+                </tr>
+              ))}</tbody>
+            </table></div> : <p className="map-src" style={{ padding: "12px 16px" }}>{t.dsNone}</p>}
+            <p className="map-src" style={{ padding: "8px 16px" }}>{t.dsNote}</p>
+          </div>
+            </>}
+            {sec === "distance" && <>
+          <div className="mp-list mp-dist">
             <div className="mp-list-h"><b>{t.distH}</b></div>
             <p className="mp-note">{t.distLede}</p>
             {pin && pinD && <div className="mp-dist-pin" role="status">
@@ -930,42 +1039,16 @@ export function MapsCompare({ dir0, onReady, an }: { dir0?: string; onReady?: ()
             </table></div>
             {dist.length > 8 && <button type="button" className="linkbtn mp-dist-more" onClick={() => setDistAll(!distAll)}>{distAll ? t.distFew : t.distAll(dist.length)}</button>}
             <p className="map-src" style={{ padding: "8px 16px" }}>{t.distNote}</p>
-          </div>}
-          {M && ev && <VerdictBar t={t} head={t.mpBar(inPer.length, per, t.src[ref])} cnt={cnt} on={vf} pick={pickV} />}
-          {M && ev && <div className="mp-list">
-            <div className="mp-list-h"><b>{t.mpList}</b></div>
-            {shown.length ? <div className="mp-list-sc"><table>
-              <thead><tr><th>{t.mpDate}</th><th>{t.mpClaim}</th><th>DeepState</th><th>ISW</th></tr></thead>
-              <tbody>{shown.map((e) => (
-                <tr key={e.id + "" + e.d} className={e === selOn ? "sel" : e.id === hl ? "hl" : undefined} onPointerEnter={() => setHl(e.id)} onPointerLeave={() => setHl(null)}>
-                  <td className="d">{dmy(e.d).slice(0, 5)}</td>
-                  <td><button type="button" className="linkbtn" onFocus={() => setHl(e.id)} onBlur={() => setHl(null)} aria-current={e === selOn || undefined} onClick={() => focusEv(e)}>{flags(hs(e.t))}</button></td>
-                  <td><MarkIco g={vgOf(e.ds)} /> {t.evSt.ds[e.ds as "occ"]}</td>
-                  <td><MarkIco g={vgOf(e.isw)} /> {t.evSt.isw[e.isw as "occ"]}</td>
-                </tr>
-              ))}</tbody>
-            </table></div> : <p className="map-src" style={{ padding: "12px 16px" }}>{t.mpNone}</p>}
-          </div>}
-          {M?.dsEvents && dse && <div className="mp-list">
-            <div className="mp-list-h"><b>{t.dsAdvH}</b></div>
-            {dsShown.length ? <div className="mp-list-sc"><table>
-              <thead><tr><th>{t.mpDate}</th><th>DeepState</th><th>{t.dsRu}</th><th>{t.dsLag}</th></tr></thead>
-              <tbody>{dsShown.map((e) => (
-                <tr key={dsKey(e)} className={dsHl === dsUpd(e) ? "hl" : undefined} onPointerEnter={() => setDsHl(dsUpd(e))} onPointerLeave={() => setDsHl(null)}>
-                  <td className="d">{dmy(e.d).slice(0, 5)}</td>
-                  <td><button type="button" className="linkbtn" onFocus={() => setDsHl(dsUpd(e))} onBlur={() => setDsHl(null)} onClick={() => focusDs(e)}>{dsKinds(M.dsEvents || [], e).map((k) => <DsIco key={k} k={k} />)} {hs(e.t)}</button></td>
-                  <td>{e.ru ? <>{dmy(e.ru.d).slice(0, 5)} · {flags(hs(e.ru.t))}</> : <span className="map-src">{t.dsNoRu}</span>}</td>
-                  <td style={{ whiteSpace: "nowrap" }}>{e.ru ? <Lag n={e.ru.lag} t={t} /> : "—"}</td>
-                </tr>
-              ))}</tbody>
-            </table></div> : <p className="map-src" style={{ padding: "12px 16px" }}>{t.dsNone}</p>}
-            <p className="map-src" style={{ padding: "8px 16px" }}>{t.dsNote}</p>
-          </div>}
+          </div>
+            </>}
+            {sec === "areas" && <div className="tiles map-tiles"><Tiles items={areaTiles(M, t, F, mode, pair)} /></div>}
+          </section>}
+          {/* what the ground the map shows taken cost (the "line then and now" period) */}
+          {M && !fs && D.date === LATEST.date && <LandCostNote an={an} chg={chg} />}
           <p className="map-src">{srcLine}</p>
           <details className="method"><summary>{t.mMethod}</summary><p>{flags(method)}</p></details>
         </div>
       </div>
-      <div className="tiles map-tiles">{M && <Tiles items={areaTiles(M, t, F, mode, pair)} />}</div>
     </section>
   );
 }

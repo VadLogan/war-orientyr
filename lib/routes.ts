@@ -11,6 +11,10 @@ export function href(lang: Lang, view: View, date: string | null, latest: string
 }
 /** The potential-targets view of /strikes: one undated page per language. */
 export const tgHref = (lang: Lang) => pre(lang) + "/strikes/targets";
+/** The sections under the /maps map as undated pages of their own (/maps/claims…): the latest issue, that section open. */
+export const MAP_SECS = ["claims", "changes", "distance", "areas"] as const;
+export type MapSec = (typeof MAP_SECS)[number];
+export const mapSecHref = (lang: Lang, s: MapSec) => pre(lang) + "/maps/" + s;
 export const articlesHref =(lang: Lang) => pre(lang) + "/articles";
 export const articleHref = (lang: Lang, date: string, name: string) => pre(lang) + `/articles/${date}/${name}`;
 /** `url` tagged for analytics: utm_source/medium/campaign set (replacing any the visitor arrived with), hash kept after the query. */

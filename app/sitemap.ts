@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { articleParams } from "@/components/ArticlePage";
 import { getArticle, getDates, getIssue, getLatest } from "@/lib/data";
-import { articleHref, articlesHref, href, SITE, tgHref, type View } from "@/lib/routes";
+import { articleHref, articlesHref, href, MAP_SECS, mapSecHref, SITE, tgHref, type View } from "@/lib/routes";
 import { SUBS, type Lang, type SubLang } from "@/lib/ui";
 import { dirHref, PANELS, panelHref } from "@/lib/page";
 import { DIRS } from "@/components/dash/mapParts";
@@ -21,6 +21,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // roots ("/", "/dashboard") + every issue at its dated URL, the latest included
     ...(["digest", "dashboard", "maps", "strikes"] as View[]).flatMap((v) => [null, ...dates].map((d, k) => entry((l) => href(l, v, d, ""), d ?? latest, v !== "digest" ? SUBS : subDigest[k])).flat()),
     ...DIRS.flatMap((d) => entry((l) => dirHref(l, d), latest, SUBS)),
+    ...MAP_SECS.flatMap((s) => entry((l) => mapSecHref(l, s), latest, SUBS)),
     ...PANELS.flatMap((p) => entry((l) => panelHref(l, p), latest, SUBS)),
     ...entry(tgHref, latest, SUBS),
     ...entry(articlesHref, articles.at(-1)?.date ?? latest, SUBS),

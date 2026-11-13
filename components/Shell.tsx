@@ -8,9 +8,10 @@ import LangPicker from "./LangPicker";
 
 /** `langHrefs`: a page outside the issue views (an article, the article list: view "articles") — tabs link to the latest issue, no date bar.
  *  `from`: the language the reader asked for (a /de or /fr URL) when this page has no version in it and is shown in `lang`. */
-type P = { lang: Lang; t: UIStrings; view: View; date: string; latest: string; dates: string[]; langHrefs?: Record<Lang, string>; from?: SubLang };
+type P = { lang: Lang; t: UIStrings; view: View; date: string; latest: string; dates: string[]; langHrefs?: Record<Lang, string>; from?: SubLang; slim?: boolean };
 
-export default function Shell({ lang, t, view, date, latest, dates, langHrefs, from }: P) {
+/** `slim`: a one-row date bar (no label or issue count) — /maps, where the map should start as high as possible. */
+export default function Shell({ lang, t, view, date, latest, dates, langHrefs, from, slim }: P) {
   const bare = !!langHrefs;
   const i = dates.indexOf(date), isLatest = date === latest;
   const to = (o: Partial<{ lang: Lang; view: View; date: string }>) => href(o.lang ?? lang, o.view ?? view, o.date ?? date, latest);
@@ -38,7 +39,7 @@ export default function Shell({ lang, t, view, date, latest, dates, langHrefs, f
       </header>
       {from && <p className="lang-note lang-alert" role="status"><span lang={from}>{SUB_MISSING[from].own}</span> <span>{SUB_MISSING[from].en}</span></p>}
       {!bare && dates.length > 0 && (
-        <nav className="datebar">
+        <nav className={slim ? "datebar slim" : "datebar"}>
           <label htmlFor="issueSel">{t.pickDate}</label>
           <div className="dnav">
             {i > 0 ? <Link href={to({ date: dates[i - 1] })} aria-label={t.prevA}><svg className="ch" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6l-6 6 6 6" /></svg><span className="t"> {t.prev}</span></Link>

@@ -39,7 +39,7 @@ const slim = (d: Digest): DashIssue => ({
 const hl = (d: Digest) => (d.headline?.title ? { title: d.headline.title, item: d.headline.item } : null);
 
 export default async function DashPage({ lang, params, view = "dashboard" }: { lang: DashLang; params: DateParams; view?: "dashboard" | "maps" | "strikes" }) {
-  const { latest, dates, D, dir, panel, tg } = await resolve(params, lang);
+  const { latest, dates, D, dir, panel, tg, sec } = await resolve(params, lang);
   const t = UI[lang] as UIStrings;
   const MAPS = await getMapsUrl(D.date);
   // the maps and strikes pages read no issue series: ship the date, language and the General Staff directions, not the timelines and losses
@@ -64,12 +64,13 @@ export default async function DashPage({ lang, params, view = "dashboard" }: { l
     );
   }
   return (
-    <div className={maps ? "shell" : "shell wide"}>
+    <div className={view === "strikes" ? "shell" : "shell wide"}>
       {view === "maps" && !dir && <Ld ld={await mapsLd(lang, D.date, MAPS)} />}
       {view === "dashboard" && <Ld ld={dashLd(lang, D.date)} />}
       {/* /strikes/targets is not dated: no date bar, the language links keep the sub-route */}
-      <Shell lang={lang} t={t} view={view} date={D.date} latest={latest.date} dates={dates} langHrefs={tg ? Object.fromEntries(LANGS.map((l) => [l.code, tgHref(l.code)])) as Record<Lang, string> : undefined} />
-      <Mast D={D} lang={lang} dashboard />
+      <Shell lang={lang} t={t} view={view} date={D.date} latest={latest.date} dates={dates} langHrefs={tg ? Object.fromEntries(LANGS.map((l) => [l.code, tgHref(l.code)])) as Record<Lang, string> : undefined} slim={view === "maps"} />
+      {/* /maps: the map and its one-line takeaway come first, so no day counters or "state of the war" heading */}
+      {view !== "maps" && <Mast D={D} lang={lang} dashboard />}
       <main id="main"><div className="view">
         <DashProvider view={view} lang={lang} D={(maps ? bare : slim)(D)} LATEST={(maps ? bare : slim)(latest)} DATES={dates} MAPS={MAPS}
           smx={!maps && SHOW_SOURCE_MATRIX ? await getSourceMatrix() : null}
@@ -79,7 +80,7 @@ export default async function DashPage({ lang, params, view = "dashboard" }: { l
           strikesMini={maps ? null : <StrikesCard lang={lang} date={D.date} latest={latest.date} mini />}
           headline={hl(D)} an={an} summary={maps ? null : <DashSummary D={D} an={an} lang={lang} />}
           tg={tg} strikesSeo={view !== "strikes" ? null : tg ? <TargetsSeo lang={lang} /> : <StrikesSeo lang={lang} date={D.date} latest={latest.date} />}
-          mapsSeo={view === "maps" ? <MapsSeo lang={lang} url={MAPS} dir={dir} /> : null} dir={dir?.id} />
+          mapsSeo={view === "maps" ? <MapsSeo lang={lang} url={MAPS} dir={dir} /> : null} dir={dir?.id} sec={sec} />
       </div></main>
     </div>
   );

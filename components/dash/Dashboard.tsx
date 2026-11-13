@@ -1,7 +1,7 @@
 "use client";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { href, tgHref } from "@/lib/routes";
+import { href, tgHref, type MapSec } from "@/lib/routes";
 import { useState, type ReactNode } from "react";
 import type { Analytics } from "@/lib/data";
 import { useApp } from "../ctx";
@@ -57,16 +57,17 @@ function SeoHtml({ seo, loading }: { seo: ReactNode; loading: string }) {
 
 /** The /maps page: the full source comparison with its filters. */
 /** The /maps page: the server HTML (`seo`) until the map has its data; `dir` = a direction page's direction. */
-export function MapsView({ seo, dir, an, headline }: { seo: ReactNode; dir?: string; an?: Analytics | null; headline?: { title?: string; item?: string } | null }) {
+export function MapsView({ seo, dir, sec, an, headline }: { seo: ReactNode; dir?: string; sec?: MapSec; an?: Analytics | null; headline?: { title?: string; item?: string } | null }) {
   const { t, lang, D } = useApp();
   const [ready, setReady] = useState(false);
   return (
     <div className="dash">
       {lang === "en" && D.contentLang !== "en" && <p className="lang-note">{t.langNote}</p>}
-      <CrossLinks an={an} headline={headline} tg />
       {!ready && <SeoHtml seo={seo} loading={t.stk.loading} />}
       {/* mounted but hidden until ready: its width and zoom hooks attach on the first render */}
-      <div style={{ display: ready ? "contents" : "none" }}><MapsCompare dir0={dir} an={an} onReady={() => setReady(true)} /></div>
+      <div style={{ display: ready ? "contents" : "none" }}><MapsCompare dir0={dir} sec0={sec} an={an} onReady={() => setReady(true)} /></div>
+      {/* the day's digest and the analytics: after the map, which is what visitors come for */}
+      <CrossLinks an={an} headline={headline} tg />
     </div>
   );
 }
