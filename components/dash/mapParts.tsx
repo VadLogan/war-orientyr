@@ -63,8 +63,9 @@ export function Layers({ M, geo, mode, pair, plain = true }: { M: MapsData; geo:
       </>}
   </>;
 }
-export const Cities = ({ M, geo, k, hidden }: { M: MapsData; geo: Geo; k: number; hidden?: boolean }) => (
-  <g className="city" display={hidden ? "none" : undefined}>{M.cities.map((c) => { const [x, y] = geo.proj([c.lng, c.lat])!; return [
+/** `few` (phones): at whole-front zoom only the ten largest cities (the first in maps.json), the rest from ×2.5. */
+export const Cities = ({ M, geo, k, hidden, few }: { M: MapsData; geo: Geo; k: number; hidden?: boolean; few?: boolean }) => (
+  <g className="city" display={hidden ? "none" : undefined}>{(few && k < 2.5 ? M.cities.slice(0, 10) : M.cities).map((c) => { const [x, y] = geo.proj([c.lng, c.lat])!; return [
     <circle key={c.n + "c"} cx={x} cy={y} r={2.6 / k} fill="var(--m-city)" />,
     <text key={c.n + "t"} x={x + 5 / k} y={y + 4 / k} fontSize={11 / k} style={{ strokeWidth: 3 / k + "px" }}>{c.n}</text>,
   ]; })}</g>

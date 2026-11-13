@@ -290,3 +290,17 @@ Test on iPhone SE (375×667), iPhone 14/15 (390×844) and a 360×800 Android, Sa
 9. Full screen: one-finger pan, sheet snaps at three heights, Back exits.
 11. ‹ on the time bar shows the previous snapshot within 300 ms (data cached) and the headline, figure and list change with it; ▶ plays the week and can be paused and stopped.
 10. Nothing fixed is hidden behind the bottom navigation or the home indicator.
+
+## 15. Implementation status (2026-11-13)
+
+Built on phones (≤600 px) in `components/dash/Maps.tsx` + `app/globals.css` (`.mpx`), desktop unchanged. Differences
+from this brief, to do or decided:
+- ▶ on the time bar enters full screen and plays the existing whole-archive tour, not just the week; no long press.
+- The bottom card closes with ×, swipe down or a tap on empty map, but does not push a history entry (Back leaves
+  the page, as before). Full screen does push one.
+- Double tap to zoom works only in full screen (in the page one-finger touches belong to scrolling).
+- The issue calendar is not on the time bar: the date is a native picker of the map snapshots; issues are switched
+  from the digest or by URL.
+- City labels are thinned by count (the 10 largest at whole-front zoom), not by collision with marks.
+- Zoom: during a pinch/wheel the map moves as one transform (≈0.1 ms per event, measured in dev), React renders once
+  when the gesture ends (≈25 ms in dev mode, of which ≈1.3 ms is the component's own computation).
