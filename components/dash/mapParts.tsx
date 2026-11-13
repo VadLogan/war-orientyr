@@ -129,6 +129,25 @@ export function makeGeo(M: MapsData, W: number, H: number): Geo {
   return { proj, d: (c?: Rings) => (c && c.length ? path(mp(c)) || "" : "") };
 }
 
+/** The same projection, drawing with less detail for zoom bucket `b` (a power of 2 at or under the zoom): vertices
+ *  closer than ~0.6 px (×1–2 within the bucket) to the last kept one are dropped from every ring — at the whole front
+ *  the occupied area has ~4× fewer points to paint, and full detail returns as the zoom grows. */
+export function lodGeo(geo: Geo, b: number): Geo {
+  const eps = 0.6 / b;
+  const path = geoPath({ stream: (s: GeoStream) => geo.proj.stream(thin(s, eps)) } as unknown as GeoProjection);
+  return { proj: geo.proj, d: (c?: Rings) => (c && c.length ? path(mp(c)) || "" : "") };
+}
+type GeoStream = { point(x: number, y: number): void; lineStart(): void; lineEnd(): void; polygonStart(): void; polygonEnd(): void; sphere?(): void };
+function thin(s: GeoStream, eps: number): GeoStream {
+  let px = 0, py = 0, lx = 0, ly = 0, n = 0;
+  return {
+    point(x, y) { if (!n || Math.abs(x - px) + Math.abs(y - py) >= eps) { s.point(x, y); px = x; py = y; } lx = x; ly = y; n++; },
+    lineStart() { n = 0; s.lineStart(); },
+    lineEnd() { if (n && (lx !== px || ly !== py)) s.point(lx, ly); s.lineEnd(); },
+    polygonStart() { s.polygonStart(); }, polygonEnd() { s.polygonEnd(); }, sphere() { s.sphere?.(); },
+  };
+}
+
 /** Front directions (General Staff names, as in the digest) with an anchor point on the front line. A claim belongs to
  *  the nearest anchor within DIR_KM; farther claims belong to none.
  *  ponytail: anchors are hand-placed approximations; replace with sector polygons if the scraper ever provides them. */

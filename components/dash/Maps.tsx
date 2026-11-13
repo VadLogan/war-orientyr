@@ -10,7 +10,7 @@ import { fetchJson, useElWidth, useJson, useNarrow, useSticky } from "./hooks";
 import type { MapsData } from "./Panels";
 import type { Analytics } from "@/lib/data";
 import { LandCostNote, PotentialNote } from "./AnNotes";
-import { DIRS, dirOf, areaTiles, Cities, countV, fitFront, lastDay, Layers, lineChanges, lineDiff, makeGeo, Mark, MarkIco, mp, PAIR_SRC, Sw, SRC_COL, Tiles, VerdictBar, VG, vgOf, type Ev, type Geo, type Rings } from "./mapParts";
+import { DIRS, dirOf, areaTiles, Cities, countV, fitFront, lastDay, Layers, lineChanges, lineDiff, lodGeo, makeGeo, Mark, MarkIco, mp, PAIR_SRC, Sw, SRC_COL, Tiles, VerdictBar, VG, vgOf, type Ev, type Geo, type Rings } from "./mapParts";
 import { flags } from "@/components/Flag";
 import { toArea, type LL } from "@/lib/geo";
 import { href, MAP_SECS, mapSecHref, utm, type MapSec } from "@/lib/routes";
@@ -22,65 +22,74 @@ import { reaching, WEAPONS, WPN_GROUPS, wpnImg, wpnName } from "@/lib/weapons";
 /** `touch2`: while it returns true (a phone, the map inside the page) one finger scrolls the page (CSS touch-action
  *  pan-y) and only two fingers move or zoom the map; a sideways one-finger drag shows `touchHint` once per page load. */
 let touchHinted = false;
-function useZoom(key: string, ready: boolean, ext: [number, number], tExt: [[number, number], [number, number]], touch2?: () => boolean) {
+/** `box` (optional, the map's HTML container): gestures attach to it and, while one runs, the <svg> inside is moved by
+ *  a CSS transform — the browser keeps the painted map as one GPU layer and only moves/scales it (as tile maps do), with
+ *  no repaint and no React render per frame; React gets the transform when the gesture ends (a fly animation: at most
+ *  every 200 ms) and the map is drawn sharp at the new zoom. Pointer events that start on a control inside the box
+ *  (buttons, cards, the time bar, lists) are left to it. Without `box`: zoom on the <svg>, a render per event. */
+function useZoom(key: string, ready: boolean, ext: [number, number], tExt: [[number, number], [number, number]], touch2?: () => boolean, box?: React.RefObject<HTMLElement | null>) {
   const svgRef = useRef<SVGSVGElement>(null);
-  const zb = useRef<ZoomBehavior<SVGSVGElement, unknown> | null>(null);
+  const zb = useRef<ZoomBehavior<Element, unknown> | null>(null);
   const [t, setT] = useSticky<ZoomTransform>(key, zoomIdentity);
   const [hint, setHint] = useState(false);
   const [touchHint, setTouchHint] = useState(false);
   const t2 = useRef(touch2);
   t2.current = touch2;
-  // `liveRef` (optional, a <g> around everything drawn): while a gesture runs, the drawn map is moved by one relative
-  // transform per animation frame instead of re-rendering on every pointer/wheel event; React gets the new transform when
-  // the gesture ends (a fly animation: at most every 200 ms, so tiles and marker sizes keep up). Without it: every event.
-  const liveRef = useRef<SVGGElement>(null);
   const committed = useRef(t), latest = useRef(t), raf = useRef(0), lastC = useRef(0);
   const applyLive = () => {
     raf.current = 0;
-    const g = liveRef.current, c = committed.current, l = latest.current;
-    if (!g) return;
+    const el = box?.current ? svgRef.current : null, c = committed.current, l = latest.current;
+    if (!el) return;
     const r = l.k / c.k;
-    if (r === 1 && l.x === c.x && l.y === c.y) g.removeAttribute("transform");
-    else g.setAttribute("transform", `translate(${l.x - c.x * r},${l.y - c.y * r}) scale(${r})`);
+    if (r === 1 && l.x === c.x && l.y === c.y) { el.style.transform = ""; el.style.willChange = ""; return; }
+    el.style.transformOrigin = "0 0"; el.style.willChange = "transform";
+    el.style.transform = `translate3d(${l.x - c.x * r}px,${l.y - c.y * r}px,0) scale(${r})`;
   };
-  useLayoutEffect(() => { committed.current = t; applyLive(); }, [t]);
+  useLayoutEffect(() => { committed.current = t; latest.current = t; applyLive(); }, [t]);
   const tx = JSON.stringify(tExt);
+  const target = () => (box?.current ?? svgRef.current) as Element | null;
   useEffect(() => {
-    const svg = svgRef.current;
-    if (!svg) return;
+    const svg = svgRef.current, el = target();
+    if (!svg || !el) return;
+    const live = el !== svg;
     // the wheel zooms only with Ctrl/⌘ (a trackpad pinch sends Ctrl) or in full screen, so the page scrolls past the map
     const free = (e: WheelEvent) => e.ctrlKey || e.metaKey || !!svg.closest(".mp-grid.fs");
-    const z = zoom<SVGSVGElement, unknown>().scaleExtent(ext).translateExtent(tExt)
+    const onControl = (e: Event) => live && !!(e.target as Element | null)?.closest?.("button, select, a, label, input, .mp-ov, .mp-tbar, .map-zoom, .mp-wkl");
+    const z = zoom<Element, unknown>().scaleExtent(ext).translateExtent(tExt)
       .on("zoom", (ev) => {
-        if (!liveRef.current) return setT(ev.transform);
+        if (!live) return setT(ev.transform);
         latest.current = ev.transform;
         if (!raf.current) raf.current = requestAnimationFrame(applyLive);
         if (!ev.sourceEvent && performance.now() - lastC.current > 200) { lastC.current = performance.now(); setT(ev.transform); }
       })
-      .on("end", (ev) => { if (liveRef.current) setT(ev.transform); })
-      .filter((e) => (e.type === "wheel" ? free(e) : e.type === "touchstart" && t2.current?.() ? (e as TouchEvent).touches.length > 1 : !e.ctrlKey && !e.button))
+      .on("end", (ev) => { if (live) setT(ev.transform); })
+      .filter((e) => !onControl(e) && (e.type === "wheel" ? free(e) : e.type === "touchstart" && t2.current?.() ? (e as TouchEvent).touches.length > 1 : !e.ctrlKey && !e.button))
       // ponytail: a pinch sends small Ctrl deltas, a Ctrl+mouse-wheel notch ~100: only the pinch gets d3's ×10
       .wheelDelta((e) => -e.deltaY * (e.deltaMode === 1 ? 0.05 : e.deltaMode ? 1 : 0.002) * (e.ctrlKey && Math.abs(e.deltaY) < 50 ? 10 : 1));
     zb.current = z;
-    select(svg).call(z).call(z.transform, t);
+    select(el).call(z).call(z.transform, t);
     let tm = 0;
-    const onWheel = (e: WheelEvent) => { if (free(e)) return; setHint(true); clearTimeout(tm); tm = window.setTimeout(() => setHint(false), 1400); };
-    svg.addEventListener("wheel", onWheel, { passive: true });
+    const onWheel = (e: Event) => { if (free(e as WheelEvent) || onControl(e)) return; setHint(true); clearTimeout(tm); tm = window.setTimeout(() => setHint(false), 1400); };
+    el.addEventListener("wheel", onWheel, { passive: true });
     let x0 = 0, y0 = 0;
-    const onTs = (e: TouchEvent) => { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; };
-    const onTm = (e: TouchEvent) => {
-      if (touchHinted || e.touches.length !== 1 || !t2.current?.()) return;
-      const dx = Math.abs(e.touches[0].clientX - x0), dy = Math.abs(e.touches[0].clientY - y0);
+    const onTs = (e: Event) => { const tt = (e as TouchEvent).touches[0]; x0 = tt.clientX; y0 = tt.clientY; };
+    const onTm = (e: Event) => {
+      const te = e as TouchEvent;
+      if (touchHinted || te.touches.length !== 1 || !t2.current?.() || onControl(e)) return;
+      const dx = Math.abs(te.touches[0].clientX - x0), dy = Math.abs(te.touches[0].clientY - y0);
       if (dx < 24 || dx < dy * 1.5) return;
       touchHinted = true; setTouchHint(true); clearTimeout(tm); tm = window.setTimeout(() => setTouchHint(false), 1600);
     };
-    svg.addEventListener("touchstart", onTs, { passive: true }); svg.addEventListener("touchmove", onTm, { passive: true });
-    return () => { select(svg).on(".zoom", null); svg.removeEventListener("wheel", onWheel); svg.removeEventListener("touchstart", onTs); svg.removeEventListener("touchmove", onTm); clearTimeout(tm); cancelAnimationFrame(raf.current); raf.current = 0; };
+    el.addEventListener("touchstart", onTs, { passive: true }); el.addEventListener("touchmove", onTm, { passive: true });
+    return () => {
+      select(el).on(".zoom", null); el.removeEventListener("wheel", onWheel); el.removeEventListener("touchstart", onTs); el.removeEventListener("touchmove", onTm);
+      clearTimeout(tm); cancelAnimationFrame(raf.current); raf.current = 0;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tx, ready]);
-  const sel = () => select(svgRef.current!);
+  const sel = () => select(target()!);
   return {
-    svgRef, liveRef, t, hint, touchHint,
+    svgRef, t, hint, touchHint,
     by: (k: number, ms = 250) => sel().transition().duration(ms).call(zb.current!.scaleBy, k),
     to: (tr: ZoomTransform, ms = 300) => (ms ? sel().transition().duration(ms).call(zb.current!.transform, tr) : sel().call(zb.current!.transform, tr)),
     pan: (x: number, y: number) => sel().call(zb.current!.translateBy, x, y),
@@ -222,9 +231,14 @@ function useMapGeo(M: MapsData | null, W: number, H: number): Geo | null {
 }
 
 /** Web-mercator raster basemaps drawn over the (then unfilled) vector land. */
-const BASEMAPS: Record<string, { url: (z: number, x: number, y: number) => string; max: number; attr: string }> = {
+const esri = (s: string, z: number, x: number, y: number) => `https://server.arcgisonline.com/ArcGIS/rest/services/${s}/MapServer/tile/${z}/${y}/${x}`;
+/** The site's theme as the CSS reads it: a `data-theme` on <html> wins, else the system setting. */
+const darkTheme = () => { const d = document.documentElement.dataset.theme; return d ? d === "dark" : matchMedia("(prefers-color-scheme: dark)").matches; };
+const BASEMAPS: Record<string, { url: (z: number, x: number, y: number) => string; labels?: (z: number, x: number, y: number) => string | null; max: number; attr: string }> = {
   r: { url: (z, x, y) => `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${y}/${x}`, max: 18, attr: "Imagery © Esri, Maxar, Earthstar Geographics" },
-  t: { url: (z, x, y) => `https://${"abc"[(x + y) % 3]}.tile.opentopomap.org/${z}/${x}/${y}.png`, max: 17, attr: "© OpenStreetMap contributors, SRTM · OpenTopoMap (CC-BY-SA)" },
+  // the map layer follows the site's theme: dark — Esri's dark grey canvas + its place-name layer; light — Esri World
+  // Topo (relief, rivers, roads, names). Esri's CDN: 7–18 KB tiles in ~0.1 s (OpenTopoMap, used before: ~51 KB, slow)
+  t: { url: (z, x, y) => esri(darkTheme() ? "Canvas/World_Dark_Gray_Base" : "World_Topo_Map", z, x, y), labels: (z, x, y) => (darkTheme() ? esri("Canvas/World_Dark_Gray_Reference", z, x, y) : null), max: 16, attr: "Tiles © Esri — Esri, HERE, Garmin, FAO, NOAA, USGS, © OpenStreetMap contributors, GIS User Community" },
 };
 /** Tiles covering the W×H view of a d3.geoMercator `proj` under zoom `t`, in screen coordinates.
  *  A coarse level (z−3) goes underneath so zooming never shows gaps while the sharp tiles load. */
@@ -239,10 +253,16 @@ function Tiles256({ id, proj, t, W, H }: { id: string; proj: GeoProjection; t: Z
       for (let j = Math.max(0, Math.floor(-oy / ts)); j <= Math.min(n - 1, Math.floor((H - oy) / ts)); j++)
         out.push(<image key={`${z}/${i}/${j}`} href={bm.url(z, i, j)} x={ox + i * ts} y={oy + j * ts} width={ts + 0.5} height={ts + 0.5} preserveAspectRatio="none" />);
   }
+  // a separate label layer (the dark canvas): the sharp level only, on top of the base tiles
+  const n = 2 ** zz, ts = S / n;
+  if (bm.labels?.(0, 0, 0)) for (let i = Math.max(0, Math.floor(-ox / ts)); i <= Math.min(n - 1, Math.floor((W - ox) / ts)); i++)
+    for (let j = Math.max(0, Math.floor(-oy / ts)); j <= Math.min(n - 1, Math.floor((H - oy) / ts)); j++)
+      out.push(<image key={`l${zz}/${i}/${j}`} href={bm.labels(zz, i, j)!} x={ox + i * ts} y={oy + j * ts} width={ts + 0.5} height={ts + 0.5} preserveAspectRatio="none" />);
   return <g className={"map-tiles-" + id}>{out}</g>;
 }
-const BaseSeg = ({ bm, set, label }: { bm: string; set: (v: string) => void; label: Record<"s" | "t" | "r", string> }) => (
-  <div className="seg" role="group">{(["s", "t", "r"] as const).map((k) => <button type="button" key={k} aria-pressed={bm === k} onClick={() => set(k)}>{label[k]}</button>)}</div>
+/** `noPlain`: phones offer only the tiled maps (the plain one shows no geography). */
+const BaseSeg = ({ bm, set, label, noPlain }: { bm: string; set: (v: string) => void; label: Record<"s" | "t" | "r", string>; noPlain?: boolean }) => (
+  <div className="seg" role="group">{(noPlain ? (["t", "r"] as const) : (["s", "t", "r"] as const)).map((k) => <button type="button" key={k} aria-pressed={bm === k} onClick={() => set(k)}>{label[k]}</button>)}</div>
 );
 /** Shows/hides the filter rail (kept per map for the session). */
 const RailBtn = ({ on, set, label }: { on: boolean; set: (v: boolean) => void; label: string }) => (
@@ -269,6 +289,7 @@ export function MapsCompare({ dir0, sec0, onReady, an }: { dir0?: string; sec0?:
   // phones (≤600px): design v2 (docs/maps-mobile-spec.md) — one question per mode, a tall map with a time bar on it,
   // filters in a bottom sheet, numbered marks instead of labels, a real full screen
   const narrow = useNarrow();
+  useEffect(() => { if (narrow && bm === "s") setBm("t"); }, [narrow]); // eslint-disable-line react-hooks/exhaustive-deps
   // the open section under the map. On the latest issue's plain /maps (or a /maps/<section> page) it is the URL: a switch
   // pushes /maps/<section> (Next keeps its router in step, analytics count a page view; the map stays as it is) and Back
   // closes it; on a dated or direction page the URL can't say it, so it stays in state
@@ -302,9 +323,7 @@ export function MapsCompare({ dir0, sec0, onReady, an }: { dir0?: string; sec0?:
   const [pair, setPair] = useSticky("mapPair", "dg_ds");
   const [ev, setEv] = useSticky("mapEv", false);
   const [dse, setDse] = useSticky("mapDsE", true); // DeepState advances + when russia claimed them
-  // phones start on the plain vector map: no tiles from the (slow, third-party) terrain server on first load; terrain
-  // and satellite stay in Filters (this component only renders in the browser, so matchMedia is there)
-  const [bm, setBm] = useSticky("mapBase", matchMedia("(max-width:600px)").matches ? "s" : "t");
+  const [bm, setBm] = useSticky("mapBase", "t");
   const [per, setPer] = useSticky("mapPer", 7);
   const [vf, setVf] = useSticky("mapVf", ALL_V);
   const [ref, setRef] = useSticky<"ds" | "isw">("mapRef", "ds");
@@ -374,11 +393,13 @@ export function MapsCompare({ dir0, sec0, onReady, an }: { dir0?: string; sec0?:
   const W = Math.max(300, w || 800);
   const winCap = W > 600 && typeof window !== "undefined" ? Math.max(420, window.innerHeight - 320) : 640;
   const H = fs ? Math.max(340, narrow ? vh : vh - 96) : narrow ? phoneH : Math.round(Math.min(640, winCap, Math.max(340, W * 0.66)));
-  const z = useZoom("mapZ", !!M, [1, 40], [[-W * 0.2, -H * 0.2], [W * 1.2, H * 1.2]], () => touch2.current);
+  const z = useZoom("mapZ", !!M, [1, 40], [[-W * 0.2, -H * 0.2], [W * 1.2, H * 1.2]], () => touch2.current, wrapRef);
   const geo = useMapGeo(M, W, H);
   // the vector layers don't change with the zoom: built once per data/size/view, so a zoom re-render skips them
-  const chgD = useMemo(() => ({ now: geo && M?.layers.ds_occ ? geo.d(M.layers.ds_occ) : "", old: geo && OM?.layers.ds_occ ? geo.d(OM.layers.ds_occ) : "", ua: geo && M ? geo.d(M.base.find((bb) => bb.ua)?.c) : "" }), [geo, M, OM]);
-  const layersEl = useMemo(() => (M && geo ? <Layers M={M} geo={geo} mode={mode} pair={pair} plain={bm === "s"} /> : null), [M, geo, mode, pair, bm]);
+  const lod = 2 ** Math.floor(Math.log2(Math.max(1, z.t.k)));
+  const geoL = useMemo(() => (geo ? lodGeo(geo, lod) : null), [geo, lod]);
+  const chgD = useMemo(() => ({ now: geoL && M?.layers.ds_occ ? geoL.d(M.layers.ds_occ) : "", old: geoL && OM?.layers.ds_occ ? geoL.d(OM.layers.ds_occ) : "", ua: geoL && M ? geoL.d(M.base.find((bb) => bb.ua)?.c) : "" }), [geoL, M, OM]);
+  const layersEl = useMemo(() => (M && geoL ? <Layers M={M} geo={geoL} mode={mode} pair={pair} plain={bm === "s"} /> : null), [M, geoL, mode, pair, bm]);
   const F = (n: number) => fmt(Math.round(n), lang);
   const km1 = (n: number) => fmt(Math.round(n * 10) / 10, lang);
   const sk = { ds: "deepstate", isw: "isw", dg: "divgen" } as const;
@@ -844,7 +865,7 @@ export function MapsCompare({ dir0, sec0, onReady, an }: { dir0?: string; sec0?:
           </fieldset>}
           {narrow && <fieldset>
             <legend>{t.mBaseH}</legend>
-            <BaseSeg bm={bm} set={setBm} label={t.mBase} />
+            <BaseSeg bm={bm} set={setBm} label={t.mBase} noPlain />
           </fieldset>}
           <div className="mp-rail-done">
             {narrow && <button type="button" className="mp-rail-copy" aria-label={t.mpCopy} title={t.mpCopy} onClick={copyLink}>{copied ? "✓" : <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M7 9a3 3 0 0 0 4.2 0l2.3-2.3a3 3 0 0 0-4.2-4.2L8.5 3.3" /><path d="M9 7a3 3 0 0 0-4.2 0L2.5 9.3a3 3 0 0 0 4.2 4.2l.8-.8" /></svg>}</button>}
@@ -870,11 +891,10 @@ export function MapsCompare({ dir0, sec0, onReady, an }: { dir0?: string; sec0?:
           <div className={"map-wrap" + (selOn || dsSel ? " has-card" : "")} ref={wrapRef}>
             {err ? <p className="map-src" style={{ padding: 16 }}>{t.mErr}</p> : !M || !geo ? <p className="map-src" style={{ padding: 16 }}>{t.mLoading}</p> : <>
               <svg className={"map-svg bm-" + bm} viewBox={`0 0 ${W} ${H}`} tabIndex={0} role="img" aria-label={t.map} ref={z.svgRef} onKeyDown={onKey} onClick={mapClick}>
-                <g ref={z.liveRef}>
                 {BASEMAPS[bm] && <Tiles256 id={bm} proj={geo.proj} t={z.t} W={W} H={H} />}
                 <g transform={z.t.toString()}>
                   {layersEl}
-                  {fade && <g key={fade.n} className="mp-fade"><Layers M={fade.M} geo={geo} mode={mode} pair={pair} plain={false} /></g>}
+                  {fade && geoL && <g key={fade.n} className="mp-fade"><Layers M={fade.M} geo={geoL} mode={mode} pair={pair} plain={false} /></g>}
                   {sect && !tour && cells && M.layers.ds_occ && (!narrow || dir) && <>
                     <mask id="mp-band" maskUnits="userSpaceOnUse" x={-W} y={-H} width={W * 3} height={H * 3}>
                       <path d={chgD.now} fill="none" stroke="#fff" strokeWidth={26} strokeLinejoin="round" />
@@ -885,7 +905,7 @@ export function MapsCompare({ dir0, sec0, onReady, an }: { dir0?: string; sec0?:
                       dVis(DIRS[i].id) && (!narrow || DIRS[i].id === dir) && <path key={DIRS[i].id} d={c} className={dir === DIRS[i].id ? "on" : undefined} style={{ fill: dcol(DIRS[i]), stroke: dcol(DIRS[i]), fillOpacity: !dir ? 0.32 : dir === DIRS[i].id ? 0.6 : 0.14 }} />
                     ))}</g>
                   </>}
-                  {OM?.layers.ds_occ && M.layers.ds_occ && !tour && !cmpN && <>
+                  {OM?.layers.ds_occ && M.layers.ds_occ && !tour && !cmpN && (!narrow || k >= 4) && <>
                     {/* gained = today's area minus the old one, lost = the old minus today's, both as SVG masks; the cut-out
                         gets a hairline stroke so the shared edges leave no seam */}
                     {([["mp-gain", OM], ["mp-loss", M]] as const).map(([id, cut]) => (
@@ -1006,7 +1026,6 @@ export function MapsCompare({ dir0, sec0, onReady, an }: { dir0?: string; sec0?:
                       <path d="M-30,0H-21M21,0H30M0,-30V-21M0,21V30" stroke="var(--accent)" strokeWidth={2.5} />
                     </g>
                   ); })()}
-                </g>
                 </g>
               </svg>
               {narrow ? <div className="map-zoom">

@@ -186,9 +186,9 @@
     "semantic_hash": ""
   },
   "components/dash/Dashboard.tsx": {
-    "mtime": 1794494250.9599817,
-    "seen": 1794494558.076546,
-    "ast_hash": "4f9e48bc24e5205bf9f80ab10ec12467",
+    "mtime": 1794589752.4820979,
+    "seen": 1794593994.538105,
+    "ast_hash": "5cf135709fe6ceec65097a0082fe043c",
     "semantic_hash": ""
   },
   "components/dash/LineChart.tsx": {
@@ -204,9 +204,9 @@
     "semantic_hash": ""
   },
   "components/dash/Maps.tsx": {
-    "mtime": 1794589279.099254,
-    "seen": 1794589376.921037,
-    "ast_hash": "427b15d0503aa2948ff76f6ebf2fe1cc",
+    "mtime": 1794593946.8809667,
+    "seen": 1794593994.5381398,
+    "ast_hash": "fced0d1c23f7636974f5d8e023a55298",
     "semantic_hash": ""
   },
   "components/dash/Panels.tsx": {
@@ -306,9 +306,9 @@
     "semantic_hash": ""
   },
   "lib/ui.ts": {
-    "mtime": 1794584035.0315304,
-    "seen": 1794589376.921441,
-    "ast_hash": "56c8834593493575b4d738f8b2092d2b",
+    "mtime": 1794593946.882035,
+    "seen": 1794593994.538591,
+    "ast_hash": "35a0a9d9dec8723f4e49403276584e14",
     "semantic_hash": ""
   },
   "proxy.ts": {
@@ -348,9 +348,9 @@
     "semantic_hash": ""
   },
   "CLAUDE.md": {
-    "mtime": 1794589372.3183234,
-    "seen": 1794589376.921702,
-    "ast_hash": "e7a9b9b6f731a8853004ef3245c968a1",
+    "mtime": 1794593989.7230828,
+    "seen": 1794593994.5388532,
+    "ast_hash": "94bc67d3057a6a179e3e5113b675bedf",
     "semantic_hash": ""
   },
   "app/apple-icon.png": {
@@ -930,9 +930,9 @@
     "semantic_hash": ""
   },
   "components/dash/mapParts.tsx": {
-    "mtime": 1794584035.0200942,
-    "seen": 1794589376.921206,
-    "ast_hash": "72dd78f94347ddb3b1c4f021ace5752d",
+    "mtime": 1794592948.4249527,
+    "seen": 1794593994.5383549,
+    "ast_hash": "94ca0a3e8053f0b7242fb6202f8f67ef",
     "semantic_hash": ""
   },
   "components/dash/strikeParts.tsx": {
