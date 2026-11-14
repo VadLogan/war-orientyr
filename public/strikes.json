@@ -12110,9 +12110,12 @@
   {
    "territory": "russia",
    "approx": true,
-   "confirmed": null,
+   "confirmed": {
+    "by": "Генштаб ЗСУ",
+    "when": "13.11.2026 (до 15:28)"
+   },
    "local": "partial",
-   "issue": "2026-11-13",
+   "issue": "2026-11-14",
    "date": "2026-11-13",
    "night": "12–13.11",
    "id": "volgograd-1313",
@@ -12121,27 +12124,30 @@
    "kind": "oil",
    "lat": 48.708,
    "lng": 44.514,
-   "result": "за моніторинговими каналами й очевидцями — вогонь і вибухи на заводі; губернатор Андрій Бочаров: масована атака на місто, пожежі в південній промзоні, НПЗ не названо; українського підтвердження немає; масштаб пошкоджень невідомий",
-   "url": "https://kyivindependent.com/volgograd-oil-refinery-rostov-on-don-production-facility-in-flames-following-ukrainian-drone-attack/",
-   "item": "volgograd-1313"
+   "result": "Генштаб ЗСУ: уражено установки первинної переробки АВТ-1, АВТ-3, АВТ-5 і АВТ-6, установку гідроочищення, зливо-наливну естакаду й шість резервуарів по 2 000 м³, виникла пожежа; губернатор Андрій Бочаров: уламки дронів спричинили локальні пожежі в південній промзоні, четверо працівників загинули, двох госпіталізовано, НПЗ не названо; незалежних супутникових знімків немає",
+   "url": "https://censor.net/ua/news/4033588/genshtab-pidtverdyv-urajennya-npz-u-volgogradi-spalahnula-pojeja",
+   "item": "volgograd-npz-1311"
   },
   {
    "territory": "russia",
    "approx": true,
-   "confirmed": null,
+   "confirmed": {
+    "by": "Генштаб ЗСУ",
+    "when": "13.11.2026 (до 18:01)"
+   },
    "local": "partial",
-   "issue": "2026-11-13",
+   "issue": "2026-11-14",
    "date": "2026-11-13",
    "night": "12–13.11",
    "id": "rostov-1313",
-   "object": "виробничий об’єкт і склад (не названі)",
+   "object": "ТОВ «Іонос» (виробництво й склад ударних дронів), сервісний центр ТОВ «Аеро-Хіт»",
    "place": "Ростов-на-Дону",
-   "kind": "industry",
+   "kind": "defence-industry",
    "lat": 47.222,
    "lng": 39.72,
-   "result": "губернатор Юрій Слюсар: українська атака, пожежі на виробничому об’єкті та складі, уламки пошкодили житловий будинок; об’єкти не названо; українського підтвердження немає",
-   "url": "https://kyivindependent.com/volgograd-oil-refinery-rostov-on-don-production-facility-in-flames-following-ukrainian-drone-attack/",
-   "item": "rostov-1313"
+   "result": "Генштаб ЗСУ: ракетами «Нептун» уражено виробництво тактичних ударних дронів ТОВ «Іонос» та його склад, а також сервісний центр ТОВ «Аеро-Хіт», де ремонтують дрони для фронту; кількість знищених дронів не названо; губернатор Юрій Слюсар: один поранений, пошкоджено п’ять багатоквартирних будинків, об’єкти не названо",
+   "url": "https://www.slovoidilo.ua/2026/11/13/novyna/bezpeka/zsu-urazyly-raketamy-neptun-zavod-sklad-vorozhyx-droniv-rostovi-na-donu",
+   "item": "rostov-bpla-1311"
   },
   {
    "territory": "russia",
