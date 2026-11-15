@@ -1337,13 +1337,13 @@ dialog.ps::backdrop{background:rgba(21,27,31,.45)}
 .mpx .mp-sub{margin:6px 0 0;font-family:var(--ui);font-size:15px;line-height:1.4;color:var(--muted)}
 .mpx .mp-sub b{color:var(--ink)}
 .mpx .mp-kpi{flex:1 1 480px;margin:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-left:1px solid var(--rule)}
-.mpx .mp-kpi>div{padding:0 16px;border-right:1px solid var(--rule)}.mpx .mp-kpi>div:last-child{border-right:0}
+.mpx .mp-kpi>div{padding:0 16px;border-right:1px solid var(--rule);display:flex;flex-direction:column}.mpx .mp-kpi>div:last-child{border-right:0}
 .mpx .mp-kpi dt{font-family:var(--ui);font-size:12.5px;line-height:1.25;color:var(--muted)}
-.mpx .mp-kpi dd{margin:4px 0 0;font-family:var(--mono);font-size:24px;font-weight:500;font-variant-numeric:tabular-nums}
+.mpx .mp-kpi dd{margin:auto 0 0;padding-top:4px;line-height:1.1;font-family:var(--mono);font-size:24px;font-weight:500;font-variant-numeric:tabular-nums}
 .mpx .mp-kpi dd.ru{color:var(--m-occ)}
 @media(min-width:601px){.mpx .mp-sub{display:none}}
 @media(max-width:600px){.mpx .mp-kpi{display:none}.mpx .mp-top h1{font-size:23px}}
-.mpx .mp-bar-top{align-items:center}
+.mpx .mp-bar-top{align-items:center}.mpx .mp-copy{align-self:center}
 .mpx .mp-prs button{font-weight:600}
 .mpx .mp-row{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start}
 .mpx .mp-row>.map-wrap{flex:999 1 560px}
