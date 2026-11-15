@@ -1,7 +1,7 @@
 // Pieces of the source-comparison map shared by the client map (Maps.tsx) and the server-rendered dashboard card
 // (MapsCard.tsx): projection helpers, layers, claim marks, tiles and the verdict bar. No hooks, no "use client".
 import type { ReactNode } from "react";
-import { geoMercator, geoPath, zoomIdentity, type GeoPermissibleObjects, type GeoProjection } from "d3";
+import { geoClipRectangle, geoMercator, geoPath, zoomIdentity, type GeoPermissibleObjects, type GeoProjection } from "d3";
 import type { UIStrings } from "@/lib/ui";
 import { dayN } from "@/lib/text";
 import { kmBetween } from "@/lib/strikes";
@@ -132,9 +132,9 @@ export function makeGeo(M: MapsData, W: number, H: number): Geo {
 /** The same projection, drawing with less detail for zoom bucket `b` (a power of 2 at or under the zoom): vertices
  *  closer than ~0.6 px (×1–2 within the bucket) to the last kept one are dropped from every ring — at the whole front
  *  the occupied area has ~4× fewer points to paint, and full detail returns as the zoom grows. */
-export function lodGeo(geo: Geo, b: number): Geo {
-  const eps = 0.6 / b;
-  const path = geoPath({ stream: (s: GeoStream) => geo.proj.stream(thin(s, eps)) } as unknown as GeoProjection);
+export function lodGeo(geo: Geo, b: number, clip?: [number, number, number, number] | null): Geo {
+  const eps = 0.6 / b, cl = clip ? geoClipRectangle(...clip) : null;
+  const path = geoPath({ stream: (s: GeoStream) => geo.proj.stream(thin(cl ? (cl(s as never) as unknown as GeoStream) : s, eps)) } as unknown as GeoProjection);
   return { proj: geo.proj, d: (c?: Rings) => (c && c.length ? path(mp(c)) || "" : "") };
 }
 type GeoStream = { point(x: number, y: number): void; lineStart(): void; lineEnd(): void; polygonStart(): void; polygonEnd(): void; sphere?(): void };

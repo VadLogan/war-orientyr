@@ -1,6 +1,6 @@
 "use client";
-import { Fragment, useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
-import { Delaunay, geoMercator, geoPath, select, zoom, zoomIdentity, type GeoPermissibleObjects, type GeoProjection, type ZoomBehavior, type ZoomTransform } from "d3";
+import { Fragment, startTransition, useEffect, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
+import { Delaunay, geoMercator, geoPath, pointer, select, zoom, zoomIdentity, type GeoPermissibleObjects, type GeoProjection, type ZoomBehavior, type ZoomTransform } from "d3";
 import type { UIStrings } from "@/lib/ui";
 import { dayN, dirCol, dirOrder, fmt, houseStyle as hsBase, nDay, shortD, TL } from "@/lib/text";
 import { distLabel, kmBetween, stkDist, type Strike, type StrikesBase, type StrikesData } from "@/lib/strikes";
@@ -35,7 +35,7 @@ function useZoom(key: string, ready: boolean, ext: [number, number], tExt: [[num
   const [touchHint, setTouchHint] = useState(false);
   const t2 = useRef(touch2);
   t2.current = touch2;
-  const committed = useRef(t), latest = useRef(t), raf = useRef(0), lastC = useRef(0);
+  const committed = useRef(t), latest = useRef(t), raf = useRef(0), lastC = useRef(0), wheeling = useRef(false);
   const applyLive = () => {
     raf.current = 0;
     const el = box?.current ? svgRef.current : null, c = committed.current, l = latest.current;
@@ -45,7 +45,10 @@ function useZoom(key: string, ready: boolean, ext: [number, number], tExt: [[num
     el.style.transformOrigin = "0 0"; el.style.willChange = "transform";
     el.style.transform = `translate3d(${l.x - c.x * r}px,${l.y - c.y * r}px,0) scale(${r})`;
   };
-  useLayoutEffect(() => { committed.current = t; latest.current = t; applyLive(); }, [t]);
+  // a gesture may have moved on while React rendered `t`: keep the element's own transform as the latest
+  useLayoutEffect(() => { committed.current = t; latest.current = (box?.current && (target() as (Element & { __zoom?: ZoomTransform }) | null)?.__zoom) || t; applyLive(); }, [t]);
+  // live commits render in a transition, so a running gesture keeps its frames while the map redraws
+  const commit = (tr: ZoomTransform) => { lastC.current = performance.now(); startTransition(() => setT(tr)); };
   const tx = JSON.stringify(tExt);
   const target = () => (box?.current ?? svgRef.current) as Element | null;
   useEffect(() => {
@@ -54,20 +57,52 @@ function useZoom(key: string, ready: boolean, ext: [number, number], tExt: [[num
     const live = el !== svg;
     // the wheel zooms only with Ctrl/⌘ (a trackpad pinch sends Ctrl) or in full screen, so the page scrolls past the map
     const free = (e: WheelEvent) => e.ctrlKey || e.metaKey || !!svg.closest(".mp-grid.fs");
-    const onControl = (e: Event) => live && !!(e.target as Element | null)?.closest?.("button, select, a, label, input, .mp-ov, .mp-tbar, .map-zoom, .mp-wkl");
+    const onControl = (e: Event) => live && !!(e.target as Element | null)?.closest?.("button, select, a, label, input, .mp-ov, .mp-sel, .mp-tbar, .map-zoom, .mp-wkl");
     const z = zoom<Element, unknown>().scaleExtent(ext).translateExtent(tExt)
       .on("zoom", (ev) => {
         if (!live) return setT(ev.transform);
         latest.current = ev.transform;
         if (!raf.current) raf.current = requestAnimationFrame(applyLive);
-        if (!ev.sourceEvent && performance.now() - lastC.current > 200) { lastC.current = performance.now(); setT(ev.transform); }
+        const since = performance.now() - lastC.current;
+        // zooming out shrinks the painted map and leaves the box empty around it: redraw once it covers < ~70%
+        if (ev.transform.k < committed.current.k * 0.7 && since > 150) commit(ev.transform);
+        else if (!ev.sourceEvent && !wheeling.current && since > 200) commit(ev.transform);
       })
-      .on("end", (ev) => { if (live) setT(ev.transform); })
-      .filter((e) => !onControl(e) && (e.type === "wheel" ? free(e) : e.type === "touchstart" && t2.current?.() ? (e as TouchEvent).touches.length > 1 : !e.ctrlKey && !e.button))
-      // ponytail: a pinch sends small Ctrl deltas, a Ctrl+mouse-wheel notch ~100: only the pinch gets d3's ×10
-      .wheelDelta((e) => -e.deltaY * (e.deltaMode === 1 ? 0.05 : e.deltaMode ? 1 : 0.002) * (e.ctrlKey && Math.abs(e.deltaY) < 50 ? 10 : 1));
+      .on("end", (ev) => { if (live && !wheeling.current) commit(ev.transform); })
+      // the wheel is ours (onZoomWheel below): d3 would jump a whole step per event
+      .filter((e) => !onControl(e) && e.type !== "wheel" && (e.type === "touchstart" && t2.current?.() ? (e as TouchEvent).touches.length > 1 : !e.ctrlKey && !e.button));
     zb.current = z;
-    select(el).call(z).call(z.transform, t);
+    select(el).call(z).on("wheel.zoom", null).call(z.transform, t);
+    // Smooth wheel / trackpad zoom: every event adds its delta (in log2 of the scale) to a goal the map eases toward each
+    // frame, so a flick zooms further and faster than a nudge and a mouse-wheel notch glides instead of jumping. React
+    // gets the transform once the glide ends. ponytail: a pinch sends small Ctrl deltas (×10, as d3), a Ctrl+wheel notch
+    // ~100 px; one event is capped at ×2 so a high-resolution wheel can't fling the map.
+    let goal = 0, wp: [number, number] = [0, 0], wraf = 0;
+    const cur = () => (el as Element & { __zoom: ZoomTransform }).__zoom;
+    const glide = () => {
+      const r = goal / cur().k;
+      if (Math.abs(Math.log(r)) < 0.003) {
+        select(el).call(z.scaleTo, goal, wp);
+        wraf = 0; goal = 0; wheeling.current = false;
+        if (live) commit(cur()); else setT(cur());
+        return;
+      }
+      select(el).call(z.scaleBy, r ** 0.35, wp);
+      wraf = requestAnimationFrame(glide);
+    };
+    const onZoomWheel = (ev: Event) => {
+      const e = ev as WheelEvent;
+      if (!free(e) || onControl(e)) return;
+      e.preventDefault();
+      const px = e.deltaY * (e.deltaMode === 1 ? 33 : e.deltaMode ? 800 : 1) * (e.ctrlKey && Math.abs(e.deltaY) < 50 ? 10 : 1);
+      const d = Math.max(-1, Math.min(1, -px * 0.003));
+      goal = Math.max(ext[0], Math.min(ext[1], (goal || cur().k) * 2 ** d));
+      wp = pointer(e, el);
+      select(el).interrupt();
+      wheeling.current = true;
+      if (!wraf) wraf = requestAnimationFrame(glide);
+    };
+    el.addEventListener("wheel", onZoomWheel, { passive: false });
     let tm = 0;
     const onWheel = (e: Event) => { if (free(e as WheelEvent) || onControl(e)) return; setHint(true); clearTimeout(tm); tm = window.setTimeout(() => setHint(false), 1400); };
     el.addEventListener("wheel", onWheel, { passive: true });
@@ -82,7 +117,8 @@ function useZoom(key: string, ready: boolean, ext: [number, number], tExt: [[num
     };
     el.addEventListener("touchstart", onTs, { passive: true }); el.addEventListener("touchmove", onTm, { passive: true });
     return () => {
-      select(el).on(".zoom", null); el.removeEventListener("wheel", onWheel); el.removeEventListener("touchstart", onTs); el.removeEventListener("touchmove", onTm);
+      select(el).on(".zoom", null); el.removeEventListener("wheel", onWheel); el.removeEventListener("wheel", onZoomWheel);
+      cancelAnimationFrame(wraf); wheeling.current = false; el.removeEventListener("touchstart", onTs); el.removeEventListener("touchmove", onTm);
       clearTimeout(tm); cancelAnimationFrame(raf.current); raf.current = 0;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -393,13 +429,32 @@ export function MapsCompare({ dir0, sec0, onReady, an }: { dir0?: string; sec0?:
   const W = Math.max(300, w || 800);
   const winCap = W > 600 && typeof window !== "undefined" ? Math.max(420, window.innerHeight - 320) : 640;
   const H = fs ? Math.max(340, narrow ? vh : vh - 96) : narrow ? phoneH : Math.round(Math.min(640, winCap, Math.max(340, W * 0.66)));
-  const z = useZoom("mapZ", !!M, [1, 40], [[-W * 0.2, -H * 0.2], [W * 1.2, H * 1.2]], () => touch2.current, wrapRef);
+  const z = useZoom("mapZ", !!M, [1, 2560], [[-W * 0.2, -H * 0.2], [W * 1.2, H * 1.2]], () => touch2.current, wrapRef);
   const geo = useMapGeo(M, W, H);
-  // the vector layers don't change with the zoom: built once per data/size/view, so a zoom re-render skips them
-  const lod = 2 ** Math.floor(Math.log2(Math.max(1, z.t.k)));
-  const geoL = useMemo(() => (geo ? lodGeo(geo, lod) : null), [geo, lod]);
-  const chgD = useMemo(() => ({ now: geoL && M?.layers.ds_occ ? geoL.d(M.layers.ds_occ) : "", old: geoL && OM?.layers.ds_occ ? geoL.d(OM.layers.ds_occ) : "", ua: geoL && M ? geoL.d(M.base.find((bb) => bb.ua)?.c) : "" }), [geoL, M, OM]);
-  const layersEl = useMemo(() => (M && geoL ? <Layers M={M} geo={geoL} mode={mode} pair={pair} plain={bm === "s"} /> : null), [M, geoL, mode, pair, bm]);
+  // the vector layers don't change with the zoom: built once per data/size/view and zoom bucket and kept per bucket, so
+  // a zoom re-render (also the ones while zooming out) reuses them. Past ×256 the detail is the data's own (~3 m).
+  const zb2 = 2 ** Math.floor(Math.log2(Math.max(1, z.t.k))), lod = Math.min(256, zb2);
+  // From ×16 the paths are clipped to the view's neighbourhood (a grid cell of a view at this zoom bucket ±1.5 cells):
+  // a dashed outline of the whole front at ×1000 is millions of dashes and stalls every repaint (~200 ms a frame).
+  let clip: [number, number, number, number] | null = null;
+  if (zb2 >= 16) {
+    const cw = W / zb2, ch = H / zb2, gx = Math.floor((W / 2 - z.t.x) / z.t.k / cw) * cw, gy = Math.floor((H / 2 - z.t.y) / z.t.k / ch) * ch;
+    clip = [gx - 1.5 * cw, gy - 1.5 * ch, gx + 2.5 * cw, gy + 2.5 * ch];
+  }
+  const lodK = clip ? `${zb2}:${clip[0]}:${clip[1]}` : String(lod);
+  const lodC = useMemo(() => new Map<string, { geoL: Geo; chgD: { now: string; old: string; ua: string }; layersEl: ReactNode }>(), [geo, M, OM, mode, pair, bm]);
+  let lodE = geo ? lodC.get(lodK) : undefined;
+  if (geo && !lodE) {
+    if (lodC.size > 40) lodC.clear(); // panning at a deep zoom keeps adding cells
+    const g = lodGeo(geo, lod, clip);
+    lodE = {
+      geoL: g,
+      chgD: { now: M?.layers.ds_occ ? g.d(M.layers.ds_occ) : "", old: OM?.layers.ds_occ ? g.d(OM.layers.ds_occ) : "", ua: M ? g.d(M.base.find((bb) => bb.ua)?.c) : "" },
+      layersEl: M ? <Layers M={M} geo={g} mode={mode} pair={pair} plain={bm === "s"} /> : null,
+    };
+    lodC.set(lodK, lodE);
+  }
+  const geoL = lodE?.geoL ?? null, chgD = lodE?.chgD ?? { now: "", old: "", ua: "" }, layersEl = lodE?.layersEl ?? null;
   const F = (n: number) => fmt(Math.round(n), lang);
   const km1 = (n: number) => fmt(Math.round(n * 10) / 10, lang);
   const sk = { ds: "deepstate", isw: "isw", dg: "divgen" } as const;
@@ -1326,7 +1381,7 @@ export function StrikesMap({ onReady, an }: { onReady?: () => void; an?: Analyti
   const [rail, setRail] = useSticky("stkRail", true);
   const [flOpen, setFlOpen] = useSticky("stkFlOpen", true); // strikes panel on the full-screen map
   const W = Math.max(300, w || 800), H = fs ? Math.max(340, vh - 96) : Math.round(Math.min(620, Math.max(340, W * 0.7)));
-  const z = useZoom("stkPageZ", !!S, [0.4, 12], [[-W * 1.5, -H * 0.8], [W * 2.5, H * 1.6]]);
+  const z = useZoom("stkPageZ", !!S, [0.4, 12], [[-W * 1.5, -H * 0.8], [W * 2.5, H * 1.6]], undefined, wrapRef);
 
   const end = dayN(D.date);
   const all = S ? (S.stk.items || []).filter((x) => x.lat != null && dayN(x.date) <= end) : [];
@@ -1598,7 +1653,7 @@ export function TargetsMap({ onReady }: { onReady?: () => void }) {
   const w = useElWidth(wrapRef, ready);
   const { fs, setFs, vh } = useFullscreen();
   const W = Math.max(300, w || 800), H = fs ? Math.max(340, vh - 96) : Math.round(Math.min(620, Math.max(340, W * 0.7)));
-  const z = useZoom("tgPageZ", ready, [0.4, 12], [[-W * 1.5, -H * 0.8], [W * 2.5, H * 1.6]]);
+  const z = useZoom("tgPageZ", ready, [0.4, 12], [[-W * 1.5, -H * 0.8], [W * 2.5, H * 1.6]], undefined, wrapRef);
   const strikes = (sd.data?.items || []).filter((x) => x.lat != null);
   const hits = (x: Target) => strikes.filter((s) => TG_MATCH[x.cat].includes(grpOf(s)) && kmBetween(s, x) <= 10).sort(byDate);
   const kmTxt = (n: number) => fmt(n, lang) + " " + t.km;
