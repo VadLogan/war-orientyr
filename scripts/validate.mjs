@@ -18,6 +18,14 @@ if (noId.length || noMap.length) {
     + [...noMap, ...noId.map((i) => "(no id) " + i.text.slice(0, 80))].join("\n  "));
   process.exit(1);
 }
+// The front block must describe the same day as the issue's own timeline entry (a sync once left it on 18.10 for days).
+const tl = (d.timeline || []).find((t) => t.date === d.date);
+if (tl && d.front) {
+  const bad = [];
+  if (tl.clashes != null && d.front.clashesTotal !== tl.clashes) bad.push(`clashesTotal ${d.front.clashesTotal} ≠ timeline ${tl.clashes}`);
+  for (const g of d.front.directions || []) if (tl.directions && g.name in tl.directions && tl.directions[g.name] !== g.attacks) bad.push(`${g.name} ${g.attacks} ≠ timeline ${tl.directions[g.name]}`);
+  if (bad.length) { console.error(`front block is stale (period: ${d.front.period}) — set it from timeline ${d.date}:\n  ` + bad.join("\n  ")); process.exit(1); }
+}
 // articles/<YYYY-MM-DD>/<name>/: preview.uk.json required (title); a full article (article.uk.json, body[]) or a preview url
 const ART = new URL("../public/articles/", import.meta.url);
 // An article h2 that repeats a digest section title (uk, or its English/German/French in i18n/en.json, de.json, fr.json) must carry that section's id

@@ -12166,6 +12166,90 @@
    "result": "мер Сергій Собянін: понад 100 дронів збито між 21:34 і 02:08; обмеження в аеропортах Шереметьєво, Домодєдово, Жуковський; даних про шкоду немає; українського підтвердження немає",
    "url": "https://kyivindependent.com/mass-drone-attack-on-moscow-grounds-flights-at-regions-airports/",
    "item": "moscow-1313"
+  },
+  {
+   "territory": "russia",
+   "approx": true,
+   "confirmed": {
+    "by": "Генштаб ЗСУ",
+    "when": "15.11, до 12:49 за Києвом (публікація LB.ua)"
+   },
+   "local": "silent",
+   "issue": "2026-11-16",
+   "date": "2026-11-15",
+   "night": "14–15.11",
+   "id": "nizhnekamskneftekhim-1511",
+   "object": "ПАТ «Нижньокамськнафтохім» (нафтохімічний комплекс «Сибуру»)",
+   "place": "Нижньокамськ, Татарстан",
+   "kind": "oil",
+   "lat": 55.64,
+   "lng": 51.82,
+   "result": "Генштаб ЗСУ: ураження нафтохімічного комплексу, після серії вибухів — пожежа, масштаб пошкоджень уточнюється; очевидці пишуть про кілька великих пожеж; місцева влада мовчить; незалежних знімків немає",
+   "url": "https://fakty.com.ua/ua/ukraine/20261115-syly-oborony-urazyly-try-zavody-vpk-rf-nyzhnekamskneftehym-taif-nk-i-monolit/",
+   "item": "nizhnekamskneftekhim-1511"
+  },
+  {
+   "territory": "russia",
+   "approx": true,
+   "confirmed": {
+    "by": "Генштаб ЗСУ",
+    "when": "15.11, до 12:49 за Києвом (публікація LB.ua)"
+   },
+   "local": "silent",
+   "issue": "2026-11-16",
+   "date": "2026-11-15",
+   "night": "14–15.11",
+   "id": "taif-nk-1511",
+   "object": "НПЗ ТАІФ-НК, установка первинної переробки ЕЛОУ-АВТ-7",
+   "place": "Нижньокамськ, Татарстан",
+   "kind": "oil",
+   "lat": 55.64,
+   "lng": 51.82,
+   "result": "Генштаб ЗСУ: уражено установку ЕЛОУ-АВТ-7, на території пожежа, масштаб пошкоджень уточнюється; місцева влада мовчить",
+   "url": "https://fakty.com.ua/ua/ukraine/20261115-syly-oborony-urazyly-try-zavody-vpk-rf-nyzhnekamskneftehym-taif-nk-i-monolit/",
+   "item": "taif-nk-1511"
+  },
+  {
+   "territory": "russia",
+   "approx": true,
+   "confirmed": {
+    "by": "Генштаб ЗСУ",
+    "when": "15.11, до 12:49 за Києвом (публікація LB.ua)"
+   },
+   "local": "silent",
+   "issue": "2026-11-16",
+   "date": "2026-11-15",
+   "night": "14–15.11",
+   "id": "monolit-trubchevsk-1511",
+   "object": "завод «Моноліт» (літаки, гелікоптери, комплектуючі, металообробка)",
+   "place": "Трубчевськ, Брянська область",
+   "kind": "defence-industry",
+   "lat": 52.58,
+   "lng": 33.77,
+   "result": "Генштаб ЗСУ: ураження підприємства; даних про пошкодження чи пожежу немає; брянська влада мовчить",
+   "url": "https://zaxid.net/sili_oboroni_urazili_rosiyskiy_vertolitniy_zavod_na_bryanshhini_ta_npz_v_tatarstani_n1650194",
+   "item": "monolit-trubchevsk-1511"
+  },
+  {
+   "territory": "russia",
+   "approx": true,
+   "confirmed": {
+    "by": "Генштаб ЗСУ",
+    "when": "15.11, оновлення о 14:15 за Києвом (за Zaxid.net)"
+   },
+   "local": "silent",
+   "issue": "2026-11-16",
+   "date": "2026-11-15",
+   "night": "14–15.11",
+   "id": "akhtubinsk-1511",
+   "object": "аеродром Ахтубінськ (929-й льотно-випробувальний центр, Су-34)",
+   "place": "Ахтубінськ, Астраханська область",
+   "kind": "airfield",
+   "lat": 48.28,
+   "lng": 46.18,
+   "result": "Генштаб ЗСУ: уражено аеродром, дрони вразили два об’єкти; за Zaxid.net — вторинна детонація на складі керованих авіаційних ракет і пошкоджений радіовисотомір ПРВ-13 (відео окремо не підтверджене); місцева влада мовчить",
+   "url": "https://zaxid.net/sili_oboroni_urazili_rosiyskiy_vertolitniy_zavod_na_bryanshhini_ta_npz_v_tatarstani_n1650194",
+   "item": "akhtubinsk-1511"
   }
  ],
  "coverage": {
