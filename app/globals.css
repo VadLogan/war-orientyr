@@ -1343,7 +1343,10 @@ dialog.ps::backdrop{background:rgba(21,27,31,.45)}
 .mpx .mp-kpi dd.ru{color:var(--m-occ)}
 @media(min-width:601px){.mpx .mp-sub{display:none}}
 @media(max-width:600px){.mpx .mp-kpi{display:none}.mpx .mp-top h1{font-size:23px}}
-.mpx .mp-bar-top{align-items:center}.mpx .mp-copy{align-self:center}
+.mpx .mp-bar-top{align-items:center;justify-content:flex-start}.mpx .mp-copy{align-self:center;margin-left:0}
+.mpx .mp-bar-top>.mp-base{margin-left:auto}
+@media (min-width:900px){.mpx .mp-grid:not(.fs) .mp-copy{flex:1 0 0;min-width:max-content;max-width:300px;text-align:right}} /* the week list's column: the basemap switch ends where the map does */
+.mpx .mp-pairsel{font:600 13px var(--ui);min-height:32px;padding:0 8px;border:1px solid var(--rule-strong);background:var(--surface);color:var(--ink)}
 .mpx .mp-prs button{font-weight:600}
 .mpx .mp-row{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start}
 .mpx .mp-row>.map-wrap{flex:999 1 560px}

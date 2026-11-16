@@ -297,8 +297,8 @@ function Tiles256({ id, proj, t, W, H }: { id: string; proj: GeoProjection; t: Z
   return <g className={"map-tiles-" + id}>{out}</g>;
 }
 /** `noPlain`: phones offer only the tiled maps (the plain one shows no geography). */
-const BaseSeg = ({ bm, set, label, noPlain }: { bm: string; set: (v: string) => void; label: Record<"s" | "t" | "r", string>; noPlain?: boolean }) => (
-  <div className="seg" role="group">{(noPlain ? (["t", "r"] as const) : (["s", "t", "r"] as const)).map((k) => <button type="button" key={k} aria-pressed={bm === k} onClick={() => set(k)}>{label[k]}</button>)}</div>
+const BaseSeg = ({ bm, set, label, noPlain, end }: { bm: string; set: (v: string) => void; label: Record<"s" | "t" | "r", string>; noPlain?: boolean; end?: boolean }) => (
+  <div className={end ? "seg mp-base" : "seg"} role="group">{(noPlain ? (["t", "r"] as const) : (["s", "t", "r"] as const)).map((k) => <button type="button" key={k} aria-pressed={bm === k} onClick={() => set(k)}>{label[k]}</button>)}</div>
 );
 /** Shows/hides the filter rail (kept per map for the session). */
 const RailBtn = ({ on, set, label }: { on: boolean; set: (v: boolean) => void; label: string }) => (
@@ -431,6 +431,7 @@ export function MapsCompare({ dir0, sec0, onReady, an }: { dir0?: string; sec0?:
   const H = fs ? Math.max(340, narrow ? vh : vh - 96) : narrow ? phoneH : Math.round(Math.min(640, winCap, Math.max(340, W * 0.66)));
   const z = useZoom("mapZ", !!M, [1, 2560], [[-W * 0.2, -H * 0.2], [W * 1.2, H * 1.2]], () => touch2.current, wrapRef);
   const geo = useMapGeo(M, W, H);
+  const keepView = useKeepView(z, geo, W, H, [1, 2560]);
   // the vector layers don't change with the zoom: built once per data/size/view and zoom bucket and kept per bucket, so
   // a zoom re-render (also the ones while zooming out) reuses them. Past ×256 the detail is the data's own (~3 m).
   const zb2 = 2 ** Math.floor(Math.log2(Math.max(1, z.t.k))), lod = Math.min(256, zb2);
@@ -648,14 +649,6 @@ export function MapsCompare({ dir0, sec0, onReady, an }: { dir0?: string; sec0?:
   const dsLine = (e: NonNullable<MapsData["dsEvents"]>[number]) => e.ru ? <>DIVGEN #{e.ru.id}, {dmy(e.ru.d).slice(0, 5)}: {hs(e.ru.t)} <Lag n={e.ru.lag} t={t} /></> : t.dsNoRu;
   const selI = selOn ? shown.indexOf(selOn) : -1; // shown is newest first
   // first open: frame the front instead of the whole country (a zoom kept from earlier in the session stays)
-  // hiding/showing the filter rail resizes the box: re-frame the selected direction or the front
-  const refit = useRef(false);
-  useEffect(() => {
-    if (!refit.current || !M || !geo) return;
-    refit.current = false;
-    if (dir) pickDir(dir); else z.to(fitFront(M, geo, W, H), 0);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [geo]);
   const toggleFs = () => setFs(!fs);
   useWholeOnFs(fs, z);
   // frame the front; again once the size settles (the map is laid out hidden until its data is here, so the first fit
@@ -682,7 +675,7 @@ export function MapsCompare({ dir0, sec0, onReady, an }: { dir0?: string; sec0?:
   const preset = (id: string) => {
     const p = PR.find((x) => x.id === id)!;
     setSel(null); setDsSel(null);
-    setMode(p.mode); if (p.pair) setPair(p.pair); setEv(p.ev); setDse(p.dse); setPer(p.per); setOff(0); setVf(ALL_V); pickDir(null);
+    setMode(p.mode); if (p.pair) setPair(p.pair); setEv(p.ev); setDse(p.dse); setPer(p.per); setOff(0); setVf(ALL_V); setDir(null); // the reader's zoom stays
     if (id === "new" && !chg) setChg(7);
   };
   const wk = dsOnce(M?.dsEvents || [], (e) => dsUpd(e) + e.k).filter((e) => { const n = dayN(e.d); return n > wkEnd - 7 && n <= wkEnd; });
@@ -933,13 +926,14 @@ export function MapsCompare({ dir0, sec0, onReady, an }: { dir0?: string; sec0?:
             <button type="button" role="tab" key={p.id} aria-selected={pr === p.id} onClick={() => preset(p.id)}>{flags(t.pr[p.id as "new"])}</button>
           ))}</div>}
           {!narrow && <div className="mp-bar-top">
+            <RailBtn on={rail} set={(v) => { keepView(); setRail(v); }} label={t.mpFilters} />
             <div className="seg mp-prs" role="group" aria-label={t.prH}>{PRESETS.map((p) => (
               <button type="button" key={p.id} aria-pressed={pr === p.id} onClick={() => preset(p.id)}>{flags(t.pr[p.id as "new"])}</button>
             ))}</div>
-            <RailBtn on={rail} set={(v) => { refit.current = true; setRail(v); }} label={t.mpFilters} />
+            {pr === "cmp" && <select className="mp-pairsel" aria-label={t.mpPair} value={pair} onChange={(e) => setPair(e.target.value)}>{(["dg_ds", "dg_isw", "isw_ds"] as const).map((x) => <option key={x} value={x}>{t.pairs[x]}</option>)}</select>}
             {fs && <div className="map-legend">{legend}</div>}
-            <BaseSeg bm={bm} set={setBm} label={t.mBase} />
             {M && ev && <span className="map-src">{t.mpShown(shown.length, inPer.length)}</span>}
+            <BaseSeg bm={bm} set={setBm} label={t.mBase} end />
             <button type="button" className="linkbtn mp-copy" onClick={copyLink}>{copied ? "✓ " + t.mpCopied : "🔗 " + t.mpCopy}</button>
           </div>}
           <div className="mp-row">
