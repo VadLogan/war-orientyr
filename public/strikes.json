@@ -12412,6 +12412,86 @@
    "issue": "2026-11-19",
    "item": "stanytsia-luhanska-bridge-1718",
    "url": "https://censor.net/ua/news/4034362/zsu-urazyly-mist-na-luganschyni-i-rembazu-na-kurschyni"
+  },
+  {
+   "id": "ufa-refinery-1711",
+   "date": "2026-11-17",
+   "object": "НПЗ «Башнефть-Уфанефтехім»",
+   "place": "Уфа, Башкортостан",
+   "kind": "oil",
+   "territory": "russia",
+   "lat": 54.74,
+   "lng": 55.97,
+   "approx": true,
+   "result": "за СБС — удар дронів по НПЗ (потужність ≈10 млн т нафти на рік); обсяг пошкоджень не оцінено; Генштаб окремо не підтвердив; заяв влади Башкортостану про наслідки не знайдено",
+   "confirmed": {
+    "by": "СБС ЗСУ",
+    "when": "17.11.2026"
+   },
+   "local": "silent",
+   "issue": "2026-11-20",
+   "item": "ufa-refinery-1711",
+   "url": "https://fakty.com.ua/ua/ukraine/20261117-drony-sbs-atakuvaly-v-ufi-odyn-iz-najbilshyh-naftopererobnyh-zavodiv-rosiyi"
+  },
+  {
+   "id": "selydove-uav-1911",
+   "date": "2026-11-19",
+   "object": "Пункт управління БпЛА",
+   "place": "поблизу Селидового, Донецька область",
+   "kind": "military",
+   "territory": "occupied",
+   "lat": 48.15,
+   "lng": 37.3,
+   "approx": true,
+   "result": "19.11 або в ніч проти 20.11; за Генштабом — уражено, подробиць результату немає; окремого пошуку заяв окупаційної влади не було",
+   "confirmed": {
+    "by": "Генштаб ЗСУ",
+    "when": "20.11.2026, 19:45"
+   },
+   "local": "silent",
+   "issue": "2026-11-21",
+   "item": "selydove-uav-1911",
+   "url": "https://fakty.com.ua/ua/ukraine/20261120-pantsyr-s2-punkt-upravlinnya-bpla-ta-sklady-genshtab-pro-novi-udary-po-ob-yektah-rf/"
+  },
+  {
+   "id": "rubizhne-depots-1911",
+   "date": "2026-11-19",
+   "object": "Склади матеріально-технічних засобів",
+   "place": "поблизу Рубіжного та Лисичанська, Луганська область",
+   "kind": "logistics",
+   "territory": "occupied",
+   "lat": 48.9,
+   "lng": 38.44,
+   "approx": true,
+   "result": "19.11 або в ніч проти 20.11; за Генштабом — уражено, подробиць результату немає; окремого пошуку заяв окупаційної влади не було",
+   "confirmed": {
+    "by": "Генштаб ЗСУ",
+    "when": "20.11.2026, 19:45"
+   },
+   "local": "silent",
+   "issue": "2026-11-21",
+   "item": "rubizhne-depots-1911",
+   "url": "https://fakty.com.ua/ua/ukraine/20261120-pantsyr-s2-punkt-upravlinnya-bpla-ta-sklady-genshtab-pro-novi-udary-po-ob-yektah-rf/"
+  },
+  {
+   "id": "berdiansk-concentration-1911",
+   "date": "2026-11-19",
+   "object": "Район зосередження озброєння та військової техніки",
+   "place": "поблизу Бердянська, Запорізька область",
+   "kind": "military",
+   "territory": "occupied",
+   "lat": 46.76,
+   "lng": 36.79,
+   "approx": true,
+   "result": "19.11 або в ніч проти 20.11; за Генштабом — уражено, подробиць результату немає; окремого пошуку заяв окупаційної влади не було",
+   "confirmed": {
+    "by": "Генштаб ЗСУ",
+    "when": "20.11.2026, 19:45"
+   },
+   "local": "silent",
+   "issue": "2026-11-21",
+   "item": "berdiansk-concentration-1911",
+   "url": "https://fakty.com.ua/ua/ukraine/20261120-pantsyr-s2-punkt-upravlinnya-bpla-ta-sklady-genshtab-pro-novi-udary-po-ob-yektah-rf/"
   }
  ],
  "coverage": {
