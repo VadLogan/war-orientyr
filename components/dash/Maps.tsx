@@ -13,6 +13,7 @@ import { LandCostNote, PotentialNote } from "./AnNotes";
 import { DIRS, dirOf, areaTiles, Cities, countV, fitFront, lastDay, Layers, lineChanges, lineDiff, lodGeo, makeGeo, Mark, MarkIco, mp, PAIR_SRC, Sw, SRC_COL, Tiles, VerdictBar, VG, vgOf, type Ev, type Geo, type Rings } from "./mapParts";
 import { flags } from "@/components/Flag";
 import { toArea, type LL } from "@/lib/geo";
+import { loadPlaces, PlaceSearch, placeName, placeObl, type Place } from "./PlaceSearch";
 import { href, MAP_SECS, mapSecHref, utm, type MapSec } from "@/lib/routes";
 import { byPlace, GCOL, GRPS, grpOf, placeKey, STK_CITIES, StkIco, StkMark, type Grp } from "./strikeParts";
 import { reaching, WEAPONS, WPN_GROUPS, wpnImg, wpnName } from "@/lib/weapons";
@@ -57,7 +58,7 @@ function useZoom(key: string, ready: boolean, ext: [number, number], tExt: [[num
     const live = el !== svg;
     // the wheel zooms only with Ctrl/⌘ (a trackpad pinch sends Ctrl) or in full screen, so the page scrolls past the map
     const free = (e: WheelEvent) => e.ctrlKey || e.metaKey || !!svg.closest(".mp-grid.fs");
-    const onControl = (e: Event) => live && !!(e.target as Element | null)?.closest?.("button, select, a, label, input, .mp-ov, .mp-sel, .mp-tbar, .map-zoom, .mp-wkl");
+    const onControl = (e: Event) => live && !!(e.target as Element | null)?.closest?.("button, select, a, label, input, .mp-ov, .mp-sel, .mp-tbar, .map-zoom, .mp-wkl, .mp-q");
     const z = zoom<Element, unknown>().scaleExtent(ext).translateExtent(tExt)
       .on("zoom", (ev) => {
         if (!live) return setT(ev.transform);
@@ -395,23 +396,35 @@ export function MapsCompare({ dir0, sec0, onReady, an }: { dir0?: string; sec0?:
   // ISW has no notes, its control line barely moves week to week and its "assessed advance" layer is redrawn wholesale,
   // so a diff of it is noise; ISW's verdict shows on every claim instead
   const [wkSrc, setWkSrc] = useState<"all" | "ds" | "dg">("all");
+  // wide screens: the list column collapses to a strip, so the map takes the width (remembered)
+  const [wkOpen, setWkOpen] = useSticky("mapWkl", true);
+  const wkMin = !narrow && !wkOpen;
   const prevSnap = snap ? snaps.filter((d) => dayN(d) <= wkEnd - 7).at(-1) ?? null : null;
   const PM = useJson<MapsData>(prevSnap ? `/maps/archive/${prevSnap}.json` : null).data;
   // changes of DeepState's line against the snapshot `chg` days earlier: red/blue patches, the old line dashed, rings
   const [chg, setChg] = useSticky("mapChg", 7);
   const ago = (n: number) => (snap ? snaps.filter((d) => dayN(d) <= wkEnd - n).at(-1) ?? null : null);
-  // the 30-day snapshot (≈200 KB) only when something reads it: the 30-day line comparison or the distances section
-  const mSnap = ago(30), MM = useJson<MapsData>(mSnap && (chg === 30 || sec === "distance") ? `/maps/archive/${mSnap}.json` : null).data;
+  // a place picked in the search: marked, its card open, the week list narrowed to it (hash q=<slug>)
+  const [place, setPlace] = useState<Place | null>(null);
+  // the distance pin: a city from the distances section, a clicked point, or a place's tracker
+  const [pin, setPin] = useState<{ ll: LL; n?: string } | null>(null);
+  const [meas, setMeas] = useState(false); // the ruler tool (map buttons): clicks on the map measure only while it is on
+  // the 30-day snapshot (≈200 KB) only when something reads it: the 30-day line comparison, the distances section, a tracker
+  const mSnap = ago(30), MM = useJson<MapsData>(mSnap && (chg === 30 || sec === "distance" || (place && pin)) ? `/maps/archive/${mSnap}.json` : null).data;
   const oSnap = chg === 30 ? mSnap : chg ? prevSnap : null, OM = chg === 30 ? MM : chg ? PM : null;
   const diffs = useMemo(() => (M && OM && OM !== M ? lineDiff(OM, M) : []), [M, OM]);
   // distance to the occupied territory: every city now, a week and a month before; `pin` = a city or a clicked point
-  const [pin, setPin] = useState<{ ll: LL; n?: string } | null>(null);
   const [distAll, setDistAll] = useState(false);
   const dist = useMemo(() => !M?.layers.ds_occ ? [] : M.cities.map((c) => {
     const ll: LL = [c.lng, c.lat], now = toArea(M.layers.ds_occ, ll);
     return { c, ll, now, w: PM ? toArea(PM.layers.ds_occ, ll).km : null, m: MM ? toArea(MM.layers.ds_occ, ll).km : null };
   }).filter((x) => x.now.km > 0).sort((a, b) => a.now.km - b.now.km), [M, PM, MM]);
   const pinD = pin && M?.layers.ds_occ ? toArea(M.layers.ds_occ, pin.ll) : null;
+  // the place stays picked while the pin is its own (a click elsewhere on the map or on the pin ends it)
+  const PL_KM = 15;
+  const plc = place;
+  // the distance tracker (pin + line to the nearest occupied point) is the reader's action on a place, not the default
+  const plDist = !!plc && !!pin && pin.ll[0] === plc.lng && pin.ll[1] === plc.lat;
   const [play, setPlay] = useState(false);
   const [tour, setTour] = useState(false); // started and not stopped (a paused tour still hides the direction labels)
   // the tour's stops: every change of DeepState's line between neighbouring snapshots (up to 4 per pair); `at` = the one in view
@@ -612,7 +625,10 @@ export function MapsCompare({ dir0, sec0, onReady, an }: { dir0?: string; sec0?:
   const cnt = countV(inDir, ref);
   const shown = ev ? inDir.filter((e) => vf[vgOf(e[ref])]).sort((a, b) => (a.d < b.d ? 1 : a.d > b.d ? -1 : 0)) : [];
   // DIVGEN's claims in the week to the snapshot (the week list's DIVGEN / ISW tabs), newest first
-  const wkDg = M ? M.events.filter((e) => { const n = dayN(e.d); return n > wkEnd - 7 && n <= wkEnd && (!dir || evDir.get(e) === dir); }).sort((a, b) => (a.d < b.d ? 1 : a.d > b.d ? -1 : 0)) : [];
+  // a picked place narrows the week list (and the headline, the numbered rings) to what happened within PL_KM of it, over the
+  // snapshot's 30 days: one week near one town is mostly empty
+  const nearPl = (e: { lat: number; lng: number }) => !!plc && kmBetween(e, plc) <= PL_KM, wkDays = plc ? 30 : 7;
+  const wkDg = M ? M.events.filter((e) => { const n = dayN(e.d); return n > wkEnd - wkDays && n <= wkEnd && (plc ? nearPl(e) : !dir || evDir.get(e) === dir); }).sort((a, b) => (a.d < b.d ? 1 : a.d > b.d ? -1 : 0)) : [];
   const selOn = sel && (shown.some((e) => e.id === sel.id && e.d === sel.d) || (wkSrc !== "ds" && wkDg.includes(sel))) ? sel : null;
   const dirty = per !== 30 || o > 0 || !!dir || VG.some((g) => !vf[g]);
   // a bar segment shows only that verdict and brings its claims into view; clicking it again shows all
@@ -716,7 +732,8 @@ export function MapsCompare({ dir0, sec0, onReady, an }: { dir0?: string; sec0?:
   // what the map answers: claims on → "claims"; the source comparison without claims → "cmp"; else the week's changes
   const mv = ev ? "claims" : mode === "cmp" ? "cmp" : "new";
   // the week's changes, newest first, kept to the picked direction; numbered on the map and in the list (not "map refined")
-  const wkL = (dir ? wk.filter((e) => dirOf(e) === dir) : wk).slice().sort((a, b) => (a.d < b.d ? 1 : a.d > b.d ? -1 : 0));
+  const wkL = (plc ? dsOnce((M?.dsEvents || []).filter((e) => { const n = dayN(e.d); return n > wkEnd - wkDays && n <= wkEnd && nearPl(e); }), (e) => dsUpd(e) + e.k)
+    : dir ? wk.filter((e) => dirOf(e) === dir) : wk).slice().sort((a, b) => (a.d < b.d ? 1 : a.d > b.d ? -1 : 0));
   const wkNum = wkL.filter((e) => e.k !== "fix");
   // the week list's rows: a DeepState update (one or both sides) and a DIVGEN claim with DeepState's and ISW's verdicts
   const dsRow = ({ i, xs }: { i: number; xs: DsE[] }) => { const e = xs[0], r = xs.find((x) => x.ru)?.ru; return (
@@ -778,7 +795,7 @@ export function MapsCompare({ dir0, sec0, onReady, an }: { dir0?: string; sec0?:
   const showClaim = (e: Ev) => { setEv(true); setVf(ALL_V); focusEv(e); };
   const showDs = (e: DsE) => { setDse(true); focusDs(e); };
   // shareable view: #v=ds&n=7&d=pok&s=2026-10-30&c=4338 (only what differs from the defaults)
-  const hashRead = useRef(false), pendC = useRef<string | null>(null);
+  const hashRead = useRef(false), pendC = useRef<string | null>(null), pendQ = useRef<string | null>(null);
   useEffect(() => {
     if (hashRead.current) return; // read once: by a second run (React dev) the hash is already our own rewrite
     const h = new URLSearchParams(location.hash.slice(1)), g = (x: string) => h.get(x) || "";
@@ -794,6 +811,7 @@ export function MapsCompare({ dir0, sec0, onReady, an }: { dir0?: string; sec0?:
     if (h.has("a")) setDse(g("a") !== "0");
     if (h.has("g") && [0, 7, 30].includes(+g("g"))) setChg(+g("g"));
     pendC.current = g("c") || null;
+    pendQ.current = g("q") || null;
     hashRead.current = true;
     if (!railInit && innerWidth <= 860) setRail(false); // phones: the map first, filters behind the button
     railInit = true;
@@ -808,6 +826,15 @@ export function MapsCompare({ dir0, sec0, onReady, an }: { dir0?: string; sec0?:
     if (e) { setEv(true); setVf(ALL_V); focusEv(e, false); }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [M, geo]);
+  // a shared place (#q=kostiantynivka): the index loads only for it, then the map goes there once it has its real width
+  // and the first fit (before that a zoom would be undone by the fit)
+  useEffect(() => {
+    const q = pendQ.current;
+    if (!q || !M || !geo || !w || autoFit.current == null) return;
+    pendQ.current = null;
+    loadPlaces().then((ps) => { const p = ps.find((x) => x.s === q); if (p) pickPlace(p); }, () => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [M, geo, w]);
   useEffect(() => {
     if (!hashRead.current) return;
     const h = new URLSearchParams();
@@ -820,25 +847,55 @@ export function MapsCompare({ dir0, sec0, onReady, an }: { dir0?: string; sec0?:
     if (chg !== 7) h.set("g", String(chg));
     if (snap && snap !== pageSnap) h.set("s", snap);
     if (selOn) h.set("c", String(selOn.id));
+    if (plc || pendQ.current) h.set("q", plc?.s ?? pendQ.current!); // a shared place still loading keeps its q
     const s = h.toString(), write = () => history.replaceState(history.state, "", s ? "#" + s : location.pathname + location.search);
     // leaving full screen goes Back one history entry (useFullscreen), which brings back that entry's older hash: write
     // the view again once that Back has landed (by the button the Back is still pending here)
     if (!fs && history.state?.mpFs) window.addEventListener("popstate", write, { once: true }); else write();
     setCopied(false);
-  }, [mode, pair, per, o, dir, ev, dse, chg, snap, pageSnap, selOn, fs]);
+  }, [mode, pair, per, o, dir, ev, dse, chg, snap, pageSnap, selOn, plc, fs]);
   /** A click on the map (not on a marker or label) measures from there to the occupied territory. */
   const mapClick = (e: React.MouseEvent<SVGSVGElement>) => {
     if (tour || !geo || (e.target as Element).closest(".evs, .mp-dlab, .mp-chgs, .mp-pin, .mp-nums, .mp-clu")) return;
     if (narrow && (selOn || dsSel)) { closeCards(); return; }
-    if (narrow && !fs) return;
+    if (!meas) return; // measuring is the ruler tool's, not every click's
     const r = e.currentTarget.getBoundingClientRect(), px = ((e.clientX - r.left) * W) / r.width, py = ((e.clientY - r.top) * H) / r.height;
     const ll = geo.proj.invert!([(px - z.t.x) / z.t.k, (py - z.t.y) / z.t.k]);
     if (ll) setPin({ ll: ll as LL });
   };
+  /** The ruler: while on, a click on the map measures from there; off removes a clicked point's pin (a city's or a place's stays). */
+  const toggleMeas = () => { if (meas && pin && !pin.n) setPin(null); setMeas(!meas); };
+  const measBtn = <button type="button" className="mp-meas" aria-pressed={meas} aria-label={t.measT} title={t.measT} onClick={toggleMeas}>
+    <svg viewBox="0 0 18 18" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><rect x="1.5" y="6" width="15" height="6" rx="1" /><path d="M4.5 6v2.5M7.5 6v3.5M10.5 6v2.5M13.5 6v3.5" /></svg>
+  </button>;
   const showPin = (x: (typeof dist)[number]) => {
     setPin({ ll: x.ll, n: x.c.n }); frame([x.ll, x.now.at]);
     wrapRef.current?.scrollIntoView({ block: "center", behavior: "smooth" });
   };
+  /** The view on a place: ~25 km around it, plus `more` points (the tracker's nearest occupied point). Not `frame`: its
+   *  30 px margin is in whole-map pixels, which at this size is most of the box. */
+  const framePlace = (p: Place, more: LL[] = []) => {
+    if (!geo) return;
+    const pts = [[p.lng - 0.18, p.lat - 0.12], [p.lng + 0.18, p.lat + 0.12], ...more].map((x) => geo.proj(x as LL)!), xs = pts.map((q) => q[0]), ys = pts.map((q) => q[1]);
+    const kk = Math.min(400, 0.8 / Math.max((Math.max(...xs) - Math.min(...xs)) / W, (Math.max(...ys) - Math.min(...ys)) / H));
+    z.to(zoomIdentity.translate(W / 2, H / 2).scale(kk).translate(-(Math.min(...xs) + Math.max(...xs)) / 2, -(Math.min(...ys) + Math.max(...ys)) / 2), 700);
+  };
+  /** A place from the search: marked on the map, its card open, the week list narrowed to it. No distance line yet. */
+  const pickPlace = (p: Place) => {
+    closeCards(); endTour();
+    setPlace(p);
+    if (pin) setPin(null);
+    framePlace(p);
+  };
+  /** The card's "distance to the line": the distance pin on the place, framed with its nearest occupied point; again = off. */
+  const trackPlace = (p: Place) => {
+    if (plDist) { setPin(null); return; }
+    const ll: LL = [p.lng, p.lat], d = M?.layers.ds_occ ? toArea(M.layers.ds_occ, ll) : null;
+    setPin({ ll, n: placeName(p, lang) });
+    framePlace(p, d && d.km > 0 && d.km < 120 ? [d.at] : []);
+  };
+  const clearPlace = () => { setPlace(null); if (plDist) setPin(null); };
+  const plKm = (p: Place) => (M?.layers.ds_occ ? toArea(M.layers.ds_occ, [p.lng, p.lat]).km : null);
   const pinName = pin && M ? pin.n ?? (() => {
     const c = M.cities.map((x) => [x, kmBetween(x, { lng: pin.ll[0], lat: pin.ll[1] })] as const).sort((a, b) => a[1] - b[1])[0];
     return c && c[1] < 60 ? t.distNear(c[0].n, km1(c[1])) : t.distPin;
@@ -869,7 +926,7 @@ export function MapsCompare({ dir0, sec0, onReady, an }: { dir0?: string; sec0?:
             <div className="mp-kick">{t.srcK(t.src[PAIR_SRC[pair][0] as "ds"], t.src[PAIR_SRC[pair][1] as "ds"])}</div>
             <h1>{t.srcLine(F(M.areas[pair + "_a"]))}</h1>
           </> : <>
-            {snap && <div className="mp-kick">{dName ? `${t.dirK(dName)} · ${dayStr(wkEnd - 6)}–${dayStr(wkEnd)}` : t.wkH(dayStr(wkEnd - 6), dayStr(wkEnd))}</div>}
+            {snap && <div className="mp-kick">{plc ? `${placeName(plc, lang)} · ${t.plNear} · ${dayStr(wkEnd - 29)}–${dayStr(wkEnd)}` : dName ? `${t.dirK(dName)} · ${dayStr(wkEnd - 6)}–${dayStr(wkEnd)}` : t.wkH(dayStr(wkEnd - 6), dayStr(wkEnd))}</div>}
             <h1>{wkNum.length ? t.wkLine(wkL.filter((e) => e.k === "ru").length, wkL.filter((e) => e.k === "ua").length) : t.wkNone}</h1>
           </>}
         </div>
@@ -989,9 +1046,9 @@ export function MapsCompare({ dir0, sec0, onReady, an }: { dir0?: string; sec0?:
             <button type="button" className="linkbtn mp-copy" onClick={copyLink}>{copied ? "✓ " + t.mpCopied : "🔗 " + t.mpCopy}</button>
           </div>}
           <div className="mp-row">
-          <div className={"map-wrap" + (selOn || dsSel ? " has-card" : "")} ref={wrapRef}>
+          <div className={"map-wrap" + (selOn || dsSel || plc ? " has-card" : "")} ref={wrapRef}>
             {err ? <p className="map-src" style={{ padding: 16 }}>{t.mErr}</p> : !M || !geo ? <p className="map-src" style={{ padding: 16 }}>{t.mLoading}</p> : <>
-              <svg className={"map-svg bm-" + bm} viewBox={`0 0 ${W} ${H}`} tabIndex={0} role="img" aria-label={t.map} ref={z.svgRef} onKeyDown={onKey} onClick={mapClick}>
+              <svg className={"map-svg bm-" + bm + (meas ? " meas" : "")} viewBox={`0 0 ${W} ${H}`} tabIndex={0} role="img" aria-label={t.map} ref={z.svgRef} onKeyDown={onKey} onClick={mapClick}>
                 {/* tiles only once the map has its real size and view (tilesOn) */}
                 {BASEMAPS[bm] && tilesOn && <Tiles256 id={bm} proj={geo.proj} t={z.t} W={W} H={H} />}
                 <g transform={z.t.toString()}>
@@ -1124,6 +1181,11 @@ export function MapsCompare({ dir0, sec0, onReady, an }: { dir0?: string; sec0?:
                       <g transform={`translate(${on ? 13 : 9},${on ? -13 : -9})`}><circle r={7} /><text y={3.5}>{i + 1}</text></g>
                     </g>;
                   })}</g>}
+                  {plc && !plDist && (() => { const [x, y] = geo.proj([plc.lng, plc.lat])!; return (
+                    <g className="mp-focus mp-plm" transform={`translate(${x},${y}) scale(${1 / k})`} aria-hidden="true">
+                      <circle r={14} fill="none" stroke="var(--accent)" strokeWidth={2.5} /><circle r={4} fill="var(--accent)" />
+                    </g>
+                  ); })()}
                   {selOn && (() => { const [x, y] = geo.proj([selOn.lng, selOn.lat])!; return (
                     <g className="mp-focus" transform={`translate(${x},${y}) scale(${1 / k})`} aria-hidden="true">
                       <circle className="pulse" r={12} />
@@ -1141,16 +1203,44 @@ export function MapsCompare({ dir0, sec0, onReady, an }: { dir0?: string; sec0?:
                   {nF > 0 && <b>{nF}</b>}
                 </button>
                 {z.t.toString() !== autoFit.current && <button type="button" aria-label={t.mFront} title={t.mFront} onClick={() => { closeCards(); z.to(fitFront(M, geo, W, H), 400); }}>◎</button>}
+                {measBtn}
               </div> : <div className="map-zoom">
                 <button type="button" aria-label={t.mZoomIn} title={t.mZoomIn} onClick={() => z.by(1.6)}>+</button>
                 <button type="button" aria-label={t.mZoomOut} title={t.mZoomOut} onClick={() => z.by(1 / 1.6)}>−</button>
                 <button type="button" aria-label={t.mFront} title={t.mFront} onClick={() => z.to(fitFront(M, geo, W, H), 400)}>◎</button>
                 <button type="button" aria-label={t.mReset} title={t.mReset} onClick={() => z.to(zoomIdentity)}>⟲</button>
+                {measBtn}
                 {snaps.length > 1 && <button type="button" aria-label={play ? t.mpPause : t.mpPlay} title={play ? t.mpPause : t.mpPlay} aria-pressed={play} onClick={togglePlay}>{play ? "❚❚" : "▶"}</button>}
                 {tour && <button type="button" aria-label={t.mpStop} title={t.mpStop} onClick={stopTour}>■</button>}
                 <FsButton fs={fs} onClick={toggleFs} />
               </div>}
+              {/* the place search: the map's top-left corner on every layout (the cards there move down under it) */}
+              {!tour && <div className="mp-q-ov"><PlaceSearch value={plc} onPick={pickPlace} onClear={clearPlace} km={plKm} /></div>}
               <div className="mp-ov">{/* top-left: claims list (full screen), the picked claim's card right under it */}
+              {plc && !selOn && !dsSel && !piece && (() => {
+                // the place: occupied or not; on request the distance tracker — km now / a week / a month ago (what happened
+                // near it: the week list, narrowed to it)
+                const ll: LL = [plc.lng, plc.lat], now = plKm(plc);
+                const w7 = plDist && PM?.layers.ds_occ ? toArea(PM.layers.ds_occ, ll).km : null, m30 = plDist && MM?.layers.ds_occ ? toArea(MM.layers.ds_occ, ll).km : null;
+                return <div className="mp-sel mp-plc" role="status">
+                  <button type="button" aria-label={t.art.close} title={t.art.close} onClick={clearPlace}>×</button>
+                  <div className="d">{placeObl(plc, lang)}</div>
+                  <div className="tx"><b>{placeName(plc, lang)}</b></div>
+                  {now === 0 ? <div className="v"><MarkIco g="occ" /> {t.qOcc}</div> : <>
+                    {now != null && <div className="v">{t.plFree}</div>}
+                    {plDist && pinD && <dl className="mp-plc-k">
+                      <div><dt>{t.plKm}</dt><dd>{km1(pinD.km)} {t.distKm}</dd></div>
+                      {w7 != null && <div><dt>{t.distAgo(7)}</dt><dd>{dd(pinD.km, w7)}</dd></div>}
+                      {m30 != null && <div><dt>{t.distAgo(30)}</dt><dd>{dd(pinD.km, m30)}</dd></div>}
+                    </dl>}
+                    {/* wrapped: the card styles its direct child buttons as the × */}
+                    {now != null && <div><button type="button" className="mp-plc-trk" aria-pressed={plDist} onClick={() => trackPlace(plc)}>
+                      <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><circle cx="3" cy="12" r="2" /><circle cx="13" cy="4" r="1.5" /><path d="M5 10.5l6.5-5.5" strokeDasharray="2 2" /></svg>
+                      {plDist ? t.plTrackOff : t.plTrack}
+                    </button></div>}
+                  </>}
+                </div>;
+              })()}
               {fs && ev && !tour && !narrow && <div className={"mp-fl" + (flOpen ? " open" : "")}>
                 <button type="button" className="mp-fl-h" aria-expanded={flOpen} onClick={() => setFlOpen(!flOpen)}><b>{t.mpList}</b> <span>{shown.length}</span><i aria-hidden="true">{flOpen ? "▾" : "▸"}</i></button>
                 {flOpen && <ol>{shown.map((e) => (
@@ -1201,11 +1291,12 @@ export function MapsCompare({ dir0, sec0, onReady, an }: { dir0?: string; sec0?:
                 <div className="tx">{flags(hs(selOn.t))}</div>
                 <div className="v"><MarkIco g={vgOf(selOn.ds)} /> DeepState: {t.evSt.ds[selOn.ds as "occ"]}</div>
                 <div className="v"><MarkIco g={vgOf(selOn.isw)} /> ISW: {t.evSt.isw[selOn.isw as "occ"]}</div>
-                <div className="nav">
+                {/* a claim opened from the week list while the map shows no claims isn't in `shown`: no "0 / 0" pager */}
+                {selI >= 0 && shown.length > 1 && <div className="nav">
                   <button type="button" aria-label={t.mpNextEv} title={t.mpNextEv} disabled={selI <= 0} onClick={() => focusEv(shown[selI - 1], false)}>‹</button>
                   <span>{selI + 1} / {shown.length}</span>
                   <button type="button" aria-label={t.mpPrevEv} title={t.mpPrevEv} disabled={selI >= shown.length - 1} onClick={() => focusEv(shown[selI + 1], false)}>›</button>
-                </div>
+                </div>}
               </div>}
               </div>
               {play && snap && <div className="mp-playdate" aria-live="polite">{dmy(snap)}</div>}
@@ -1236,15 +1327,22 @@ export function MapsCompare({ dir0, sec0, onReady, an }: { dir0?: string; sec0?:
             </>}
           </div>
           {/* the week's DeepState changes: beside the map on wide screens, under it on phones; a click flies the map there */}
-          {M?.dsEvents && snap && (!fs || narrow) && <aside className={"mp-wkl" + (fs ? " sh" + sheet : "")} aria-label={narrow && mv === "claims" ? t.mpList : narrow && mv === "cmp" ? t.secAreas : t.dsAdv}>
+          {/* every snapshot: archived ones before 2 Nov have no DeepState notes, and the list still has DIVGEN's claims */}
+          {M && snap && (!fs || narrow) && (wkMin ? <aside className="mp-wkl min" aria-label={t.dsAdv}>
+            {/* collapsed (wide screens): a strip beside the map; the map takes the width */}
+            <button type="button" className="mp-wkl-tg" aria-expanded={false} aria-label={t.wkOpen} title={t.wkOpen} onClick={() => { keepView(); setWkOpen(true); }}>
+              <i aria-hidden="true">‹</i><span>{plc ? placeName(plc, lang) : t.wkAll}</span><b>{wkAll.length}</b>
+            </button>
+          </aside> : <aside className={"mp-wkl" + (fs ? " sh" + sheet : "")} aria-label={narrow && mv === "claims" ? t.mpList : narrow && mv === "cmp" ? t.secAreas : t.dsAdv}>
             <div className="mp-wkl-h" onPointerDown={(e) => { shY.current = e.clientY; }} onPointerUp={(e) => {
               if (!fs) return;
               const dy = e.clientY - shY.current;
               setSheet(dy < -30 ? Math.min(2, sheet + 1) : dy > 30 ? Math.max(0, sheet - 1) : (sheet + 1) % 3);
             }}>
               {fs && <i className="grip" aria-hidden="true" />}
-              <b>{narrow && mv === "claims" ? t.mpList : narrow && mv === "cmp" ? t.secAreas : wkSrc === "all" ? t.wkAll : wkSrc === "ds" ? t.dsAdv : t.mpList}</b>
-              <span>{narrow && mv === "claims" ? `${dayStr(end - per + 1)}–${dayStr(end)}` : narrow && mv === "cmp" ? "" : `${dayStr(wkEnd - 6)}–${dayStr(wkEnd)}`}</span>
+              <b>{narrow && mv === "claims" ? t.mpList : narrow && mv === "cmp" ? t.secAreas : plc ? placeName(plc, lang) : wkSrc === "all" ? t.wkAll : wkSrc === "ds" ? t.dsAdv : t.mpList}</b>
+              <span>{narrow && mv === "claims" ? `${dayStr(end - per + 1)}–${dayStr(end)}` : narrow && mv === "cmp" ? "" : `${plc ? t.plNear + " · " : ""}${dayStr(wkEnd - wkDays + 1)}–${dayStr(wkEnd)}`}</span>
+              {!narrow && !fs && <button type="button" className="mp-wkl-tg" aria-expanded={true} aria-label={t.wkHide} title={t.wkHide} onClick={() => { keepView(); setWkOpen(false); }}>›</button>}
             </div>
             {!(narrow && (mv === "claims" || mv === "cmp")) && <div className="seg mp-wkl-src" role="group">
               {(["all", "ds", "dg"] as const).map((k) => <button type="button" key={k} aria-pressed={wkSrc === k} onClick={() => { setWkSrc(k); setSel(null); }}>{{ all: t.stk.all, ds: "DeepState", dg: "DIVGEN" }[k]}</button>)}
@@ -1259,13 +1357,15 @@ export function MapsCompare({ dir0, sec0, onReady, an }: { dir0?: string; sec0?:
             : narrow && mv === "cmp" ? <ol>{areaTiles(M, t, F, mode, pair).map(([l, v, u]) => (
               <li key={l}><div className="mp-arow"><span>{flags(l)}</span><b>{v}</b><small>{u}</small></div></li>
             ))}</ol>
-            : wkSrc === "all" ? (wkAll.length ? <ol>{wkAll.map((x) => ("g" in x ? dsRow(x.g) : dgRow(x.e)))}</ol> : <p className="mp-note">{t.wkNone}</p>)
-            : wkSrc !== "ds" ? (wkDg.length ? <ol>{wkDg.map((e) => dgRow(e))}</ol> : <p className="mp-note">{t.clNone}</p>)
-            : wkL.length ? <ol>{wkG.map(dsRow)}</ol> : <p className="mp-note">{t.wkNone}</p>}
-            {mv === "new" && dir && wk.length > wkL.length && <p className="mp-note">{t.moreElse(wk.length - wkL.length)} <button type="button" className="linkbtn" onClick={() => pickDir(null)}>{t.mpAllDir}</button></p>}
-            {mv === "new" && OM && oSnap && !narrow && <p className="mp-note">{diffs.length ? t.chgCnt(diffs.filter((c) => c.ru).length, diffs.filter((c) => !c.ru).length, dmy(oSnap)) : t.chgNone(dmy(oSnap))}</p>}
+            : wkSrc === "all" ? (wkAll.length ? <ol>{wkAll.map((x) => ("g" in x ? dsRow(x.g) : dgRow(x.e)))}</ol> : <p className="mp-note">{plc ? t.plNone : t.wkNone}</p>)
+            : wkSrc !== "ds" ? (wkDg.length ? <ol>{wkDg.map((e) => dgRow(e))}</ol> : <p className="mp-note">{plc ? t.plNone : t.clNone}</p>)
+            : wkL.length ? <ol>{wkG.map(dsRow)}</ol> : <p className="mp-note">{plc ? t.plNone : t.wkNone}</p>}
+            {!M.dsEvents && !(narrow && (mv === "claims" || mv === "cmp")) && <p className="mp-note">{t.dsNoArch}</p>}
+            {plc && !(narrow && (mv === "claims" || mv === "cmp")) && <p className="mp-note"><button type="button" className="linkbtn" onClick={clearPlace}>× {t.mpAllDir}</button></p>}
+            {mv === "new" && dir && !plc && wk.length > wkL.length && <p className="mp-note">{t.moreElse(wk.length - wkL.length)} <button type="button" className="linkbtn" onClick={() => pickDir(null)}>{t.mpAllDir}</button></p>}
+            {mv === "new" && OM && oSnap && !narrow && !plc && <p className="mp-note">{diffs.length ? t.chgCnt(diffs.filter((c) => c.ru).length, diffs.filter((c) => !c.ru).length, dmy(oSnap)) : t.chgNone(dmy(oSnap))}</p>}
             {mv === "new" && snaps.length > 1 && !narrow && <button type="button" className="mp-play" aria-pressed={play} onClick={togglePlay}>{play ? "❚❚ " + t.mpPause : "▶ " + t.mpPlay}</button>}
-          </aside>}
+          </aside>)}
           </div>
           {/* under the map (full screen: in the top bar); phones: one line per mode, the full legend behind a link */}
           {!fs && !narrow && <div className="map-legend">{legend}</div>}

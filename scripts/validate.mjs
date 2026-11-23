@@ -92,6 +92,11 @@ for (const f of ["strikes.json","prices.json","recruit.json","landcost.json","ma
     }
   if (bad.length) { console.error("potential.json:\n  " + [...new Set(bad)].join("\n  ")); process.exit(1); }
 }
+// places.json (place search on /maps, built by war-orientyr-scrappers places/places.ts): slugs are URLs, uk must be Cyrillic
+{
+  const s = new Set(), bad = rd("maps/places.json").places.filter((p) => s.size === s.add(p.s).size || !/^[a-z0-9-]+$/.test(p.s) || !/^[Ѐ-ӿ'’ʼ\s-]+$/.test(p.uk) || !p.en || !p.o || !(p.lat > 44 && p.lat < 53 && p.lng > 22 && p.lng < 41));
+  if (bad.length) { console.error("maps/places.json: bad or duplicate places:\n  " + bad.slice(0, 10).map((p) => JSON.stringify(p)).join("\n  ")); process.exit(1); }
+}
 for (const d of rd("maps/archive/index.json").dates) if (rd(`maps/archive/${d}.json`).generated !== d) { console.error(`maps/archive/${d}.json: generated != ${d}`); process.exit(1); }
 // Research-tool residue must not reach readers ("відхилено проксі (HTTP 400)", "WebFetch", snapshot ids…).
 // `assumption` / `unavailable` are working notes the page does not render, and sources with status "unavailable" are

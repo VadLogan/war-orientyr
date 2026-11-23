@@ -1168,6 +1168,31 @@ button.stile{cursor:pointer}button.stile:hover{outline:2px solid var(--ink);outl
 .mp-dist-pin{display:flex;align-items:center;gap:10px;margin:0 16px 10px;padding:8px 10px;border-left:3px solid var(--accent);background:var(--accent-soft);font-size:14px}
 .mp-dist-pin span{flex:1}.mp-dist-pin b{font-family:var(--mono)}
 .mp-dist-pin button{border:0;background:transparent;color:var(--ink);font-size:18px;min-width:32px;min-height:32px;cursor:pointer}
+/* place search (PlaceSearch.tsx): a field in the map toolbar; on phones a pill over the map's top-left */
+.mp-q{position:relative;display:flex;align-items:center;flex:0 1 260px;min-width:180px;height:34px;box-sizing:border-box;border:1px solid var(--rule);background:var(--surface);font-family:var(--ui)}
+.mp-q:focus-within{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.mp-q-ico{flex:none;margin:0 6px 0 9px;color:var(--muted)}
+.mp-q input{flex:1;min-width:0;height:100%;border:0;outline:0;background:transparent;color:var(--ink);font:inherit;font-size:14.5px;padding:0 4px 0 0}
+.mp-q input::-webkit-search-cancel-button{display:none}
+.mp-q.has input::placeholder{color:var(--ink);font-weight:700;opacity:1}
+.mp-q-x{flex:none;width:32px;height:100%;border:0;background:transparent;color:var(--muted);font-size:18px;cursor:pointer}
+.mp-q-l{position:absolute;left:-1px;top:calc(100% + 4px);z-index:40;width:max(100%,340px);max-width:calc(100vw - 24px);margin:0;padding:4px 0;list-style:none;background:var(--surface);border:1px solid var(--rule-strong);box-shadow:0 8px 24px rgb(0 0 0/.18)}
+.mp-q-l [role=option]{display:flex;align-items:center;gap:10px;min-height:44px;padding:4px 12px;cursor:pointer}
+.mp-q-l [role=option][aria-selected=true]{background:var(--accent-soft)}
+.mp-q-l .dot{flex:none;width:9px;height:9px;border-radius:50%;border:2px solid var(--accent);background:var(--m-ua)}.mp-q-l .dot.occ{border-color:var(--m-occ);background:var(--m-occ)}
+.mp-q-l .nm{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.2}.mp-q-l .nm small{color:var(--muted);font-size:12.5px}
+.mp-q-l .km{flex:none;font-family:var(--mono);font-size:13px;color:var(--ink)}
+.mp-q-m{padding:8px 12px;color:var(--muted);font-size:13.5px}.mp-q-m.src{font-size:11.5px;border-top:1px solid var(--rule);padding-top:6px}
+.mp-plc-k{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;margin:4px 0 2px;background:var(--rule);border:1px solid var(--rule)}
+.mp-plc-k>div{background:var(--surface);padding:5px 7px}.mp-plc-k dt{font-size:11.5px;color:var(--muted)}.mp-plc-k dd{margin:0;font:700 15px var(--mono)}
+.mp-plc-k .closer{color:var(--unv)}.mp-plc-k .farther{color:var(--ok)}
+.mp-plc .mp-sub{margin-top:4px}.mp-plc-l{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.mp-plc-l .linkbtn{text-align:left;font-size:13px;line-height:1.35}.mp-plc-l .dd{color:var(--muted)}
+.mp-q-ov{position:absolute;left:8px;top:8px;right:60px;z-index:6}
+.mp-q-ov .mp-q{height:44px;border-color:var(--m-border);border-radius:8px;background:color-mix(in srgb,var(--surface) 96%,transparent);box-shadow:0 2px 8px rgb(0 0 0/.15)}
+.mp-q-ov .mp-q input{font-size:16px}
+.mp-q-ov .mp-q-l{width:calc(100vw - 16px);left:-1px}
+@media(max-width:600px){.mpx .map-wrap:has(.mp-q-ov) .map-attr{top:56px}}
 .mp-dist-more{margin:8px 16px 0}
 .mp-dist th.num{font-family:inherit}
 @media(max-width:420px){.mp-dist :is(th,td){padding:7px 6px}.mp-dist :is(th,td):first-child{padding-left:12px}}
@@ -1345,15 +1370,14 @@ dialog.ps::backdrop{background:rgba(21,27,31,.45)}
 @media(min-width:601px){.mpx .mp-sub{display:none}}
 @media(max-width:600px){.mpx .mp-kpi{display:none}.mpx .mp-top h1{font-size:23px}}
 .mpx .mp-bar-top{align-items:center;justify-content:flex-start}.mpx .mp-copy{align-self:center;margin-left:0}
-.mpx .mp-bar-top>.mp-base{margin-left:auto}
-@media (min-width:900px){.mpx .mp-grid:not(.fs) .mp-copy{flex:1 0 0;min-width:max-content;max-width:300px;text-align:right}} /* the week list's column: the basemap switch ends where the map does */
+.mpx .mp-bar-top>.mp-base{margin-left:auto} /* basemap + copy link: the toolbar's right end */
 .mpx .mp-pairsel{font:600 13px var(--ui);min-height:32px;padding:0 8px;border:1px solid var(--rule-strong);background:var(--surface);color:var(--ink)}
 .mpx .mp-prs button{font-weight:600}
 .mpx .mp-row{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start}
 .mpx .mp-row>.map-wrap{flex:999 1 560px}
 .mpx .mp-grid:not(.fs) .map-wrap>svg{height:auto}
 .mpx .mp-wkl{flex:1 1 300px;min-width:0;background:var(--surface);border:1px solid var(--rule);font-family:var(--ui);display:flex;flex-direction:column}
-.mpx .mp-wkl-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:12px 16px 8px;border-bottom:1px solid var(--rule)}
+.mpx .mp-wkl-h{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:2px 8px;padding:12px 16px 8px;border-bottom:1px solid var(--rule)}
 .mpx .mp-wkl-h b{font-size:12.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
 .mpx .mp-wkl-h span{font-family:var(--mono);font-size:12px;color:var(--muted);white-space:nowrap}
 .mpx .mp-wkl-src{margin:8px 16px 0;align-self:flex-start}.mpx .mp-wkl-src button{font-size:12px;padding:3px 9px}
@@ -1487,3 +1511,27 @@ dialog.ps::backdrop{background:rgba(21,27,31,.45)}
   .mpx .mp-grid.fs .mp-rail-done{display:flex;gap:8px;position:sticky;bottom:0;padding:10px 16px calc(10px + env(safe-area-inset-bottom));background:var(--surface);border-top:1px solid var(--rule)}
 }
 @media (prefers-reduced-motion:reduce){.mpx .mp-grid.fs .mp-wkl{transition:none}}
+.mp-plc-trk{align-self:flex-start;display:inline-flex;align-items:center;gap:6px;min-height:36px;margin-top:4px;padding:0 12px;border:1px solid var(--rule-strong);background:var(--surface);color:var(--ink);font:600 13.5px var(--ui);cursor:pointer;pointer-events:auto}
+.mp-plc-trk[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.mp-plm circle:first-child{filter:drop-shadow(0 0 2px var(--surface))}
+.map-zoom .mp-meas[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.map-svg.meas{cursor:crosshair}
+.map-zoom .mp-meas[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.map-svg.meas{cursor:crosshair}
+/* the week list's collapse (wide screens): a toggle in its header; collapsed, a 44 px strip with the title running down */
+.mpx .mp-wkl-h .mp-wkl-tg{margin-left:auto;flex:none;width:32px;height:32px;border:1px solid var(--rule);background:transparent;color:var(--ink);font-size:18px;line-height:1;cursor:pointer}
+.mpx .mp-wkl.min{flex:none;width:44px;align-self:stretch}
+.mpx .mp-wkl.min .mp-wkl-tg{display:flex;flex-direction:column;align-items:center;gap:10px;width:100%;height:100%;min-height:200px;padding:10px 0;border:0;background:none;color:var(--ink);font:700 12.5px var(--ui);letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
+.mpx .mp-wkl.min .mp-wkl-tg i{font-style:normal;font-size:18px;letter-spacing:0}
+.mpx .mp-wkl.min .mp-wkl-tg span{writing-mode:vertical-rl;white-space:nowrap}
+.mpx .mp-wkl.min .mp-wkl-tg b{font-family:var(--mono);font-weight:400;color:var(--muted);letter-spacing:0}
+.mpx .mp-wkl.min .mp-wkl-tg:hover{color:var(--accent)}
+@media(min-width:601px){
+  .mpx .mp-q-ov{left:10px;top:10px;right:auto;width:min(320px,calc(100% - 76px))}
+  .mpx .mp-q-ov .mp-q{height:40px}
+  .mpx .mp-q-ov .mp-q-l{width:max(100%,380px);max-width:calc(100vw - 40px)}
+  .mpx .map-wrap:has(.mp-q-ov) .mp-ov{top:60px;max-height:calc(100% - 86px)}
+}
+.mp-q{scroll-margin-top:8px}.mp-q-l{overflow-y:auto;overscroll-behavior:contain}
+/* phones: the fixed bottom tab bar would sit over the search results (and is out of reach under the keyboard) */
+@media(max-width:600px){body:has(.mp-q input:focus) .topbar .seg{display:none}}
