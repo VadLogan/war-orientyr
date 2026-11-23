@@ -291,7 +291,8 @@ const BASEMAPS: Record<string, { url: (z: number, x: number, y: number) => strin
 function Tiles256({ id, proj, t, W, H, labels }: { id: string; proj: GeoProjection; t: ZoomTransform; W: number; H: number; labels?: boolean }) {
   const bm = BASEMAPS[id], [tx, ty] = proj.translate(), S = t.k * proj.scale() * 2 * Math.PI;
   const ox = t.x + t.k * tx - S / 2, oy = t.y + t.k * ty - S / 2;
-  const zz = Math.max(0, Math.min(bm.max, Math.round(Math.log2(S / 256) + (typeof devicePixelRatio === "number" && devicePixelRatio > 1.5 ? 0.5 : 0))));
+  const f = Math.log2(S / 256) + (typeof devicePixelRatio === "number" && devicePixelRatio > 1.5 ? 0.5 : 0);
+  const zz = Math.max(0, Math.min(bm.max, Math.round(f)));
   const out: ReactNode[] = [];
   if (!labels) for (const z of [Math.max(0, zz - 3), zz]) {
     const n = 2 ** z, ts = S / n;
@@ -299,11 +300,12 @@ function Tiles256({ id, proj, t, W, H, labels }: { id: string; proj: GeoProjecti
       for (let j = Math.max(0, Math.floor(-oy / ts)); j <= Math.min(n - 1, Math.floor((H - oy) / ts)); j++)
         out.push(<image key={`${z}/${i}/${j}`} href={bm.url(z, i, j)} x={ox + i * ts} y={oy + j * ts} width={ts + 0.5} height={ts + 0.5} preserveAspectRatio="none" />);
   }
-  // the label layer: the sharp level only
-  const n = 2 ** zz, ts = S / n;
+  // the label layer: one level, its tiles drawn 1.5× larger than the base's on average (log2 1.5 ≈ 0.585), so names
+  // read 1.5× bigger (a raster: its font can't be set) — a little softer, and the lower level names fewer villages
+  const zl = labels ? Math.max(0, Math.min(bm.max, Math.round(f - 0.585))) : zz, n = 2 ** zl, ts = S / n;
   if (labels && bm.labels) for (let i = Math.max(0, Math.floor(-ox / ts)); i <= Math.min(n - 1, Math.floor((W - ox) / ts)); i++)
     for (let j = Math.max(0, Math.floor(-oy / ts)); j <= Math.min(n - 1, Math.floor((H - oy) / ts)); j++)
-      out.push(<image key={`l${zz}/${i}/${j}`} href={bm.labels(zz, i, j)!} x={ox + i * ts} y={oy + j * ts} width={ts + 0.5} height={ts + 0.5} preserveAspectRatio="none" />);
+      out.push(<image key={`l${zl}/${i}/${j}`} href={bm.labels(zl, i, j)!} x={ox + i * ts} y={oy + j * ts} width={ts + 0.5} height={ts + 0.5} preserveAspectRatio="none" />);
   return <g className={labels ? "map-labels" : "map-tiles-" + id}>{out}</g>;
 }
 /** `noPlain`: phones offer only the tiled maps (the plain one shows no geography). */
