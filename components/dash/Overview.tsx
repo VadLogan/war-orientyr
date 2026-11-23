@@ -263,9 +263,9 @@ export default function Overview({ headline, mapsMini, strikesMini, an, summary 
       <div className="dz-more">
         <div className="dz-srv" data-s="over front d">{mapsMini}</div>
         <div className="dz-srv" data-s="over d">{strikesMini}</div>
-        {/* new: /strikes/targets — a page of its own, so a plain link */}
-        <a className="dz-card dz-new" data-s="over d" href={tgHref(lang)}>
-          <small><span><span className="dz-badge">{t.nw.targets.k}</span> {t.stk.swTg}</span><span aria-hidden="true">→</span></small>
+        {/* /strikes/targets — a page of its own, so a plain link */}
+        <a className="dz-card" data-s="over d" href={tgHref(lang)}>
+          <small><span>{t.stk.swTg}</span><span aria-hidden="true">→</span></small>
           <span className="dz-cn">{t.stk.swTgSub}</span>
         </a>
         <Card s="air d" to="atk" t={tr("Вартість нічної атаки", "Cost of the night attack", "Kosten des nächtlichen Angriffs", "Coût de l’attaque nocturne")} v={cNow ? money(cNow.lo, lang) + "–" + money(cNow.hi, lang) : "—"}

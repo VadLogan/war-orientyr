@@ -63,7 +63,7 @@ const NW_ART = {
 
 /** Pages promoted in the "New on the site" block on digest pages; empty = no block. landcost/potential = the dashboard analytics. */
 type NewPage = "maps" | "strikes" | "targets" | "articles" | "landcost" | "potential";
-const NEW_PAGES: NewPage[] = ["targets"];
+const NEW_PAGES: NewPage[] = [];
 const AN: NewPage[] = ["landcost", "potential"];
 
 /** "New on the site": a card per page in NEW_PAGES; the articles card shows the three newest covers. */

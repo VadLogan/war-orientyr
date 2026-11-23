@@ -58,7 +58,7 @@ export function CrossLinks({ an, headline, tg }: { an: Analytics | null | undefi
         <span className="v"><b>{f(k.pk)}</b><span>{t.an.kmS(k.span)}{k.x != null && k.x >= 2 ? " · " + t.an.x(Math.round(k.x)) : ""}</span></span></a>}
       {p && <a className="xl-c an" href={dash + "#potential"}><span className="k"><span className="dz-badge">{t.an.b}</span>{t.an.potK}</span>
         <span className="v"><b>{p.share}%</b><span>{t.an.potS}</span></span></a>}
-      {tg && <a className="xl-c an" href={tgHref(lang)}><span className="k"><span className="dz-badge">{t.nw.targets.k}</span>{t.stk.swTg}</span>
+      {tg && <a className="xl-c" href={tgHref(lang)}><span className="k">{t.stk.swTg}</span>
         <span className="hl">{t.stk.swTgSub}</span></a>}
     </nav>
   );
