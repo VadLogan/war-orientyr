@@ -1,6 +1,6 @@
 // Strikes data types (strikes.json + maps/strikes-base.json, loaded in lib/data.ts) and distance-to-front helpers, shared by the digest and the strikes map.
 import { fmt } from "./text";
-import { UI, type Lang } from "./ui";
+import type { Lang, UIStrings } from "./ui";
 
 export type Strike = {
   id?: string; date: string; night?: string; kind: string; object: string; place: string; result: string;
@@ -28,9 +28,8 @@ export function stkDist(B: StrikesBase, x: { lat: number | null; lng: number }) 
   for (const [lng, lat] of B.ctrl) { const d = kmBetween({ lat: x.lat, lng: x.lng }, { lat, lng }); if (d < best) best = d; }
   return (DISTC[k] = best < 3 ? 0 : Math.round(best / 5) * 5);
 }
-export function distLabel(B: StrikesBase, x: { lat: number | null; lng: number }, lang: Lang) {
+export function distLabel(B: StrikesBase, x: { lat: number | null; lng: number }, lang: Lang, t: UIStrings["stk"]) {
   const d = stkDist(B, x);
   if (d == null) return "";
-  const t = UI[lang].stk;
   return d === 0 ? t.distNear : t.dist(fmt(d, lang));
 }

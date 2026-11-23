@@ -5,16 +5,19 @@ import { useRef, useState } from "react";
 import Image from "next/image";
 import { flags } from "./Flag";
 import { loc, noFlag } from "@/lib/text";
-import { UI, type Lang } from "@/lib/ui";
+import type { Lang } from "@/lib/ui";
+import { useT } from "./strings/ctx";
 import type { ArticleItem } from "@/types/digest";
 
 type F = { q: string; topic: string; fmt: string; sort: "new" | "long" };
 const ALL: F = { q: "", topic: "all", fmt: "all", sort: "new" };
 const norm = (s: string) => noFlag(s).toLowerCase().replace(/[’'ʼ`«»"„“”]/g, "").replace(/ё/g, "е");
+/** the article shown big on top of the unfiltered newest-first list (else the newest one) */
+const PIN = "operation-vivaldi";
 const code = (l: Lang) => (l === "uk" ? "UA" : l.toUpperCase());
 
 export default function ArticleList({ items, lang }: { items: ArticleItem[]; lang: Lang }) {
-  const t = UI[lang].arts;
+  const T = useT(lang), t = T.arts;
   const [f, setF] = useState<F>(ALL);
   const [d, setD] = useState<F>(ALL); // the dialog's draft
   const dlg = useRef<HTMLDialogElement>(null);
@@ -29,9 +32,9 @@ export default function ArticleList({ items, lang }: { items: ArticleItem[]; lan
 
   const list = hits(f);
   if (f.sort === "long") list.sort((a, b) => b.mins - a.mins || (a.date < b.date ? 1 : -1));
-  const hero = !filtering(f) && f.sort === "new" ? list[0] : undefined;
+  const hero = !filtering(f) && f.sort === "new" ? list.find((a) => a.name === PIN) ?? list[0] : undefined;
   const groups: { label: string; items: ArticleItem[] }[] = [];
-  for (const a of hero ? list.slice(1) : list) {
+  for (const a of list.filter((a) => a !== hero)) {
     const m = f.sort === "long" ? t.byLen
       : new Date(a.date + "T12:00:00Z").toLocaleDateString(loc(lang), { month: "long", year: "numeric", timeZone: "UTC" }).replace(/\s?р\.$/, "");
     const label = m[0].toUpperCase() + m.slice(1), g = groups.at(-1);
@@ -122,11 +125,11 @@ export default function ArticleList({ items, lang }: { items: ArticleItem[]; lan
         <article className="al-hero" lang={hero.contentLang !== lang ? hero.contentLang : undefined}>
           {hero.img && <a className="al-img" href={hero.href} tabIndex={-1} aria-hidden="true"><Image src={hero.img} alt={hero.imgAlt} fill priority sizes="(max-width:600px) 100vw, 500px" /></a>}
           <div className="al-txt">
-            <p className="al-k"><span className="art-kicker">{t.fresh}{hero.kicker && <> · {flags(hero.kicker)}</>}</span><span className="al-fmt">{t.fmts[hero.fmt]}</span></p>
+            <p className="al-k"><span className="art-kicker">{hero === list[0] ? <>{t.fresh}{hero.kicker && <> · {flags(hero.kicker)}</>}</> : hero.kicker && flags(hero.kicker)}</span><span className="al-fmt">{t.fmts[hero.fmt]}</span></p>
             <h2><a href={hero.href}>{flags(hero.title)}</a></h2>
             {hero.lead && <p className="art-lead">{flags(hero.lead)}</p>}
             <p className="al-meta"><time dateTime={hero.date}>{day(hero.date, { day: "numeric", month: "long", year: "numeric" })}</time> · {meta(hero)}</p>
-            <a className="art-more" href={hero.href}>{hero.button || UI[lang].art.read}</a>
+            <a className="art-more" href={hero.href}>{hero.button || T.art.read}</a>
           </div>
         </article>
       )}

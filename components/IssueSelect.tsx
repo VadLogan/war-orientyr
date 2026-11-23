@@ -2,15 +2,16 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { href, type View } from "@/lib/routes";
-import { UI, type Lang } from "@/lib/ui";
+import type { Lang, UIStrings } from "@/lib/ui";
+import { useT } from "./strings/ctx";
 import { dayLabel, dayN, loc, longDate, nDay } from "@/lib/text";
 
 /** Client island: the issue picker. The date button opens a month calendar (a modal <dialog>):
  *  wide screens — a panel under the button, one month with ‹ ›; phones — a bottom sheet with every month, newest first.
  *  Days with an issue are links; quick jumps to the latest issue, a week and a month before it.
  *  With `onPick` it is a plain date picker over `dates`: days are buttons, no jumps, `cal` overrides the issue wording. */
-export default function IssueSelect({ lang, view, date, latest, dates, label, onPick, cal, className }: { lang: Lang; view?: View; date: string; latest: string; dates: string[]; label: string; onPick?: (d: string) => void; cal?: Partial<typeof UI.uk.cal>; className?: string }) {
-  const t = { ...UI[lang].cal, ...cal };
+export default function IssueSelect({ lang, view, date, latest, dates, label, onPick, cal, className }: { lang: Lang; view?: View; date: string; latest: string; dates: string[]; label: string; onPick?: (d: string) => void; cal?: Partial<UIStrings["cal"]>; className?: string }) {
+  const t = { ...useT(lang).cal, ...cal };
   const btn = useRef<HTMLButtonElement>(null), dlg = useRef<HTMLDialogElement>(null);
   const [open, setOpen] = useState(false), [sheet, setSheet] = useState(false), [month, setMonth] = useState(date.slice(0, 7));
   const has = new Set(dates);

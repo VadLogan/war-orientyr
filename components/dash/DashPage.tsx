@@ -10,6 +10,14 @@ import type { DashIssue, DashLang } from "../ctx";
 import Shell from "../Shell";
 import Mast from "../Mast";
 import DashProvider from "./DashProvider";
+import type Dashboard from "./Dashboard";
+import type MapsView from "./MapsView";
+import type StrikesView from "./StrikesView";
+
+/** The page's view, passed in by the route file (app/(xx)/dashboard|maps|strikes/…/page.tsx): a route's browser bundle
+ *  holds every client component its server code imports, so DashPage imports none of the three — each route file
+ *  imports only its own, and /maps doesn't ship the dashboard's panels (nor the dashboard the maps' views). */
+export type DashView = { view?: "dashboard"; V: typeof Dashboard } | { view: "maps"; V: typeof MapsView } | { view: "strikes"; V: typeof StrikesView };
 import MapsCard from "./MapsCard";
 import StrikesCard from "./StrikesCard";
 import StrikesSeo from "./StrikesSeo";
@@ -38,7 +46,9 @@ const slim = (d: Digest): DashIssue => ({
 });
 const hl = (d: Digest) => (d.headline?.title ? { title: d.headline.title, item: d.headline.item } : null);
 
-export default async function DashPage({ lang, params, view = "dashboard" }: { lang: DashLang; params: DateParams; view?: "dashboard" | "maps" | "strikes" }) {
+export default async function DashPage(props: { lang: DashLang; params: DateParams } & DashView) {
+  const { lang, params } = props, view = props.view ?? "dashboard";
+  const Dash = (props.view === "maps" || props.view === "strikes" ? null : props.V) as typeof Dashboard;
   const { latest, dates, D, dir, panel, tg, sec } = await resolve(params, lang);
   const t = UI[lang] as UIStrings;
   const MAPS = await getMapsUrl(D.date);
@@ -56,8 +66,9 @@ export default async function DashPage({ lang, params, view = "dashboard" }: { l
         <Shell lang={lang} t={t} view="dashboard" date={D.date} latest={latest.date} dates={dates} />
         <main id="main"><div className="view"><article className="pnl">
           <PanelIntro panel={panel} an={an} lang={lang} />
-          <DashProvider view="dashboard" lang={lang} D={slim(D)} LATEST={slim(latest)} DATES={dates} MAPS={MAPS} smx={null}
-            mapsMini={null} strikesMini={null} headline={null} an={an} panel={panel} />
+          <DashProvider view="dashboard" lang={lang} D={slim(D)} LATEST={slim(latest)} DATES={dates} MAPS={MAPS} smx={null}>
+            <Dash mapsCard={null} strikesCard={null} mapsMini={null} strikesMini={null} headline={null} an={an} panel={panel} />
+          </DashProvider>
           <PanelFoot panel={panel} an={an} lang={lang} method={method} />
         </article></div></main>
       </div>
@@ -73,14 +84,15 @@ export default async function DashPage({ lang, params, view = "dashboard" }: { l
       {view !== "maps" && <Mast D={D} lang={lang} dashboard />}
       <main id="main"><div className="view">
         <DashProvider view={view} lang={lang} D={(maps ? bare : slim)(D)} LATEST={(maps ? bare : slim)(latest)} DATES={dates} MAPS={MAPS}
-          smx={!maps && SHOW_SOURCE_MATRIX ? await getSourceMatrix() : null}
-          mapsCard={maps ? null : <MapsCard lang={lang} date={D.date} latest={latest.date} url={MAPS} />}
-          strikesCard={maps ? null : <StrikesCard lang={lang} date={D.date} latest={latest.date} />}
-          mapsMini={maps ? null : <MapsCard lang={lang} date={D.date} latest={latest.date} url={MAPS} mini />}
-          strikesMini={maps ? null : <StrikesCard lang={lang} date={D.date} latest={latest.date} mini />}
-          headline={hl(D)} an={an} summary={maps ? null : <DashSummary D={D} an={an} lang={lang} />}
-          tg={tg} strikesSeo={view !== "strikes" ? null : tg ? <TargetsSeo lang={lang} /> : <StrikesSeo lang={lang} date={D.date} latest={latest.date} />}
-          mapsSeo={view === "maps" ? <MapsSeo lang={lang} url={MAPS} dir={dir} /> : null} dir={dir?.id} sec={sec} />
+          smx={!maps && SHOW_SOURCE_MATRIX ? await getSourceMatrix() : null}>
+          {props.view === "maps" ? <props.V seo={<MapsSeo lang={lang} url={MAPS} dir={dir} />} dir={dir?.id} sec={sec} an={an} headline={hl(D)} />
+            : props.view === "strikes" ? <props.V seo={tg ? <TargetsSeo lang={lang} /> : <StrikesSeo lang={lang} date={D.date} latest={latest.date} />} an={an} headline={hl(D)} tg={tg} />
+            : <Dash mapsCard={<MapsCard lang={lang} date={D.date} latest={latest.date} url={MAPS} />}
+              strikesCard={<StrikesCard lang={lang} date={D.date} latest={latest.date} />}
+              mapsMini={<MapsCard lang={lang} date={D.date} latest={latest.date} url={MAPS} mini />}
+              strikesMini={<StrikesCard lang={lang} date={D.date} latest={latest.date} mini />}
+              headline={hl(D)} an={an} summary={<DashSummary D={D} an={an} lang={lang} />} />}
+        </DashProvider>
       </div></main>
     </div>
   );

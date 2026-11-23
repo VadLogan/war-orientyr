@@ -1,6 +1,6 @@
 // Pure text/date/number helpers, ported from the legacy app.js (same behaviour, `lang`/`D` passed explicitly).
 import type { Digest, Item, Section, TimelineEntry } from "@/types/digest";
-import { UI, type Lang } from "./ui";
+import type { Lang } from "./ui";
 
 export function plural(n: number, a: string, b: string, c: string) {
   const m10 = n % 10, m100 = n % 100;
@@ -82,7 +82,7 @@ export function itemTopics(i: Item): string[] {
   const r = (["dip", "sanc", "aid"] as Topic[]).filter((k) => DIP_RX[k].test(t));
   return r.length ? r : ["dip"];
 }
-function diploTitle(s: Section, lang: Lang) {
+export function diploTitle(s: Section, lang: Lang) {
   const has = new Set<string>();
   (s.items || []).forEach((i) => itemTopics(i).forEach((k) => has.add(k)));
   const W: Record<string, string> = { uk: { dip: "дипломатія", sanc: "санкції", aid: "допомога" }, en: { dip: "diplomacy", sanc: "sanctions", aid: "aid" }, de: { dip: "Diplomatie", sanc: "Sanktionen", aid: "Hilfe" }, fr: { dip: "diplomatie", sanc: "sanctions", aid: "aide" } }[lang];
@@ -91,8 +91,6 @@ function diploTitle(s: Section, lang: Lang) {
   const j = ws.length === 1 ? ws[0] : ws.slice(0, -1).join(", ") + { uk: " та ", en: " & ", de: " & ", fr: " et " }[lang] + ws[ws.length - 1];
   return j[0].toUpperCase() + j.slice(1);
 }
-export const secTitle = (s: Section, lang: Lang) =>
-  (s.id === "diplo" && diploTitle(s, lang)) || (lang !== "uk" && (UI[lang].sec as Record<string, string>)[s.id]) || s.title;
 
 function elapsed(fromIso: string, toIso: string) {
   const f = new Date(fromIso + "T00:00:00Z"), t = new Date(toIso + "T00:00:00Z");
@@ -183,3 +181,6 @@ export function TL(B: Pick<Digest, "timeline" | "airDefenseHistory">): TimelineE
   }));
   return a.filter((e) => e && /^\d{4}-\d{2}-\d{2}$/.test(e.date)).sort((x, y) => (x.date < y.date ? -1 : 1));
 }
+
+/** Short month names (dashboard axes, the maps/strikes cross-links). */
+export const MN = { uk: ["січ", "лют", "бер", "кві", "тра", "чер", "лип", "сер", "вер", "жов", "лис", "гру"], en: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"], de: ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"], fr: ["janv", "févr", "mars", "avr", "mai", "juin", "juil", "août", "sept", "oct", "nov", "déc"] };

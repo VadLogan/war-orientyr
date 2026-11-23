@@ -1,6 +1,7 @@
 // Server component: the Digest tab.
 import type { Digest as DigestT, Section, Source } from "@/types/digest";
-import { fmt, noFlag, secTitle } from "@/lib/text";
+import { fmt, noFlag } from "@/lib/text";
+import { secTitle } from "@/lib/ui";
 import type { Analytics } from "@/lib/data";
 import { secIcon } from "@/lib/icons";
 import type { Strikes } from "@/lib/strikes";

@@ -56,7 +56,7 @@ function Dist({ id, strikes, lang, t }: RC & { id?: string; strikes: Strikes | n
   if (!id || !strikes) return null;
   const x = (strikes.stk.items || []).find((y) => y.id === id);
   if (!x) return null;
-  const l = distLabel(strikes.base, x, lang);
+  const l = distLabel(strikes.base, x, lang, t.stk);
   return l ? <span className="chip ru" title={t.stk.distNote(strikes.base.ctrlAsOf || "")}>📏 {l}{x.approx ? " ≈" : ""}</span> : null;
 }
 

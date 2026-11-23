@@ -1,7 +1,7 @@
 "use client";
 import { Fragment, useLayoutEffect, useRef, useState } from "react";
 import type { TimelineEntry } from "@/types/digest";
-import { dayN, fmt, loc, nDay, niceMax, num, plural, shortD, TL } from "@/lib/text";
+import { dayN, fmt, loc, MN, nDay, niceMax, num, plural, shortD, TL } from "@/lib/text";
 import IssueSelect from "@/components/IssueSelect";
 import { lcCalc, lcPeriod, type LandCfg } from "@/lib/landcost";
 import { fireIco } from "@/lib/icons";
@@ -10,7 +10,7 @@ import { useApp } from "../ctx";
 import { useChartW, useJson, useSticky } from "./hooks";
 import { flags } from "@/components/Flag";
 
-export const MN = { uk: ["січ", "лют", "бер", "кві", "тра", "чер", "лип", "сер", "вер", "жов", "лис", "гру"], en: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"], de: ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"], fr: ["janv", "févr", "mars", "avr", "mai", "juin", "juil", "août", "sept", "oct", "nov", "déc"] };
+export { MN };
 /** Ukrainian / English / German / French pick for the panel texts below. */
 export const pick = (lang: Lang) => (uk: string, en: string, de: string, fr: string) => ({ uk, en, de, fr }[lang]);
 const Ico = ({ html }: { html: string }) => <span className="li-ico" dangerouslySetInnerHTML={{ __html: html }} />;

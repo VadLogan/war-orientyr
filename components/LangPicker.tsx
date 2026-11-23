@@ -1,6 +1,7 @@
 "use client";
 import { useRef } from "react";
-import { LANGS, type Lang } from "@/lib/ui";
+import type { Lang } from "@/lib/ui";
+import { LANGS } from "@/lib/langs";
 import LangLink from "./LangLink";
 import { Flag } from "./Flag";
 

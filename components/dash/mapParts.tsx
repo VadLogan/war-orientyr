@@ -58,8 +58,9 @@ export function Layers({ M, geo, mode, pair, plain = true }: { M: MapsData; geo:
       : mode === "isw" ? <>{P(L.isw, "var(--m-isw)", 0.35, "var(--m-isw)", 1)}{P(L.isw_adv, "var(--m-iswadv)", 0.55, "var(--m-iswadv)", 0.6)}</>
       : mode === "dg" ? P(L.dg_ru, "var(--m-dg)", 0.33, "var(--m-dg)", 1)
       : <>
-        {pair === "dg_ds" ? <>{P(L.dg_ds_a, "var(--m-onlydg)", 0.75)}{P(L.only_dg_grey, "var(--m-onlydgg)", 0.85)}</> : P(L[pair + "_a"], "var(--m-onlydg)", 0.75)}
-        {P(L[pair + "_b"], "var(--m-onlyds)", 0.7)}{P(L[LY[b]], "none", 0, `var(${SRC_COL[b]})`, 1.4)}{P(L[LY[a]], "none", 0, `var(${SRC_COL[a]})`, 1.2)}
+        {/* what only one source shows, in that source's colour (DIVGEN claims inside DeepState's grey zone: light DIVGEN) */}
+        {pair === "dg_ds" ? <>{P(L.dg_ds_a, `var(${SRC_COL[a]})`, 0.55)}{P(L.only_dg_grey, "var(--m-dg-l)", 1)}</> : P(L[pair + "_a"], `var(${SRC_COL[a]})`, 0.55)}
+        {P(L[pair + "_b"], `var(${SRC_COL[b]})`, 0.55)}{P(L[LY[b]], "none", 0, `var(${SRC_COL[b]})`, 1.4)}{P(L[LY[a]], "none", 0, `var(${SRC_COL[a]})`, 1.2)}
       </>}
   </>;
 }

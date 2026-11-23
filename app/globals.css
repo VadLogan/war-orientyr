@@ -6,11 +6,13 @@
   --unv:#97302c; --unv-soft:#f4e0de; --ok:#2c6a43; --ok-soft:#dcebe1; --part:#8a5a10; --part-soft:#f2e6d2;
   --s1:#1f63a8; --s2:#b8741a; --track:#dde2e0;
   --c1:#2a78d6; --c2:#eb6834; --c3:#1baf7a; --c4:#eda100; --c5:#e87ba4;
-  --m-sea:#dfe6ea; --m-land:#f3f4f2; --m-ua:#fbfcfb; --m-border:#9aa5a8; --m-occ:#b5443c; --m-grey:#8a8f93; --m-dg:#6b4fbb; --m-onlydg:#e07b00; --m-onlydgg:#f0b45c; --m-onlyds:#1f63a8; --m-city:#2b3338; --m-isw:#0f7d6b; --m-iswadv:#7fb9ad;
-  --display:'Literata',Georgia,'Times New Roman',serif;
-  --body:'Literata',Georgia,'Times New Roman',serif;
-  --ui:'IBM Plex Sans Condensed','Arial Narrow',Arial,sans-serif;
-  --mono:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;
+  --m-sea:#dfe6ea; --m-land:#f3f4f2; --m-ua:#fbfcfb; --m-border:#9aa5a8; --m-occ:#b5443c; --m-grey:#8a8f93; --m-dg:#6b4fbb; --m-onlydg:#e07b00; --m-onlydgg:#f0b45c; --m-onlyds:#1f63a8;
+  /* DIVGEN claims where DeepState shows the grey zone (compare view): a light DIVGEN, resolved per theme */
+  --m-dg-l:color-mix(in srgb,var(--m-dg) 30%,transparent); --m-city:#2b3338; --m-isw:#0f7d6b; --m-iswadv:#7fb9ad;
+  --display:var(--f-serif),Georgia,'Times New Roman',serif;
+  --body:var(--f-serif),Georgia,'Times New Roman',serif;
+  --ui:var(--f-ui),'Arial Narrow',Arial,sans-serif;
+  --mono:var(--f-mono),ui-monospace,Menlo,Consolas,monospace;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#111619; --surface:#181e22; --ink:#e3e8e6; --muted:#99a5ac; --rule:#2c363b; --rule-strong:#e3e8e6;
@@ -334,12 +336,10 @@ button.ic-d{border:0;background:transparent;cursor:pointer}
 .map-svg .city text{font-family:var(--ui);fill:var(--m-city);paint-order:stroke;stroke:var(--m-ua);stroke-width:3px;stroke-linejoin:round}
 .map-svg .stk-city{pointer-events:none}.map-svg .stk-city text{stroke:var(--m-land);opacity:.9}
 .map-svg path,.map-svg circle{vector-effect:non-scaling-stroke}
-.map-tiles-r,.map-tiles-t{pointer-events:none}
+.map-tiles-r,.map-tiles-t,.map-labels{pointer-events:none}
 .map-tiles-t{opacity:.85;filter:saturate(.7)}
 .map-tiles-r{filter:brightness(.9) saturate(.8)}
 .map-svg.bm-r .city text{fill:#fff;stroke:rgba(0,0,0,.65)}.map-svg.bm-r .city circle{fill:#fff}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .map-tiles-t{filter:saturate(.6) brightness(.7)}}
-:root[data-theme="dark"] .map-tiles-t{filter:saturate(.6) brightness(.7)}
 .map-attr{position:absolute;right:0;bottom:0;padding:1px 6px;font:11px var(--ui);color:var(--muted);background:color-mix(in srgb,var(--surface) 75%,transparent);pointer-events:none}
 .map-tiles .tile b{font-size:26px}
 /* maps page (/maps): filter rail + map; dashboard teaser */
@@ -359,6 +359,8 @@ button.ic-d{border:0;background:transparent;cursor:pointer}
 .mp-chk{display:flex;align-items:center;gap:8px;min-height:32px;font-size:14px;color:var(--ink);cursor:pointer;letter-spacing:0;text-transform:none;font-weight:500}
 .mp-chk input{width:17px;height:17px;margin:0;accent-color:var(--ink)}
 .mp-chk span:not(.n){flex:1}.mp-chk .n{font-family:var(--mono);font-size:13px;color:var(--muted)}
+/* the toolbar / phone-chips variant of the directions switch: no stretching, never wrapped */
+.mp-chk.mp-dirchk{flex:none;white-space:nowrap;font-family:var(--ui)}.mp-chk.mp-dirchk span{flex:none}
 .mp-chk:has(input:disabled){opacity:.5;cursor:default}
 .mp-verd{display:flex;flex-direction:column}
 .mp-dirs{display:flex;flex-wrap:wrap;gap:6px}
@@ -1354,11 +1356,13 @@ dialog.ps::backdrop{background:rgba(21,27,31,.45)}
 .mpx .mp-wkl-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:12px 16px 8px;border-bottom:1px solid var(--rule)}
 .mpx .mp-wkl-h b{font-size:12.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
 .mpx .mp-wkl-h span{font-family:var(--mono);font-size:12px;color:var(--muted);white-space:nowrap}
+.mpx .mp-wkl-src{margin:8px 16px 0;align-self:flex-start}.mpx .mp-wkl-src button{font-size:12px;padding:3px 9px}
 .mpx .mp-wkl ol{list-style:none;margin:0;padding:0 16px;max-height:440px;overflow-y:auto;scrollbar-width:thin}
 .mpx .mp-wkl li+li{border-top:1px solid var(--rule)}
 .mpx .mp-wkl li button{display:flex;gap:10px;align-items:flex-start;width:100%;min-height:44px;padding:10px 0;border:0;background:none;color:var(--ink);font:inherit;font-size:14.5px;line-height:1.35;text-align:left;cursor:pointer}
 .mpx .mp-wkl li button:hover{color:var(--accent)}
 .mpx .mp-wkl li button .mk{margin-top:3px}
+.mpx .mp-wkl .mp-ks{display:flex;flex-direction:column;gap:4px;flex:none;align-items:center}
 .mpx .mp-wkl .d{font-family:var(--mono);font-size:12px;color:var(--muted)}
 .mpx .mp-wkl .v{display:block;margin-top:3px;font-size:13px;color:var(--muted)}
 .mpx .mp-wkl>.mp-note{margin:0;padding:10px 16px 0}

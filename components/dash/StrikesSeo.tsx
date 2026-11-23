@@ -35,7 +35,7 @@ export default async function StrikesSeo({ lang, date, latest }: { lang: DashLan
       <ol className="stk-list">{days.map(([d, xs]) => [
         <li key={d} className="stk-day"><b>{dmy(d).slice(0, 5)}</b><span>{t.nStrikes(xs.length)}</span></li>,
         ...xs.map((x, n) => {
-          const c = !!x.confirmed, dd = distLabel(base, x, lang);
+          const c = !!x.confirmed, dd = distLabel(base, x, lang, UI[lang].stk);
           return (
             <li key={d + n}>
               <StkIco g={grpOf(x)} conf={c} size={20} />

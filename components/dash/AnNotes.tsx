@@ -2,10 +2,9 @@
 // The dashboard analytics mentioned on /maps (the price of the ground the map shows taken) and /strikes (russia's strike
 // potential), in the dashboard's accent frame. Figures come from the server (lib/data getAnalytics), latest issue only.
 import type { Analytics } from "@/lib/data";
-import { fmt } from "@/lib/text";
+import { fmt, MN } from "@/lib/text";
 import { href, tgHref } from "@/lib/routes";
 import { useApp } from "../ctx";
-import { MN } from "./Panels";
 import { flags } from "@/components/Flag";
 
 const dm = (d: string) => d.slice(8, 10) + "." + d.slice(5, 7);

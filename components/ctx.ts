@@ -2,7 +2,7 @@
 import { createContext, useContext } from "react";
 import type { Digest } from "@/types/digest";
 import type { SourceMatrix } from "@/lib/data";
-import { UI, type Lang, type UIStrings } from "@/lib/ui";
+import type { Lang, UIStrings } from "@/lib/ui";
 
 /** The parts of an issue the dashboard reads (kept small: it is serialized into every dashboard page). */
 /** Dashboard languages (all of them). */
@@ -29,4 +29,3 @@ export function useApp() {
   if (!c) throw new Error("useApp outside <DashProvider>");
   return c;
 }
-export const strings = (lang: Lang) => UI[lang] as UIStrings;

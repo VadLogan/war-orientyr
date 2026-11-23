@@ -209,11 +209,14 @@ function FsButton({ fs, onClick }: { fs: boolean; onClick: () => void }) {
     </button>
   );
 }
-/** Tooltip inside a .map-wrap: placed at the pointer, flipped to stay inside the map. */
-type Tip = { x: number; y: number; body: ReactNode } | null;
-function MapTip({ tip, wrap }: { tip: Tip; wrap: React.RefObject<HTMLDivElement | null> }) {
+/** Tooltip inside a .map-wrap: placed at the pointer, flipped to stay inside the map. `el`: the element it belongs to —
+ *  when that element leaves the map (a ring hidden once zoomed in, a marker of another view) no pointerleave fires, so
+ *  the tooltip closes itself here instead of staying stuck on the map. */
+type Tip = { x: number; y: number; body: ReactNode; el?: Element } | null;
+function MapTip({ tip, setTip, wrap }: { tip: Tip; setTip: (t: Tip) => void; wrap: React.RefObject<HTMLDivElement | null> }) {
   const ref = useRef<HTMLDivElement>(null);
   useLayoutEffect(() => {
+    if (tip?.el && !tip.el.isConnected) { setTip(null); return; }
     const el = ref.current, w = wrap.current;
     if (!el || !w || !tip) return;
     const r = w.getBoundingClientRect(), tw = el.offsetWidth, th = el.offsetHeight;
@@ -227,10 +230,12 @@ function MapTip({ tip, wrap }: { tip: Tip; wrap: React.RefObject<HTMLDivElement 
 }
 const tipHandlers = (setTip: (t: Tip) => void, body: () => ReactNode) => ({
   tabIndex: 0,
-  onPointerEnter: (ev: React.PointerEvent) => setTip({ x: ev.clientX, y: ev.clientY, body: body() }),
-  onPointerMove: (ev: React.PointerEvent) => setTip({ x: ev.clientX, y: ev.clientY, body: body() }),
+  onPointerEnter: (ev: React.PointerEvent) => setTip({ x: ev.clientX, y: ev.clientY, body: body(), el: ev.currentTarget }),
+  onPointerMove: (ev: React.PointerEvent) => setTip({ x: ev.clientX, y: ev.clientY, body: body(), el: ev.currentTarget }),
   onPointerLeave: () => setTip(null),
-  onFocus: (ev: React.FocusEvent) => { const b = (ev.target as Element).getBoundingClientRect(); setTip({ x: b.right, y: b.bottom, body: body() }); },
+  // a press acts (flies the map, opens a card): the hint has done its job
+  onPointerDown: () => setTip(null),
+  onFocus: (ev: React.FocusEvent) => { const b = (ev.target as Element).getBoundingClientRect(); setTip({ x: b.right, y: b.bottom, body: body(), el: ev.currentTarget }); },
   onBlur: () => setTip(null),
 });
 
@@ -239,13 +244,14 @@ const ALL_V: Record<VG, boolean> = { occ: true, grey: true, edge: true, ua: true
 const PERS = [7, 14, 30];
 const PRESETS: { id: string; mode: string; pair?: string; ev: boolean; dse: boolean; per: number }[] = [
   { id: "new", mode: "ds", ev: false, dse: true, per: 7 },
-  { id: "claims", mode: "cmp", pair: "dg_ds", ev: true, dse: true, per: 30 },
+  // russian claims: russia's layer only (DIVGEN's area + the claims, verdicts against DeepState), no DeepState layers
+  { id: "claims", mode: "dg", ev: true, dse: false, per: 30 },
   { id: "cmp", mode: "cmp", ev: false, dse: false, per: 30 },
 ];
-/** Phones: the same three questions, but "russian claims" sits on DeepState's line (no comparison layers, no triangles). */
+/** Phones: the same three questions; "russian claims" over a 7-day window. */
 const PRESETS_N: typeof PRESETS = [
   { id: "new", mode: "ds", ev: false, dse: true, per: 7 },
-  { id: "claims", mode: "ds", ev: true, dse: false, per: 7 },
+  { id: "claims", mode: "dg", ev: true, dse: false, per: 7 },
   { id: "cmp", mode: "cmp", ev: false, dse: false, per: 30 },
 ];
 const dsKey = (e: { id: number; lat: number; lng: number }) => `${e.id}/${e.lat}/${e.lng}`;
@@ -267,34 +273,38 @@ function useMapGeo(M: MapsData | null, W: number, H: number): Geo | null {
 }
 
 /** Web-mercator raster basemaps drawn over the (then unfilled) vector land. */
-const esri = (s: string, z: number, x: number, y: number) => `https://server.arcgisonline.com/ArcGIS/rest/services/${s}/MapServer/tile/${z}/${y}/${x}`;
 /** The site's theme as the CSS reads it: a `data-theme` on <html> wins, else the system setting. */
 const darkTheme = () => { const d = document.documentElement.dataset.theme; return d ? d === "dark" : matchMedia("(prefers-color-scheme: dark)").matches; };
+const esri = (s: string, z: number, x: number, y: number) => `https://server.arcgisonline.com/ArcGIS/rest/services/${s}/MapServer/tile/${z}/${y}/${x}`;
 const BASEMAPS: Record<string, { url: (z: number, x: number, y: number) => string; labels?: (z: number, x: number, y: number) => string | null; max: number; attr: string }> = {
-  r: { url: (z, x, y) => `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${y}/${x}`, max: 18, attr: "Imagery © Esri, Maxar, Earthstar Geographics" },
-  // the map layer follows the site's theme: dark — Esri's dark grey canvas + its place-name layer; light — Esri World
-  // Topo (relief, rivers, roads, names). Esri's CDN: 7–18 KB tiles in ~0.1 s (OpenTopoMap, used before: ~51 KB, slow)
-  t: { url: (z, x, y) => esri(darkTheme() ? "Canvas/World_Dark_Gray_Base" : "World_Topo_Map", z, x, y), labels: (z, x, y) => (darkTheme() ? esri("Canvas/World_Dark_Gray_Reference", z, x, y) : null), max: 16, attr: "Tiles © Esri — Esri, HERE, Garmin, FAO, NOAA, USGS, © OpenStreetMap contributors, GIS User Community" },
+  // satellite + Esri's place names for imagery (white with a dark halo), so towns can be found on it too
+  r: { url: (z, x, y) => esri("World_Imagery", z, x, y), labels: (z, x, y) => esri("Reference/World_Boundaries_and_Places", z, x, y), max: 18, attr: "Imagery © Esri, Maxar, Earthstar Geographics" },
+  // the map layer follows the site's theme: Esri's light / dark grey canvas, its place-name layer drawn separately over
+  // the occupied area (World Topo, used before, baked the names under the red fill); no CSS effects on the names.
+  // CARTO, tried, watermarks tiles without an API key.
+  // Esri's CDN: 7–18 KB tiles in ~0.1 s (OpenTopoMap, used before that: ~51 KB, slow)
+  t: { url: (z, x, y) => esri(darkTheme() ? "Canvas/World_Dark_Gray_Base" : "Canvas/World_Light_Gray_Base", z, x, y), labels: (z, x, y) => esri(darkTheme() ? "Canvas/World_Dark_Gray_Reference" : "Canvas/World_Light_Gray_Reference", z, x, y), max: 16, attr: "Tiles © Esri — Esri, HERE, Garmin, FAO, NOAA, USGS, © OpenStreetMap contributors, GIS User Community" },
 };
 /** Tiles covering the W×H view of a d3.geoMercator `proj` under zoom `t`, in screen coordinates.
- *  A coarse level (z−3) goes underneath so zooming never shows gaps while the sharp tiles load. */
-function Tiles256({ id, proj, t, W, H }: { id: string; proj: GeoProjection; t: ZoomTransform; W: number; H: number }) {
+ *  A coarse level (z−3) goes underneath so zooming never shows gaps while the sharp tiles load.
+ *  `labels`: only the basemap's place-name layer (rendered last in the svg, over the map's own layers). */
+function Tiles256({ id, proj, t, W, H, labels }: { id: string; proj: GeoProjection; t: ZoomTransform; W: number; H: number; labels?: boolean }) {
   const bm = BASEMAPS[id], [tx, ty] = proj.translate(), S = t.k * proj.scale() * 2 * Math.PI;
   const ox = t.x + t.k * tx - S / 2, oy = t.y + t.k * ty - S / 2;
   const zz = Math.max(0, Math.min(bm.max, Math.round(Math.log2(S / 256) + (typeof devicePixelRatio === "number" && devicePixelRatio > 1.5 ? 0.5 : 0))));
   const out: ReactNode[] = [];
-  for (const z of [Math.max(0, zz - 3), zz]) {
+  if (!labels) for (const z of [Math.max(0, zz - 3), zz]) {
     const n = 2 ** z, ts = S / n;
     for (let i = Math.max(0, Math.floor(-ox / ts)); i <= Math.min(n - 1, Math.floor((W - ox) / ts)); i++)
       for (let j = Math.max(0, Math.floor(-oy / ts)); j <= Math.min(n - 1, Math.floor((H - oy) / ts)); j++)
         out.push(<image key={`${z}/${i}/${j}`} href={bm.url(z, i, j)} x={ox + i * ts} y={oy + j * ts} width={ts + 0.5} height={ts + 0.5} preserveAspectRatio="none" />);
   }
-  // a separate label layer (the dark canvas): the sharp level only, on top of the base tiles
+  // the label layer: the sharp level only
   const n = 2 ** zz, ts = S / n;
-  if (bm.labels?.(0, 0, 0)) for (let i = Math.max(0, Math.floor(-ox / ts)); i <= Math.min(n - 1, Math.floor((W - ox) / ts)); i++)
+  if (labels && bm.labels) for (let i = Math.max(0, Math.floor(-ox / ts)); i <= Math.min(n - 1, Math.floor((W - ox) / ts)); i++)
     for (let j = Math.max(0, Math.floor(-oy / ts)); j <= Math.min(n - 1, Math.floor((H - oy) / ts)); j++)
       out.push(<image key={`l${zz}/${i}/${j}`} href={bm.labels(zz, i, j)!} x={ox + i * ts} y={oy + j * ts} width={ts + 0.5} height={ts + 0.5} preserveAspectRatio="none" />);
-  return <g className={"map-tiles-" + id}>{out}</g>;
+  return <g className={labels ? "map-labels" : "map-tiles-" + id}>{out}</g>;
 }
 /** `noPlain`: phones offer only the tiled maps (the plain one shows no geography). */
 const BaseSeg = ({ bm, set, label, noPlain, end }: { bm: string; set: (v: string) => void; label: Record<"s" | "t" | "r", string>; noPlain?: boolean; end?: boolean }) => (
@@ -379,6 +389,10 @@ export function MapsCompare({ dir0, sec0, onReady, an }: { dir0?: string; sec0?:
   useEffect(() => { if (M || err) onReady?.(); }, [M, err, onReady]);
   // the week on the front: DeepState's changes in the 7 days up to the snapshot, its area against the snapshot a week before
   const wkEnd = snap ? dayN(snap) : 0;
+  // the week list's source tab: DeepState's changes and DIVGEN's (russian) claims together, or one of them. No ISW tab:
+  // ISW has no notes, its control line barely moves week to week and its "assessed advance" layer is redrawn wholesale,
+  // so a diff of it is noise; ISW's verdict shows on every claim instead
+  const [wkSrc, setWkSrc] = useState<"all" | "ds" | "dg">("all");
   const prevSnap = snap ? snaps.filter((d) => dayN(d) <= wkEnd - 7).at(-1) ?? null : null;
   const PM = useJson<MapsData>(prevSnap ? `/maps/archive/${prevSnap}.json` : null).data;
   // changes of DeepState's line against the snapshot `chg` days earlier: red/blue patches, the old line dashed, rings
@@ -480,13 +494,18 @@ export function MapsCompare({ dir0, sec0, onReady, an }: { dir0?: string; sec0?:
   const playRun = useRef(0), view = useRef({ geo, W, H });
   view.current = { geo, W, H };
   useEffect(() => () => { playRun.current++; }, []);
-  const fly = (ll: [number, number][], ms = 1400) => {
+  /** Where `fly` takes the map for the points `ll`: the zoom and the centre (projected). The change fills half the view
+   *  at most, and the view stays ≥ ~100 km wide so the place reads in context. */
+  const flyFit = (ll: [number, number][]) => {
     const { geo: g, W: w, H: h } = view.current;
-    if (!g) return;
+    if (!g) return null;
     const pts = ll.map((p) => g.proj(p)!), xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]);
     const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
-    // the change fills half the view at most, and the view stays ≥ ~100 km wide so the place reads in context
-    z.to(zoomIdentity.translate(w / 2, h / 2).scale(Math.min(12, 0.5 / Math.max((x1 - x0) / w, (y1 - y0) / h, 0.02))).translate(-(x0 + x1) / 2, -(y0 + y1) / 2), ms);
+    return { k: Math.min(12, 0.5 / Math.max((x1 - x0) / w, (y1 - y0) / h, 0.02)), cx: (x0 + x1) / 2, cy: (y0 + y1) / 2 };
+  };
+  const fly = (ll: [number, number][], ms = 1400) => {
+    const f = flyFit(ll), { W: w, H: h } = view.current;
+    if (f) z.to(zoomIdentity.translate(w / 2, h / 2).scale(f.k).translate(-f.cx, -f.cy), ms);
   };
   const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
   const show = async (k: number, list: Stop[], live: () => boolean) => {
@@ -590,7 +609,9 @@ export function MapsCompare({ dir0, sec0, onReady, an }: { dir0?: string; sec0?:
   const [dsHl, setDsHl] = useState<string | null>(null);
   const cnt = countV(inDir, ref);
   const shown = ev ? inDir.filter((e) => vf[vgOf(e[ref])]).sort((a, b) => (a.d < b.d ? 1 : a.d > b.d ? -1 : 0)) : [];
-  const selOn = sel && shown.some((e) => e.id === sel.id && e.d === sel.d) ? sel : null;
+  // DIVGEN's claims in the week to the snapshot (the week list's DIVGEN / ISW tabs), newest first
+  const wkDg = M ? M.events.filter((e) => { const n = dayN(e.d); return n > wkEnd - 7 && n <= wkEnd && (!dir || evDir.get(e) === dir); }).sort((a, b) => (a.d < b.d ? 1 : a.d > b.d ? -1 : 0)) : [];
+  const selOn = sel && (shown.some((e) => e.id === sel.id && e.d === sel.d) || (wkSrc !== "ds" && wkDg.includes(sel))) ? sel : null;
   const dirty = per !== 30 || o > 0 || !!dir || VG.some((g) => !vf[g]);
   // a bar segment shows only that verdict and brings its claims into view; clicking it again shows all
   const pickV = (g: VG) => {
@@ -601,8 +622,9 @@ export function MapsCompare({ dir0, sec0, onReady, an }: { dir0?: string; sec0?:
   };
   const toggleV = (g: VG) => setVf({ ...vf, [g]: !vf[g] });
 
-  // phones, the source comparison: only the two outlines and their differences, not the week's line changes too
-  const cmpN = narrow && !ev && mode === "cmp";
+  // DeepState's line changes (patches, old line, rings) only on DeepState's own map: not on DIVGEN's or ISW's alone, and
+  // not in the comparison, whose "only DeepState" fill has the same red as the "taken by russia" patch
+  const chgOff = mode !== "ds";
   let legend: ReactNode[] = [], srcLine: ReactNode = null, method = "";
   if (M) {
     const S = M.sources;
@@ -613,12 +635,12 @@ export function MapsCompare({ dir0, sec0, onReady, an }: { dir0?: string; sec0?:
     else if (mode === "dg") legend.push(<Sw key="a" c="--m-dg" l={t.lg.dg} />);
     else {
       const [a, b] = PAIR_SRC[pair];
-      legend.push(<Sw key="a" c={SRC_COL[a]} l={t.lg[a as "ds"]} cls="line" />, <Sw key="b" c={SRC_COL[b]} l={t.lg[b as "ds"]} cls="line" />, <Sw key="c" c="--m-onlydg" l={t.lg.onlyA(t.src[a as "ds"])} />);
-      if (pair === "dg_ds") legend.push(<Sw key="d" c="--m-onlydgg" l={t.lg.onlyGrey} />);
-      legend.push(<Sw key="e" c="--m-onlyds" l={t.lg.onlyB(t.src[b as "ds"])} />);
+      legend.push(<Sw key="a" c={SRC_COL[a]} l={t.lg[a as "ds"]} cls="line" />, <Sw key="b" c={SRC_COL[b]} l={t.lg[b as "ds"]} cls="line" />, <Sw key="c" c={SRC_COL[a]} l={t.lg.onlyA(t.src[a as "ds"])} />);
+      if (pair === "dg_ds") legend.push(<Sw key="d" c="--m-dg-l" l={t.lg.onlyGrey} />);
+      legend.push(<Sw key="e" c={SRC_COL[b]} l={t.lg.onlyB(t.src[b as "ds"])} />);
     }
     if (dse) (["ru", "ua", "fix"] as const).filter((x) => M.dsEvents?.some((e) => e.k === x)).forEach((x) => legend.push(<span key={"ds" + x}><DsIco k={x} />{t.dsK[x]}</span>));
-    if (OM && oSnap && !tour && !cmpN) {
+    if (OM && oSnap && !tour && !chgOff) {
       const d0 = dmy(oSnap).slice(0, 5);
       legend.push(<Sw key="cg" c="--m-occ" l={t.chgGain(d0)} />, <Sw key="cl" c="--m-onlyds" l={t.chgLoss(d0)} />, <span key="co"><i className="dash" />{t.chgOld(d0)}</span>);
     }
@@ -660,15 +682,21 @@ export function MapsCompare({ dir0, sec0, onReady, an }: { dir0?: string; sec0?:
     secShown.current = true;
     setTimeout(() => secRef.current?.scrollIntoView({ block: "start" }), 200);
   }, [M, sec0]);
-  const autoFit = useRef<string | null>(null);
+  const autoFit = useRef<string | null>(null), fitW = useRef(0);
   useEffect(() => {
     if (!M || !geo) return;
     if (z.t.toString() !== autoFit.current && !(z.t.k === 1 && z.t.x === 0 && z.t.y === 0)) return;
     const f = fitFront(M, geo, W, H);
-    autoFit.current = f.toString();
+    autoFit.current = f.toString(); fitW.current = W;
     z.to(f, 0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [M, geo]);
+  // basemap tiles wait for the real view: the map mounts hidden (MapsView shows it once it has data) with no measured
+  // width, so it first lays out at the 800 stand-in and fits the front to that; tiles drawn then would be fetched for
+  // nothing (on a phone the whole set again at the next zoom level once the real width arrives). So: a measured width,
+  // and the fit to the front (or a shared link's / direction page's view) instead of the untouched first render.
+  const fitted = autoFit.current != null && z.t.toString() === autoFit.current;
+  const tilesOn = w > 0 && (fitted ? fitW.current === W : autoFit.current != null || !(z.t.k === 1 && z.t.x === 0 && z.t.y === 0));
   // presets: three ready views instead of setting the rail by hand
   const PR = narrow ? PRESETS_N : PRESETS;
   const pr = PR.find((p) => p.mode === mode && p.ev === ev && p.dse === dse && p.per === per && (!p.pair || p.pair === pair))?.id;
@@ -688,7 +716,27 @@ export function MapsCompare({ dir0, sec0, onReady, an }: { dir0?: string; sec0?:
   // the week's changes, newest first, kept to the picked direction; numbered on the map and in the list (not "map refined")
   const wkL = (dir ? wk.filter((e) => dirOf(e) === dir) : wk).slice().sort((a, b) => (a.d < b.d ? 1 : a.d > b.d ? -1 : 0));
   const wkNum = wkL.filter((e) => e.k !== "fix");
+  // the week list's rows: a DeepState update (one or both sides) and a DIVGEN claim with DeepState's and ISW's verdicts
+  const dsRow = ({ i, xs }: { i: number; xs: DsE[] }) => { const e = xs[0], r = xs.find((x) => x.ru)?.ru; return (
+              <li key={dsKey(e) + e.k}><button type="button" aria-current={(dsSel && xs.some((x) => dsKey(dsSel.xs[dsSel.i]) === dsKey(x))) || undefined} onClick={() => openDs(wkL, i)}>
+                <span className="mp-ks">{xs.map((x) => narrow && x.k !== "fix" ? <span key={x.k + dsKey(x)} className={"mp-nb n-" + x.k}>{nOf(x)}</span> : <DsIco key={x.k + dsKey(x)} k={x.k} />)}</span>
+                <span><span className="d">{dmy(e.d).slice(0, 5)}</span> {flags(hs(e.t))}
+                  {r && <span className="v">{flags(t.mpCapRu(dmy(r.d).slice(0, 5), hs(r.t)))} <Lag n={r.lag} t={t} /></span>}</span>
+              </button></li>
+  ); };
+  const dgRow = (e: Ev) => (
+              <li key={e.id + "" + e.d}><button type="button" aria-current={e === selOn || undefined} onClick={() => focusEv(e)}>
+                <MarkIco g={vgOf(e.ds)} />
+                <span><span className="d">{dmy(e.d).slice(0, 5)}</span> {flags(hs(e.t))}
+                  <span className="v">DeepState: {t.evSt.ds[e.ds as "occ"]} · ISW: {t.evSt.isw[e.isw as "occ"]}</span></span>
+              </button></li>
+  );
   const nOf = (e: DsE) => wkNum.indexOf(e) + 1;
+  // one DeepState update often names both sides (“Defence Forces pushed back … The enemy advanced …”): one list row for it,
+  // with each side's marker; the map keeps a marker per place
+  const wkG: { i: number; xs: DsE[] }[] = [];
+  wkL.forEach((e, i) => { const g = wkG.find((g) => dsUpd(g.xs[0]) === dsUpd(e)); if (g) g.xs.push(e); else wkG.push({ i, xs: [e] }); });
+  const wkAll = [...wkG.map((g) => ({ d: g.xs[0].d, g })), ...wkDg.map((e) => ({ d: e.d, e }))].sort((a, b) => (a.d < b.d ? 1 : a.d > b.d ? -1 : 0));
   const dName = dir ? DIRS.find((x) => x.id === dir)?.[lang] : null;
   // filters that differ from the mode's defaults: the badge on the phone's Filters button
   const nF = [o > 0, VG.some((g) => !vf[g]), ref !== "ds", chg !== 7, dOff.length > 0, !pr].filter(Boolean).length;
@@ -933,6 +981,8 @@ export function MapsCompare({ dir0, sec0, onReady, an }: { dir0?: string; sec0?:
             {pr === "cmp" && <select className="mp-pairsel" aria-label={t.mpPair} value={pair} onChange={(e) => setPair(e.target.value)}>{(["dg_ds", "dg_isw", "isw_ds"] as const).map((x) => <option key={x} value={x}>{t.pairs[x]}</option>)}</select>}
             {fs && <div className="map-legend">{legend}</div>}
             {M && ev && <span className="map-src">{t.mpShown(shown.length, inPer.length)}</span>}
+            {/* the directions on the map — sector bands and labels — on/off (same switch as in the filters) */}
+            <label className="mp-chk mp-dirchk"><input type="checkbox" checked={sect} onChange={() => setSect(!sect)} /><span>{t.mpDirs}</span></label>
             <BaseSeg bm={bm} set={setBm} label={t.mBase} end />
             <button type="button" className="linkbtn mp-copy" onClick={copyLink}>{copied ? "✓ " + t.mpCopied : "🔗 " + t.mpCopy}</button>
           </div>}
@@ -940,7 +990,8 @@ export function MapsCompare({ dir0, sec0, onReady, an }: { dir0?: string; sec0?:
           <div className={"map-wrap" + (selOn || dsSel ? " has-card" : "")} ref={wrapRef}>
             {err ? <p className="map-src" style={{ padding: 16 }}>{t.mErr}</p> : !M || !geo ? <p className="map-src" style={{ padding: 16 }}>{t.mLoading}</p> : <>
               <svg className={"map-svg bm-" + bm} viewBox={`0 0 ${W} ${H}`} tabIndex={0} role="img" aria-label={t.map} ref={z.svgRef} onKeyDown={onKey} onClick={mapClick}>
-                {BASEMAPS[bm] && <Tiles256 id={bm} proj={geo.proj} t={z.t} W={W} H={H} />}
+                {/* tiles only once the map has its real size and view (tilesOn) */}
+                {BASEMAPS[bm] && tilesOn && <Tiles256 id={bm} proj={geo.proj} t={z.t} W={W} H={H} />}
                 <g transform={z.t.toString()}>
                   {layersEl}
                   {fade && geoL && <g key={fade.n} className="mp-fade"><Layers M={fade.M} geo={geoL} mode={mode} pair={pair} plain={false} /></g>}
@@ -954,7 +1005,7 @@ export function MapsCompare({ dir0, sec0, onReady, an }: { dir0?: string; sec0?:
                       dVis(DIRS[i].id) && (!narrow || DIRS[i].id === dir) && <path key={DIRS[i].id} d={c} className={dir === DIRS[i].id ? "on" : undefined} style={{ fill: dcol(DIRS[i]), stroke: dcol(DIRS[i]), fillOpacity: !dir ? 0.32 : dir === DIRS[i].id ? 0.6 : 0.14 }} />
                     ))}</g>
                   </>}
-                  {OM?.layers.ds_occ && M.layers.ds_occ && !tour && !cmpN && (!narrow || k >= 4) && <>
+                  {OM?.layers.ds_occ && M.layers.ds_occ && !tour && !chgOff && (!narrow || k >= 4) && <>
                     {/* gained = today's area minus the old one, lost = the old minus today's, both as SVG masks; the cut-out
                         gets a hairline stroke so the shared edges leave no seam */}
                     {([["mp-gain", OM], ["mp-loss", M]] as const).map(([id, cut]) => (
@@ -968,13 +1019,13 @@ export function MapsCompare({ dir0, sec0, onReady, an }: { dir0?: string; sec0?:
                     <path className="mp-chg-old" d={chgD.old} fillRule="evenodd" />
                   </>}
                   <Cities M={M} geo={geo} k={k} hidden={bm === "t"} few={narrow} />
-                  {(ev || sect) && !tour && <g className="mp-dlab">{(() => {
+                  {sect && !tour && <g className="mp-dlab">{(() => {
                     // labels in screen px: right of the anchor unless that runs under the zoom buttons, then left, else (narrow
                     // map) slid inside the map above the anchor; top to bottom each moves below any label it would overlap, then
                     // from the bottom edge up so none hangs off the map; a leader line back to the anchor
                     const R = W - 56;
                     // a phone-width map has no room for a dozen labels over the front: only the direction picked in the filters
-                    const ls = dirShown.filter((d) => (!sect || dVis(d.id)) && (W >= 600 || d.id === dir)).map((d) => {
+                    const ls = dirShown.filter((d) => dVis(d.id) && (W >= 600 || d.id === dir)).map((d) => {
                       const [x, y] = geo.proj([d.lng, d.lat])!, g = gsOf(d), l = d[lang], sx = x * k + z.t.x, sy = y * k + z.t.y;
                       return { d, x, y, g, l, sx, sy, lw: l.length * 5.9 + 24 + (g != null ? String(g).length * 7 + 8 : 0), vis: sx >= 0 && sx <= W && sy >= 0 && sy <= H, x0: 0, ty: 0 };
                     }).sort((a, b) => a.sy - b.sy);
@@ -1008,7 +1059,10 @@ export function MapsCompare({ dir0, sec0, onReady, an }: { dir0?: string; sec0?:
                       );
                     });
                   })()}</g>}
-                  {OM && oSnap && !tour && !narrow && <g className="mp-chgs">{diffs.map((c, i) => {
+                  {OM && oSnap && !tour && !narrow && !chgOff && <g className="mp-chgs">{diffs.map((c, i) => {
+                    // a ring is the way to zoom in on a change: none once the map is already that close (it would only
+                    // cover the patch it points at)
+                    if (k >= (flyFit(c.pts)?.k ?? Infinity) * 0.95) return null;
                     const [x, y] = geo.proj(c.ll)!;
                     return <g key={i} className={c.ru ? "ru" : "ua"} transform={`translate(${x},${y}) scale(${1 / k})`} onClick={() => fly(c.pts, 900)}
                       {...tipHandlers(setTip, () => t.chgTip(c.ru, dmy(oSnap).slice(0, 5), dmy(snap!).slice(0, 5)))}
@@ -1076,6 +1130,7 @@ export function MapsCompare({ dir0, sec0, onReady, an }: { dir0?: string; sec0?:
                     </g>
                   ); })()}
                 </g>
+                {BASEMAPS[bm] && tilesOn && <Tiles256 id={bm} proj={geo.proj} t={z.t} W={W} H={H} labels />}
               </svg>
               {narrow ? <div className="map-zoom">
                 <FsButton fs={fs} onClick={toggleFs} />
@@ -1153,7 +1208,7 @@ export function MapsCompare({ dir0, sec0, onReady, an }: { dir0?: string; sec0?:
               </div>
               {play && snap && <div className="mp-playdate" aria-live="polite">{dmy(snap)}</div>}
               <Attr bm={bm} />
-              <MapTip tip={tip} wrap={wrapRef} />
+              <MapTip tip={tip} setTip={setTip} wrap={wrapRef} />
               {z.hint && <div className="map-hint" aria-hidden="true">{t.mWheel}</div>}
               {z.touchHint && <div className="map-hint" aria-hidden="true">{t.fs2}</div>}
               {narrow && fs && <button type="button" className="mp-fsx" aria-label={t.mpFsExit} title={t.mpFsExit} onClick={toggleFs}>
@@ -1186,9 +1241,12 @@ export function MapsCompare({ dir0, sec0, onReady, an }: { dir0?: string; sec0?:
               setSheet(dy < -30 ? Math.min(2, sheet + 1) : dy > 30 ? Math.max(0, sheet - 1) : (sheet + 1) % 3);
             }}>
               {fs && <i className="grip" aria-hidden="true" />}
-              <b>{narrow && mv === "claims" ? t.mpList : narrow && mv === "cmp" ? t.secAreas : t.dsAdv}</b>
+              <b>{narrow && mv === "claims" ? t.mpList : narrow && mv === "cmp" ? t.secAreas : wkSrc === "all" ? t.wkAll : wkSrc === "ds" ? t.dsAdv : t.mpList}</b>
               <span>{narrow && mv === "claims" ? `${dayStr(end - per + 1)}–${dayStr(end)}` : narrow && mv === "cmp" ? "" : `${dayStr(wkEnd - 6)}–${dayStr(wkEnd)}`}</span>
             </div>
+            {!(narrow && (mv === "claims" || mv === "cmp")) && <div className="seg mp-wkl-src" role="group">
+              {(["all", "ds", "dg"] as const).map((k) => <button type="button" key={k} aria-pressed={wkSrc === k} onClick={() => { setWkSrc(k); setSel(null); }}>{{ all: t.stk.all, ds: "DeepState", dg: "DIVGEN" }[k]}</button>)}
+            </div>}
             {narrow && mv === "claims" ? (shown.length ? <ol>{shown.map((e) => (
               <li key={e.id + "" + e.d}><button type="button" aria-current={e === selOn || undefined} onClick={() => focusEv(e)}>
                 <MarkIco g={vgOf(e[ref])} />
@@ -1199,13 +1257,9 @@ export function MapsCompare({ dir0, sec0, onReady, an }: { dir0?: string; sec0?:
             : narrow && mv === "cmp" ? <ol>{areaTiles(M, t, F, mode, pair).map(([l, v, u]) => (
               <li key={l}><div className="mp-arow"><span>{flags(l)}</span><b>{v}</b><small>{u}</small></div></li>
             ))}</ol>
-            : wkL.length ? <ol>{wkL.map((e, i) => (
-              <li key={dsKey(e) + e.k}><button type="button" aria-current={(dsSel && dsKey(dsSel.xs[dsSel.i]) === dsKey(e)) || undefined} onClick={() => openDs(wkL, i)}>
-                {narrow && e.k !== "fix" ? <span className={"mp-nb n-" + e.k}>{nOf(e)}</span> : <DsIco k={e.k} />}
-                <span><span className="d">{dmy(e.d).slice(0, 5)}</span> {flags(hs(e.t))}
-                  {e.ru && <span className="v">{flags(t.mpCapRu(dmy(e.ru.d).slice(0, 5), hs(e.ru.t)))} <Lag n={e.ru.lag} t={t} /></span>}</span>
-              </button></li>
-            ))}</ol> : <p className="mp-note">{t.wkNone}</p>}
+            : wkSrc === "all" ? (wkAll.length ? <ol>{wkAll.map((x) => ("g" in x ? dsRow(x.g) : dgRow(x.e)))}</ol> : <p className="mp-note">{t.wkNone}</p>)
+            : wkSrc !== "ds" ? (wkDg.length ? <ol>{wkDg.map((e) => dgRow(e))}</ol> : <p className="mp-note">{t.clNone}</p>)
+            : wkL.length ? <ol>{wkG.map(dsRow)}</ol> : <p className="mp-note">{t.wkNone}</p>}
             {mv === "new" && dir && wk.length > wkL.length && <p className="mp-note">{t.moreElse(wk.length - wkL.length)} <button type="button" className="linkbtn" onClick={() => pickDir(null)}>{t.mpAllDir}</button></p>}
             {mv === "new" && OM && oSnap && !narrow && <p className="mp-note">{diffs.length ? t.chgCnt(diffs.filter((c) => c.ru).length, diffs.filter((c) => !c.ru).length, dmy(oSnap)) : t.chgNone(dmy(oSnap))}</p>}
             {mv === "new" && snaps.length > 1 && !narrow && <button type="button" className="mp-play" aria-pressed={play} onClick={togglePlay}>{play ? "❚❚ " + t.mpPause : "▶ " + t.mpPlay}</button>}
@@ -1229,6 +1283,7 @@ export function MapsCompare({ dir0, sec0, onReady, an }: { dir0?: string; sec0?:
             {mv !== "cmp" && lgAll && <div className="map-legend">{legend}</div>}
           </div>}
           {M && narrow && !fs && <div className="mp-chips" role="group" aria-label={t.mpDir}>
+            <label className="mp-chk mp-dirchk"><input type="checkbox" checked={sect} onChange={() => setSect(!sect)} /><span>{t.mpDirs}</span></label>
             {dName && <button type="button" aria-pressed="true" className="on" style={{ borderColor: dcol(DIRS.find((x) => x.id === dir)!) }} onClick={() => pickDir(null)}>
               <i style={{ background: dcol(DIRS.find((x) => x.id === dir)!) }} />{dName} <b>{mv === "claims" ? dirCnt[dir!] || 0 : gsOf(DIRS.find((x) => x.id === dir)!) ?? ""}</b> ×</button>}
             <button type="button" aria-pressed={!dir} onClick={() => pickDir(null)}>{t.mpAllDir}</button>
@@ -1392,7 +1447,7 @@ export function StrikesMap({ onReady, an }: { onReady?: () => void; an?: Analyti
   const conf = items.filter((x) => x.confirmed).length, objs = new Set(items.map((x) => x.object)).size;
   const places = byPlace(items);
   const farX = items.filter((x) => x.lng > FAR_LNG);
-  const dl = (x: { lat: number; lng: number }) => (S ? distLabel(S.base, x, lang) : "");
+  const dl = (x: { lat: number; lng: number }) => (S ? distLabel(S.base, x, lang, t) : "");
   const farthest = S ? items.reduce<{ x: Strike; d: number } | null>((a, x) => { const d = stkDist(S.base, x) ?? 0; return !a || d > a.d ? { x, d } : a; }, null) : null;
   const dirty = p !== "30" || st !== "all" || lc !== "all" || GRPS.some((g) => !grp[g]);
 
@@ -1530,6 +1585,7 @@ export function StrikesMap({ onReady, an }: { onReady?: () => void; an?: Analyti
                     );
                   })}</g>
                 </g>
+                {BASEMAPS[bm] && <Tiles256 id={bm} proj={geo.proj} t={z.t} W={W} H={H} labels />}
               </svg>
               <ZoomButtons z={z}><FsButton fs={fs} onClick={() => setFs(!fs)} /></ZoomButtons>
               {farX.length > 0 && !sel && !fs && <div className="stk-far"><span>{t.offMap}</span>{byPlace(farX).map(({ k: fk, xs }) => (
@@ -1556,7 +1612,7 @@ export function StrikesMap({ onReady, an }: { onReady?: () => void; an?: Analyti
               </div>}
               </div>
               <Attr bm={bm} />
-              <MapTip tip={tip} wrap={wrapRef} />
+              <MapTip tip={tip} setTip={setTip} wrap={wrapRef} />
               {z.hint && <div className="map-hint" aria-hidden="true">{TT.mWheel}</div>}
             </>}
           </div>
@@ -1758,6 +1814,7 @@ export function TargetsMap({ onReady }: { onReady?: () => void }) {
                     );
                   })}</g>
                 </g>
+                {BASEMAPS[bm] && <Tiles256 id={bm} proj={geo.proj} t={z.t} W={W} H={H} labels />}
               </svg>
               <ZoomButtons z={z}><FsButton fs={fs} onClick={() => setFs(!fs)} /></ZoomButtons>
               {X && (() => {
@@ -1782,7 +1839,7 @@ export function TargetsMap({ onReady }: { onReady?: () => void }) {
                 </div>;
               })()}
               <Attr bm={bm} />
-              <MapTip tip={tip} wrap={wrapRef} />
+              <MapTip tip={tip} setTip={setTip} wrap={wrapRef} />
               {z.hint && <div className="map-hint" aria-hidden="true">{TT.mWheel}</div>}
             </>}
           </div>
