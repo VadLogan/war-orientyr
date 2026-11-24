@@ -12567,6 +12567,69 @@
    "issue": "2026-11-22",
    "item": "ust-luga-2111",
    "url": "https://www.ukrinform.ua/rubric-ato/4187227-bitva-za-ukrainu-den-1732-v-ukraini-21-listopada-vidznacaut-den-gidnosti-ta-svobodi.html"
+  },
+  {
+   "id": "novoshakhtinsk-2311",
+   "date": "2026-11-23",
+   "night": "22–23.11",
+   "object": "Новошахтинський завод нафтопродуктів",
+   "place": "Новошахтинськ, Ростовська область",
+   "kind": "oil",
+   "territory": "russia",
+   "lat": 47.76,
+   "lng": 39.93,
+   "approx": true,
+   "result": "за Генштабом і СБУ — пошкоджено бітумну установку, колони АВТ-2,5, піч ребойлера, резервуарний парк і паливну інфраструктуру ТОВ «Тата-Газ», уражено РЕБ «Поле-21» і ЗРПК «Панцир»; губернатор Юрій Слюсар підтвердив, що завод призупинив роботу після понад шестигодинної атаки близько 80 дронів",
+   "confirmed": {
+    "by": "Генштаб ЗСУ, СБУ",
+    "when": "23.11 (Суспільне 15:26)"
+   },
+   "local": "confirms",
+   "issue": "2026-11-24",
+   "item": "novoshakhtinsk-2311",
+   "url": "https://suspilne.media/1456443-genstab-pidtverdiv-urazenna-novosahtinskogo-npz-u-rostovskij-oblasti-rf/"
+  },
+  {
+   "id": "perm-npz-2311",
+   "date": "2026-11-23",
+   "night": "22–23.11",
+   "object": "НПЗ «Лукойл-Пермнафтоорґсинтез»",
+   "place": "Перм, Пермський край",
+   "kind": "oil",
+   "territory": "russia",
+   "lat": 58.01,
+   "lng": 56.25,
+   "approx": true,
+   "result": "за Генштабом — пошкоджено установки АВТ-2, АВТ-5 та ізомеризації, без яких завод не може переробляти нафту; операцію проведено разом із рухом «Чорна іскра»; влада краю визнала удар по «промисловому підприємству» (пожежа, 1 загиблий, 2 поранених), НПЗ не назвавши",
+   "confirmed": {
+    "by": "Генштаб ЗСУ",
+    "when": "23.11 (Суспільне 15:26)"
+   },
+   "local": "partial",
+   "issue": "2026-11-24",
+   "item": "perm-npz-2311",
+   "url": "https://meduza.io/en/news/2026/11/23/ukrainian-drones-strike-two-russian-oil-refineries-and-pumping-station-in-overnight-attacks"
+  },
+  {
+   "id": "kaleikino-2311",
+   "date": "2026-11-23",
+   "night": "22–23.11",
+   "object": "Нафтоперекачувальна станція «Калейкіно»",
+   "place": "район Альметьєвська, Татарстан",
+   "kind": "oil",
+   "territory": "russia",
+   "lat": 54.9,
+   "lng": 52.3,
+   "approx": true,
+   "result": "за Генштабом — уражено чотири резервуари; другий удар по станції за тиждень (19.11 — три резервуари); влада Татарстану визнала пошкодження кількох об’єктів і ємностей з нафтопродуктами, постраждалих немає",
+   "confirmed": {
+    "by": "Генштаб ЗСУ",
+    "when": "23.11 (Суспільне 15:26)"
+   },
+   "local": "confirms",
+   "issue": "2026-11-24",
+   "item": "kaleikino-2311",
+   "url": null
   }
  ],
  "coverage": {
