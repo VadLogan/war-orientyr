@@ -12630,6 +12630,24 @@
    "issue": "2026-11-24",
    "item": "kaleikino-2311",
    "url": null
+  },
+  {
+   "id": "samara-npz-2511",
+   "date": "2026-11-25",
+   "night": "24–25.11",
+   "object": "НПЗ «Роснефти»: Сизранський і Куйбишевський",
+   "place": "Сизрань і Самара, Самарська область",
+   "kind": "oil",
+   "territory": "russia",
+   "lat": 53.16,
+   "lng": 48.47,
+   "approx": true,
+   "result": "за Укрінформом з посиланням на OSINT-аналіз Astra та відео місцевих жителів — після атаки дронів горять два НПЗ «Роснефти»: у Сизрані (≈8,5–8,9 млн т на рік) і Куйбишевський у Самарі (7 млн т); офіційного підтвердження немає, заяв влади в матеріалі немає",
+   "confirmed": null,
+   "local": "silent",
+   "issue": "2026-11-25",
+   "item": "samara-npz-2511",
+   "url": "https://www.ukrinform.ua/rubric-world/4188321-u-samarskij-oblasti-pisla-ataki-droniv-gorat-dva-npz-rosnefti-zmi.html"
   }
  ],
  "coverage": {
