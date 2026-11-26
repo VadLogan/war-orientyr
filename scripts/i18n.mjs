@@ -35,7 +35,7 @@ function dataFiles() {
   const walk = (d) => fs.readdirSync(d, { withFileTypes: true }).forEach((e) => {
     const p = path.join(d, e.name);
     if (e.isDirectory()) { if (p !== OUT && p !== path.join(PUB, "articles")) walk(p); } // articles carry their own .en.json
-    else if (e.name.endsWith(".json") && e.name !== "index.json") out.push(path.relative(PUB, p));
+    else if (e.name.endsWith(".json") && e.name !== "index.json" && p !== path.join(PUB, "maps/places.json")) out.push(path.relative(PUB, p)); // places: search index, not translated
   });
   walk(PUB);
   const rank = (f) => (f === "digest.json" ? "0" : f.startsWith("issues/") ? "1" + (9e9 - Date.parse(f.slice(7, 17))) : "2" + f);
