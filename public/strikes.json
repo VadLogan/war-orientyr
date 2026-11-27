@@ -12648,6 +12648,45 @@
    "issue": "2026-11-25",
    "item": "samara-npz-2511",
    "url": "https://www.ukrinform.ua/rubric-world/4188321-u-samarskij-oblasti-pisla-ataki-droniv-gorat-dva-npz-rosnefti-zmi.html"
+  },
+  {
+   "id": "subkhankulovo-2611",
+   "date": "2026-11-26",
+   "night": "25–26.11",
+   "object": "Виробничо-диспетчерська станція «Субханкулово» («Транснефть»)",
+   "place": "район Туймази, Башкортостан",
+   "kind": "oil",
+   "territory": "russia",
+   "lat": 54.6,
+   "lng": 53.7,
+   "approx": true,
+   "result": "за Генштабом — влучання в резервуар і пожежа на території; станція обробляє до 90 млн т вуглеводнів на рік і розташована приблизно за 1 200 км від фронту (LB.ua); голова Туймазинського району визнав пожежу на промзоні від уламків збитих дронів, об’єкт не назвав, постраждалих немає",
+   "confirmed": {
+    "by": "Генштаб ЗСУ",
+    "when": "26.11 (Telegram; через Еспресо 13:48)"
+   },
+   "local": "partial",
+   "issue": "2026-11-27",
+   "item": "subkhankulovo-2611",
+   "url": "https://espreso.tv/viyna-z-rosiyeyu-sili-oboroni-urazili-aerodrom-ta-naftovu-stantsiyu-rf-za-1000-km-vid-derzhkordonu"
+  },
+  {
+   "id": "nevinnomyssk-2611",
+   "date": "2026-11-26",
+   "night": "25–26.11",
+   "object": "«Невинномиський Азот» і Невинномиська ГРЕС",
+   "place": "Невинномиськ, Ставропольський край",
+   "kind": "defence-industry",
+   "territory": "russia",
+   "lat": 44.633,
+   "lng": 41.933,
+   "approx": true,
+   "result": "за Kyiv Independent та іншими медіа — дрони атакували хімзавод і сусідню ГРЕС; офіційного підтвердження немає; губернатор визнав 88 дронів, 12 досягли цілей, пошкодження школи, вишу, будинків і поруч із промисловими та енергетичними об’єктами, двоє потерпілих",
+   "confirmed": null,
+   "local": "partial",
+   "issue": "2026-11-27",
+   "item": "nevinnomyssk-2611",
+   "url": "https://stavropol.media/news/2694611/"
   }
  ],
  "coverage": {
