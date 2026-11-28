@@ -48,7 +48,8 @@ export default function LineChart<R extends { date: string }>(c: Props<R>) {
     let left = px * scale + 12;
     if (left + tw > plot.clientWidth) left = px * scale - tw - 12;
     tip.style.left = Math.max(0, left) + "px";
-    tip.style.top = m.t * scale + "px";
+    // keep the tip inside the plot: a tip hanging below it grows the scroll area, the scrollbar appears and the panel reflows
+    tip.style.top = Math.max(0, Math.min(m.t * scale, plot.clientHeight - tip.offsetHeight)) + "px";
   });
 
   if (c.table) {

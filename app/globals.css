@@ -200,6 +200,9 @@ footer.foot{font-style:italic;color:var(--muted);font-size:14.5px;border-top:1px
 .tile small{font-family:var(--ui);font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .tile b{font-family:var(--mono);font-weight:500;font-size:34px;line-height:1.1;font-variant-numeric:tabular-nums}
 .tile b sub{font-size:15px;color:var(--muted);vertical-align:baseline;margin-left:4px}
+/* losses tiles: a 7-digit total stays on one line, shrinking with the tile instead of wrapping */
+.ls-tiles .tile{container-type:inline-size}
+.ls-tiles .tile b{white-space:nowrap;font-size:min(34px,17cqi)}
 .tile span{font-family:var(--ui);font-size:13px;color:var(--muted);line-height:1.35}
 .grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px}
 @media(max-width:860px){.grid2{grid-template-columns:1fr}}
@@ -658,7 +661,7 @@ svg.mk{flex:none;overflow:visible;vertical-align:-2px}
 .ctip .r span{color:var(--muted)}
 .ctip .r.x{margin-top:3px;padding-top:4px;border-top:1px solid var(--rule)}
 .ctip .r.x b{margin-left:16px}
-.ctip .s{color:var(--muted);font-size:12px;margin-top:5px}
+.ctip .s{color:var(--muted);font-size:12px;margin-top:5px;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:6;overflow:hidden}
 .tl-empty{font-family:var(--ui);font-size:14px;color:var(--muted);background:var(--bg);padding:10px 12px;margin:0}
 .tl-table{overflow-x:auto}
 .tl-table table{border-collapse:collapse;width:100%;font-family:var(--ui);font-size:13.5px}
@@ -1303,7 +1306,7 @@ dialog.ps::backdrop{background:rgba(21,27,31,.45)}
 .ps-x{flex:none;width:44px;height:44px;display:flex;align-items:center;justify-content:center;background:none;border:0;color:var(--ink);cursor:pointer}
 .ps-x svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
 .ps-grip{display:none}
-.ps-body{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:16px;display:flex;flex-direction:column;gap:16px}
+.ps-body{flex:1;min-height:0;overflow-y:auto;scrollbar-gutter:stable;overscroll-behavior:contain;padding:16px;display:flex;flex-direction:column;gap:16px}
 @media(max-width:600px){
   dialog.ps{inset:auto 0 0 0;width:100vw;height:92dvh;border-left:0;border-radius:16px 16px 0 0;box-shadow:0 -8px 28px rgba(0,0,0,.22)}
   .ps-bar{position:relative;padding-top:14px;border-radius:16px 16px 0 0}

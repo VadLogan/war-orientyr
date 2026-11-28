@@ -12687,6 +12687,27 @@
    "issue": "2026-11-27",
    "item": "nevinnomyssk-2611",
    "url": "https://stavropol.media/news/2694611/"
+  },
+  {
+   "id": "yefremov-2711",
+   "date": "2026-11-27",
+   "night": "26–27.11",
+   "object": "Єфремовський завод синтетичного каучуку",
+   "place": "Єфремов, Тульська область",
+   "kind": "defence-industry",
+   "territory": "russia",
+   "lat": 53.15,
+   "lng": 38.1,
+   "approx": true,
+   "result": "за Генштабом — уражено підприємство, задіяне у виробництві компонентів пластичних вибухових речовин і твердого ракетного палива, зокрема для «Іскандерів»; масштаби збитків уточнюються; губернатор Дмитро Мілєєв визнав чотири збиті дрони й вибиті вікна в трьох приватних будинках, завод не назвав",
+   "confirmed": {
+    "by": "Генштаб ЗСУ",
+    "when": "27.11 (через Укрінформ 17:07)"
+   },
+   "local": "partial",
+   "issue": "2026-11-28",
+   "item": "yefremov-2711",
+   "url": "https://www.ukrinform.ua/rubric-ato/4189355-genstab-pidtverdiv-urazenna-v-tulskij-oblasti-zavodu-zadianogo-u-virobnictvi-paliva-dla-iskanderiv.html"
   }
  ],
  "coverage": {
